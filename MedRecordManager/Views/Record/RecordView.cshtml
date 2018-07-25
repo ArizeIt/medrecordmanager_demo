@@ -1,0 +1,157 @@
+@model MedRecordManager.Models.SearchInputs
+@{
+    ViewData["Title"] = "Record Manager - Daily Review";
+}
+
+@section scripts{
+    <script type="text/javascript">
+
+        //var editor = new $.fn.dataTable.Editor({
+        //    ajax: "",
+        //    table: "#visitTable",
+        //    fields: [
+        //        { label: 'Pv Clinic', name: 'PvClinic' }
+        //    ]
+        //});
+        
+
+        $(function () {
+            $('.datepicker').datetimepicker();
+        });
+
+        var results = $("#Results");
+
+        var onBegin = function () {
+            results.html("<img src=\"/images/8.gif\" alt=\"Loading\" />");
+        };
+
+        var onComplete = function () {
+            var type = $('#searchType').val();
+            if (type == 'Daily') {
+                $('#visitTable').DataTable({
+                    "serverSide": true,
+                    //"processing": true,
+                    "ajax": {
+                        "url": "/Record/loadDaily",
+                        "type": "POST",
+                        "data": $('#frmSearch').serializeArray()
+                    },
+                    "columns": [
+                        { "data": "PatientName" },
+                        { "data": "PvClinic" },
+                        { "data": "PVinClass" },
+                        { "data": "PD" },
+                        { "data": "ChiefDiag" },
+                        { "data": "Codes" },
+                        { "data": "OfficeKey" },
+                        { "data": "VisitDate" },
+                        { "data": "Details" }
+                    ],
+                    select: true,
+                    //buttons: [
+                    //    { extend: "edit", editor: editor }
+                    //    ]
+
+                })
+            }
+
+            else if (type == 'Callback') {
+                $('#visitTable').DataTable({
+                    "serverSide": true,
+                    //"processing": true,
+                    "ajax": {
+                        "url": "/Record/loadCallback",
+                        "type": "POST",
+                        "data": $('#frmSearch').serializeArray()
+                    },
+                    "columns": [
+                        { "data": "PatientName" },
+                        { "data": "PvClinic" },
+                        { "data": "VisitDate" },
+                        { "data": "PvId" },
+                        { "data": "PvPhone" },
+                        { "data": "PvPhoneType" },
+                        { "data": "CellPhone" },
+                    ],
+
+                    //buttons: [
+                    //    { extend: "edit", editor: editor }
+                    //    ]
+
+                })
+
+            }
+
+        };
+
+        var onFailed = function (context) {
+            alert("Operation Failed");
+        };
+
+    </script>
+
+}
+
+
+@if (Model.Type == "Daily")
+{
+    <h2>Daily Review</h2>
+}
+else
+{
+    <h2>Call Back</h2>
+}
+<form asp-controller="Record" , asp-action="Search" id="frmSearch" data-ajax-begin="onBegin" data-ajax-complete="onComplete" data-ajax-mode="replace" data-ajax-update="#Results"
+      data-ajax-failure="onFailed" data-ajax="true" data-ajax-method="POST">
+    <input type="hidden" asp-for="Type" id="searchType" />
+    <div class="row">
+        <div class="col-sm-2">
+            <div class="form-group">
+                <select class="form-control" asp-for="OfficeKey" , asp-items="@Model.OfficeKeys" id="officeKey" multiple></select>
+            </div>
+        </div>
+
+        <div class="col-sm-3">
+            <div class="form-group">
+                <div class="input-group date datepicker">
+                    <input class="form-control date" asp-for="StartDate" id="startDate" />
+                    <span class="input-group-addon">
+                        <span class="glyphicon glyphicon-calendar"></span>
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-sm-3">
+            <div class="form-group">
+                <div class='input-group date datepicker'>
+                    <input class="form-control date" asp-for="EndDate" id='EndDate' />
+                    <span class="input-group-addon">
+                        <span class="glyphicon glyphicon-calendar"></span>
+                    </span>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-1">
+            <input type="submit" value="Search" class="btn btn-primary" id="searchButton" />
+        </div>
+    </div>
+
+    @if (Model.Type == "Callback")
+    {
+        <div class="row">
+            <div class="col-sm-2">
+                <div class="form-group">
+                    <select class="form-control" asp-for="Clinic" , asp-items="@Model.Clinics" id="officeKey" multiple></select>
+                </div>
+            </div>
+        </div>
+
+    }
+</form>
+<p></p>
+<div class="row">
+    <div class="col-lg-10">
+        <div id="Results"></div>
+    </div>
+</div>
