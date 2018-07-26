@@ -1,9 +1,11 @@
 using System;
 using System.Collections.Generic;
-
+using System.Linq;
 using MedRecordManager.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using UgentCareDate;
+using UgentCareDate.Models;
 
 namespace MedRecordManager.Controllers
 {
@@ -59,7 +61,12 @@ namespace MedRecordManager.Controllers
         [HttpPost]
         public IActionResult LoadDaily(SearchInputs vm)
         {
-            var resultVm = new List<Dictionary<string, object>>()
+            using (var db = new UrgentCareContext())
+            {
+                var records = db.Set<Visit>().ToList();/*Where(x => x.ClinicId == vm.Clinic && x.TimeIn >= vm.StartDate && x.TimeIn <= vm.EndDate);*/
+            }
+
+                var resultVm = new List<Dictionary<string, object>>()
             {
                 new Dictionary<string, object>()
                     {

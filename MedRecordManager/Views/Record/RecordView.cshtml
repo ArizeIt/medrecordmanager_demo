@@ -5,15 +5,22 @@
 
 @section scripts{
     <script type="text/javascript">
+        var editor
 
-        //var editor = new $.fn.dataTable.Editor({
-        //    ajax: "",
-        //    table: "#visitTable",
-        //    fields: [
-        //        { label: 'Pv Clinic', name: 'PvClinic' }
-        //    ]
-        //});
-        
+        $(document).ready(function () {
+            editor = new $.fn.dataTable.Editor({
+                ajax: "",
+                table: "#visitTable",
+                fields: [
+                    { label: 'Pv Clinic', name: 'PvClinic' }
+                ]
+            });
+
+            $('#visitTable').on('click', 'tbody td:not(:first-child)', function (e) {
+                editor.inline(this);
+             })
+        });
+                
 
         $(function () {
             $('.datepicker').datetimepicker();
@@ -48,9 +55,9 @@
                         { "data": "Details" }
                     ],
                     select: true,
-                    //buttons: [
-                    //    { extend: "edit", editor: editor }
-                    //    ]
+                    buttons: [
+                        { extend: "edit", editor: editor }
+                        ]
 
                 })
             }
