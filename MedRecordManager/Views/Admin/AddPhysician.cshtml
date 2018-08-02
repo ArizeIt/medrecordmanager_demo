@@ -1,0 +1,34 @@
+﻿@model MedRecordManager.Models.PhsycianRecord.PhysicianVm
+
+<h4>PhysicianVm</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="MappedPhysician">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="pvPysicianId" class="control-label"></label>
+                <input asp-for="pvPysicianId" class="form-control" />
+                <span asp-validation-for="pvPysicianId" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="pvFirstName" class="control-label"></label>
+                <input asp-for="pvFirstName" class="form-control" />
+                <span asp-validation-for="pvFirstName" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="pvLastName" class="control-label"></label>
+                <input asp-for="pvLastName" class="form-control" />
+                <span asp-validation-for="pvLastName" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Create" class="btn btn-default" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+

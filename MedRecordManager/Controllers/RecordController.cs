@@ -25,7 +25,7 @@ namespace MedRecordManager.Controllers
              OfficeKeys =  new List<SelectListItem> {
                 new SelectListItem{Selected = false, Text="123456",Value="123456"},
                 new SelectListItem{Selected = false, Text="3233456",Value="3233456"}
-            }
+                }
         };
 
             return View("RecordView", vm);
@@ -70,21 +70,6 @@ namespace MedRecordManager.Controllers
                 }
             };
             var total = records.Count();
-            //if(startDate> DateTime.MinValue)
-            //{
-            //    var query = _urgentCareContext.Set<Visit>().Where(x => x.TimeIn > startDate).ToList();
-            //    if(query.Count == 0)
-            //    {
-            //        var result = new Visit
-            //        {
-            //            PvPaitent = new PatientInformation
-            //            {
-
-            //            }
-            //        };
-            //    }
-               
-            //}
 
             return Json(new { records, total });          
                 

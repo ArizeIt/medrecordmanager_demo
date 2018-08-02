@@ -8,8 +8,11 @@ namespace MedRecordManager.Models
 {
     public class SearchInputs
     {
+        [Display(Name = "Office Key")]
         public int OfficeKey { get; set; }
         public IEnumerable<SelectListItem> OfficeKeys { get; set; }
+
+        [Display(Name = "Clinic Name")]
         public string Clinic { get; set; }
         public IEnumerable<SelectListItem> Clinics { get; set; }
 

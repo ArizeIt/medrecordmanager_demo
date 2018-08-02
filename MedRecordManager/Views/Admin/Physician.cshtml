@@ -1,0 +1,42 @@
+﻿@model MedRecordManager.Models.SearchInputs
+@{
+    ViewData["Title"] = "Set Up Physican";
+}
+
+@section scripts{ 
+    <script type="text/javascript">
+        $(document).ready(function(){
+            
+            $('#ddlOfficeKey').change(function(){
+                alert($('#ddlOfficeKey').val());
+                $.ajax({
+                    url:'/admin/getMapedPh',
+                    type:'get',
+                    data: { officeKey:$('#ddlOfficeKey').val() }
+                }).done(function(response){
+                    $('#results').html(response);
+                });
+            });
+        });
+        
+    </script>
+
+}
+<h2>Physican</h2>
+
+<div class="row">
+    <div class="col-sm-2">
+        <div class="form-group">
+            <label asp-for="OfficeKey" class="control-label"></label>
+            <select class="form-control" asp-for="OfficeKey" , asp-items="@Model.OfficeKeys" id="ddlOfficeKey"></select>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-10">
+        <div id="results">
+        </div>
+    </div>
+</div>
+
