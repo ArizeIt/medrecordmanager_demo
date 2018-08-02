@@ -11,6 +11,12 @@ namespace MedRecordManager.Controllers
 {
     public class RecordController : Controller
     {
+        private readonly UrgentCareContext _urgentCareContext;
+
+        public RecordController(UrgentCareContext urgentData)
+        {
+             _urgentCareContext = urgentData;
+        }
         public IActionResult Review()
         {
             
@@ -58,38 +64,28 @@ namespace MedRecordManager.Controllers
             return null;
         }
 
-        [HttpPost]
-        public IActionResult LoadDaily(SearchInputs vm)
+        
+        public IActionResult LoadDaily(int? page, int? limit, string sortBy, string direction, string office, DateTime startDate, DateTime endDate)
         {
-            using (var db = new UrgentCareContext())
+            if(startDate> DateTime.MinValue)
             {
-                var records = db.Set<Visit>().ToList();/*Where(x => x.ClinicId == vm.Clinic && x.TimeIn >= vm.StartDate && x.TimeIn <= vm.EndDate);*/
+                var query = _urgentCareContext.Set<Visit>().Where(x => x.TimeIn > startDate).ToList();
+                if(query.Count == 0)
+                {
+                    var result = new Visit
+                    {
+                        PvPaitent = new PatientInformation
+                        {
+
+                        }
+                    };
+                    return Json(new { })
+                }
+                return Json(new { query, query.Count });
             }
 
-                var resultVm = new List<Dictionary<string, object>>()
-            {
-                new Dictionary<string, object>()
-                    {
-                        {"PatientName", "test"},
-                        {"PvClinic","tEST" },
-                        {"PVinClass", 20},
-                        {"PD", 19745 },
-                        {"ChiefDiag","1845" },
-                        {"Codes", 19877},
-                        {"OfficeKey", 2154846 },
-                        {"VisitDate",DateTime.Now.ToShortDateString() },
-                        {"Details" ,"SOME DATAILS"}
-                    }
-            };
-
-
-            var datavm = new DataTableResponse
-            {
-                data = resultVm,
-                recordsTotal = 1,
-                draw = 1
-            };
-            return Json(datavm);
+            return null;          
+                
         }
 
         [HttpPost]
