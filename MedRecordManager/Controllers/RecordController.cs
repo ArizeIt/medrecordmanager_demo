@@ -51,75 +51,68 @@ namespace MedRecordManager.Controllers
             return View("RecordView", vm);
         }
 
-        [HttpPost]
-        public IActionResult Search(SearchInputs vm)
-        {  if(vm.Type == "Daily")
-            {
-                return PartialView("_visitRecords");
-            }
-          if (vm.Type =="Callback")
-            {
-                return PartialView("_CallbackRecordView");
-            }
-            return null;
-        }
+       
 
-        
         public IActionResult LoadDaily(int? page, int? limit, string sortBy, string direction, string office, DateTime startDate, DateTime endDate)
         {
-            if(startDate> DateTime.MinValue)
+            var records = new List<VisitRecordVm>()
             {
-                var query = _urgentCareContext.Set<Visit>().Where(x => x.TimeIn > startDate).ToList();
-                if(query.Count == 0)
+                new VisitRecordVm()
                 {
-                    var result = new Visit
-                    {
-                        PvPaitent = new PatientInformation
-                        {
-
-                        }
-                    };
-                    return Json(new { })
+                    PatientName = "Test Patient",
+                    ClinicName = "USHyw287",
+                    DiagCode = "20",
+                    OfficeKey = "1231456",
+                    PatientId = 123456,
+                    PVFinClass = "BS",
+                    PvRecordId = 1346464,
+                    VisitTime = DateTime.Now
                 }
-                return Json(new { query, query.Count });
-            }
+            };
+            var total = records.Count();
+            //if(startDate> DateTime.MinValue)
+            //{
+            //    var query = _urgentCareContext.Set<Visit>().Where(x => x.TimeIn > startDate).ToList();
+            //    if(query.Count == 0)
+            //    {
+            //        var result = new Visit
+            //        {
+            //            PvPaitent = new PatientInformation
+            //            {
 
-            return null;          
+            //            }
+            //        };
+            //    }
+               
+            //}
+
+            return Json(new { records, total });          
                 
         }
 
-        [HttpPost]
-        public IActionResult LoadCallback(SearchInputs vm)
+  
+        public IActionResult LoadCallback(int? page, int? limit, string sortBy, string direction, string office, DateTime startDate, DateTime endDate)
         {
-            var resultVm = new List<Dictionary<string, object>>()
+            var records = new List<PatientVisitVM>
             {
-                new Dictionary<string, object>()
-                    {
-                        {"PatientName", "test Patient"},
-                        {"PvClinic","TEST1" },
-                        {"VisitDate", DateTime.Now.ToShortDateString()},
-                        {"PvId", 20 },
-                        {"PvPhone","123-456-7891" },
-                        {"PvPhoneType", "Cell"},
-                        {"CellPhone", "123-456-7890" },
-                    }
+               new PatientVisitVM()
+               {
+                   PatientName = "Test",
+                   PvClinic = "USHYW287",
+                   VisitDate = DateTime.Now.ToShortDateString(),
+                   PvId = "123456", 
+                   PvPhone = "21345779797",
+                   PvPhoneType = "Home", 
+                   CellPhone = "123454646"
+               }
             };
 
 
-            var datavm = new DataTableResponse
-            {
-                data = resultVm,
-                recordsTotal = 1,
-                draw = 1
-            };
-            return Json(datavm);
+            return Json(new { records, records.Count });
         }
 
 
-    }
 
-    internal class DtResponse
-    {
-        public List<Dictionary<string, object>> data { get; set; }
+
     }
 }

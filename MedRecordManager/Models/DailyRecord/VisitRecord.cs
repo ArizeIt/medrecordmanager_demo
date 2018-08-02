@@ -24,11 +24,20 @@ namespace MedRecordManager.Models
         public int PvRecordId {get;set;}
     }
 
-    public class DataTableVm
+    public class PatientVisitVM
     {
-        public IEnumerable<VisitRecordVm> Data { get; set; }
+        public string PatientName { get; set; }
 
-        public int RecordTotal { get; set; }
+        public string PvClinic { get; set; }
 
+        public string VisitDate { get; set; }
+
+        public string PvId { get; set; }
+
+        public string PvPhone { get; set; }
+
+        public string PvPhoneType { get; set; }
+
+        public string CellPhone { get; set; }
     }
 }
