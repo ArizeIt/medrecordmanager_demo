@@ -6,17 +6,16 @@
 @section scripts{
     <script type="text/javascript">
 
-        //var editor = new $.fn.dataTable.Editor({
-        //    ajax: "",
-        //    table: "#visitTable",
-        //    fields: [
-        //        { label: 'Pv Clinic', name: 'PvClinic' }
-        //    ]
-        //});
-        
+        $(document).ready(function() {
+           
+        });
 
-        $(function () {
-            $('.datepicker').datetimepicker();
+        $('#startDate').datepicker({
+            uiLibrary: 'bootstrap'
+        });
+
+        $('#endDate').datepicker({
+            uiLibrary: 'bootstrap'
         });
 
         var results = $("#Results");
@@ -27,58 +26,32 @@
 
         var onComplete = function () {
             var type = $('#searchType').val();
+            var dailyGrid;
             if (type == 'Daily') {
-                $('#visitTable').DataTable({
-                    "serverSide": true,
-                    //"processing": true,
-                    "ajax": {
-                        "url": "/Record/loadDaily",
-                        "type": "POST",
-                        "data": $('#frmSearch').serializeArray()
-                    },
-                    "columns": [
-                        { "data": "PatientName" },
-                        { "data": "PvClinic" },
-                        { "data": "PVinClass" },
-                        { "data": "PD" },
-                        { "data": "ChiefDiag" },
-                        { "data": "Codes" },
-                        { "data": "OfficeKey" },
-                        { "data": "VisitDate" },
-                        { "data": "Details" }
+               dailyGrid = $('#visitTable').grid({
+                    dataSource: '/Record/LoadDaily',
+                    data: {office:'123'},
+                    uiLibrary: 'bootstrap',
+                    columns: [
+                        { field: 'PatientName'},
+                        { field: 'PvClinic', sortable: true },
+                        { field:"PVinClass"},
+                        { field:"PD"},
+                        { field:"ChiefDiag", },
+                        { field:"Codes"},
+                        { field:"OfficeKey"},
+                        { field:"VisitDate"},
+                        { field:"Details" }
+                       
                     ],
-                    select: true,
-                    //buttons: [
-                    //    { extend: "edit", editor: editor }
-                    //    ]
-
-                })
+                pager: { limit: 5, sizes: [2, 5, 10, 20] }
+               });
+            
+              dailyGrid.reload({office:$('#officeKey').val(), startDate : $('#startDate').val() , endDate:  $('#endDate').val() });
             }
 
             else if (type == 'Callback') {
-                $('#visitTable').DataTable({
-                    "serverSide": true,
-                    //"processing": true,
-                    "ajax": {
-                        "url": "/Record/loadCallback",
-                        "type": "POST",
-                        "data": $('#frmSearch').serializeArray()
-                    },
-                    "columns": [
-                        { "data": "PatientName" },
-                        { "data": "PvClinic" },
-                        { "data": "VisitDate" },
-                        { "data": "PvId" },
-                        { "data": "PvPhone" },
-                        { "data": "PvPhoneType" },
-                        { "data": "CellPhone" },
-                    ],
-
-                    //buttons: [
-                    //    { extend: "edit", editor: editor }
-                    //    ]
-
-                })
+               
 
             }
 
@@ -113,23 +86,25 @@ else
 
         <div class="col-sm-3">
             <div class="form-group">
-                <div class="input-group date datepicker">
-                    <input class="form-control date" asp-for="StartDate" id="startDate" />
-                    <span class="input-group-addon">
-                        <span class="glyphicon glyphicon-calendar"></span>
-                    </span>
-                </div>
+                @*<div class="input-group date datepicker">
+            <input class="form-control date" asp-for="StartDate" id="startDate" />
+            <span class="input-group-addon">
+                <span class="glyphicon glyphicon-calendar"></span>
+            </span>
+        </div>*@
+                <input class="form-control date"  id="startDate" />
             </div>
         </div>
 
         <div class="col-sm-3">
             <div class="form-group">
-                <div class='input-group date datepicker'>
-                    <input class="form-control date" asp-for="EndDate" id='EndDate' />
-                    <span class="input-group-addon">
-                        <span class="glyphicon glyphicon-calendar"></span>
-                    </span>
-                </div>
+                @*<div class='input-group date datepicker'>
+            <input class="form-control date" asp-for="EndDate" id='EndDate' />
+            <span class="input-group-addon">
+                <span class="glyphicon glyphicon-calendar"></span>
+            </span>
+        </div>*@
+                <input class="form-control date"  id="endDate" />
             </div>
         </div>
         <div class="col-md-1">

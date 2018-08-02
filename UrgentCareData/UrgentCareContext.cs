@@ -5,10 +5,7 @@ namespace UgentCareDate
 {
     public partial class UrgentCareContext : DbContext
     {
-        public UrgentCareContext()
-        {
-        }
-
+       
         public UrgentCareContext(DbContextOptions<UrgentCareContext> options)
             : base(options)
         {

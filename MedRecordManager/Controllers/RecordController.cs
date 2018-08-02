@@ -1,14 +1,22 @@
 using System;
 using System.Collections.Generic;
-
+using System.Linq;
 using MedRecordManager.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using UgentCareDate;
+using UgentCareDate.Models;
 
 namespace MedRecordManager.Controllers
 {
     public class RecordController : Controller
     {
+        private readonly UrgentCareContext _urgentCareContext;
+
+        public RecordController(UrgentCareContext urgentData)
+        {
+             _urgentCareContext = urgentData;
+        }
         public IActionResult Review()
         {
             
@@ -56,33 +64,28 @@ namespace MedRecordManager.Controllers
             return null;
         }
 
-        [HttpPost]
-        public IActionResult LoadDaily(SearchInputs vm)
+        
+        public IActionResult LoadDaily(int? page, int? limit, string sortBy, string direction, string office, DateTime startDate, DateTime endDate)
         {
-            var resultVm = new List<Dictionary<string, object>>()
+            if(startDate> DateTime.MinValue)
             {
-                new Dictionary<string, object>()
+                var query = _urgentCareContext.Set<Visit>().Where(x => x.TimeIn > startDate).ToList();
+                if(query.Count == 0)
+                {
+                    var result = new Visit
                     {
-                        {"PatientName", "test"},
-                        {"PvClinic","tEST" },
-                        {"PVinClass", 20},
-                        {"PD", 19745 },
-                        {"ChiefDiag","1845" },
-                        {"Codes", 19877},
-                        {"OfficeKey", 2154846 },
-                        {"VisitDate",DateTime.Now.ToShortDateString() },
-                        {"Details" ,"SOME DATAILS"}
-                    }
-            };
+                        PvPaitent = new PatientInformation
+                        {
 
+                        }
+                    };
+                    return Json(new { })
+                }
+                return Json(new { query, query.Count });
+            }
 
-            var datavm = new DataTableResponse
-            {
-                data = resultVm,
-                recordsTotal = 1,
-                draw = 1
-            };
-            return Json(datavm);
+            return null;          
+                
         }
 
         [HttpPost]

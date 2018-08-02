@@ -3,17 +3,16 @@
   "private": true,
   "dependencies": {
     "bootstrap": "3.3.7",
-    "jquery": "2.2.0",
-    "jquery-validation": "1.14.0",
+    "jquery": "3.3.1",
+    "jquery-validation": "1.17.0",
     "jquery-validation-unobtrusive": "v3.2.10",
     "jquery-ajax-unobtrusive": "v3.2.5",
-    "datatables": "DataTables#1.10.19",
-    "datatables-tabletools": "2.2.4",
     "moment": "2.22.2",
-    "eonasdan-bootstrap-datetimepicker": "4.17.47",
-    "datatables-buttons": "1.5.3"
+    "gijgo": "v1.9.10"
   },
   "resolutions": {
-    "jquery-validation-unobtrusive": "v3.2.10"
+    "jquery-validation-unobtrusive": "v3.2.10",
+    "jquery": "1.9.1 - 3",
+    "jquery-validation": "1.17.0"
   }
 }
