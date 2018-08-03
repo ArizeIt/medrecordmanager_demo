@@ -1,51 +1,59 @@
 ﻿<!DOCTYPE html>
 <html>
 <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - MedRecordManager</title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>
+        @if (!string.IsNullOrWhiteSpace(ViewBag.Title))
+        {
+            @ViewBag.Title@: -
+        }
+        MedRecordManager
+    </title>
+    <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
+    <!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
+    <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
 
     <environment names="Development">
         <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.css" />
-        <link rel="stylesheet" href="~/css/site.css" />
+        @*<link rel="stylesheet" href="~/css/site.css" />*@
+        <link rel="stylesheet" href="~/css/AdminLTE.css" />
+        <link rel="stylesheet" href="~/css/skins/skin-blue.css" />
         <link rel="stylesheet" href="~/lib/gijgo/dist/combined/css/gijgo.css" />
+        <link rel="stylesheet" href="~/css/font-awesome.min.css" />
     </environment>
     <environment names="Staging,Production">
         <link rel="stylesheet" href="https://ajax.aspnetcdn.com/ajax/bootstrap/3.3.7/css/bootstrap.min.css"
               asp-fallback-href="~/lib/bootstrap/dist/css/bootstrap.min.css"
               asp-fallback-test-class="sr-only" asp-fallback-test-property="position" asp-fallback-test-value="absolute" />
-        <link rel="stylesheet" href="~/css/site.min.css" asp-append-version="true" />
+        @*<link rel="stylesheet" href="~/css/site.min.css" asp-append-version="true" />*@
+        <link rel="stylesheet" href="~/css/skins/skin-blue.min.css" />
         <link rel="stylesheet" href="~/lib/gijgo/dist/combined/css/gijgo.min.css" />
+        <link rel="stylesheet" href="~/css/font-awesome.min.css" />
     </environment>
+
 </head>
-<body>
-    <nav class="navbar navbar-inverse navbar-fixed-top">
-        <div class="container">
-            <div class="navbar-header">
-                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
-                    <span class="sr-only">Toggle navigation</span>
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                </button>
-                <a asp-area="" asp-controller="Home" asp-action="Index" class="navbar-brand">MedRecordManager</a>
-            </div>
-            <div class="navbar-collapse collapse">
-                <ul class="nav navbar-nav">
-                    <li><a asp-area="" asp-controller="Home" asp-action="Index">Home</a></li>
-                    <li><a asp-area="" asp-controller="Home" asp-action="About">About</a></li>
-                    <li><a asp-area="" asp-controller="Home" asp-action="Contact">Contact</a></li>
-                </ul>
-                @await Html.PartialAsync("_LoginPartial")
-            </div>
+<body class="hold-transition skin-blue sidebar-mini">
+    <div class="wrapper">
+        <Partial name="_Header" />
+        <Partial name="_Sidebar" />
+
+        <div class="content-wrapper">
+            <section class="content-header">
+                <h1>
+                    @ViewBag.Title
+                    <small>@ViewBag.Description</small>
+                </h1>
+            </section>
+
+            <section class="content">
+                @RenderBody()
+            </section>
         </div>
-    </nav>
-    <div class="container body-content">
-        @RenderBody()
-        <hr />
-        <footer>
-            <p>&copy; 2018 - MedRecordManager</p>
-        </footer>
+
+        <Partial name="_ControlSidebar" />
     </div>
 
     <environment names="Development">
@@ -54,10 +62,12 @@
         <script src="~/lib/moment/moment.js"></script>
         <script src="~/lib/jquery-validation/dist/jquery.validate.js"></script>
         <script src="~/lib/jquery-validation/dist/additional-methods.js"></script>
-        @*<script src="~/lib/jquery-ajax-unobtrusive/dist/jquery.unobtrusive-ajax.js"></script>
-        <script src="~/lib/jquery-validation-unobtrusive/dist/jquery.validate.unobtrusive.js"></script>*@
+        <script src="~/lib/jquery-ajax-unobtrusive/dist/jquery.unobtrusive-ajax.js"></script>
+        <script src="~/lib/jquery-validation-unobtrusive/dist/jquery.validate.unobtrusive.js"></script>
         <script src="~/lib/gijgo/dist/combined/js/gijgo.js"></script>
-        <script src="~/js/site.js" asp-append-version="true"></script>
+        @*<script src="~/js/init.js"></script>*@
+        <script src="~/js/adminlte.js"></script>
+        @*<script src="~/js/site.js" asp-append-version="true"></script>*@
     </environment>
     <environment names="Staging,Production">
         <script src="https://ajax.aspnetcdn.com/ajax/jquery/jquery-2.2.0.min.js"
@@ -75,10 +85,12 @@
         <script src="~/lib/moment/min/moment.min.js"></script>
         <script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
         <script src="~/lib/jquery-validation/dist/additional-methods.min.js"></script>
-        @*<script src="~/lib/jquery-ajax-unobtrusive/dist/jquery.unobtrusive-ajax.min.js"></script>
-        <script src="~/lib/jquery-validation-unobtrusive/dist/jquery.validate.unobtrusive.min.js"></script>*@
+        <script src="~/lib/jquery-ajax-unobtrusive/dist/jquery.unobtrusive-ajax.min.js"></script>
+        <script src="~/lib/jquery-validation-unobtrusive/dist/jquery.validate.unobtrusive.min.js"></script>
         <script src="~/lib/gijgo/dist/combined/js/gijgo.min.js"></script>
-        <script src="~/js/site.min.js" asp-append-version="true"></script>
+        @*<script src="~/js/init.js"></script>*@
+        <script src="~/js/adminlte.js"></script>
+        @*<script src="~/js/site.min.js" asp-append-version="true"></script>*@
     </environment>
 
     @RenderSection("Scripts", required: false)

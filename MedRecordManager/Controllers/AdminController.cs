@@ -32,13 +32,13 @@ namespace MedRecordManager.Controllers
 
                 new PhysicianVm()
             };
-            return View("MappedPhysician", vm);
+            return PartialView("_MappedPhysician", vm);
         }
 
         public IActionResult AddPhysician()
         {
             var vm = new PhysicianVm();
-            return View("AddPhysician", vm);
+            return PartialView("_AddPhysician", vm);
         }
     }
 }
