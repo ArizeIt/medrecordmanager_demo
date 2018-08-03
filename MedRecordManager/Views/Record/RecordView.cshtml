@@ -25,7 +25,7 @@
                       { field: 'PD'},
                       { field:'diagCode', },
                       { field:'codes'},
-                      { field:'officeKey'},
+                      { field:'officeKey', title:'Office Key', editor:true},
                       { field:'visitTime', title:'Visit DateTime'},
                       { field:'details' }
                         ],
@@ -67,11 +67,11 @@
             $('#searchButton').on('click', function () {
                 var type = $('#searchType').val();
 
-                if (type == 'Daily') {
-                    dailyGrid.reload({ office: $('#officeKey').val(), startDate: $('#startDate').val(), endDate: $('#endDate').val() });
+                if (type === 'Daily') {
+                    dailyGrid.reload({ office: $('#officeKey:selected').val(), startDate: $('#startDate').val(), endDate: $('#endDate').val() });
                 }
 
-                else if (type == 'Callback') {
+                else if (type === 'Callback') {
                     dailyGrid.reload({ office: $('#officeKey').val(), startDate: $('#startDate').val(), endDate: $('#endDate').val() });
                 }
 

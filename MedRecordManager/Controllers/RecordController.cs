@@ -1,5 +1,4 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using MedRecordManager.Extension;
@@ -8,7 +7,6 @@ using MedRecordManager.Models.DailyRecord;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using UgentCareDate;
-using UgentCareDate.Models;
 using UrgentCareData.Models;
 
 namespace MedRecordManager.Controllers
@@ -94,29 +92,40 @@ namespace MedRecordManager.Controllers
             {
                 var start = (page.Value - 1) * limit.Value;
                 records = records.Skip(start).Take(limit.Value).ToList();
-            }
-
-          
-            return Json(new { records, total });          
-                
+            }        
+            return Json(new { records, total });                          
         }
 
   
-        public IActionResult LoadCallback(int? page, int? limit, string sortBy, string direction, string office, DateTime startDate, DateTime endDate)
+        public IActionResult LoadCallback(int? page, int? limit, string sortBy, string direction, string office, string clinic, DateTime startDate, DateTime endDate)
         {
-            var records = new List<PatientVisitVM>
+
+            IQueryable<Visit> query;
+            if (string.IsNullOrEmpty(office) && startDate != DateTime.MinValue && endDate != DateTime.MinValue)
             {
-               new PatientVisitVM()
-               {
-                   PatientName = "Test",
-                   PvClinic = "USHYW287",
-                   VisitDate = DateTime.Now.ToShortDateString(),
-                   PvId = "123456", 
-                   PvPhone = "21345779797",
-                   PvPhoneType = "Home", 
-                   CellPhone = "123454646"
-               }
-            };
+                query = _urgentCareContext.Set<Visit>().Where(x => x.ServiceDate > startDate && x.ServiceDate < endDate);
+            }
+            else
+            {
+                query = _urgentCareContext.Set<Visit>();
+            }
+            var records = query.Select(y => new PatientVisitVM()
+            {
+                PvId = y.PvPaitentId.ToString(),
+                PvClinic = y.ClinicId,
+               
+                VisitDate = y.ServiceDate.ToShortDateString(),
+                PatientName = y.PvPaitent.FirstName + " " + y.PvPaitent.LastName,
+                PvPhone = y.PvPaitent.PatPhone
+            }).ToList();
+
+            var total = records.Count();
+
+            if (page.HasValue && limit.HasValue)
+            {
+                var start = (page.Value - 1) * limit.Value;
+                records = records.Skip(start).Take(limit.Value).ToList();
+            }
 
 
             return Json(new { records, records.Count });
