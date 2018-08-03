@@ -128,7 +128,7 @@ namespace MedRecordManager.Controllers
             }
 
 
-            return Json(new { records, records.Count });
+            return Json(new { records, total });
         }
 
 
