@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using UgentCareDate.Models;
 
-namespace UgentCareDate.Models
+namespace UrgentCareData.Models
 {
     public partial class Visit
     {
@@ -45,6 +46,8 @@ namespace UgentCareDate.Models
         public GuarantorInformation GuarantorPayer { get; set; }
         public Physican Physican { get; set; }
         public PatientInformation PvPaitent { get; set; }
+
+        public ClinicProfile ClinicProfile { get; set; }
         public ICollection<PayerInformation> PayerInformation { get; set; }
         public ICollection<VisitProcCode> VisitProcCode { get; set; }
     }

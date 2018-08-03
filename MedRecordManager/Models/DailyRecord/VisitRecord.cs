@@ -1,9 +1,4 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-
-namespace MedRecordManager.Models
+namespace MedRecordManager.Models.DailyRecord
 {
     public class VisitRecordVm
     {
@@ -19,7 +14,7 @@ namespace MedRecordManager.Models
 
         public string OfficeKey{get;set;}
 
-        public DateTime VisitTime{get;set;}
+        public string VisitTime{get;set;}
 
         public int PvRecordId {get;set;}
     }

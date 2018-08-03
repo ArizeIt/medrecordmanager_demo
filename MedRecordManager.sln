@@ -5,7 +5,7 @@ VisualStudioVersion = 15.0.27703.2035
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MedRecordManager", "MedRecordManager\MedRecordManager.csproj", "{CF5280EF-F3FD-42AF-A244-0D871EFD4FB2}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UgentCareData", "UrgentCareData\UgentCareData.csproj", "{47550939-7B2A-41C6-B5F5-6EDDD6EB44F6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UrgentCareData", "UrgentCareData\UrgentCareData.csproj", "{47550939-7B2A-41C6-B5F5-6EDDD6EB44F6}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

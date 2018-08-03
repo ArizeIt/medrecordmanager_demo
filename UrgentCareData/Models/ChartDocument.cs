@@ -1,7 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
+using UgentCareDate.Models;
 
-namespace UgentCareDate.Models
+namespace UrgentCareData.Models
 {
     public partial class ChartDocument
     {

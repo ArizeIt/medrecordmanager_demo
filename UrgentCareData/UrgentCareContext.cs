@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using UgentCareDate.Models;
+using UrgentCareData.Models;
 
 namespace UgentCareDate
 {
@@ -706,6 +707,10 @@ namespace UgentCareDate
                     .HasForeignKey(d => new { d.PhysicanId, d.ClinicId })
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_Visit_Physican");
+
+                entity.HasOne(d => d.ClinicProfile)
+                    .WithMany(p => p.Visits)
+                    .HasForeignKey(d => d.ClinicId);
             });
 
             modelBuilder.Entity<VisitImpotLog>(entity =>

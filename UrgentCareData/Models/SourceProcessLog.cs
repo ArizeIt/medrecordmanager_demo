@@ -1,7 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 
-namespace UgentCareDate.Models
+namespace UrgentCareData.Models
 {
     public partial class SourceProcessLog
     {
