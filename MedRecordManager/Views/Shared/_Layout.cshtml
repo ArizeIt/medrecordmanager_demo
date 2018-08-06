@@ -4,11 +4,7 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <title>
-        @if (!string.IsNullOrWhiteSpace(ViewBag.Title))
-        {
-            @ViewBag.Title@: -
-        }
-        MedRecordManager
+          @ViewData["Title"] - MedRecordManager""
     </title>
     <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
     <!--[if lt IE 9]>
@@ -41,12 +37,12 @@
         <Partial name="_Sidebar" />
 
         <div class="content-wrapper">
-            <section class="content-header">
+            @*<section class="content-header">
                 <h1>
                     @ViewBag.Title
                     <small>@ViewBag.Description</small>
                 </h1>
-            </section>
+            </section>*@
 
             <section class="content">
                 @RenderBody()

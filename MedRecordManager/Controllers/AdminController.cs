@@ -4,11 +4,13 @@ using System.Linq;
 using System.Threading.Tasks;
 using MedRecordManager.Models;
 using MedRecordManager.Models.PhsycianRecord;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace MedRecordManager.Controllers
 {
+    [Authorize]
     public class AdminController : Controller
     {
         public IActionResult Physician()

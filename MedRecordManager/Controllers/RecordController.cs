@@ -1,9 +1,9 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using MedRecordManager.Extension;
 using MedRecordManager.Models;
 using MedRecordManager.Models.DailyRecord;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using UgentCareDate;
@@ -11,6 +11,7 @@ using UrgentCareData.Models;
 
 namespace MedRecordManager.Controllers
 {
+    [Authorize]
     public class RecordController : Controller
     {
         private readonly UrgentCareContext _urgentCareContext;
