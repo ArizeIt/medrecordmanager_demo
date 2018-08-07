@@ -27,6 +27,7 @@ namespace MedRecordManager.Controllers
             return View("Physician", vm);
         }
 
+        [HttpPost]
         public IActionResult getMapedPh(string OfficeKey)
         {
           
@@ -37,6 +38,7 @@ namespace MedRecordManager.Controllers
             return PartialView("_MappedPhysician", vm);
         }
 
+        [HttpPost]
         public IActionResult AddPhysician()
         {
             var vm = new PhysicianVm();

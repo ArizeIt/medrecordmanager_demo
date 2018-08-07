@@ -1,8 +1,5 @@
 ﻿@model IEnumerable<MedRecordManager.Models.PhsycianRecord.PhysicianVm>
 
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
 <table class="table">
     <thead>
         <tr>
@@ -33,7 +30,8 @@
             <td>
                 @Html.ActionLink("Edit", "Edit", new { /* id=item.PrimaryKey */ }) |
                 @Html.ActionLink("Details", "Details", new { /* id=item.PrimaryKey */ }) |
-                @Html.ActionLink("Delete", "Delete", new { /* id=item.PrimaryKey */ })
+                @Html.ActionLink("Delete", "Delete", new { /* id=item.PrimaryKey */ }) |
+                <button class="btn btn-link" id="addPhysician" onclick="addPhysician()">Create</button>
             </td>
         </tr>
 }

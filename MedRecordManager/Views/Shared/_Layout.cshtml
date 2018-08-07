@@ -34,23 +34,21 @@
 <body class="hold-transition skin-blue sidebar-mini">
     <div class="wrapper">
         <Partial name="_Header" />
-        <Partial name="_Sidebar" />
-
+        @if (User.Identity.IsAuthenticated)
+        {
+            <Partial name="_Sidebar" />
+        }
         <div class="content-wrapper">
-            @*<section class="content-header">
-                <h1>
-                    @ViewBag.Title
-                    <small>@ViewBag.Description</small>
-                </h1>
-            </section>*@
+             <section class="content">
+                    @RenderBody()
+           </section>
+         </div>
+            @if (User.Identity.IsAuthenticated)
+            {
+                @*<Partial name="_ControlSidebar" />*@
 
-            <section class="content">
-                @RenderBody()
-            </section>
+            }
         </div>
-
-        <Partial name="_ControlSidebar" />
-    </div>
 
     <environment names="Development">
         <script src="~/lib/jquery/dist/jquery.js"></script>

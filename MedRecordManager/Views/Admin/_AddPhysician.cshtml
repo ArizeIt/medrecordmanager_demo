@@ -1,34 +1,52 @@
 ﻿@model MedRecordManager.Models.PhsycianRecord.PhysicianVm
 
-<h4>PhysicianVm</h4>
+<h4>Add New Physician</h4>
 <hr />
 <div class="row">
     <div class="col-md-4">
-        <form asp-action="MappedPhysician">
+        <form>
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <div class="form-group">
-                <label asp-for="pvPysicianId" class="control-label"></label>
+                <label class="control-label">PV Physician Number</label>
                 <input asp-for="pvPysicianId" class="form-control" />
                 <span asp-validation-for="pvPysicianId" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="pvFirstName" class="control-label"></label>
+                <label class="control-label">First Name</label>
                 <input asp-for="pvFirstName" class="form-control" />
                 <span asp-validation-for="pvFirstName" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="pvLastName" class="control-label"></label>
+                <label class="control-label">Last Name</label>
                 <input asp-for="pvLastName" class="form-control" />
                 <span asp-validation-for="pvLastName" class="text-danger"></span>
             </div>
+
             <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-default" />
+                <label class="control-label">Clinic Name</label>
+                <input asp-for="pvLastName" class="form-control" />
+                <span asp-validation-for="pvLastName" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label class="control-label">AMD Provider</label>
+                <input asp-for="pvLastName" class="form-control" />
+                <span asp-validation-for="pvLastName" class="text-danger"></span>
+            </div>
+
+
+            <div class="form-group">
+                <div class="row">
+                    @*<div class="col-sm-3">
+                        <input type="submit" value="Add" class="btn btn-default" />
+                    </div>*@
+                    <div class="">
+                        <button  type="button" class="btn btn-default" onclick="mappedPhysician()">Back</button>
+                    </div>
+                </div>
             </div>
         </form>
     </div>
 </div>
 
-<div>
-    <a asp-action="Index">Back to List</a>
-</div>
 

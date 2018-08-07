@@ -5,20 +5,30 @@
 
 @section scripts{ 
     <script type="text/javascript">
-        $(document).ready(function(){
-            
-            $('#ddlOfficeKey').change(function(){
-                alert($('#ddlOfficeKey').val());
+
+         function addPhysician(){
+                $.ajax({
+                    url:'/admin/addPhysician',
+                    type:'post',
+                }).done(function(response){
+                      $('#results').html(response);
+                });
+            };
+        function mappedPhysician(){              
                 $.ajax({
                     url:'/admin/getMapedPh',
-                    type:'get',
+                    type:'post',
                     data: { officeKey:$('#ddlOfficeKey').val() }
                 }).done(function(response){
                     $('#results').html(response);
                 });
-            });
-        });
-        
+            }
+       
+        $(document).ready(function(){ 
+              $('#ddlOfficeKey').change(function(){
+                mappedPhysician()
+              });
+        });      
     </script>
 
 }
