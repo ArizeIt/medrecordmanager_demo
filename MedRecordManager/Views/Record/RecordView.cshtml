@@ -6,53 +6,52 @@
 @section scripts{
     <script type="text/javascript">
         var dailyGrid;
-        $(document).ready(function (){
-             
-        var type = $('#searchType').val();
+        $(document).ready(function (){            
+          var type = $('#searchType').val();
+            if (type == 'Daily') {
+                
 
-          if (type == 'Daily') {
-              dailyGrid = $('#visitTable').grid({
-                  primaryKey: 'pvRecordId',
-                  inlineEditing: { mode: 'dblclick' },
-                  dataSource: '/Record/LoadDaily',
-                  uiLibrary: 'bootstrap',
-                  columns: [
-                      { field: 'pvRecordId', hidden: true },
-                      { field: 'patientId', hidden: true},
-                      { field: 'patientName', title: 'Patient Name', editor: true },
-                      { field: 'clinicName', title: 'Clinic Name', editor: true },
-                      { field: 'pvFinClass'},
-                      { field: 'PD'},
-                      { field:'diagCode', },
-                      { field:'codes'},
-                      { field:'officeKey', title:'Office Key', editor:true},
-                      { field:'visitTime', title:'Visit DateTime'},
-                      { field:'details' }
-                        ],
-                pager: { limit: 5, sizes: [2, 5, 10, 20] }
-               });
+                dailyGrid = $('#visitTable').grid({
+                    primaryKey: 'pvRecordId',
+                    inlineEditing: { mode: 'dblclick' },
+                    dataSource: '/Record/LoadDaily',
+                    uiLibrary: 'bootstrap',
+                    columns: [
+                        { field: 'pvRecordId', hidden: true },
+                        { field: 'patientId', hidden: true },
+                        { field: 'patientName', title: 'Patient Name', editor: true },
+                        { field: 'clinicName', title: 'Clinic Name', editor: true },
+                        { field: 'pvFinClass' },
+                        { field: 'PD' },
+                        { field: 'diagCode', },
+                        { field: 'codes' },
+                        { field: 'officeKey', title: 'Office Key', editor: true },
+                        { field: 'visitTime', title: 'Visit DateTime' },
+                        { field: 'details' }
+                    ],
+                    pager: { limit: 5, sizes: [2, 5, 10, 20] }
+                });
             }
 
             else if (type == 'Callback') {
-              dailyGrid = $('#visitTable').grid({
+                dailyGrid = $('#visitTable').grid({
                     primaryKey: 'pvId',
                     inlineEditing: { mode: 'dblclick' },
                     dataSource: '/Record/LoadCallback',
                     uiLibrary: 'bootstrap',
-                  columns: [
-                      { field: 'pvId', hidden: true },
-                      { field:'patientName'},
-                      { field:'pvClinic' },
-                      { field:'visitDate'}, 
-                      { field: 'pvPhone', title: 'Phone No.', editor: true },
-                      { field: 'pvPhoneType', title: 'Type', editor: true },
-                      { field: 'cellPhone', editor: true }
-                     ],
-                pager: { limit: 5, sizes: [2, 5, 10, 20] }
-               });
+                    columns: [
+                        { field: 'pvId', hidden: true },
+                        { field: 'patientName' },
+                        { field: 'pvClinic' },
+                        { field: 'visitDate' },
+                        { field: 'pvPhone', title: 'Phone No.', editor: true },
+                        { field: 'pvPhoneType', title: 'Type', editor: true },
+                        { field: 'cellPhone', editor: true }
+                    ],
+                    pager: { limit: 5, sizes: [2, 5, 10, 20] }
+                });
 
             }
-
 
 
             $('#startDate').datepicker({
@@ -68,7 +67,11 @@
                 var type = $('#searchType').val();
 
                 if (type === 'Daily') {
-                    dailyGrid.reload({ office: $('#officeKey:selected').val(), startDate: $('#startDate').val(), endDate: $('#endDate').val() });
+                    var keys = [];
+                    $('#officeKey > Option:selected').each(function () {
+                        keys.push(this.value);
+                    })
+                    dailyGrid.reload({ office: keys.join(','), startDate: $('#startDate').val(), endDate: $('#endDate').val() });
                 }
 
                 else if (type === 'Callback') {
@@ -78,8 +81,7 @@
             });
 
         });
-
-        
+      
     </script>
 
 }

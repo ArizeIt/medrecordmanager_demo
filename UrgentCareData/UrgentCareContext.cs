@@ -44,7 +44,7 @@ namespace UgentCareDate
             if (!optionsBuilder.IsConfigured)
             {
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. See http://go.microsoft.com/fwlink/?LinkId=723263 for guidance on storing connection strings.
-                optionsBuilder.UseSqlServer("data source=tcp:mntshupwl0.database.windows.net,1433;initial catalog=UrgentCare;Persist Security Info=False;User ID=xingkang;Password=Sm@llfish12;MultipleActiveResultSets=True;");
+                optionsBuilder.UseSqlServer("Server=(localdb)\\mssqllocaldb;Database=UrgentCare;Trusted_Connection=True;MultipleActiveResultSets=true");
             }
         }
 
@@ -68,6 +68,7 @@ namespace UgentCareDate
                 entity.Property(e => e.FacilityId)
                     .HasMaxLength(50)
                     .IsUnicode(false);
+               
             });
 
             modelBuilder.Entity<AdvancedMdprogram>(entity =>
@@ -751,5 +752,6 @@ namespace UgentCareDate
                     .HasConstraintName("FK_VisitProcCode_Visit");
             });
         }
+
     }
 }

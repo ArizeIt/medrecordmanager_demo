@@ -68,9 +68,10 @@ namespace MedRecordManager.Controllers
         public IActionResult LoadDaily(int? page, int? limit, string sortBy, string direction, string office, DateTime startDate, DateTime endDate)
         {
             IQueryable<Visit> query;
-            if (string.IsNullOrEmpty(office) && startDate != DateTime.MinValue && endDate != DateTime.MinValue)
+            if (!string.IsNullOrEmpty(office) && startDate != DateTime.MinValue && endDate != DateTime.MinValue)
             {
-                query = _urgentCareContext.Set<Visit>().Where(x => x.ServiceDate > startDate && x.ServiceDate < endDate);
+                var Officekeys = office.Split(',').Select(x=> int.Parse(x)).ToList();
+                query = _urgentCareContext.Set<Visit>().Where(x => Officekeys.Contains(x.ClinicProfile.OfficeKey) && x.ServiceDate > startDate && x.ServiceDate < endDate);
             }
             else
             {

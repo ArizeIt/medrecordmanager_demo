@@ -38,6 +38,13 @@ namespace MedRecordManager.Controllers
                     pvPysicianId = 123456,
                     pvFirstName = "Test", 
                     pvLastName = "Tester"
+                },
+
+                 new PhysicianVm()
+                {
+                    pvPysicianId = 123456,
+                    pvFirstName = "Test2",
+                    pvLastName = "Tester2"
                 }
             };
             return PartialView("_MappedPhysician", vm);
