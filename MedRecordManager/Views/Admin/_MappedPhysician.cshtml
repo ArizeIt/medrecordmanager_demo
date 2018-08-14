@@ -4,15 +4,21 @@
     <thead>
         <tr>
             <th>
-                @Html.DisplayNameFor(model => model.pvPysicianId)
+                <label class="control-label">PV Physican Id</label>
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.pvFirstName)
+                <label class="control-label">Physican First Name</label>
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.pvLastName)
+                <label class="control-label">Physican Last Name</label>
             </th>
-            <th></th>
+
+            <th>
+                <label class="control-label">Amd Provider Name</label>
+            </th>
+            <th>
+                <label class="control-label">Amd Provider Code</label>
+            </th>
         </tr>
     </thead>
     <tbody>
@@ -28,9 +34,17 @@
                 @Html.DisplayFor(modelItem => item.pvLastName)
             </td>
             <td>
-                @Html.ActionLink("Edit", "Edit", new { /* id=item.PrimaryKey */ }) |
-                @Html.ActionLink("Details", "Details", new { /* id=item.PrimaryKey */ }) |
-                @Html.ActionLink("Delete", "Delete", new { /* id=item.PrimaryKey */ }) |
+                @Html.DisplayFor(modelItem => item.AmdDisplayName)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.AmdProviderCode)
+            </td>
+            <td>
+                @*@Html.ActionLink("Edit", "Edit", new { /* id=item.PrimaryKey */ })*@
+                <button class="btn btn-link" id="addPhysician" onclick="editPhysician()">Edit</button>|
+
+                @*@Html.ActionLink("Delete", "Delete", new { /* id=item.PrimaryKey */ })*@
+                <button class="btn btn-link" id="addPhysician" onclick="deletePhysician()">Delete</button>|
                 <button class="btn btn-link" id="addPhysician" onclick="addPhysician()">Create</button>
             </td>
         </tr>

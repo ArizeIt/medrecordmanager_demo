@@ -17,17 +17,18 @@
                     inlineEditing: { mode: 'dblclick' },
                     dataSource: '/Record/LoadDaily',
                     uiLibrary: 'bootstrap',
-                    
+                    columnReorder: true,
+
                     columns: [
                         { field: 'pvRecordId', hidden: true },
                         { field: 'patientId', hidden: true },
                         { field: 'patientName', title: 'Patient Name', editor: true },
-                        { field: 'clinicName', title: 'Clinic Name', editor: true },
+                        { field: 'clinicName', title: 'Clinic Name', editor: { datasource: '/Record/GetClinic', valuefield: 'ClinicId' }, editField:'ClinicId' },
                         { field: 'pvFinClass', title: 'Finacial Class'},
                         { field: 'PD', title: 'Payment'},
                         { field: 'diagCode', title: 'Diag Codes'},
                         { field: 'codes', title: 'Icd Codes'},
-                        { field: 'officeKey', title: 'Office Key', editor: true },
+                        { field: 'officeKey', title: 'Office Key' },
                         { field: 'visitTime', title: 'Visit Date' },                       
                     ],
                     pager: { limit: 5, sizes: [2, 5, 10, 20] },

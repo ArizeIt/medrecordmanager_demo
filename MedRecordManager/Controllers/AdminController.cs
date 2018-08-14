@@ -7,12 +7,20 @@ using MedRecordManager.Models.PhsycianRecord;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using UgentCareDate;
+using UgentCareDate.Models;
 
 namespace MedRecordManager.Controllers
 {
     [Authorize]
     public class AdminController : Controller
     {
+        private readonly UrgentCareContext _urgentData; 
+        public AdminController(UrgentCareContext urgentContext)
+        {
+            _urgentData = urgentContext;
+
+        }
         public IActionResult Physician()
         {
             var vm = new SearchInputs()
@@ -55,6 +63,29 @@ namespace MedRecordManager.Controllers
         {
             var vm = new PhysicianVm();
             return PartialView("_AddPhysician", vm);
+        }
+
+        [HttpPost]
+
+        public IActionResult SavePhysician( PhysicianVm input)
+        {
+
+          if(ModelState.IsValid)
+            {
+                _urgentData.Set<Physican>().Add(new Physican
+                {
+                    PvPhysicanId = input.pvPysicianId,
+                    AmProviderId = "prof20156",
+                    AmdCode ="NVFR",
+                    FirstName = input.pvFirstName,
+                    LastName = input.pvLastName, 
+                    IsDefault = input.IsDefault
+
+                });
+                _urgentData.SaveChanges();
+            }
+
+            return PartialView("_MappedPhysician");
         }
     }
 }
