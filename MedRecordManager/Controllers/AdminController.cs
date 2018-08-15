@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 using MedRecordManager.Models;
 using MedRecordManager.Models.PhsycianRecord;
 using Microsoft.AspNetCore.Authorization;
@@ -59,9 +56,25 @@ namespace MedRecordManager.Controllers
         }
 
         [HttpPost]
-        public IActionResult AddPhysician()
+        public IActionResult AddPhysician(string officeKey)
         {
-            var vm = new PhysicianVm();
+            
+            var vm = new PhysicianVm {
+                MappedProviders = new List<SelectListItem>()
+                {
+                    new SelectListItem
+                    {
+                        Value ="Prof2056",
+                        Text = "Joe, Test"
+                    },
+
+                    new SelectListItem
+                    {
+                          Value ="Prof2057",
+                        Text = "Jane, Test"
+                    }
+                }
+            };
             return PartialView("_AddPhysician", vm);
         }
 
@@ -75,11 +88,13 @@ namespace MedRecordManager.Controllers
                 _urgentData.Set<Physican>().Add(new Physican
                 {
                     PvPhysicanId = input.pvPysicianId,
-                    AmProviderId = "prof20156",
+                    AmProviderId = input.AmdDisplayName,
                     AmdCode ="NVFR",
                     FirstName = input.pvFirstName,
-                    LastName = input.pvLastName, 
-                    IsDefault = input.IsDefault
+                    LastName = input.pvLastName,
+                    Clinic = "NewClinic",
+                    IsDefault = input.IsDefault,
+                    OfficeKey = input.OfficeKey
 
                 });
                 _urgentData.SaveChanges();

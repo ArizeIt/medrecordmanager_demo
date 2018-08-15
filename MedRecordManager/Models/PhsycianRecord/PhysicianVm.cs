@@ -28,5 +28,7 @@ namespace MedRecordManager.Models.PhsycianRecord
         public IEnumerable<SelectListItem> MappedProviders { get; set; }
 
         public bool IsDefault { get; set; }
+
+        public string OfficeKey { get; set; }
     }
 }

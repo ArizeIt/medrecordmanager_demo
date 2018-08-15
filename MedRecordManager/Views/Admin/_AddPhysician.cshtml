@@ -6,6 +6,7 @@
     <div class="col-md-4">
         <form asp-action="SavePhysician" asp-controller="Admin" data-ajax="true" data-ajax-method="POST" data-ajax-complete="onComplete" data-ajax-success="onSuccess">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input asp-for="OfficeKey" hidden="hidden"/>
             <div class="form-group">
                 <label class="control-label">PV Physician Number</label>
                 <input asp-for="pvPysicianId" class="form-control" />
