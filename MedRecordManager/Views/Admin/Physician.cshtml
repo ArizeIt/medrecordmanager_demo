@@ -1,29 +1,29 @@
-﻿@model MedRecordManager.Models.SearchInputs
+﻿@model PhysicianVm
 @{
     ViewData["Title"] = "Set Up Physican";
 }
 
-@section scripts{ 
+@section scripts{
     <script type="text/javascript">
 
-        function addPhysician(){
-                $.ajax({
-                    url:'/admin/addPhysician',
-                    type:'post',
-                }).done(function(response){
-                    $('#addNew').html(response);
-                    $('#results').html('');
-                });
-         };
-        function mappedPhysician(){              
-                $.ajax({
-                    url:'/admin/getMapedPh',
-                    type:'post',
-                    data: { officeKey:$('#ddlOfficeKey').val() }
-                }).done(function(response){
-                    $('#results').html(response);
-                    $('#addNew').html('');
-                });
+        function addPhysician() {
+            $.ajax({
+                url: '/admin/addPhysician',
+                type: 'post',
+            }).done(function (response) {
+                $('#addNew').html(response);
+                $('#results').html('');
+            });
+        };
+        function mappedPhysician() {
+            $.ajax({
+                url: '/admin/getMapedPh',
+                type: 'post',
+                data: { officeKey: $('#ddlOfficeKey').val() }
+            }).done(function (response) {
+                $('#results').html(response);
+                $('#addNew').html('');
+            });
         };
 
 
@@ -32,36 +32,36 @@
             $('#addNew').html('');
         };
 
-        $(document).ready(function(){ 
-              $('#ddlOfficeKey').change(function(){
+        $(document).ready(function () {
+            $('#ddlOfficeKey').change(function () {
                 mappedPhysician()
             });
-        });      
+        });
     </script>
 
 }
 <h2>Physican</h2>
-
-<div class="row">
-    <div class="col-sm-2">
-        <div class="form-group">
-            <label asp-for="OfficeKey" class="control-label"></label>
-            <select class="form-control" asp-for="OfficeKey" , asp-items="@Model.OfficeKeys" id="ddlOfficeKey"></select>
+<form asp-action="SavePhysician" asp-controller="Admin" data-ajax="true" data-ajax-method="POST" data-ajax-complete="onComplete" data-ajax-success="onSuccess">
+    <div class="row">
+        <div class="col-sm-2">
+            <div class="form-group">
+                <label asp-for="Input.OfficeKey" class="control-label">Select Office Key</label>
+                <select class="form-control" asp-for="Input.OfficeKey" , asp-items="@Model.Input.OfficeKeys" id="ddlOfficeKey"></select>
+            </div>
         </div>
     </div>
-</div>
 
-<div class="row">
-    <div class="col-lg-10">
-        <div id="addNew">
+    <div class="row">
+        <div class="col-lg-10">
+            <div id="addNew">
+            </div>
         </div>
     </div>
-</div>
-
-<div class="row">
-    <div class="col-lg-10">
-        <div id="results">
+</form>
+    <div class="row">
+        <div class="col-lg-10">
+            <div id="results">
+            </div>
         </div>
     </div>
-</div>
 

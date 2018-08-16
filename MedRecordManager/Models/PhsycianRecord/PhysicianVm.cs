@@ -5,12 +5,12 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace MedRecordManager.Models.PhsycianRecord
+namespace MedRecordManager.Models
 {
     public class PhysicianVm
     {
         [Required]
-        public int pvPysicianId { get; set; }
+        public int pvPhysicianId { get; set; }
 
         [Required]
         public string pvFirstName { get; set; }
@@ -29,6 +29,6 @@ namespace MedRecordManager.Models.PhsycianRecord
 
         public bool IsDefault { get; set; }
 
-        public string OfficeKey { get; set; }
+       public SearchInputs Input { get; set; }
     }
 }
