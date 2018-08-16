@@ -6,19 +6,36 @@
 @section scripts{
     <script type="text/javascript">
 
-        function addPhysician() {
+        $(document).on('click', '.deletePh', function () {
+            var pvid = $(this).parent().find('.primaryId').val();
+            $.ajax({
+                url: '/admin/deletePhyisican',
+                type: 'post',
+                data: {
+                    pvPhysicianId: pvid,
+                    officeKey: $('#ddlOfficeKey').val()
+                }
+            }).done(function (response) {
+                $('#results').html(response);
+                $('#addNew').html('');
+            });
+        });
+
+        $(document).on('click', '.addPh', function () {
             $.ajax({
                 url: '/admin/addPhysician',
-                type: 'post',
+                type: 'get',
             }).done(function (response) {
                 $('#addNew').html(response);
                 $('#results').html('');
             });
-        };
+        });
+
+
         function mappedPhysician() {
             $.ajax({
                 url: '/admin/getMapedPh',
-                type: 'post',
+                type: 'get',
                 data: { officeKey: $('#ddlOfficeKey').val() }
             }).done(function (response) {
                 $('#results').html(response);
@@ -26,6 +43,7 @@
             });
         };
 
+       
 
         function onSuccess(context) {
             $('#results').html(context);
@@ -36,6 +54,8 @@
             $('#ddlOfficeKey').change(function () {
                 mappedPhysician()
             });
+
+           
         });
     </script>
 

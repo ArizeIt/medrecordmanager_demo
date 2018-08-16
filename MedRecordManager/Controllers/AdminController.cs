@@ -40,7 +40,7 @@ namespace MedRecordManager.Controllers
             return View("Physician", vm);
         }
 
-        [HttpPost]
+        [HttpGet]
         public IActionResult getMapedPh(string officeKey)
         {
           
@@ -62,7 +62,7 @@ namespace MedRecordManager.Controllers
             return null;
         }
 
-        [HttpPost]
+        [HttpGet]
         public IActionResult AddPhysician(string officeKey)
         {
             
@@ -86,7 +86,6 @@ namespace MedRecordManager.Controllers
         }
 
         [HttpPost]
-
         public IActionResult SavePhysician( PhysicianVm physician)
         {
 
@@ -109,5 +108,18 @@ namespace MedRecordManager.Controllers
 
             return PartialView("_MappedPhysician");
         }
+
+        [HttpPost]
+        public IActionResult DeletePhyisican(int PvPhId, string officeKey)
+        {
+            var match = _urgentData.Set<Physican>().FirstOrDefault(x => x.PvPhysicanId == PvPhId && x.OfficeKey == officeKey);
+            if (match != null)
+            {
+                _urgentData.Set<Physican>().Remove(match);
+            }
+
+            return getMapedPh(officeKey);
+        }
+
     }
 }
