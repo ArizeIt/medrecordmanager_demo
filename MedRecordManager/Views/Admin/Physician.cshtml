@@ -7,12 +7,12 @@
     <script type="text/javascript">
 
         $(document).on('click', '.deletePh', function () {
-            var pvid = $(this).parent().find('.primaryId').val();
+            var pvid = $(this).parent().parent().find('.primaryId').text()
             $.ajax({
                 url: '/admin/deletePhyisican',
                 type: 'post',
                 data: {
-                    pvPhysicianId: pvid,
+                    pvPhysicianId: parseInt(pvid, 10),
                     officeKey: $('#ddlOfficeKey').val()
                 }
             }).done(function (response) {

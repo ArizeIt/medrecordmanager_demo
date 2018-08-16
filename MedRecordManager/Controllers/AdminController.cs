@@ -110,12 +110,13 @@ namespace MedRecordManager.Controllers
         }
 
         [HttpPost]
-        public IActionResult DeletePhyisican(int PvPhId, string officeKey)
+        public IActionResult DeletePhyisican(int pvPhysicianId, string officeKey)
         {
-            var match = _urgentData.Set<Physican>().FirstOrDefault(x => x.PvPhysicanId == PvPhId && x.OfficeKey == officeKey);
+            var match = _urgentData.Set<Physican>().FirstOrDefault(x => x.PvPhysicanId == pvPhysicianId && x.OfficeKey == officeKey);
             if (match != null)
             {
                 _urgentData.Set<Physican>().Remove(match);
+                _urgentData.SaveChanges();
             }
 
             return getMapedPh(officeKey);
