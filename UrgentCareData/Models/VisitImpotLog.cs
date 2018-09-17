@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using UrgentCareData.Models;
 
-namespace UgentCareDate.Models
+namespace UrgentCareData.Models
 {
     public partial class VisitImpotLog
     {
@@ -16,5 +14,7 @@ namespace UgentCareDate.Models
         public bool? ChargeImported { get; set; }
 
         public AdvanceMdimportLog AmdimportLog { get; set; }
+
+        public Visit Visit { get; set; }
     }
 }

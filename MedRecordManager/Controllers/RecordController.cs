@@ -70,12 +70,12 @@ namespace MedRecordManager.Controllers
             IQueryable<Visit> query;
             if (!string.IsNullOrEmpty(office) && startDate != DateTime.MinValue && endDate != DateTime.MinValue)
             {
-                var Officekeys = office.Split(',').Select(x=> int.Parse(x)).ToList();
-                query = _urgentCareContext.Set<Visit>().Where(x => Officekeys.Contains(x.ClinicProfile.OfficeKey) && x.ServiceDate > startDate && x.ServiceDate < endDate);
+                var officekeys = office.Split(',').Select(int.Parse).ToList();
+                query = _urgentCareContext.Set<Visit>().Where(x => officekeys.Contains(x.ClinicProfile.OfficeKey) && x.ServiceDate >= startDate && x.ServiceDate <= endDate);
             }
             else
             {
-                query = _urgentCareContext.Set<Visit>();
+                query = _urgentCareContext.Set<Visit>().Where(x=>x.ImportLog !=null && x.ImportLog.AmdimportLog == null);
             }
             var records = query.Select(y => new VisitRecordVm()
             {
@@ -85,7 +85,10 @@ namespace MedRecordManager.Controllers
                 PvRecordId = y.PvlogNum,
                 VisitTime = y.ServiceDate.ToShortDateString(),
                 PatientName = y.PvPaitent.FirstName + " " + y.PvPaitent.LastName,
-                OfficeKey = y.ClinicProfile.OfficeKey.ToString()
+                OfficeKey = y.ClinicProfile.OfficeKey.ToString(),
+                PVFinClass = y.PayerInformation.FirstOrDefault().Class.ToString(),
+                ICDCodes = y.Icdcodes,
+                Payment = y.CoPayAmount.GetValueOrDefault()
             }).ToList();
 
             var total = records.Count();
