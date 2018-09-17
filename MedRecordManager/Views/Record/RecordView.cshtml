@@ -6,6 +6,8 @@
 @section scripts{
     <script type="text/javascript">
         var dailyGrid;
+        var pagelimit = 10;
+        var pagesize = [5, 10, 20, 30];
         $(document).ready(function (){            
           var type = $('#searchType').val();
             if (type == 'Daily') {
@@ -29,7 +31,7 @@
                         { field: 'visitTime', title: 'Visit DateTime' },
                         { field: 'details' }
                     ],
-                    pager: { limit: 5, sizes: [2, 5, 10, 20] }
+                    pager: { limit: pagelimit, sizes: pagesize }
                 });
             }
 
@@ -48,7 +50,7 @@
                         { field: 'pvPhoneType', title: 'Type', editor: true },
                         { field: 'cellPhone', editor: true }
                     ],
-                    pager: { limit: 5, sizes: [2, 5, 10, 20] }
+                    pager: { limit: pagelimit, sizes: pagesize }
                 });
 
             }

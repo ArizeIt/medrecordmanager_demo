@@ -50,5 +50,7 @@ namespace UrgentCareData.Models
         public ClinicProfile ClinicProfile { get; set; }
         public ICollection<PayerInformation> PayerInformation { get; set; }
         public ICollection<VisitProcCode> VisitProcCode { get; set; }
+
+        public VisitImpotLog ImportLog { get; set; }
     }
 }

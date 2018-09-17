@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System.Security.Cryptography.X509Certificates;
+using Microsoft.EntityFrameworkCore;
 using UgentCareDate.Models;
 using UrgentCareData.Models;
 
@@ -712,6 +713,10 @@ namespace UgentCareDate
                 entity.HasOne(d => d.ClinicProfile)
                     .WithMany(p => p.Visits)
                     .HasForeignKey(d => d.ClinicId);
+
+                entity.HasOne(d => d.ImportLog)
+                    .WithOne(x => x.Visit).HasForeignKey<VisitImpotLog>(x => x.VisitId);
+
             });
 
             modelBuilder.Entity<VisitImpotLog>(entity =>
@@ -739,6 +744,8 @@ namespace UgentCareDate
                     .HasForeignKey(d => d.AmdimportLogId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_VisitImpotLog_AdvanceMDImportLog");
+
+             
             });
 
             modelBuilder.Entity<VisitProcCode>(entity =>
