@@ -1,25 +1,34 @@
-﻿@model IEnumerable<MedRecordManager.Models.PhsycianRecord.PhysicianVm>
+﻿@model IEnumerable<MedRecordManager.Models.PhysicianVm>
 
 <table class="table">
     <thead>
         <tr>
             <th>
-                @Html.DisplayNameFor(model => model.pvPysicianId)
+                <label class="control-label">PV Physican Id</label>
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.pvFirstName)
+                <label class="control-label">Physican First Name</label>
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.pvLastName)
+                <label class="control-label">Physican Last Name</label>
             </th>
-            <th></th>
+
+            <th>
+                <label class="control-label">Amd Provider Name</label>
+            </th>
+            <th>
+                <label class="control-label">Amd Provider Code</label>
+            </th>
         </tr>
     </thead>
     <tbody>
-@foreach (var item in Model) {
+        @if(Model.Any())
+        {
+            foreach (var item in Model)
+            {
         <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.pvPysicianId)
+            <td class="primaryId">
+                @Html.DisplayFor(modelItem => item.pvPhysicianId)
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.pvFirstName)
@@ -28,12 +37,23 @@
                 @Html.DisplayFor(modelItem => item.pvLastName)
             </td>
             <td>
-                @Html.ActionLink("Edit", "Edit", new { /* id=item.PrimaryKey */ }) |
-                @Html.ActionLink("Details", "Details", new { /* id=item.PrimaryKey */ }) |
-                @Html.ActionLink("Delete", "Delete", new { /* id=item.PrimaryKey */ }) |
-                <button class="btn btn-link" id="addPhysician" onclick="addPhysician()">Create</button>
+                @Html.DisplayFor(modelItem => item.AmdDisplayName)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.AmdProviderCode)
+            </td>
+            <td>
+                <button class="btn btn-link editPh" >Edit</button>|
+                <button class="btn btn-link deletePh">Delete</button>|
+                <button class="btn btn-link addPh" >Create</button>
             </td>
         </tr>
-}
+            }
+        }
+        else
+        {
+           <tr><td>No Physisian has been found. | <button class="btn btn-link addPh">Create</button></td></tr>
+
+        }
     </tbody>
 </table>

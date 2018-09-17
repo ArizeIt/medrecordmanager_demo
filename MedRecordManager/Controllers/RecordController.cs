@@ -136,7 +136,12 @@ namespace MedRecordManager.Controllers
             return Json(new { records, total });
         }
 
+        public IActionResult GetClinic()
+        {
+            var clinics= _urgentCareContext.Set<ClinicProfile>().Select (x=>x.ClinicId);
 
+            return Json(new {clinics});
+        }
 
 
     }

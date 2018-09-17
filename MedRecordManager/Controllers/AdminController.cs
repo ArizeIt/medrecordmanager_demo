@@ -1,60 +1,125 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
+using MedRecordManager.Extension;
 using MedRecordManager.Models;
-using MedRecordManager.Models.PhsycianRecord;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using UgentCareDate;
+using UgentCareDate.Models;
+using UrgentCareData.Models;
 
 namespace MedRecordManager.Controllers
 {
     [Authorize]
     public class AdminController : Controller
     {
+        private readonly UrgentCareContext _urgentData; 
+        public AdminController(UrgentCareContext urgentContext)
+        {
+            _urgentData = urgentContext;
+
+        }
         public IActionResult Physician()
         {
-            var vm = new SearchInputs()
+            var vm = new PhysicianVm()
             {
-                Type = "Daily",
-
-                OfficeKeys = new List<SelectListItem> {
-                new SelectListItem{Selected = false, Text="123456",Value="123456"},
-                new SelectListItem{Selected = false, Text="3233456",Value="3233456"}
+                Input = new SearchInputs
+                {
+                    OfficeKeys = _urgentData.Set<ClinicProfile>().DistinctBy(x => x.OfficeKey).Select(x =>
+                     new SelectListItem
+                     {
+                         Selected = false,
+                         Text = x.OfficeKey.ToString(),
+                         Value = x.OfficeKey.ToString()
+                     }
+                    )
                 }
             };
+                        
             return View("Physician", vm);
         }
 
-        [HttpPost]
-        public IActionResult getMapedPh(string OfficeKey)
+        [HttpGet]
+        public IActionResult getMapedPh(string officeKey)
         {
           
-            var vm = new List<PhysicianVm>() {
-
-                new PhysicianVm()
+            if(!string.IsNullOrEmpty(officeKey))
+            {
+                var vm = new List<PhysicianVm>();
+                vm = _urgentData.Set<Physican>().Where(x => x.OfficeKey == officeKey).Select(x => new PhysicianVm()
                 {
-                    pvPysicianId = 123456,
-                    pvFirstName = "Test", 
-                    pvLastName = "Tester"
-                },
+                    AmdDisplayName = x.DisplayName,
+                    AmdProfileId = x.AmProviderId,
+                    AmdProviderCode = x.AmdCode,
+                    pvFirstName = x.FirstName,
+                    pvLastName = x.LastName,
+                    pvPhysicianId = x.PvPhysicanId,
+                }).ToList();
+                return PartialView("_MappedPhysician", vm);
+            }
 
-                 new PhysicianVm()
+            return null;
+        }
+
+        [HttpGet]
+        public IActionResult AddPhysician(string officeKey)
+        {
+            
+            var vm = new PhysicianVm {
+                MappedProviders = new List<SelectListItem>()
                 {
-                    pvPysicianId = 123456,
-                    pvFirstName = "Test2",
-                    pvLastName = "Tester2"
+                    new SelectListItem
+                    {
+                        Value ="Prof2056",
+                        Text = "Joe, Test"
+                    },
+
+                    new SelectListItem
+                    {
+                          Value ="Prof2057",
+                        Text = "Jane, Test"
+                    }
                 }
             };
-            return PartialView("_MappedPhysician", vm);
+            return PartialView("_AddPhysician", vm);
         }
 
         [HttpPost]
-        public IActionResult AddPhysician()
+        public IActionResult SavePhysician( PhysicianVm physician)
         {
-            var vm = new PhysicianVm();
-            return PartialView("_AddPhysician", vm);
+
+          if(ModelState.IsValid)
+            {
+                _urgentData.Set<Physican>().Add(new Physican
+                {
+                    PvPhysicanId = physician.pvPhysicianId,
+                    AmProviderId = physician.AmdDisplayName,
+                    AmdCode ="NVFR",
+                    FirstName = physician.pvFirstName,
+                    LastName = physician.pvLastName,
+                    Clinic = "NewClinic",
+                    IsDefault = physician.IsDefault,
+                    OfficeKey = physician.Input.OfficeKey.ToString()
+
+                });
+                _urgentData.SaveChanges();
+            }
+
+            return PartialView("_MappedPhysician");
         }
+
+        [HttpPost]
+        public IActionResult DeletePhyisican(int PvPhId, string officeKey)
+        {
+            var match = _urgentData.Set<Physican>().FirstOrDefault(x => x.PvPhysicanId == PvPhId && x.OfficeKey == officeKey);
+            if (match != null)
+            {
+                _urgentData.Set<Physican>().Remove(match);
+            }
+
+            return getMapedPh(officeKey);
+        }
+
     }
 }

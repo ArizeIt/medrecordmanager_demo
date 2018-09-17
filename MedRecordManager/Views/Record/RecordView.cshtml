@@ -6,35 +6,47 @@
 @section scripts{
     <script type="text/javascript">
         var dailyGrid;
-        var pagelimit = 10;
-        var pagesize = [5, 10, 20, 30];
+        var patientGrid;
+        var payerGrid;
+        var guarantorGrid;
         $(document).ready(function (){            
           var type = $('#searchType').val();
             if (type == 'Daily') {
-                
-
                 dailyGrid = $('#visitTable').grid({
                     primaryKey: 'pvRecordId',
                     inlineEditing: { mode: 'dblclick' },
                     dataSource: '/Record/LoadDaily',
                     uiLibrary: 'bootstrap',
+                    columnReorder: true,
+
                     columns: [
                         { field: 'pvRecordId', hidden: true },
                         { field: 'patientId', hidden: true },
                         { field: 'patientName', title: 'Patient Name', editor: true },
-                        { field: 'clinicName', title: 'Clinic Name', editor: true },
-                        { field: 'pvFinClass' },
-                        { field: 'PD' },
-                        { field: 'diagCode', },
-                        { field: 'codes' },
-                        { field: 'officeKey', title: 'Office Key', editor: true },
-                        { field: 'visitTime', title: 'Visit DateTime' },
-                        { field: 'details' }
+                        { field: 'clinicName', title: 'Clinic Name', editor: { datasource: '/Record/GetClinic', valuefield: 'ClinicId' }, editField:'ClinicId' },
+                        { field: 'pvFinClass', title: 'Finacial Class'},
+                        { field: 'PD', title: 'Payment'},
+                        { field: 'diagCode', title: 'Diag Codes'},
+                        { field: 'codes', title: 'Icd Codes'},
+                        { field: 'officeKey', title: 'Office Key' },
+                        { field: 'visitTime', title: 'Visit Date' },                       
                     ],
-                    pager: { limit: pagelimit, sizes: pagesize }
+                    pager: { limit: 5, sizes: [2, 5, 10, 20] },
+                    detailTemplate: '<div><table/></div>'                  
+                });
+
+                dailyGrid.on('detailExpand', function (e, $detailWrapper, id) {
+                    $detailWrapper.find('table').grid({
+                        params: { playerId: id },
+                        dataSource: '/Players/GetTeams',
+                        autoGenerateColumns: true,
+                        pager: { limit: 5 }
+                    });
+                });
+                dailyGrid.on('detailCollapse', function (e, $detailWrapper, id) {
+                    $detailWrapper.find('table').grid('destroy', true, true);
                 });
             }
-
             else if (type == 'Callback') {
                 dailyGrid = $('#visitTable').grid({
                     primaryKey: 'pvId',
@@ -55,6 +67,24 @@
 
             }
 
+            patientGrid = $('#patientGrid').grid({
+                primaryKey: 'PvPaitentId',
+                datasource: '/record/GetPatientDetail',
+                uiLibrary: 'bootstrap',
+            });
+
+            payerGrid = $('#payerGrid').grid({
+                primaryKey: 'PvPaitentId',
+                datasource: '/record/GetPatientDetail',
+                uiLibrary: 'bootstrap',
+            });
+
+            guarantorGrid = $('#guarantorGrid').grid({
+                primaryKey: 'PvPaitentId',
+                datasource: '/record/GetPatientDetail',
+                uiLibrary: 'bootstrap',
+            });
+
 
             $('#startDate').datepicker({
                 uiLibrary: 'bootstrap'
@@ -63,7 +93,6 @@
             $('#endDate').datepicker({
                 uiLibrary: 'bootstrap'
             });
-
 
             $('#searchButton').on('click', function () {
                 var type = $('#searchType').val();
@@ -102,43 +131,41 @@ else
     <div class="row">
         <div class="col-sm-2">
             <div class="form-group">
+                <label asp-for="OfficeKey" class="control-label"> Select Office Key(s)</label>
                 <select class="form-control" asp-for="OfficeKey" , asp-items="@Model.OfficeKeys" id="officeKey" multiple></select>
             </div>
         </div>
 
-        <div class="col-sm-3">
+        <div class="col-sm-2">
             <div class="form-group">
-                @*<div class="input-group date datepicker">
-                        <input class="form-control date" asp-for="StartDate" id="startDate" />
-                        <span class="input-group-addon">
-                            <span class="glyphicon glyphicon-calendar"></span>
-                        </span>
-                    </div>*@
+                <label asp-for="StartDate" class="control-label">Visit Start Date</label>
                 <input class="form-control date" id="startDate" />
             </div>
         </div>
 
-        <div class="col-sm-3">
+        <div class="col-sm-2">
             <div class="form-group">
-                @*<div class='input-group date datepicker'>
-                        <input class="form-control date" asp-for="EndDate" id='EndDate' />
-                        <span class="input-group-addon">
-                            <span class="glyphicon glyphicon-calendar"></span>
-                        </span>
-                    </div>*@
-                <input class="form-control date" id="endDate" />
+                <label asp-for="EndDate" class="control-label">Visit End Date</label>
+                    <input class="form-control date" id="endDate" />
+                </div>
+            
+        </div>
+        <div class="col-sm-1">
+            <div class="form-group">
+                <div class="control-group">
+                    <div style="margin-top: 24px;">
+                        <input type="button" value="Search" class="btn btn-primary" id="searchButton" />
+                    </div>
             </div>
         </div>
-        <div class="col-md-1">
-            <input type="button" value="Search" class="btn btn-primary" id="searchButton" />
-        </div>
-    </div>
+   </div>
 
     @if (Model.Type == "Callback")
     {
         <div class="row">
             <div class="col-sm-2">
                 <div class="form-group">
+                    <label asp-for="Clinic" class="control-label">Select Clinic(s)</label>
                     <select class="form-control" asp-for="Clinic" , asp-items="@Model.Clinics" id="officeKey" multiple></select>
                 </div>
             </div>
