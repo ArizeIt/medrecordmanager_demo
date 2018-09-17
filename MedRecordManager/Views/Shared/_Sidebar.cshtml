@@ -14,12 +14,19 @@
         @* END Search *@
         @* BEGIN Menu *@
         <ul class="sidebar-menu" data-widget="tree">
-            <li class="active">
-                <a href="@Url.Action("Index", "Home")"><i class="fa fa-link"></i> <span>Home</span></a>
+            <li class="treeview">
+                <a href="#">
+                    <i class="fa fa-link"></i> <span>Admin Setup </span>
+                    <span class="pull-right-container">
+                        <i class="fa fa-angle-left pull-right"></i>
+                    </span>
+                </a>
+                <ul class="treeview-menu">
+                    <li> <a href="@Url.Action("Physician", "admin")">Physican Setup</a></li>
+                    <li><a href="@Url.Action("Physician", "admin")">Clinic Setup</a></li>
+                </ul>
             </li>
-            <li class="active">
-                <a href="@Url.Action("Physician", "admin")"><i class="fa fa-link"></i> <span>Physican Setup</span></a>
-            </li>
+
             <li class="treeview">
                 <a href="#">
                     <i class="fa fa-link"></i> <span>Change Record</span>

@@ -10,7 +10,7 @@ namespace MedRecordManager.Models
     public class PhysicianVm
     {
         [Required]
-        public int pvPhysicianId { get; set; }
+        public int? pvPhysicianId { get; set; }
 
         [Required]
         public string pvFirstName { get; set; }

@@ -22,11 +22,20 @@ namespace MedRecordManager.Controllers
         }
         public IActionResult Physician()
         {
+            IEnumerable<SelectListItem> emptyRecord = new SelectListItem[]
+            {
+
+                new SelectListItem{
+                    Selected = false,
+                    Text = "-Select Office Key-",
+                    Value = string.Empty
+                }
+            };
             var vm = new PhysicianVm()
             {
                 Input = new SearchInputs
                 {
-                    OfficeKeys = _urgentData.Set<ClinicProfile>().DistinctBy(x => x.OfficeKey).Select(x =>
+                    OfficeKeys = _urgentData.Set<ClinicProfile>().DistinctBy(x => x.OfficeKey).OrderBy(x=> x.OfficeKey).Select(x =>
                      new SelectListItem
                      {
                          Selected = false,
@@ -36,7 +45,8 @@ namespace MedRecordManager.Controllers
                     )
                 }
             };
-                        
+
+            vm.Input.OfficeKeys = vm.Input.OfficeKeys.Concat(emptyRecord).OrderBy(x => x.Value);
             return View("Physician", vm);
         }
 
@@ -86,24 +96,33 @@ namespace MedRecordManager.Controllers
         }
 
         [HttpPost]
-        public IActionResult SavePhysician( PhysicianVm physician)
+        public IActionResult SavePhysician(PhysicianVm physician)
         {
 
-          if(ModelState.IsValid)
+            if (ModelState.IsValid)
             {
-                _urgentData.Set<Physican>().Add(new Physican
+                if (physician.pvPhysicianId.HasValue)
                 {
-                    PvPhysicanId = physician.pvPhysicianId,
-                    AmProviderId = physician.AmdDisplayName,
-                    AmdCode ="NVFR",
-                    FirstName = physician.pvFirstName,
-                    LastName = physician.pvLastName,
-                    Clinic = "NewClinic",
-                    IsDefault = physician.IsDefault,
-                    OfficeKey = physician.Input.OfficeKey.ToString()
+                    if (_urgentData.Set<Physican>().FirstOrDefault(x => x.PvPhysicanId == physician.pvPhysicianId && x.OfficeKey == physician.Input.OfficeKey.ToString()) == null)
+                    {
+                        _urgentData.Set<Physican>().Add(new Physican
+                        {
+                            PvPhysicanId = physician.pvPhysicianId ?? default(int),
+                            AmProviderId = physician.AmdDisplayName,
+                            AmdCode = "NVFR",
+                            FirstName = physician.pvFirstName,
+                            LastName = physician.pvLastName,
+                            IsDefault = physician.IsDefault,
+                            OfficeKey = physician.Input.OfficeKey.ToString()
 
-                });
-                _urgentData.SaveChanges();
+                        });
+                        _urgentData.SaveChanges();
+                    }
+                    else
+                    {
+                        ModelState.AddModelError("Duplicate Physician", "This physican with the same Id and Office Key has already been mapped.");
+                    }
+                }
             }
 
             return PartialView("_MappedPhysician");

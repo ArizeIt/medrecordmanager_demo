@@ -54,8 +54,7 @@
             $('#ddlOfficeKey').change(function () {
                 mappedPhysician()
             });
-
-           
+      
         });
     </script>
 
@@ -65,7 +64,7 @@
     <div class="row">
         <div class="col-sm-2">
             <div class="form-group">
-                <label asp-for="Input.OfficeKey" class="control-label">Select Office Key</label>
+                <label asp-for="Input.OfficeKey" class="control-label">Office Key:</label>
                 <select class="form-control" asp-for="Input.OfficeKey" , asp-items="@Model.Input.OfficeKeys" id="ddlOfficeKey"></select>
             </div>
         </div>
