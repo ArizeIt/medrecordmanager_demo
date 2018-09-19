@@ -29,6 +29,6 @@ namespace MedRecordManager.Models
 
         public bool IsDefault { get; set; }
 
-       public SearchInputs Input { get; set; }
+        public SearchInputs Inputs { get; set; }
     }
 }

@@ -24,6 +24,7 @@ namespace MedRecordManager.Models
 
 
         public string Type { get; set; }
+
     }
 
     

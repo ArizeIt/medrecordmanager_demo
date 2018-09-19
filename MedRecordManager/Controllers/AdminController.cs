@@ -14,7 +14,38 @@ namespace MedRecordManager.Controllers
     [Authorize]
     public class AdminController : Controller
     {
-        private readonly UrgentCareContext _urgentData; 
+        private readonly UrgentCareContext _urgentData;
+
+        private SearchInputs Input {get { return InitializeInput(); } }
+        private SearchInputs InitializeInput ()
+        {
+            IEnumerable<SelectListItem> emptyRecord = new SelectListItem[]
+          {
+
+                new SelectListItem{
+                    Selected = false,
+                    Text = "-Select Office Key-",
+                    Value = string.Empty
+                }
+          };
+
+
+            var input = new SearchInputs
+            {
+                OfficeKeys = _urgentData.Set<ClinicProfile>().DistinctBy(x => x.OfficeKey).OrderBy(x => x.OfficeKey).Select(x =>
+                  new SelectListItem
+                  {
+                      Selected = false,
+                      Text = x.OfficeKey.ToString(),
+                      Value = x.OfficeKey.ToString()
+                  }
+                    )
+            };
+            input.OfficeKeys = input.OfficeKeys.Concat(emptyRecord).OrderBy(x => x.Value);
+            return input;
+        }
+
+
         public AdminController(UrgentCareContext urgentContext)
         {
             _urgentData = urgentContext;
@@ -22,32 +53,18 @@ namespace MedRecordManager.Controllers
         }
         public IActionResult Physician()
         {
-            IEnumerable<SelectListItem> emptyRecord = new SelectListItem[]
-            {
+            return View("Physician", Input);
+        }
 
-                new SelectListItem{
-                    Selected = false,
-                    Text = "-Select Office Key-",
-                    Value = string.Empty
-                }
-            };
-            var vm = new PhysicianVm()
-            {
-                Input = new SearchInputs
-                {
-                    OfficeKeys = _urgentData.Set<ClinicProfile>().DistinctBy(x => x.OfficeKey).OrderBy(x=> x.OfficeKey).Select(x =>
-                     new SelectListItem
-                     {
-                         Selected = false,
-                         Text = x.OfficeKey.ToString(),
-                         Value = x.OfficeKey.ToString()
-                     }
-                    )
-                }
-            };
+        public IActionResult Clinic()
+        {
+            return null;
+        }
 
-            vm.Input.OfficeKeys = vm.Input.OfficeKeys.Concat(emptyRecord).OrderBy(x => x.Value);
-            return View("Physician", vm);
+        public IActionResult Rule ()
+        {
+          
+            return View("RulePage", Input);
         }
 
         [HttpGet]
@@ -103,7 +120,7 @@ namespace MedRecordManager.Controllers
             {
                 if (physician.pvPhysicianId.HasValue)
                 {
-                    if (_urgentData.Set<Physican>().FirstOrDefault(x => x.PvPhysicanId == physician.pvPhysicianId && x.OfficeKey == physician.Input.OfficeKey.ToString()) == null)
+                    if (_urgentData.Set<Physican>().FirstOrDefault(x => x.PvPhysicanId == physician.pvPhysicianId && x.OfficeKey == physician.Inputs.OfficeKey.ToString()) == null)
                     {
                         _urgentData.Set<Physican>().Add(new Physican
                         {
@@ -113,7 +130,7 @@ namespace MedRecordManager.Controllers
                             FirstName = physician.pvFirstName,
                             LastName = physician.pvLastName,
                             IsDefault = physician.IsDefault,
-                            OfficeKey = physician.Input.OfficeKey.ToString()
+                            OfficeKey = physician.Inputs.OfficeKey.ToString()
 
                         });
                         _urgentData.SaveChanges();

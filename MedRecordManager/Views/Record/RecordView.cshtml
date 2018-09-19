@@ -5,17 +5,30 @@
 
 @section scripts{
     <script type="text/javascript">
+
         var dailyGrid;
         var patientGrid;
         var payerGrid;
         var guarantorGrid;
-        $(document).ready(function (){            
-          var type = $('#searchType').val();
+
+        $(document).ready(function () {
+            
+            var type = $('#searchType').val();
+
+            var detailButtonRender = function (value, record, $cell, $displayEl) {
+                var $btn = $('<button type="button" class="btn btn-danger">Detail</button>').on('click', function () {
+                    alert('clicky');
+                });
+                $displayEl.append($btn);
+            };
+
             if (type == 'Daily') {
                 dailyGrid = $('#visitTable').grid({
                     primaryKey: 'pvRecordId',
                     inlineEditing: { mode: 'dblclick' },
                     dataSource: '/Record/LoadDaily',
+                    selectionType: 'single',
+                    selectionMethod: 'checkbox',
                     uiLibrary: 'bootstrap',
                     columnReorder: true,
 
@@ -29,7 +42,8 @@
                         { field: 'diagCode', title: 'Diag Codes'},
                         { field: 'codes', title: 'Icd Codes'},
                         { field: 'officeKey', title: 'Office Key' },
-                        { field: 'visitTime', title: 'Visit Date' },                       
+                        { field: 'visitTime', title: 'Visit Date' },
+                        { field: 'Action', renderer: detailButtonRender }
                     ],
                     pager: { limit: 5, sizes: [2, 5, 10, 20] },
                     detailTemplate: '<div><table/></div>'                  
@@ -43,6 +57,7 @@
                         pager: { limit: 5 }
                     });
                 });
+
                 dailyGrid.on('detailCollapse', function (e, $detailWrapper, id) {
                     $detailWrapper.find('table').grid('destroy', true, true);
                 });
@@ -110,6 +125,7 @@
                 }
 
             });
+          
 
         });
       

@@ -1,6 +1,6 @@
-﻿@model PhysicianVm
+﻿@model SearchInputs
 @{
-    ViewData["Title"] = "Set Up Physican";
+    ViewData["Title"] = "Set Up Rule";
 }
 
 @section scripts{
@@ -43,7 +43,7 @@
             });
         };
 
-       
+
 
         function onSuccess(context) {
             $('#results').html(context);
@@ -54,18 +54,18 @@
             $('#ddlOfficeKey').change(function () {
                 mappedPhysician()
             });
-      
+
         });
     </script>
 
 }
 <h2>Physican</h2>
-<form asp-action="SavePhysician" asp-controller="Admin" data-ajax="true" data-ajax-method="POST" data-ajax-complete="onComplete" data-ajax-success="onSuccess">
+<form asp-action="SaveRule" asp-controller="Admin" data-ajax="true" data-ajax-method="POST" data-ajax-complete="onComplete" data-ajax-success="onSuccess">
     <div class="row">
         <div class="col-sm-2">
             <div class="form-group">
-                <label asp-for="Inputs.OfficeKey" class="control-label">Office Key:</label>
-                <select class="form-control" asp-for="Inputs.OfficeKey" , asp-items="@Model.Inputs.OfficeKeys" id="ddlOfficeKey"></select>
+                <label asp-for="OfficeKey" class="control-label">Office Key:</label>
+                <select class="form-control" asp-for="OfficeKey" , asp-items="@Model.OfficeKeys" id="ddlOfficeKey"></select>
             </div>
         </div>
     </div>
@@ -77,10 +77,10 @@
         </div>
     </div>
 </form>
-    <div class="row">
-        <div class="col-lg-10">
-            <div id="results">
-            </div>
+<div class="row">
+    <div class="col-lg-10">
+        <div id="results">
         </div>
     </div>
+</div>
 
