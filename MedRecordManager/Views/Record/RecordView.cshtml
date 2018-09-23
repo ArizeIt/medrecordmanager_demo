@@ -17,7 +17,7 @@
 
             var detailButtonRender = function (value, record, $cell, $displayEl) {
                 var $btn = $('<button type="button" class="btn btn-danger">Detail</button>').on('click', function () {
-                    alert('clicky');
+                    alert('Will display details in another page!');
                 });
                 $displayEl.append($btn);
             };
@@ -27,7 +27,7 @@
                     primaryKey: 'pvRecordId',
                     inlineEditing: { mode: 'dblclick' },
                     dataSource: '/Record/LoadDaily',
-                    selectionType: 'single',
+                    selectionType: 'multiple',
                     selectionMethod: 'checkbox',
                     uiLibrary: 'bootstrap',
                     columnReorder: true,
@@ -38,21 +38,21 @@
                         { field: 'patientName', title: 'Patient Name', editor: true },
                         { field: 'clinicName', title: 'Clinic Name', editor: { datasource: '/Record/GetClinic', valuefield: 'ClinicId' }, editField:'ClinicId' },
                         { field: 'pvFinClass', title: 'Finacial Class'},
-                        { field: 'PD', title: 'Payment'},
+                        { field: 'payment', title: 'Payment'},
                         { field: 'diagCode', title: 'Diag Codes'},
-                        { field: 'codes', title: 'Icd Codes'},
+                        { field: 'icdCodes', title: 'Icd Codes'},
                         { field: 'officeKey', title: 'Office Key' },
                         { field: 'visitTime', title: 'Visit Date' },
                         { field: 'Action', renderer: detailButtonRender }
                     ],
-                    pager: { limit: 5, sizes: [2, 5, 10, 20] },
+                    pager: { limit: 10, sizes: [2, 5, 10, 20] },
                     detailTemplate: '<div><table/></div>'                  
                 });
 
                 dailyGrid.on('detailExpand', function (e, $detailWrapper, id) {
                     $detailWrapper.find('table').grid({
-                        params: { playerId: id },
-                        dataSource: '/Players/GetTeams',
+                        params: { pateintId: id },
+                        dataSource: '/Record/Payers',
                         autoGenerateColumns: true,
                         pager: { limit: 5 }
                     });
@@ -117,10 +117,12 @@
                     $('#officeKey > Option:selected').each(function () {
                         keys.push(this.value);
                     })
+                    dailyGrid.clear();
                     dailyGrid.reload({ office: keys.join(','), startDate: $('#startDate').val(), endDate: $('#endDate').val() });
                 }
 
                 else if (type === 'Callback') {
+                    dailyGrid.clear();
                     dailyGrid.reload({ office: $('#officeKey').val(), startDate: $('#startDate').val(), endDate: $('#endDate').val() });
                 }
 

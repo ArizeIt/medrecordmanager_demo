@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using UgentCareDate;
+using UgentCareDate.Models;
 using UrgentCareData.Models;
 
 namespace MedRecordManager.Controllers
@@ -63,8 +64,6 @@ namespace MedRecordManager.Controllers
             return View("RecordView", vm);
         }
 
-       
-
         public IActionResult LoadDaily(int? page, int? limit, string sortBy, string direction, string office, DateTime startDate, DateTime endDate)
         {
             IQueryable<Visit> query;
@@ -81,13 +80,13 @@ namespace MedRecordManager.Controllers
             {
                 PatientId = y.PvPaitentId,
                 ClinicName = y.ClinicId,
-                DiagCode = y.DiagCodes,
+                DiagCode = y.DiagCodes.Replace("|", ","),
                 PvRecordId = y.PvlogNum,
                 VisitTime = y.ServiceDate.ToShortDateString(),
                 PatientName = y.PvPaitent.FirstName + " " + y.PvPaitent.LastName,
                 OfficeKey = y.ClinicProfile.OfficeKey.ToString(),
                 PVFinClass = y.PayerInformation.FirstOrDefault().Class.ToString(),
-                ICDCodes = y.Icdcodes,
+                IcdCodes = y.Icdcodes.Replace("|", ","),
                 Payment = y.CoPayAmount.GetValueOrDefault()
             }).ToList();
 
@@ -101,7 +100,31 @@ namespace MedRecordManager.Controllers
             return Json(new { records, total });                          
         }
 
-  
+        public IActionResult Payer(int? page, int? limit, string sortBy, string direction, int? patientId)
+        {
+
+            IQueryable<PayerInformation> query;
+            if (patientId != 0 && patientId.HasValue)
+            {
+                query = _urgentCareContext.Set<PayerInformation>().Where(x => patientId == x.PayerNum);
+
+                var records = query.ToList();
+
+                var total = records.Count();
+
+                if (page.HasValue && limit.HasValue)
+                {
+                    var start = (page.Value - 1) * limit.Value;
+                    records = records.Skip(start).Take(limit.Value).ToList();
+                }
+                return Json(new { records, total });
+            }
+            else
+            {
+                return null;
+            }
+        }
+
         public IActionResult LoadCallback(int? page, int? limit, string sortBy, string direction, string office, string clinic, DateTime startDate, DateTime endDate)
         {
 

@@ -16,7 +16,7 @@ namespace MedRecordManager.Models.DailyRecord
 
         public string VisitTime{get;set;}
 
-        public string ICDCodes { get; set; }
+        public string IcdCodes { get; set; }
 
         public decimal Payment { get; set; }
         public int PvRecordId {get;set;}
