@@ -17,14 +17,23 @@
 
             var detailButtonRender = function (value, record, $cell, $displayEl) {
                 var $btn = $('<button type="button" class="btn btn-danger">Detail</button>').on('click', function () {
-                    alert('Will display details in another page!');
+                    $.ajax({
+                        type: "GET",
+                        data: {
+                            visitId: record.visitId
+                        },
+                        url: "/Record/GetDetails",
+                        dataType: 'json',
+                    }).done(function (response) {
+                        $('#Results').html(response);
+                        });
                 });
                 $displayEl.append($btn);
             };
 
             if (type == 'Daily') {
                 dailyGrid = $('#visitTable').grid({
-                    primaryKey: 'pvRecordId',
+                    primaryKey: 'visitId',
                     inlineEditing: { mode: 'dblclick' },
                     dataSource: '/Record/LoadDaily',
                     selectionType: 'multiple',
@@ -35,6 +44,7 @@
                     columns: [
                         { field: 'pvRecordId', hidden: true },
                         { field: 'patientId', hidden: true },
+                        { filed: 'visitId', hidden: true },
                         { field: 'patientName', title: 'Patient Name', editor: true },
                         { field: 'clinicName', title: 'Clinic Name', editor: { datasource: '/Record/GetClinic', valuefield: 'ClinicId' }, editField:'ClinicId' },
                         { field: 'pvFinClass', title: 'Finacial Class'},
@@ -43,7 +53,7 @@
                         { field: 'icdCodes', title: 'Icd Codes'},
                         { field: 'officeKey', title: 'Office Key' },
                         { field: 'visitTime', title: 'Visit Date' },
-                        { field: 'Action', renderer: detailButtonRender }
+                        { field: 'Action', renderer: detailButtonRender}
                     ],
                     pager: { limit: 10, sizes: [2, 5, 10, 20] },
                     detailTemplate: '<div><table/></div>'                  
@@ -51,8 +61,8 @@
 
                 dailyGrid.on('detailExpand', function (e, $detailWrapper, id) {
                     $detailWrapper.find('table').grid({
-                        params: { pateintId: id },
-                        dataSource: '/Record/Payers',
+                        params: { visitId: id },
+                        dataSource: '/Record/Payer',
                         autoGenerateColumns: true,
                         pager: { limit: 5 }
                     });
@@ -190,6 +200,7 @@ else
         </div>
 
     }
+    </div>
 <p></p>
 <div class="row">
     <div class="col-lg-10">

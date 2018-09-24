@@ -12,7 +12,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Views\Record\" />
     <Folder Include="wwwroot\lib\datatable-editor\" />
   </ItemGroup>
 

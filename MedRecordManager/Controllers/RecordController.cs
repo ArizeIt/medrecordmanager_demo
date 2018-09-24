@@ -78,6 +78,7 @@ namespace MedRecordManager.Controllers
             }
             var records = query.Select(y => new VisitRecordVm()
             {
+                VisitId = y.VisitId,
                 PatientId = y.PvPaitentId,
                 ClinicName = y.ClinicId,
                 DiagCode = y.DiagCodes.Replace("|", ","),
@@ -100,31 +101,24 @@ namespace MedRecordManager.Controllers
             return Json(new { records, total });                          
         }
 
-        public IActionResult Payer(int? page, int? limit, string sortBy, string direction, int? patientId)
+        public IActionResult Payer(int? page, int? limit, string sortBy, string direction, int visitId)
         {
 
             IQueryable<PayerInformation> query;
-            if (patientId != 0 && patientId.HasValue)
+
+            query = _urgentCareContext.Set<PayerInformation>().Where(x => visitId == x.VisitId);
+
+            var records = query.ToList();
+
+            var total = records.Count();
+
+            if (page.HasValue && limit.HasValue)
             {
-                query = _urgentCareContext.Set<PayerInformation>().Where(x => patientId == x.PayerNum);
-
-                var records = query.ToList();
-
-                var total = records.Count();
-
-                if (page.HasValue && limit.HasValue)
-                {
-                    var start = (page.Value - 1) * limit.Value;
-                    records = records.Skip(start).Take(limit.Value).ToList();
-                }
-                return Json(new { records, total });
+                var start = (page.Value - 1) * limit.Value;
+                records = records.Skip(start).Take(limit.Value).ToList();
             }
-            else
-            {
-                return null;
-            }
+            return Json(new { records, total });
         }
-
         public IActionResult LoadCallback(int? page, int? limit, string sortBy, string direction, string office, string clinic, DateTime startDate, DateTime endDate)
         {
 
@@ -157,6 +151,18 @@ namespace MedRecordManager.Controllers
 
 
             return Json(new { records, total });
+        }
+
+        public IActionResult GetDetails(int visitId)
+        {
+            IQueryable<PayerInformation> payerQuery;
+            IQueryable<GuarantorInformation> GuarantorQuery;
+            IQueryable<ChartDoc> ChartQuery;
+
+            var detailRecord = new DetailRecord();
+
+            return PartialView("DetailView", detailRecord);
+
         }
 
         public IActionResult GetClinic()
