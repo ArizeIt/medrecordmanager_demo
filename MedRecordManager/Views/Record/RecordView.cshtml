@@ -12,9 +12,7 @@
         var guarantorGrid;
 
         $(document).ready(function () {
-            
             var type = $('#searchType').val();
-
             var detailButtonRender = function (value, record, $cell, $displayEl) {
                 var $btn = $('<button type="button" class="btn btn-danger">Detail</button>').on('click', function () {
                     $.ajax({
@@ -26,11 +24,10 @@
                         dataType: 'json',
                     }).done(function (response) {
                         $('#Results').html(response);
-                        });
+                    });
                 });
                 $displayEl.append($btn);
             };
-
             if (type == 'Daily') {
                 dailyGrid = $('#visitTable').grid({
                     primaryKey: 'visitId',
@@ -46,17 +43,17 @@
                         { field: 'patientId', hidden: true },
                         { filed: 'visitId', hidden: true },
                         { field: 'patientName', title: 'Patient Name', editor: true },
-                        { field: 'clinicName', title: 'Clinic Name', editor: { datasource: '/Record/GetClinic', valuefield: 'ClinicId' }, editField:'ClinicId' },
-                        { field: 'pvFinClass', title: 'Finacial Class'},
-                        { field: 'payment', title: 'Payment'},
-                        { field: 'diagCode', title: 'Diag Codes'},
-                        { field: 'icdCodes', title: 'Icd Codes'},
+                        { field: 'clinicName', title: 'Clinic Name', editor: { datasource: '/Record/GetClinic', valuefield: 'ClinicId' }, editField: 'ClinicId' },
+                        { field: 'pvFinClass', title: 'Finacial Class' },
+                        { field: 'payment', title: 'Payment' },
+                        { field: 'diagCode', title: 'Diag Codes' },
+                        { field: 'icdCodes', title: 'Icd Codes' },
                         { field: 'officeKey', title: 'Office Key' },
                         { field: 'visitTime', title: 'Visit Date' },
-                        { field: 'Action', renderer: detailButtonRender}
+                        { field: 'Action', renderer: detailButtonRender }
                     ],
                     pager: { limit: 10, sizes: [2, 5, 10, 20] },
-                    detailTemplate: '<div><table/></div>'                  
+                    detailTemplate: '<div><table/></div>'
                 });
 
                 dailyGrid.on('detailExpand', function (e, $detailWrapper, id) {
@@ -113,7 +110,7 @@
 
             $('#startDate').datepicker({
                 uiLibrary: 'bootstrap'
-                });
+            });
 
             $('#endDate').datepicker({
                 uiLibrary: 'bootstrap'
@@ -136,78 +133,101 @@
                     dailyGrid.reload({ office: $('#officeKey').val(), startDate: $('#startDate').val(), endDate: $('#endDate').val() });
                 }
 
+                addTab();
             });
-          
 
+            //$('.nav-tab').on('click', "a", function (e) {
+            //    e.preventDefault();
+
+            //}).on('click', 'span', function () {
+            //    var anchor = $(this).siblings('a');
+            //    $(anchor.attr('href')).remove();
+            //    $(this).parent().remove();
+            //   $(".nav-tabs li").children('a').first().click();
+            // });
+
+            function addTab() {
+                $('.nav-tabs').find('li').after('<li><a data-toggle="tab" href="#detail"><b>Detail View</b></a></li>');
+                $('.tab-content').append('<div class="tab-pane" id="detail" >This is  the detail view</div>');
+                $(".nav-tabs li").children('a').last().click();
+                
+            }
         });
-      
+
     </script>
 
 }
 
+    <ul class="nav nav-tabs" role="tablist">
+        @if (Model.Type == "Daily")
+        {
+            <li class="active"><a data-toggle="tab" href="#mainView"><b>Daily Review</b></a></li>
 
-@if (Model.Type == "Daily")
-{
-    <h2>Daily Review</h2>
-}
-else
-{
-    <h2>Call Back</h2>
-}
+        }
+        else if (Model.Type == "Callback")
+        {
+            <li class="active"><a data-toggle="tab" href="#mainView"><b>Call Back</b></a></li>
 
-    <input type="hidden" asp-for="Type" id="searchType" />
-    <div class="row">
-        <div class="col-sm-2">
-            <div class="form-group">
-                <label asp-for="OfficeKey" class="control-label"> Select Office Key(s)</label>
-                <select class="form-control" asp-for="OfficeKey" , asp-items="@Model.OfficeKeys" id="officeKey" multiple></select>
-            </div>
-        </div>
+        }
 
-        <div class="col-sm-2">
-            <div class="form-group">
-                <label asp-for="StartDate" class="control-label">Visit Start Date</label>
-                <input class="form-control date" id="startDate" />
-            </div>
-        </div>
-
-        <div class="col-sm-2">
-            <div class="form-group">
-                <label asp-for="EndDate" class="control-label">Visit End Date</label>
-                    <input class="form-control date" id="endDate" />
-                </div>
-            
-        </div>
-        <div class="col-sm-1">
-            <div class="form-group">
-                <div class="control-group">
-                    <div style="margin-top: 24px;">
-                        <input type="button" value="Search" class="btn btn-primary" id="searchButton" />
+    </ul>
+    <div class="tab-content">
+        <div class="tab-pane active"  id="mainView">
+            <input type="hidden" asp-for="Type" id="searchType" />
+            <div class="row">
+                <div class="col-sm-2">
+                    <div class="form-group">
+                        <label asp-for="OfficeKey" class="control-label"> Select Office Key(s)</label>
+                        <select class="form-control" asp-for="OfficeKey" , asp-items="@Model.OfficeKeys" id="officeKey" multiple></select>
                     </div>
-            </div>
-        </div>
-   </div>
+                </div>
 
-    @if (Model.Type == "Callback")
-    {
-        <div class="row">
-            <div class="col-sm-2">
-                <div class="form-group">
-                    <label asp-for="Clinic" class="control-label">Select Clinic(s)</label>
-                    <select class="form-control" asp-for="Clinic" , asp-items="@Model.Clinics" id="officeKey" multiple></select>
+                <div class="col-sm-2">
+                    <div class="form-group">
+                        <label asp-for="StartDate" class="control-label">Visit Start Date</label>
+                        <input class="form-control date" id="startDate" />
+                    </div>
+                </div>
+
+                <div class="col-sm-2">
+                    <div class="form-group">
+                        <label asp-for="EndDate" class="control-label">Visit End Date</label>
+                        <input class="form-control date" id="endDate" />
+                    </div>
+
+                </div>
+                <div class="col-sm-1">
+                    <div class="form-group">
+                        <div class="control-group">
+                            <div style="margin-top: 24px;">
+                                <input type="button" value="Search" class="btn btn-primary" id="searchButton" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                @if (Model.Type == "Callback")
+                {
+                    <div class="row">
+                        <div class="col-sm-2">
+                            <div class="form-group">
+                                <label asp-for="Clinic" class="control-label">Select Clinic(s)</label>
+                                <select class="form-control" asp-for="Clinic" , asp-items="@Model.Clinics" id="officeKey" multiple></select>
+                            </div>
+                        </div>
+                    </div>
+
+                }
+            </div>
+            <p></p>
+            <div class="row">
+                <div class="col-lg-10">
+                    <div id="Results">
+                        <div class="table-responsive">
+                            <table id="visitTable" class="table"></table>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
-
-    }
     </div>
-<p></p>
-<div class="row">
-    <div class="col-lg-10">
-        <div id="Results">
-            <div class="table-responsive">
-                <table id="visitTable" class="table"></table>
-            </div>
-        </div>
-    </div>
-</div>
