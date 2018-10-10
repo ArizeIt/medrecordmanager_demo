@@ -11,20 +11,22 @@
         var payerGrid;
         var guarantorGrid;
 
+       
         $(document).ready(function () {
             var type = $('#searchType').val();
             var detailButtonRender = function (value, record, $cell, $displayEl) {
-                var $btn = $('<button type="button" class="btn btn-danger">Detail</button>').on('click', function () {
-                    $.ajax({
-                        type: "GET",
-                        data: {
-                            visitId: record.visitId
-                        },
-                        url: "/Record/GetDetails",
-                        dataType: 'json',
-                    }).done(function (response) {
-                        $('#Results').html(response);
-                    });
+                var $btn = $('<button type="button" class="btn btn-danger btnDetail">Detail</button>').on('click', function () {
+                    addTab(record.visitId);
+                    //$.ajax({
+                    //    type: "GET",
+                    //    data: {
+                    //        visitId: record.visitId
+                    //    },
+                    //    url: "/Record/GetDetails",
+                    //    dataType: 'json',
+                    //}).done(function (response) {
+                    //    $('#Results').html(response);
+                    //});
                 });
                 $displayEl.append($btn);
             };
@@ -133,10 +135,28 @@
                     dailyGrid.reload({ office: $('#officeKey').val(), startDate: $('#startDate').val(), endDate: $('#endDate').val() });
                 }
 
-                addTab();
+
             });
 
-            //$('.nav-tab').on('click', "a", function (e) {
+
+            $('#btnRun').click(function () {
+                $('#btnRun').attr('disabled', true);
+                //$.ajax({
+                //    url: 'http://172.31.22.98/api/default',
+                //    data: {
+                //        officeKey:"",
+                //        startDate: $('#startDate').val(),
+                //        endDate: $('#endDate').val()
+                //    },
+                //    type: 'Post',
+                //    success: function (response) {
+                //        $('#btnRun').attr('disabled', false);
+                //    },
+                //    dataType:'json'
+                //})
+            })
+
+             //$('.nav-tab').on('click', "a", function (e) {
             //    e.preventDefault();
 
             //}).on('click', 'span', function () {
@@ -145,13 +165,15 @@
             //    $(this).parent().remove();
             //   $(".nav-tabs li").children('a').first().click();
             // });
-
-            function addTab() {
-                $('.nav-tabs').find('li').after('<li><a data-toggle="tab" href="#detail"><b>Detail View</b></a></li>');
-                $('.tab-content').append('<div class="tab-pane" id="detail" >This is  the detail view</div>');
+            function addTab(id) {
+                $('.nav-tabs').find('li').last().after('<li><a data-toggle="tab" href="#detail' + id + '"><b>Visit '+ id + '</b></a></li>');
+                $('.tab-content').append('<div class="tab-pane" id="detail' + id + '" +  >This is  the detail view</div>');
                 $(".nav-tabs li").children('a').last().click();
                 
             }
+           
+
+            
         });
 
     </script>
@@ -172,7 +194,7 @@
 
     </ul>
     <div class="tab-content">
-        <div class="tab-pane active"  id="mainView">
+        <div class="tab-pane active" id="mainView">
             <input type="hidden" asp-for="Type" id="searchType" />
             <div class="row">
                 <div class="col-sm-2">
@@ -229,5 +251,10 @@
                     </div>
                 </div>
             </div>
-        </div>
+            <div class="row">
+                <div class="col-sm-1 " style="float: left">
+                    <button class="btn btn-success text-right" id="btnRun">Run</button>
+                    </div>
+                </div>
+            </div>
     </div>

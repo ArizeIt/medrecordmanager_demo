@@ -6,6 +6,7 @@ using MedRecordManager.Models.DailyRecord;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
 using UgentCareDate;
 using UgentCareDate.Models;
 using UrgentCareData.Models;
@@ -27,12 +28,12 @@ namespace MedRecordManager.Controllers
             {
                 Type = "Daily",
 
-                OfficeKeys = _urgentCareContext.Set<ClinicProfile>().DistinctBy(x => x.OfficeKey).Select(y =>
+                OfficeKeys = _urgentCareContext.ProgramConfig.Where(x=> !x.AmdSync).DistinctBy(x => x.AmdofficeKey).Select(y =>
                     new SelectListItem
                     {
                         Selected = false,
-                        Text = y.OfficeKey.ToString(),
-                        Value = y.OfficeKey.ToString()
+                        Text = y.AmdofficeKey.ToString(),
+                        Value = y.AmdofficeKey.ToString()
                     })
             };
             return View("RecordView", vm);
@@ -44,15 +45,15 @@ namespace MedRecordManager.Controllers
             var vm = new SearchInputs()
             {
                 Type = "Callback",
-                OfficeKeys = _urgentCareContext.Set<ClinicProfile>().DistinctBy(x => x.OfficeKey).Select(y =>
-                    new SelectListItem
-                    {
-                        Selected = false,
-                        Text = y.OfficeKey.ToString(),
-                        Value = y.OfficeKey.ToString()
-                    }),
+                OfficeKeys = _urgentCareContext.ProgramConfig.Where(x => !x.AmdSync).DistinctBy(x => x.AmdofficeKey).Select(y =>
+                     new SelectListItem
+                     {
+                         Selected = false,
+                         Text = y.AmdofficeKey.ToString(),
+                         Value = y.AmdofficeKey.ToString()
+                     }),
 
-                Clinics = _urgentCareContext.Set<ClinicProfile>().DistinctBy(x => x.ClinicId).Select(y =>
+                Clinics = _urgentCareContext.ClinicProfile.DistinctBy(x => x.ClinicId).Select(y =>
                     new SelectListItem
                     {
                         Selected = false,
@@ -70,11 +71,11 @@ namespace MedRecordManager.Controllers
             if (!string.IsNullOrEmpty(office) && startDate != DateTime.MinValue && endDate != DateTime.MinValue)
             {
                 var officekeys = office.Split(',').Select(int.Parse).ToList();
-                query = _urgentCareContext.Set<Visit>().Where(x => officekeys.Contains(x.ClinicProfile.OfficeKey) && x.ServiceDate >= startDate && x.ServiceDate <= endDate);
+                query = _urgentCareContext.Visit.Include(x=>x.ImportLog).Where(x => officekeys.Contains(x.ClinicProfile.OfficeKey) && x.ServiceDate >= startDate && x.ServiceDate <= endDate && x.ImportLog == null);
             }
             else
             {
-                query = _urgentCareContext.Set<Visit>().Where(x=>x.ImportLog !=null && x.ImportLog.AmdimportLog == null);
+                query = _urgentCareContext.Visit.Where(x=>x.ImportLog !=null && x.ImportLog.AmdimportLog == null);
             }
             var records = query.Select(y => new VisitRecordVm()
             {
@@ -106,7 +107,7 @@ namespace MedRecordManager.Controllers
 
             IQueryable<PayerInformation> query;
 
-            query = _urgentCareContext.Set<PayerInformation>().Where(x => visitId == x.VisitId);
+            query = _urgentCareContext.PayerInformation.Where(x => visitId == x.VisitId);
 
             var records = query.ToList();
 
@@ -125,11 +126,11 @@ namespace MedRecordManager.Controllers
             IQueryable<Visit> query;
             if (string.IsNullOrEmpty(office) && startDate != DateTime.MinValue && endDate != DateTime.MinValue)
             {
-                query = _urgentCareContext.Set<Visit>().Where(x => x.ServiceDate > startDate && x.ServiceDate < endDate);
+                query = _urgentCareContext.Visit.Where(x => x.ServiceDate > startDate && x.ServiceDate < endDate);
             }
             else
             {
-                query = _urgentCareContext.Set<Visit>();
+                query = _urgentCareContext.Visit;
             }
             var records = query.Select(y => new PatientVisitVM()
             {
@@ -167,7 +168,7 @@ namespace MedRecordManager.Controllers
 
         public IActionResult GetClinic()
         {
-            var clinics= _urgentCareContext.Set<ClinicProfile>().Select (x=>x.ClinicId);
+            var clinics= _urgentCareContext.ClinicProfile.Select (x=>x.ClinicId);
 
             return Json(new {clinics});
         }
