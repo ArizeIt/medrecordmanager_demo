@@ -11,6 +11,8 @@ namespace MedRecordManager.Models.DailyRecord
 
         public int ChartId { get; set; }
         public Guarantor GuarantorInfor { get; set; }
+
+        public string VisitId { get; set; }
     }
 
     public class Guarantor

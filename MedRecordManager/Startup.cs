@@ -1,12 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MedRecordManager.Data;
@@ -14,7 +10,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using UgentCareDate;
 using MedRecordManager.Services;
-using MedRecordManager.Models;
+using Microsoft.AspNetCore.Authentication.Cookies;
 
 namespace MedRecordManager
 {
@@ -37,19 +33,30 @@ namespace MedRecordManager
                 options.MinimumSameSitePolicy = SameSiteMode.None;
             });
 
-
+            services.Configure<IdentityOptions>(options=>
+            {
+                options.SignIn.RequireConfirmedEmail = true;
+                options.SignIn.RequireConfirmedPhoneNumber = false;
+            });
 
             services.AddDbContext<ApplicationDbContext>(options =>
-            options.UseSqlServer(
-                Configuration.GetConnectionString("accountConnection")));
+                 options.UseSqlServer(
+                 Configuration.GetConnectionString("accountConnection")));
+
             services.AddDefaultIdentity<IdentityUser>()
                 .AddEntityFrameworkStores<ApplicationDbContext>();
 
+           
             services.AddDbContext<UrgentCareContext>(options => options.UseSqlServer(Configuration.GetConnectionString("defaultConnection")));
 
             services.ConfigureApplicationCookie(options =>
             {
-                options.Cookie.HttpOnly = true; options.ExpireTimeSpan = TimeSpan.FromMinutes(60); options.LoginPath = "/Account/Login"; options.AccessDeniedPath = "/Account/AccessDenied"; options.SlidingExpiration = true;
+                options.Cookie.HttpOnly = true;
+                options.ExpireTimeSpan = TimeSpan.FromMinutes(60);
+                options.LoginPath = "/Account/Login";
+                options.AccessDeniedPath = "/Account/AccessDenied";
+                options.ReturnUrlParameter = CookieAuthenticationDefaults.ReturnUrlParameter;
+                options.SlidingExpiration = true;
             });
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
@@ -78,7 +85,7 @@ namespace MedRecordManager
             app.UseCookiePolicy();
 
             app.UseAuthentication();
-
+          
             app.UseMvc(routes =>
             {
                 routes.MapRoute(

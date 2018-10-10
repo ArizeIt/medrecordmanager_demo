@@ -45,7 +45,7 @@
                         { field: 'patientId', hidden: true },
                         { filed: 'visitId', hidden: true },
                         { field: 'patientName', title: 'Patient Name', editor: true },
-                        { field: 'clinicName', title: 'Clinic Name', editor: { datasource: '/Record/GetClinic', valuefield: 'ClinicId' }, editField: 'ClinicId' },
+                        { field: 'clinicName', title: 'Clinic Name', type:'dropdown', editor: { datasource: '/Record/GetClinic', valuefield: 'ClinicId' }, editField: 'ClinicId' },
                         { field: 'pvFinClass', title: 'Finacial Class' },
                         { field: 'payment', title: 'Payment' },
                         { field: 'diagCode', title: 'Diag Codes' },
@@ -166,8 +166,17 @@
             //   $(".nav-tabs li").children('a').first().click();
             // });
             function addTab(id) {
-                $('.nav-tabs').find('li').last().after('<li><a data-toggle="tab" href="#detail' + id + '"><b>Visit '+ id + '</b></a></li>');
-                $('.tab-content').append('<div class="tab-pane" id="detail' + id + '" +  >This is  the detail view</div>');
+                $('.nav-tabs').find('li').last().after('<li><a data-toggle="tab" href="#detail' + id + '"><b>Visit ' + id + '</b></a></li>');
+                 $.ajax({
+                        type: "GET",
+                        data: {
+                            visitId: record.visitId
+                        },
+                        url: "/Record/GetDetails",
+                        dataType: 'json',
+                    }).done(function (response) {
+                        $('.tab-content').append(response);
+                    }); 
                 $(".nav-tabs li").children('a').last().click();
                 
             }
