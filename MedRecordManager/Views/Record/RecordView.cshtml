@@ -28,31 +28,32 @@
                     //    $('#Results').html(response);
                     //});
                 });
-                $displayEl.append($btn);
+                if ($displayEl.children().length == 0) {
+                    $displayEl.append($btn);
+                }
+                
             };
             if (type == 'Daily') {
                 dailyGrid = $('#visitTable').grid({
                     primaryKey: 'visitId',
                     inlineEditing: { mode: 'dblclick' },
                     dataSource: '/Record/LoadDaily',
-                    selectionType: 'multiple',
-                    selectionMethod: 'checkbox',
-                    uiLibrary: 'bootstrap',
+                    uiLibrary: 'materialdesign',
                     columnReorder: true,
 
                     columns: [
                         { field: 'pvRecordId', hidden: true },
                         { field: 'patientId', hidden: true },
                         { filed: 'visitId', hidden: true },
-                        { field: 'patientName', title: 'Patient Name', editor: true },
-                        { field: 'clinicName', title: 'Clinic Name', type:'dropdown', editor: { datasource: '/Record/GetClinic', valuefield: 'ClinicId' }, editField: 'ClinicId' },
-                        { field: 'pvFinClass', title: 'Finacial Class' },
-                        { field: 'payment', title: 'Payment' },
-                        { field: 'diagCode', title: 'Diag Codes' },
-                        { field: 'icdCodes', title: 'Icd Codes' },
-                        { field: 'officeKey', title: 'Office Key' },
-                        { field: 'visitTime', title: 'Visit Date' },
-                        { field: 'Action', renderer: detailButtonRender }
+                        { field: 'patientName', minWidth: 250, title: 'Patient Name', editor: true },
+                        { field: 'clinicName', minWidth: 150, title: 'Clinic Name', type: 'dropdown', editor: { dataSource: '/Record/GetClinic', valueField: 'id' }, editField: 'clinicName' },
+                        { field: 'pvFinClass', width:100, title: 'Finacial Class' },
+                        { field: 'payment $', width: 100, title: 'Payment'},
+                        { field: 'diagCode', width: 150,title: 'Diag Codes' },
+                        { field: 'icdCodes', width: 150,title: 'Icd Codes' },
+                        { field: 'procCodes', width: 150,title: 'Proc Codes' },
+                        { field: 'visitTime', width: 100, title: 'Visit Date' },
+                        { field: 'Action', width:100, renderer: detailButtonRender }
                     ],
                     pager: { limit: 10, sizes: [2, 5, 10, 20] },
                     detailTemplate: '<div><table/></div>'
@@ -62,8 +63,7 @@
                     $detailWrapper.find('table').grid({
                         params: { visitId: id },
                         dataSource: '/Record/Payer',
-                        autoGenerateColumns: true,
-                        pager: { limit: 5 }
+                        autoGenerateColumns: true
                     });
                 });
 
@@ -135,25 +135,25 @@
                     dailyGrid.reload({ office: $('#officeKey').val(), startDate: $('#startDate').val(), endDate: $('#endDate').val() });
                 }
 
-
+                $('#dataView').show();
             });
 
 
             $('#btnRun').click(function () {
                 $('#btnRun').attr('disabled', true);
-                //$.ajax({
-                //    url: 'http://172.31.22.98/api/default',
-                //    data: {
-                //        officeKey:"",
-                //        startDate: $('#startDate').val(),
-                //        endDate: $('#endDate').val()
-                //    },
-                //    type: 'Post',
-                //    success: function (response) {
-                //        $('#btnRun').attr('disabled', false);
-                //    },
-                //    dataType:'json'
-                //})
+                $.ajax({
+                    url: 'http://172.31.22.98/api/default',
+                    data: {
+                        officeKey:"",
+                        startDate: $('#startDate').val(),
+                        endDate: $('#endDate').val()
+                    },
+                    type: 'Post',
+                    success: function (response) {
+                        $('#btnRun').attr('disabled', false);
+                    },
+                    dataType:'json'
+                })
             })
 
              //$('.nav-tab').on('click', "a", function (e) {
@@ -170,7 +170,7 @@
                  $.ajax({
                         type: "GET",
                         data: {
-                            visitId: record.visitId
+                            visitId: id
                         },
                         url: "/Record/GetDetails",
                         dataType: 'json',
@@ -251,8 +251,8 @@
                 }
             </div>
             <p></p>
-            <div class="row">
-                <div class="col-lg-10">
+            <div class="row" id="dataView" style="display:none">
+                <div class="col-sm-10">
                     <div id="Results">
                         <div class="table-responsive">
                             <table id="visitTable" class="table"></table>

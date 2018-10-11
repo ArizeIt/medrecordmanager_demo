@@ -33,12 +33,7 @@ namespace MedRecordManager
                 options.MinimumSameSitePolicy = SameSiteMode.None;
             });
 
-            services.Configure<IdentityOptions>(options=>
-            {
-                options.SignIn.RequireConfirmedEmail = true;
-                options.SignIn.RequireConfirmedPhoneNumber = false;
-            });
-
+          
             services.AddDbContext<ApplicationDbContext>(options =>
                  options.UseSqlServer(
                  Configuration.GetConnectionString("accountConnection")));

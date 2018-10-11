@@ -22,6 +22,8 @@ namespace MedRecordManager.Models.DailyRecord
 
         public int PvRecordId {get; set;}
 
+        public string ProcCodes { get; set; }
+
         public int VisitId { get; set; }
     }
 

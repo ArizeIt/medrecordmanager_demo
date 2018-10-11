@@ -82,14 +82,15 @@ namespace MedRecordManager.Controllers
                 VisitId = y.VisitId,
                 PatientId = y.PvPaitentId,
                 ClinicName = y.ClinicId,
-                DiagCode = y.DiagCodes.Replace("|", ","),
+                DiagCode = y.DiagCodes.Replace("|", "<br/>"),
                 PvRecordId = y.PvlogNum,
                 VisitTime = y.ServiceDate.ToShortDateString(),
                 PatientName = y.PvPaitent.FirstName + " " + y.PvPaitent.LastName,
                 OfficeKey = y.ClinicProfile.OfficeKey.ToString(),
                 PVFinClass = y.PayerInformation.FirstOrDefault().Class.ToString(),
-                IcdCodes = y.Icdcodes.Replace("|", ","),
-                Payment = y.CoPayAmount.GetValueOrDefault()
+                IcdCodes = y.Icdcodes.Replace("|", "<br/>"),
+                Payment = y.CoPayAmount.GetValueOrDefault(),
+                ProcCodes = y.ProcCodes.Replace(",|", "<br/>")
             }).ToList();
 
             var total = records.Count();
@@ -160,7 +161,9 @@ namespace MedRecordManager.Controllers
             IQueryable<GuarantorInformation> GuarantorQuery;
             IQueryable<ChartDoc> ChartQuery;
 
-            var detailRecord = new DetailRecord();
+            var detailRecord = new DetailRecord {
+                VisitId = visitId.ToString()
+            };
 
             return PartialView("DetailView", detailRecord);
 
@@ -168,9 +171,9 @@ namespace MedRecordManager.Controllers
 
         public IActionResult GetClinic()
         {
-            var clinics= _urgentCareContext.ClinicProfile.Select (x=>x.ClinicId);
+            var clinics = _urgentCareContext.ClinicProfile.Select(x => new {id = x.ClinicId, text= x.ClinicId});
 
-            return Json(new {clinics});
+            return Json(clinics);
         }
 
 
