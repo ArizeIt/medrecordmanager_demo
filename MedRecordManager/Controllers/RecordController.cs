@@ -3,6 +3,7 @@ using System.Linq;
 using MedRecordManager.Extension;
 using MedRecordManager.Models;
 using MedRecordManager.Models.DailyRecord;
+using MedRecordManager.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -17,10 +18,11 @@ namespace MedRecordManager.Controllers
     public class RecordController : Controller
     {
         private readonly UrgentCareContext _urgentCareContext;
-
-        public RecordController(UrgentCareContext urgentData)
+        private readonly IViewRenderService _viewRenderService;
+        public RecordController(UrgentCareContext urgentData, IViewRenderService viewRenderService)
         {
              _urgentCareContext = urgentData;
+            _viewRenderService = viewRenderService;
         }
         public IActionResult Review()
         {
@@ -164,7 +166,10 @@ namespace MedRecordManager.Controllers
             var detailRecord = new DetailRecord {
                 VisitId = visitId.ToString()
             };
-
+            if (HttpContext.Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+            {
+                _viewRenderService.RenderToStringAsync("DetailView", detailRecord);
+            }
             return PartialView("DetailView", detailRecord);
 
         }
@@ -176,6 +181,8 @@ namespace MedRecordManager.Controllers
             return Json(clinics);
         }
 
+
+        
 
     }
 }

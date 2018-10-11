@@ -17,16 +17,6 @@
             var detailButtonRender = function (value, record, $cell, $displayEl) {
                 var $btn = $('<button type="button" class="btn btn-danger btnDetail">Detail</button>').on('click', function () {
                     addTab(record.visitId);
-                    //$.ajax({
-                    //    type: "GET",
-                    //    data: {
-                    //        visitId: record.visitId
-                    //    },
-                    //    url: "/Record/GetDetails",
-                    //    dataType: 'json',
-                    //}).done(function (response) {
-                    //    $('#Results').html(response);
-                    //});
                 });
                 if ($displayEl.children().length == 0) {
                     $displayEl.append($btn);
@@ -156,33 +146,28 @@
                 })
             })
 
-             //$('.nav-tab').on('click', "a", function (e) {
-            //    e.preventDefault();
-
-            //}).on('click', 'span', function () {
-            //    var anchor = $(this).siblings('a');
-            //    $(anchor.attr('href')).remove();
-            //    $(this).parent().remove();
-            //   $(".nav-tabs li").children('a').first().click();
-            // });
             function addTab(id) {
-                $('.nav-tabs').find('li').last().after('<li><a data-toggle="tab" href="#detail' + id + '"><b>Visit ' + id + '</b></a></li>');
-                 $.ajax({
+                if ($('#detail' + id).length == 0) {
+                    $('.nav-tabs').find('li').last().after('<li><a data-toggle="tab" href="#detail' + id + '"><b>Visit ' + id + '</b></a></li>');
+                    $.ajax({
                         type: "GET",
                         data: {
                             visitId: id
                         },
                         url: "/Record/GetDetails",
-                        dataType: 'json',
-                    }).done(function (response) {
-                        $('.tab-content').append(response);
-                    }); 
-                $(".nav-tabs li").children('a').last().click();
-                
-            }
-           
+                        dataType: 'html',
+                        success: function (response) {
 
-            
+                            $('.tab-content').append(response);
+                            $(".nav-tabs li").children('a').last().click();
+                        }
+                    });
+                }
+                else
+                {
+                    $('a[href$="#detail' + id+'"]').click();
+                }
+            }   
         });
 
     </script>

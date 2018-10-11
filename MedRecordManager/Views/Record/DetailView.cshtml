@@ -1,13 +1,14 @@
-﻿@Model MedRecordManager.Models.DetailRecord
+﻿@model MedRecordManager.Models.DailyRecord.DetailRecord
 @{
     ViewData["Title"] = "Detail Record View";
 }
 
-@{
-    var tabid = "detail" + Model.visitId;
-    <div class="tab-pane" id="@tabid">
-
-    </div>
+@{ 
+    var tabId = "detail" + Model.VisitId;
 }
+    <div class="tab-pane" id="@tabId">
+        TODO: This visit detail will be displayed
+    </div>
+
 
 
