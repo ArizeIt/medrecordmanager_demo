@@ -14,36 +14,62 @@
        
         $(document).ready(function () {
             var type = $('#searchType').val();
-            var detailButtonRender = function (value, record, $cell, $displayEl) {
-                var $btn = $('<button type="button" class="btn btn-danger btnDetail">Detail</button>').on('click', function () {
-                    addTab(record.visitId);
-                });
-                if ($displayEl.children().length == 0) {
-                    $displayEl.append($btn);
-                }
+           
+            var editManager = function (value, record, $cell, $displayEl, id, $grid) {
+                var data = $grid.data(),                  
+                    $detail = $('<button type="button"class="btn btn-info">Detail</button>').attr('data-key', id),
+                    $edit = $('<button type="button"class="btn btn-danger">Edit</button>').attr('data-key', id),
+                    $update = $('<button type="button"class="btn btn-success">Update</button>').attr('data-key',id).hide(),
+                    $cancel = $('<button type="button"class="btn btn-default">Cancel</button>').attr('data-key', id).hide();
+                    
                 
+                $detail.on('click', function (e) {
+                    addTab($(this).data('key'))
+                });
+                $edit.on('click', function (e) {
+                    $grid.edit($(this).data('key'));
+                    $edit.hide();
+                    $detail.hide();
+                    $update.show();
+                    $cancel.show();
+                });
+                $update.on('click', function (e) {
+                    $grid.update($(this).data('key'));
+                    $edit.show();
+                    $detail.show();
+                    $update.hide();
+                    $cancel.hide();
+                });
+                $cancel.on('click', function (e) {
+                    $grid.cancel($(this).data('key'));
+                    $edit.show();
+                    $detail.show();
+                    $update.hide();
+                    $cancel.hide();
+                });
+                $displayEl.empty().append($detail).append($edit).append($update).append($cancel).append('</div>');
             };
+
             if (type == 'Daily') {
                 dailyGrid = $('#visitTable').grid({
                     primaryKey: 'visitId',
-                    inlineEditing: { mode: 'dblclick' },
+                    inlineEditing: { mode: 'command', managementColumn: false},
                     dataSource: '/Record/LoadDaily',
-                    uiLibrary: 'materialdesign',
                     columnReorder: true,
 
                     columns: [
-                        { field: 'pvRecordId', hidden: true },
-                        { field: 'patientId', hidden: true },
+                        { field: 'pvRecordId', width:80, title: 'PV RecordId' },
                         { filed: 'visitId', hidden: true },
-                        { field: 'patientName', minWidth: 250, title: 'Patient Name', editor: true },
-                        { field: 'clinicName', minWidth: 150, title: 'Clinic Name', type: 'dropdown', editor: { dataSource: '/Record/GetClinic', valueField: 'id' }, editField: 'clinicName' },
-                        { field: 'pvFinClass', width:100, title: 'Finacial Class' },
-                        { field: 'payment $', width: 100, title: 'Payment'},
-                        { field: 'diagCode', width: 150,title: 'Diag Codes' },
-                        { field: 'icdCodes', width: 150,title: 'Icd Codes' },
-                        { field: 'procCodes', width: 150,title: 'Proc Codes' },
-                        { field: 'visitTime', width: 100, title: 'Visit Date' },
-                        { field: 'Action', width:100, renderer: detailButtonRender }
+                        { field: 'patientName', minWidth: 300, title: 'Patient Name', editor: true },
+                        { field: 'clinicName', minWidth: 100, title: 'Clinic Name', type: 'dropdown', editor: { dataSource: '/Record/GetClinic', valueField: 'id' }, editField: 'clinicName' },
+                        { field: 'pvFinClass', minwidth:100, title: 'Finacial Class' },
+                        { field: 'payment', minwidth: 100, title: 'Payment $'},
+                        //{ field: 'diagCode', width: 150,title: 'Diag Codes' },
+                        //{ field: 'icdCodes', width: 150,title: 'Icd Codes' },
+                        { field: 'procCodes', minwidth: 150,title: 'Proc Codes' },
+                        { field: 'visitTime', minwidth: 100, title: 'Visit Date' },
+                        //{ field: 'Action', width: 100, renderer: detailButtonRender },
+                        {field:'Actions', minwidth: 200, renderer: editManager }
                     ],
                     pager: { limit: 10, sizes: [2, 5, 10, 20] },
                     detailTemplate: '<div><table/></div>'
@@ -60,6 +86,17 @@
                 dailyGrid.on('detailCollapse', function (e, $detailWrapper, id) {
                     $detailWrapper.find('table').grid('destroy', true, true);
                 });
+
+                dailyGrid.on('rowDataChanged', function (e, id, record) {
+                    var data = $.extend(true, {}, record);
+                    $.ajax({
+                        url: "",
+                        data: { record: data },
+                        method: 'POST'
+                    }).fail(function () {
+                        alert("Failt to save the changes.")
+                    })
+                })
             }
             else if (type == 'Callback') {
                 dailyGrid = $('#visitTable').grid({
@@ -125,7 +162,7 @@
                     dailyGrid.reload({ office: $('#officeKey').val(), startDate: $('#startDate').val(), endDate: $('#endDate').val() });
                 }
 
-                $('#dataView').show();
+                $('.dataView').show();
             });
 
 
@@ -134,12 +171,12 @@
                 $.ajax({
                     url: 'http://172.31.22.98/api/default',
                     data: {
-                        officeKey:"",
+                        officeKey: $('#officeKey').val(),
                         startDate: $('#startDate').val(),
                         endDate: $('#endDate').val()
                     },
                     type: 'Post',
-                    success: function (response) {
+                    success: function () {
                         $('#btnRun').attr('disabled', false);
                     },
                     dataType:'json'
@@ -236,7 +273,7 @@
                 }
             </div>
             <p></p>
-            <div class="row" id="dataView" style="display:none">
+            <div class="row dataView"  style="display:none">
                 <div class="col-sm-10">
                     <div id="Results">
                         <div class="table-responsive">
@@ -245,7 +282,7 @@
                     </div>
                 </div>
             </div>
-            <div class="row">
+            <div class="row dataView" style="display:none">
                 <div class="col-sm-1 " style="float: left">
                     <button class="btn btn-success text-right" id="btnRun">Run</button>
                     </div>

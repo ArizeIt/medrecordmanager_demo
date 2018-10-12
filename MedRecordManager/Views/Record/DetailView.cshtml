@@ -7,7 +7,60 @@
     var tabId = "detail" + Model.VisitId;
 }
     <div class="tab-pane" id="@tabId">
-        TODO: This visit detail will be displayed
+        <div class="row">
+            <div class="col-lg-10">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th scope="col">Paitent</th>
+                            <th scope="col">First Name</th>
+                            <th scope="col">Last Name</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var guarantor in Model.GuarantorInfo)
+                        {
+                            <tr>
+                                <th scope="row">@guarantor.FirstName</th>
+                                <td>@guarantor.LastName</td>
+                                <td><button class="btn btn-warning">Delete</button></td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <h4>Chart Documents</h4>
+        <div class="row">
+            <div class="col-sm-10">
+                @Html.HiddenFor(model => model.ChartId)
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th scope="col">#</th>
+                            <th scope="col">Document Name</th>
+                            <th scope="col">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var chart in Model.VisitCharts)
+                        {
+                            <tr>
+                                <th scope="row">@chart.ChartDocId</th>
+                                <td>@chart.FileName</td>
+                                <td><button class="glyphicon-eject">Delete</button></td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+                @*<label class="btn btn-primary" for="my-file-selector">
+            <input id="my-file-selector" type="file" style="display:none"
+                   onchange="$('#upload-file-info').html(this.files[0].name)">
+            Button Text Here
+        </label>
+        <span class='label label-info' id="upload-file-info"></span>*@
+            </div>
+        </div>
     </div>
 
 

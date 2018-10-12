@@ -7,10 +7,10 @@ namespace MedRecordManager.Models.DailyRecord
 {
     public class DetailRecord
     {
-        public ChartDoc VisitChart { get; set; }
+        public List<ChartDoc> VisitCharts { get; set; }
 
         public int ChartId { get; set; }
-        public Guarantor GuarantorInfor { get; set; }
+        public IList<Guarantor> GuarantorInfo { get; set; }
 
         public string VisitId { get; set; }
     }

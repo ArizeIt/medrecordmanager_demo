@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using System.Net.Http;
 using MedRecordManager.Extension;
 using MedRecordManager.Models;
 using MedRecordManager.Models.DailyRecord;
@@ -92,7 +93,7 @@ namespace MedRecordManager.Controllers
                 PVFinClass = y.PayerInformation.FirstOrDefault().Class.ToString(),
                 IcdCodes = y.Icdcodes.Replace("|", "<br/>"),
                 Payment = y.CoPayAmount.GetValueOrDefault(),
-                ProcCodes = y.ProcCodes.Replace(",|", "<br/>")
+                ProcCodes = y.ProcCodes.Replace(",|", "<br/>").Replace("|", "<br/>")
             }).ToList();
 
             var total = records.Count();
@@ -159,17 +160,35 @@ namespace MedRecordManager.Controllers
 
         public IActionResult GetDetails(int visitId)
         {
-            IQueryable<PayerInformation> payerQuery;
-            IQueryable<GuarantorInformation> GuarantorQuery;
-            IQueryable<ChartDoc> ChartQuery;
-
-            var detailRecord = new DetailRecord {
+            var detailRecord = new DetailRecord
+            {
                 VisitId = visitId.ToString()
             };
-            if (HttpContext.Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+
+            var visitRec = _urgentCareContext.Visit.SingleOrDefault(x => x.VisitId == visitId);
+            if(visitRec !=null)
             {
-                _viewRenderService.RenderToStringAsync("DetailView", detailRecord);
+                detailRecord.GuarantorInfo = _urgentCareContext.GuarantorInformation.Where(x => x.PvPatientId == visitRec.PvPaitentId).Select(g=> new Guarantor {
+                    FirstName = g.FirstName,
+                    LastName = g.LastName,
+
+                }).ToList();
+
+                detailRecord.ChartId = visitRec.ChartId.Value;
+
+                detailRecord.VisitCharts = _urgentCareContext.ChartDocument.Where(x => x.ChartId == visitRec.ChartId).Select(c => new ChartDoc
+                {
+                    ChartDocId = c.ChartDocId,
+                    FileName = c.FileName
+
+                }).ToList();
+
+            if (HttpContext.Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+                {
+                    _viewRenderService.RenderToStringAsync("DetailView", detailRecord);
+                }
             }
+            
             return PartialView("DetailView", detailRecord);
 
         }
@@ -179,10 +198,7 @@ namespace MedRecordManager.Controllers
             var clinics = _urgentCareContext.ClinicProfile.Select(x => new {id = x.ClinicId, text= x.ClinicId});
 
             return Json(clinics);
-        }
-
-
-        
+        }      
 
     }
 }
