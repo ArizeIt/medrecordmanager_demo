@@ -198,7 +198,23 @@ namespace MedRecordManager.Controllers
             var clinics = _urgentCareContext.ClinicProfile.Select(x => new {id = x.ClinicId, text= x.ClinicId});
 
             return Json(clinics);
-        }      
+        }
+
+        [HttpPost]
+        public IActionResult UpdateVisit(VisitRecordVm record)
+        {
+            var visit = _urgentCareContext.Visit.FirstOrDefault(x => x.VisitId == record.VisitId);
+
+            if(visit != null)
+            {
+                return Json(new {success = true, record });
+            }
+            else
+            {
+                return Json(new { success = false, message = "Can not located this visit record."});
+            }
+
+        }
 
     }
 }

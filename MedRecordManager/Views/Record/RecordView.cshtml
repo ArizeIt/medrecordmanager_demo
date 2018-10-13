@@ -7,19 +7,27 @@
     <script type="text/javascript">
 
         var dailyGrid;
-        var patientGrid;
-        var payerGrid;
-        var guarantorGrid;
 
-       
         $(document).ready(function () {
             var type = $('#searchType').val();
-           
+            var flagManager = function (value, record, $cell, $displayEl, id, $grid) {
+                var $checkBox = $('<input type="checkbox">').attr('dataKey', id);
+
+                $checkBox.on('click', function (e) {
+                    if ($(this).is(':checked')) {
+                        alert('skipe this record')
+                    }
+                    else {
+                        alert('not skip this record')
+                    }
+                });
+                $displayEl.empty().append($checkBox);
+            };
             var editManager = function (value, record, $cell, $displayEl, id, $grid) {
-                var data = $grid.data(),                  
-                    $detail = $('<button type="button"class="btn btn-info">Detail</button>').attr('data-key', id),
-                    $edit = $('<button type="button"class="btn btn-danger">Edit</button>').attr('data-key', id),
-                    $update = $('<button type="button"class="btn btn-success">Update</button>').attr('data-key',id).hide(),
+                var /*data = $grid.data(),    */            
+                    $detail = $('<button type="button"class="btn btn-info">Detail</button><span style="padding-right: 5px"/>').attr('data-key', id),
+                    $edit = $('<button type="button"class="btn btn-warning">Edit</button>').attr('data-key', id),
+                    $update = $('<button type="button"class="btn btn-success">Update</button><span style="padding-right: 5px"/>').attr('data-key',id).hide(),
                     $cancel = $('<button type="button"class="btn btn-default">Cancel</button>').attr('data-key', id).hide();
                     
                 
@@ -47,7 +55,7 @@
                     $update.hide();
                     $cancel.hide();
                 });
-                $displayEl.empty().append($detail).append($edit).append($update).append($cancel).append('</div>');
+                $displayEl.empty().append($detail).append($edit).append($update).append($cancel);
             };
 
             if (type == 'Daily') {
@@ -58,18 +66,19 @@
                     columnReorder: true,
 
                     columns: [
-                        { field: 'pvRecordId', width:80, title: 'PV RecordId' },
+                        //{ field: 'pvRecordId', width:100, title: 'PV RecordId' },
+                        { field: 'Flag', width:50, renderer: flagManager },
                         { filed: 'visitId', hidden: true },
                         { field: 'patientName', minWidth: 300, title: 'Patient Name', editor: true },
-                        { field: 'clinicName', minWidth: 100, title: 'Clinic Name', type: 'dropdown', editor: { dataSource: '/Record/GetClinic', valueField: 'id' }, editField: 'clinicName' },
+                        { field: 'clinicName', minWidth: 150, title: 'Clinic Name', type: 'dropdown', editor: { dataSource: '/Record/GetClinic', valueField: 'id' }, editField: 'clinicName' },
                         { field: 'pvFinClass', minwidth:100, title: 'Finacial Class' },
                         { field: 'payment', minwidth: 100, title: 'Payment $'},
                         //{ field: 'diagCode', width: 150,title: 'Diag Codes' },
                         //{ field: 'icdCodes', width: 150,title: 'Icd Codes' },
-                        { field: 'procCodes', minwidth: 150,title: 'Proc Codes' },
-                        { field: 'visitTime', minwidth: 100, title: 'Visit Date' },
+                        { field: 'procCodes', minwidth: 80,title: 'Proc Codes' },
+                        { field: 'visitTime', minwidth: 80, title: 'Visit Date' },
                         //{ field: 'Action', width: 100, renderer: detailButtonRender },
-                        {field:'Actions', minwidth: 200, renderer: editManager }
+                        { field: 'Actions', minwidth: 300, renderer: editManager, align:'center'}
                     ],
                     pager: { limit: 10, sizes: [2, 5, 10, 20] },
                     detailTemplate: '<div><table/></div>'
@@ -90,9 +99,17 @@
                 dailyGrid.on('rowDataChanged', function (e, id, record) {
                     var data = $.extend(true, {}, record);
                     $.ajax({
-                        url: "",
+                        url: '/Record/UpdateVisit',
                         data: { record: data },
-                        method: 'POST'
+                        method: 'POST',
+                        success: function (response) {
+                            if (!response.success) {
+                                alert(response.message)
+                            }
+                            else {
+                                alert(response.record.pvRecordId + " has been updated.")
+                            }
+                        }
                     }).fail(function () {
                         alert("Failt to save the changes.")
                     })
@@ -148,21 +165,46 @@
             $('#searchButton').on('click', function () {
                 var type = $('#searchType').val();
 
-                if (type === 'Daily') {
-                    var keys = [];
-                    $('#officeKey > Option:selected').each(function () {
-                        keys.push(this.value);
-                    })
-                    dailyGrid.clear();
-                    dailyGrid.reload({ office: keys.join(','), startDate: $('#startDate').val(), endDate: $('#endDate').val() });
+                if ($('#officeKey').val().length == 0) {
+                    $('#officeKey').closest('.form-group').addClass('has-error')
+                }
+                else {
+                    $('#officeKey').closest('.form-group').removeClass('has-error')
                 }
 
-                else if (type === 'Callback') {
-                    dailyGrid.clear();
-                    dailyGrid.reload({ office: $('#officeKey').val(), startDate: $('#startDate').val(), endDate: $('#endDate').val() });
+                if ($('#startDate').val().length != 0 ){
+                    $('#startDate').closest('.form-group').removeClass('has-error') 
+                }
+                else {
+                    $('#startDate').closest('.form-group').addClass('has-error')
                 }
 
-                $('.dataView').show();
+                if ($('#endDate').val().length == 0) {
+                    $('#endDate').closest('.form-group').addClass('has-error')
+                }
+                else {
+                    $('#endDate').closest('.form-group').removeClass('has-error')
+                }
+
+                if (($('#officeKey').val().length != 0 && $('#startDate').val().length != 0 && $('#endDate').val().length != 0)) {
+                    if (type === 'Daily') {
+                        var keys = [];
+                        $('#officeKey > Option:selected').each(function () {
+                            keys.push(this.value);
+                        })
+                        dailyGrid.clear();
+                        dailyGrid.reload({ office: keys.join(','), startDate: $('#startDate').val(), endDate: $('#endDate').val() });
+                    }
+
+                    else if (type === 'Callback') {
+                        dailyGrid.clear();
+                        dailyGrid.reload({ office: $('#officeKey').val(), startDate: $('#startDate').val(), endDate: $('#endDate').val() });
+                    }
+                    $('.dataView').show();
+                }
+                else {
+                    $('.dataView').hide();
+                }
             });
 
 
@@ -194,7 +236,6 @@
                         url: "/Record/GetDetails",
                         dataType: 'html',
                         success: function (response) {
-
                             $('.tab-content').append(response);
                             $(".nav-tabs li").children('a').last().click();
                         }
@@ -228,9 +269,9 @@
         <div class="tab-pane active" id="mainView">
             <input type="hidden" asp-for="Type" id="searchType" />
             <div class="row">
-                <div class="col-sm-2">
+                <div class="col-sm-1">
                     <div class="form-group">
-                        <label asp-for="OfficeKey" class="control-label"> Select Office Key(s)</label>
+                        <label asp-for="OfficeKey" class="control-label"> Select Key(s)</label>
                         <select class="form-control" asp-for="OfficeKey" , asp-items="@Model.OfficeKeys" id="officeKey" multiple></select>
                     </div>
                 </div>
@@ -238,14 +279,14 @@
                 <div class="col-sm-2">
                     <div class="form-group">
                         <label asp-for="StartDate" class="control-label">Visit Start Date</label>
-                        <input class="form-control date" id="startDate" />
+                        <input class="form-control date" id="startDate" type="text" value="@DateTime.Today.AddDays(-1).ToShortDateString()" />
                     </div>
                 </div>
 
                 <div class="col-sm-2">
                     <div class="form-group">
                         <label asp-for="EndDate" class="control-label">Visit End Date</label>
-                        <input class="form-control date" id="endDate" />
+                        <input class="form-control date" id="endDate" type="text" value="@DateTime.Today.ToShortDateString()" />
                     </div>
 
                 </div>
