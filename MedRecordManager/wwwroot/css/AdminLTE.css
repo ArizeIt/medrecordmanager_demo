@@ -23,6 +23,11 @@ body {
   overflow-x: hidden;
   overflow-y: auto;
 }
+
+.top-buffer {
+    margin-top: 20px;
+}
+
 /* Layout */
 .wrapper {
   height: 100%;

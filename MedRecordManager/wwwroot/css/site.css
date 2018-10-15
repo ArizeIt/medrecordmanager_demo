@@ -5,6 +5,10 @@ body {
     padding-bottom: 20px;
 }
 
+.top-buffer {
+    margin-top: 20px;
+}
+
 /* Wrapping element */
 /* Set some basic padding to keep content from hitting the edges */
 .body-content {

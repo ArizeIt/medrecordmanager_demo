@@ -1,6 +1,10 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
+using System.Net.Http.Headers;
+using System.Threading.Tasks;
+using System.Web;
 using MedRecordManager.Extension;
 using MedRecordManager.Models;
 using MedRecordManager.Models.DailyRecord;
@@ -16,6 +20,7 @@ using UrgentCareData.Models;
 namespace MedRecordManager.Controllers
 {
     [Authorize]
+    [ResponseCache(NoStore = true, Duration = 0)]
     public class RecordController : Controller
     {
         private readonly UrgentCareContext _urgentCareContext;
@@ -93,7 +98,8 @@ namespace MedRecordManager.Controllers
                 PVFinClass = y.PayerInformation.FirstOrDefault().Class.ToString(),
                 IcdCodes = y.Icdcodes.Replace("|", "<br/>"),
                 Payment = y.CoPayAmount.GetValueOrDefault(),
-                ProcCodes = y.ProcCodes.Replace(",|", "<br/>").Replace("|", "<br/>")
+                ProcCodes = y.ProcCodes.Replace(",|", "<br/>").Replace("|", "<br/>"),
+                IsFlagged = y.Flagged
             }).ToList();
 
             var total = records.Count();
@@ -216,5 +222,95 @@ namespace MedRecordManager.Controllers
 
         }
 
+        [HttpPost]
+
+        public IActionResult FlagVisit(int visitId, bool flag)
+        {
+            var visit = _urgentCareContext.Visit.FirstOrDefault(x => x.VisitId == visitId);
+           
+            if (visit != null)
+            {
+                visit.Flagged = flag;
+                try
+                {
+                    _urgentCareContext.SaveChanges();
+
+
+                    return Json(new { result = true });
+                }
+                catch
+                {
+                    return Json(new { success = false, message = "Can not flag this visit record." });
+                }
+            }
+            else
+            {
+                return Json(new { success = false, message = "Can not located this visit record." });
+            }
+        }
+
+        public IActionResult GetFlaggedVisit(int? page, int? limit)
+        {
+            var records = _urgentCareContext.Visit.Where(x => x.Flagged)
+                .Select(y => new VisitRecordVm {
+                           VisitId = y.VisitId,
+                           PatientId = y.PvPaitentId,
+                           ClinicName = y.ClinicId,
+                           DiagCode = y.DiagCodes.Replace("|", "<br/>"),
+                           PvRecordId = y.PvlogNum,
+                           VisitTime = y.ServiceDate.ToShortDateString(),
+                           PatientName = y.PvPaitent.FirstName + " " + y.PvPaitent.LastName,
+                           OfficeKey = y.ClinicProfile.OfficeKey.ToString(),
+                           PVFinClass = y.PayerInformation.FirstOrDefault().Class.ToString(),
+                           IcdCodes = y.Icdcodes.Replace("|", "<br/>"),
+                           Payment = y.CoPayAmount.GetValueOrDefault(),
+                           ProcCodes = y.ProcCodes.Replace(",|", "<br/>").Replace("|", "<br/>"),
+                           IsFlagged = y.Flagged
+
+                       }).ToList();
+
+            var total = records.Count();
+
+            if (page.HasValue && limit.HasValue)
+            {
+                var start = (page.Value - 1) * limit.Value;
+                records = records.Skip(start).Take(limit.Value).ToList();
+            }
+            return Json(new { records, total });
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> RunBatch(int office, DateTime startDate, DateTime endDate)
+        {
+            using (var webClient = new HttpClient())
+            {
+                webClient.BaseAddress = new Uri("http://localhost:65094/");
+                webClient.DefaultRequestHeaders.Accept.Clear();
+             
+                var querystring = $"officeKey={office}&startTime={startDate}&endTime={endDate}";
+
+                var response = await webClient.PostAsync("api/Default/ImportToAmd?" + querystring, null);
+
+                var message = await response.Content.ReadAsStringAsync();
+
+                return Json(new { message });
+            }
+        }
+
+        public async Task<IActionResult> Testrun(string offices, DateTime startDate, DateTime endDate)
+        {
+            using (var webClient = new HttpClient())
+            {
+                webClient.BaseAddress = new Uri("http://localhost:65094/");
+                webClient.DefaultRequestHeaders.Accept.Clear();
+                webClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));                               
+
+                var response = await webClient.GetAsync("api/default");
+
+                var message = await response.Content.ReadAsStringAsync();
+
+                return Json(new { message });
+            }
+        }
     }
 }

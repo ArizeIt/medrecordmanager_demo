@@ -25,6 +25,8 @@ namespace MedRecordManager.Models.DailyRecord
         public string ProcCodes { get; set; }
 
         public int VisitId { get; set; }
+
+        public bool IsFlagged { get; set; }
     }
 
     public class PatientVisitVM

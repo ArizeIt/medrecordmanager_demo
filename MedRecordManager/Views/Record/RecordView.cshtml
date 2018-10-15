@@ -7,19 +7,32 @@
     <script type="text/javascript">
 
         var dailyGrid;
+        var flaggedGrid;
 
         $(document).ready(function () {
             var type = $('#searchType').val();
             var flagManager = function (value, record, $cell, $displayEl, id, $grid) {
-                var $checkBox = $('<input type="checkbox">').attr('dataKey', id);
+                var $checkBox = $('<input type="checkbox">').prop('checked', record.isFlagged)
+                        .attr({
+                            'dataKey': id
+                            });
 
-                $checkBox.on('click', function (e) {
-                    if ($(this).is(':checked')) {
-                        alert('skipe this record')
-                    }
-                    else {
-                        alert('not skip this record')
-                    }
+                $checkBox.on('click', function () {
+                    var mark = $(this).is(':checked')
+                    $.ajax({
+                        type: 'POST',
+                        data: {
+                            visitId : id,
+                            flag: mark
+                        },
+                        url: '/Record/FlagVisit',
+                        cache: false,
+                        success: function () {
+                            flaggedGrid.reload({ page: 1 });
+                        }
+                    })
+
+                   
                 });
                 $displayEl.empty().append($checkBox);
             };
@@ -58,9 +71,35 @@
                 $displayEl.empty().append($detail).append($edit).append($update).append($cancel);
             };
 
+            flaggedGrid = $('#flaggedVisitTable').grid({
+                primaryKey: 'visitId',
+                title: 'Flagged Visit Records',
+                dataSource: '/Record/GetFlaggedVisit',
+                columnReorder: true,
+
+                columns: [
+                    //{ field: 'pvRecordId', width:100, title: 'PV RecordId' },
+                    { field: 'Flag', width: 50, renderer: flagManager },
+                    { filed: 'visitId', hidden: true },
+                    { field: 'patientName', minWidth: 300, title: 'Patient Name'},
+                    { field: 'clinicName', minWidth: 150, title: 'Clinic Name'},
+                    { field: 'pvFinClass', minwidth: 100, title: 'Finacial Class' },
+                    { field: 'payment', minwidth: 100, title: 'Payment $' },
+                    { field: 'diagCode', width: 150,title: 'Diag Codes' },
+                    { field: 'icdCodes', width: 150,title: 'Icd Codes' },
+                    { field: 'procCodes', minwidth: 80, title: 'Proc Codes' },
+                    { field: 'visitTime', minwidth: 80, title: 'Visit Date' },
+                   
+                ],
+                pager: { limit: 10, sizes: [2, 5, 10, 20] },
+                detailTemplate: '<div><table/></div>'
+            });
+
+
             if (type == 'Daily') {
                 dailyGrid = $('#visitTable').grid({
                     primaryKey: 'visitId',
+                    title : 'Daily Visit Records',
                     inlineEditing: { mode: 'command', managementColumn: false},
                     dataSource: '/Record/LoadDaily',
                     columnReorder: true,
@@ -102,6 +141,7 @@
                         url: '/Record/UpdateVisit',
                         data: { record: data },
                         method: 'POST',
+                        cache: false,
                         success: function (response) {
                             if (!response.success) {
                                 alert(response.message)
@@ -211,19 +251,20 @@
             $('#btnRun').click(function () {
                 $('#btnRun').attr('disabled', true);
                 $.ajax({
-                    url: 'http://172.31.22.98/api/default',
+                    url: '/Record/RunBatch',
                     data: {
-                        officeKey: $('#officeKey').val(),
+                        office: $('#officeKey').val(),
                         startDate: $('#startDate').val(),
                         endDate: $('#endDate').val()
                     },
-                    type: 'Post',
-                    success: function () {
-                        $('#btnRun').attr('disabled', false);
+                    type: 'POST',
+                   
+                    success: function (response) {                       
+                            $('#btnRun').attr('disabled', false);                           
                     },
                     dataType:'json'
                 })
-            })
+            });
 
             function addTab(id) {
                 if ($('#detail' + id).length == 0) {
@@ -234,7 +275,7 @@
                             visitId: id
                         },
                         url: "/Record/GetDetails",
-                        dataType: 'html',
+                        cache: false,
                         success: function (response) {
                             $('.tab-content').append(response);
                             $(".nav-tabs li").children('a').last().click();
@@ -245,7 +286,8 @@
                 {
                     $('a[href$="#detail' + id+'"]').click();
                 }
-            }   
+            };
+        
         });
 
     </script>
@@ -268,7 +310,7 @@
     <div class="tab-content">
         <div class="tab-pane active" id="mainView">
             <input type="hidden" asp-for="Type" id="searchType" />
-            <div class="row">
+            <div class="row top-buffer">
                 <div class="col-sm-1">
                     <div class="form-group">
                         <label asp-for="OfficeKey" class="control-label"> Select Key(s)</label>
@@ -314,19 +356,29 @@
                 }
             </div>
             <p></p>
-            <div class="row dataView"  style="display:none">
+            <div class="row dataView" style="display:none">
                 <div class="col-sm-10">
                     <div id="Results">
                         <div class="table-responsive">
-                            <table id="visitTable" class="table"></table>
+                            <table id="visitTable" class="table table-striped"></table>
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="row dataView" style="display:none">
-                <div class="col-sm-1 " style="float: left">
-                    <button class="btn btn-success text-right" id="btnRun">Run</button>
+
+            <div class="row dataView top-buffer" style="display:none">
+                <div class="col-sm-1 col-lg-offset-9 " style="text-align: right">
+                    <button class="btn btn-success text-right" id="btnRun">Next</button>
+                </div>
+            </div>
+        </div>
+
+            <div class="row top-buffer">
+                <div class="col-sm-10">
+                    <div class="table-responsive">
+                        <table id="flaggedVisitTable" class="table table-striped"></table>
                     </div>
                 </div>
+                
             </div>
     </div>

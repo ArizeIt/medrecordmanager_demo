@@ -42,6 +42,8 @@ namespace UrgentCareData.Models
         public int GuarantorPayerId { get; set; }
         public int? SourceProcessId { get; set; }
 
+        public bool Flagged { get; set; }
+
         public Chart Chart { get; set; }
         public GuarantorInformation GuarantorPayer { get; set; }
         public Physican Physican { get; set; }

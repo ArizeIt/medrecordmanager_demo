@@ -656,6 +656,8 @@ namespace UgentCareDate
                     .HasColumnName("EMCode")
                     .HasMaxLength(10);
 
+                entity.Property(e => e.Flagged).HasColumnName("Flagged");
+
                 entity.Property(e => e.Icdcodes)
                     .HasColumnName("ICDCodes")
                     .HasMaxLength(500);
