@@ -10,6 +10,7 @@ using MedRecordManager.Models;
 using MedRecordManager.Models.DailyRecord;
 using MedRecordManager.Services;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -299,9 +300,19 @@ namespace MedRecordManager.Controllers
 
         public async Task<IActionResult> Testrun(string offices, DateTime startDate, DateTime endDate)
         {
+            var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
+            var isDevelopment = environment == EnvironmentName.Development;
+
             using (var webClient = new HttpClient())
             {
-                webClient.BaseAddress = new Uri("http://localhost:65094/");
+                if(environment == EnvironmentName.Development)
+                {
+                    webClient.BaseAddress = new Uri("http://localhost:65094/");
+                }
+                else
+                {
+                    webClient.BaseAddress = new Uri("http://172.31.22.98/");
+                }
                 webClient.DefaultRequestHeaders.Accept.Clear();
                 webClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));                               
 
