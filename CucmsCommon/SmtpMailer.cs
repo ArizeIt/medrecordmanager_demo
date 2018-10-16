@@ -1,17 +1,18 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Net.Mail;
+using System.Threading.Tasks;
 
 namespace PVAMCommon
 {
-    public  class Email
+    public class SmtpMailer
     {
        private string Server { get; set; }
        private  string ClientUser { get;  set; }
         private int Port { get; set; }
         private string ClientPassword { get;  set; }
       
-        public Email(string smtp, int port, string username, string password)
+        public SmtpMailer(string smtp, int port, string username, string password)
         {
             Server  = smtp;
             Port = port;
@@ -19,19 +20,19 @@ namespace PVAMCommon
             ClientPassword = password;
         }
 
-        public void SendExceptionEmail(string fromAddress, string techAddresses, string body)
+        public async Task SendExceptionEmail(string fromAddress, string techAddresses, string body)
         {
 
-            SendMail(fromAddress, new List<string> { techAddresses}, null, "Important: Integration Cought Exception(s)", body, null);
+            await SendMailAsync(fromAddress, new List<string> { techAddresses}, null, "Important: Integration Cought Exception(s)", body, null);
         }
 
-        public void SendResultEmail(string fromAddress, List<string> toAddress, List<string> ccAddress, string body)
+        public async Task SendResultEmail(string fromAddress, List<string> toAddress, List<string> ccAddress, string body)
         {
 
-            SendMail(fromAddress, toAddress, ccAddress, "Important: Integration Cought Exception(s)", body, null);
+            await SendMailAsync(fromAddress, toAddress, ccAddress, "Important: Integration Cought Exception(s)", body, null);
         }
 
-        public void SendMail(string fromAddress, List<string> toAddresses, List<string> ccAddresses, string subject, string body, string filePath)
+        public async Task SendMailAsync(string fromAddress, List<string> toAddresses, List<string> ccAddresses, string subject, string body, string filePath)
         {
             var mail = new MailMessage()
             {
@@ -39,7 +40,7 @@ namespace PVAMCommon
                 CC = {}    
             };
 
-            var smtpServer = new SmtpClient(Server)
+            var smtpClient = new SmtpClient(Server)
             {
                 Port = Port,
                 Credentials = new System.Net.NetworkCredential(ClientUser, ClientPassword),
@@ -73,8 +74,16 @@ namespace PVAMCommon
                 mail.Attachments.Add(attachment);
                     
             }
-            smtpServer.Send(mail);
-            mail.Dispose();
+            smtpClient.Send(mail);
+
+            smtpClient.SendCompleted += (s, e) =>
+             {
+                 smtpClient.Dispose();
+                 mail.Dispose();
+             };
+
+            await smtpClient.SendMailAsync(mail);
         }
+
     }
 }

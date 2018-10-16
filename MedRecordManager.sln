@@ -7,17 +7,17 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MedRecordManager", "MedReco
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UrgentCareData", "UrgentCareData\UrgentCareData.csproj", "{47550939-7B2A-41C6-B5F5-6EDDD6EB44F6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CucmsApi", "CucmsApi\CucmsApi.csproj", "{A3ADB3BB-6E99-4A3B-9514-3822D1672555}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CucmsApi", "CucmsApi\CucmsApi.csproj", "{A3ADB3BB-6E99-4A3B-9514-3822D1672555}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SourceLoader", "SourceLoader\SourceLoader.csproj", "{2F21F29D-01BC-43F9-A4D9-ED88FF5E58F9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PVAMDataService", "PVAMDataService\PVAMDataService.csproj", "{D872DA8F-16C9-491A-837A-2E4582227A6E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PVAMDataService", "PVAMDataService\PVAMDataService.csproj", "{D872DA8F-16C9-491A-837A-2E4582227A6E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PracticeVelocityDomain", "PracticeVelocityDomain\PracticeVelocityDomain.csproj", "{D6D7228C-F4CF-493F-86CA-D9F0A4A7998C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PracticeVelocityDomain", "PracticeVelocityDomain\PracticeVelocityDomain.csproj", "{D6D7228C-F4CF-493F-86CA-D9F0A4A7998C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AdvancedMDDomain", "AdvancedMDDomain\AdvancedMDDomain.csproj", "{7309E350-5505-46FB-B5C4-972173D025F9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AdvancedMDDomain", "AdvancedMDDomain\AdvancedMDDomain.csproj", "{7309E350-5505-46FB-B5C4-972173D025F9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CucmsCommon", "CucmsCommon\CucmsCommon.csproj", "{B17B29CA-868E-46DD-8CAD-D1D8DF5066FD}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CucmsCommon", "CucmsCommon\CucmsCommon.csproj", "{B17B29CA-868E-46DD-8CAD-D1D8DF5066FD}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AdvancedMDService", "AdvancedMDService\AdvancedMDService.csproj", "{ABD4E03E-AFBF-4DCF-BD7B-49E9386B8AE8}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -37,10 +37,6 @@ Global
 		{A3ADB3BB-6E99-4A3B-9514-3822D1672555}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A3ADB3BB-6E99-4A3B-9514-3822D1672555}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A3ADB3BB-6E99-4A3B-9514-3822D1672555}.Release|Any CPU.Build.0 = Release|Any CPU
-		{2F21F29D-01BC-43F9-A4D9-ED88FF5E58F9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{2F21F29D-01BC-43F9-A4D9-ED88FF5E58F9}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{2F21F29D-01BC-43F9-A4D9-ED88FF5E58F9}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{2F21F29D-01BC-43F9-A4D9-ED88FF5E58F9}.Release|Any CPU.Build.0 = Release|Any CPU
 		{D872DA8F-16C9-491A-837A-2E4582227A6E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{D872DA8F-16C9-491A-837A-2E4582227A6E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D872DA8F-16C9-491A-837A-2E4582227A6E}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -57,6 +53,10 @@ Global
 		{B17B29CA-868E-46DD-8CAD-D1D8DF5066FD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B17B29CA-868E-46DD-8CAD-D1D8DF5066FD}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B17B29CA-868E-46DD-8CAD-D1D8DF5066FD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{ABD4E03E-AFBF-4DCF-BD7B-49E9386B8AE8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{ABD4E03E-AFBF-4DCF-BD7B-49E9386B8AE8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{ABD4E03E-AFBF-4DCF-BD7B-49E9386B8AE8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{ABD4E03E-AFBF-4DCF-BD7B-49E9386B8AE8}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

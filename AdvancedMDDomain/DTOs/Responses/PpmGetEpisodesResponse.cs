@@ -231,6 +231,9 @@ namespace AdvancedMDDomain.DTOs.Responses
         public string Lst { get; set; }
         [XmlAttribute(AttributeName = "n")]
         public string N { get; set; }
+
+        [XmlIgnore]
+        public string Error { get; set; }
     }
     
 }
