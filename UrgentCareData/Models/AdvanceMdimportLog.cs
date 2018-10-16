@@ -18,9 +18,9 @@ namespace UrgentCareData.Models
         public DateTime? ImportedDate { get; set; }
         public string Status { get; set; }
 
-        public ICollection<ChartImportLog> ChartImportLog { get; set; }
-        public ICollection<PatientImportLog> PatientImportLog { get; set; }
-        public ICollection<PayerImportLog> PayerImportLog { get; set; }
-        public ICollection<VisitImpotLog> VisitImpotLog { get; set; }
+        public virtual ICollection<ChartImportLog> ChartImportLog { get; set; }
+        public virtual ICollection<PatientImportLog> PatientImportLog { get; set; }
+        public virtual ICollection<PayerImportLog> PayerImportLog { get; set; }
+        public virtual ICollection<VisitImpotLog> VisitImpotLog { get; set; }
     }
 }

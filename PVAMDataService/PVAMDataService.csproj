@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp2.2</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\AdvancedMDDomain\AdvancedMDDomain.csproj" />
+    <ProjectReference Include="..\CucmsCommon\CucmsCommon.csproj" />
+    <ProjectReference Include="..\PracticeVelocityDomain\PracticeVelocityDomain.csproj" />
+    <ProjectReference Include="..\UrgentCareData\UrgentCareData.csproj" />
+  </ItemGroup>
+
+</Project>

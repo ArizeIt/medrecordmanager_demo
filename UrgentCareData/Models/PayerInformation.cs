@@ -16,7 +16,7 @@ namespace UrgentCareData.Models
         public int VisitId { get; set; }
         public string InsName { get; set; }
 
-        public InsuranceInformation Insurance { get; set; }
-        public Visit Visit { get; set; }
+        public virtual InsuranceInformation Insurance { get; set; }
+        public virtual Visit Visit { get; set; }
     }
 }

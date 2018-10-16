@@ -7,6 +7,7 @@ namespace UrgentCareData.Models
     {
         public Visit()
         {
+            PatientDocument = new HashSet<PatientDocument>();
             PayerInformation = new HashSet<PayerInformation>();
             VisitImpotLog = new HashSet<VisitImpotLog>();
             VisitProcCode = new HashSet<VisitProcCode>();
@@ -43,12 +44,13 @@ namespace UrgentCareData.Models
         public int? SourceProcessId { get; set; }
         public bool Flagged { get; set; }
 
-        public Chart Chart { get; set; }
-        public GuarantorInformation GuarantorPayer { get; set; }
-        public Physican Physican { get; set; }
-        public PatientInformation PvPaitent { get; set; }
-        public ICollection<PayerInformation> PayerInformation { get; set; }
-        public ICollection<VisitImpotLog> VisitImpotLog { get; set; }
-        public ICollection<VisitProcCode> VisitProcCode { get; set; }
+        public virtual Chart Chart { get; set; }
+        public virtual GuarantorInformation GuarantorPayer { get; set; }
+        public virtual Physican Physican { get; set; }
+        public virtual PatientInformation PvPatient { get; set; }
+        public virtual ICollection<PatientDocument> PatientDocument { get; set; }
+        public virtual ICollection<PayerInformation> PayerInformation { get; set; }
+        public virtual ICollection<VisitImpotLog> VisitImpotLog { get; set; }
+        public virtual ICollection<VisitProcCode> VisitProcCode { get; set; }
     }
 }

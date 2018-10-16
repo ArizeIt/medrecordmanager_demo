@@ -93,7 +93,7 @@ namespace MedRecordManager.Controllers
                 DiagCode = y.DiagCodes.Replace("|", "<br/>"),
                 PvRecordId = y.PvlogNum,
                 VisitTime = y.ServiceDate.ToShortDateString(),
-                PatientName = y.PvPaitent.FirstName + " " + y.PvPaitent.LastName,
+                PatientName = y.PvPatient.FirstName + " " + y.PvPatient.LastName,
                 OfficeKey = y.Physican.OfficeKey,
                 PVFinClass = y.PayerInformation.FirstOrDefault().Class.ToString(),
                 IcdCodes = y.Icdcodes.Replace("|", "<br/>"),
@@ -148,8 +148,8 @@ namespace MedRecordManager.Controllers
                 PvClinic = y.ClinicId,
                
                 VisitDate = y.ServiceDate.ToShortDateString(),
-                PatientName = y.PvPaitent.FirstName + " " + y.PvPaitent.LastName,
-                PvPhone = y.PvPaitent.CellPhone
+                PatientName = y.PvPatient.FirstName + " " + y.PvPatient.LastName,
+                PvPhone = y.PvPatient.CellPhone
             }).ToList();
 
             var total = records.Count();
@@ -259,7 +259,7 @@ namespace MedRecordManager.Controllers
                            DiagCode = y.DiagCodes.Replace("|", "<br/>"),
                            PvRecordId = y.PvlogNum,
                            VisitTime = y.ServiceDate.ToShortDateString(),
-                           PatientName = y.PvPaitent.FirstName + " " + y.PvPaitent.LastName,
+                           PatientName = y.PvPatient.FirstName + " " + y.PvPatient.LastName,
                            OfficeKey = y.Physican.OfficeKey.ToString(),
                            PVFinClass = y.PayerInformation.FirstOrDefault().Class.ToString(),
                            IcdCodes = y.Icdcodes.Replace("|", "<br/>"),

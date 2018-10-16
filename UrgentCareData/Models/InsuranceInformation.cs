@@ -20,6 +20,6 @@ namespace UrgentCareData.Models
         public int InsuranceId { get; set; }
         public string AmdCode { get; set; }
 
-        public ICollection<PayerInformation> PayerInformation { get; set; }
+        public virtual ICollection<PayerInformation> PayerInformation { get; set; }
     }
 }

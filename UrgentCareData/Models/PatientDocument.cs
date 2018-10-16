@@ -14,5 +14,7 @@ namespace UrgentCareData.Models
         public int VisitId { get; set; }
         public int PatDocId { get; set; }
         public string AmdFileId { get; set; }
+
+        public virtual Visit Visit { get; set; }
     }
 }

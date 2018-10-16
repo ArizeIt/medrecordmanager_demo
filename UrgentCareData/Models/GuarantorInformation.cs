@@ -24,7 +24,7 @@ namespace UrgentCareData.Models
         public string Phone { get; set; }
         public int PvPatientId { get; set; }
 
-        public ICollection<GuarantorImportLog> GuarantorImportLog { get; set; }
-        public ICollection<Visit> Visit { get; set; }
+        public virtual ICollection<GuarantorImportLog> GuarantorImportLog { get; set; }
+        public virtual ICollection<Visit> Visit { get; set; }
     }
 }

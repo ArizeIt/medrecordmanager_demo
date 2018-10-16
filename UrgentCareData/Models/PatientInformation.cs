@@ -26,6 +26,6 @@ namespace UrgentCareData.Models
         public string HomePhone { get; set; }
         public string Email { get; set; }
 
-        public ICollection<Visit> Visit { get; set; }
+        public virtual ICollection<Visit> Visit { get; set; }
     }
 }

@@ -17,7 +17,7 @@ namespace UrgentCareData.Models
         public string SignedOffSealedBy { get; set; }
         public int ChartId { get; set; }
 
-        public ICollection<ChartDocument> ChartDocument { get; set; }
-        public ICollection<Visit> Visit { get; set; }
+        public virtual ICollection<ChartDocument> ChartDocument { get; set; }
+        public virtual ICollection<Visit> Visit { get; set; }
     }
 }

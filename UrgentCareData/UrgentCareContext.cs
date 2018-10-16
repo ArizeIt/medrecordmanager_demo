@@ -288,7 +288,8 @@ namespace UrgentCareData
 
             modelBuilder.Entity<GuarantorInformation>(entity =>
             {
-                entity.HasKey(e => e.PayerNum);
+                entity.HasKey(e => e.PayerNum)
+                    .HasName("PK_PayerInfo");
 
                 entity.Property(e => e.PayerNum)
                     .HasColumnName("Payer_Num")
@@ -397,6 +398,12 @@ namespace UrgentCareData
                     .IsUnicode(false);
 
                 entity.Property(e => e.LastVerifiedOn).HasColumnType("datetime");
+
+                entity.HasOne(d => d.Visit)
+                    .WithMany(p => p.PatientDocument)
+                    .HasForeignKey(d => d.VisitId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_PatientDocument_Visit");
             });
 
             modelBuilder.Entity<PatientImportLog>(entity =>
@@ -429,7 +436,8 @@ namespace UrgentCareData
 
             modelBuilder.Entity<PatientInformation>(entity =>
             {
-                entity.HasKey(e => e.PatNum);
+                entity.HasKey(e => e.PatNum)
+                    .HasName("PK_Patient_Information");
 
                 entity.Property(e => e.PatNum)
                     .HasColumnName("Pat_Num")
@@ -692,7 +700,8 @@ namespace UrgentCareData
 
             modelBuilder.Entity<SourceProcessLog>(entity =>
             {
-                entity.HasKey(e => e.ProcessId);
+                entity.HasKey(e => e.ProcessId)
+                    .HasName("pk_PorcessId");
 
                 entity.Property(e => e.ImportedToAmd).HasColumnName("ImportedToAMD");
 
@@ -774,7 +783,7 @@ namespace UrgentCareData
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_Visit_GuarantorInformation");
 
-                entity.HasOne(d => d.PvPaitent)
+                entity.HasOne(d => d.PvPatient)
                     .WithMany(p => p.Visit)
                     .HasForeignKey(d => d.PvPaitentId)
                     .OnDelete(DeleteBehavior.ClientSetNull)

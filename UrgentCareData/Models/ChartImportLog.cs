@@ -12,6 +12,6 @@ namespace UrgentCareData.Models
         public int AmdimportId { get; set; }
         public string AmdFileId { get; set; }
 
-        public AdvanceMdimportLog Amdimport { get; set; }
+        public virtual AdvanceMdimportLog Amdimport { get; set; }
     }
 }

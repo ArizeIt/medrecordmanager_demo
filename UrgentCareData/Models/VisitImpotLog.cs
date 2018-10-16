@@ -14,7 +14,7 @@ namespace UrgentCareData.Models
         public string AmdvisitId { get; set; }
         public bool? ChargeImported { get; set; }
 
-        public AdvanceMdimportLog AmdimportLog { get; set; }
-        public Visit Visit { get; set; }
+        public virtual AdvanceMdimportLog AmdimportLog { get; set; }
+        public virtual Visit Visit { get; set; }
     }
 }

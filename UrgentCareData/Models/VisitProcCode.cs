@@ -10,6 +10,6 @@ namespace UrgentCareData.Models
         public int VisitId { get; set; }
         public int VisitProcCodeId { get; set; }
 
-        public Visit Visit { get; set; }
+        public virtual Visit Visit { get; set; }
     }
 }

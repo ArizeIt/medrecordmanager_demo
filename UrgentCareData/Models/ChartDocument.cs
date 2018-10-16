@@ -15,6 +15,6 @@ namespace UrgentCareData.Models
         public int ChartId { get; set; }
         public byte[] DocumentImage { get; set; }
 
-        public Chart Chart { get; set; }
+        public virtual Chart Chart { get; set; }
     }
 }

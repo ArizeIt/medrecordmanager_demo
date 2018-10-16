@@ -13,6 +13,6 @@ namespace UrgentCareData.Models
         public string AmdResponsiblePartyId { get; set; }
         public string OfficeKey { get; set; }
 
-        public GuarantorInformation PayerNumberNavigation { get; set; }
+        public virtual GuarantorInformation PayerNumberNavigation { get; set; }
     }
 }
