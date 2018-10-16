@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using UrgentCareData.Models;
 
 namespace UrgentCareData.Models
 {
@@ -23,7 +22,9 @@ namespace UrgentCareData.Models
         public string Zip { get; set; }
         public string Birthday { get; set; }
         public string Sex { get; set; }
-        public string PatPhone { get; set; }
+        public string CellPhone { get; set; }
+        public string HomePhone { get; set; }
+        public string Email { get; set; }
 
         public ICollection<Visit> Visit { get; set; }
     }

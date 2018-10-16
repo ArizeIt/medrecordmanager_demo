@@ -78,12 +78,12 @@ namespace MedRecordManager.Controllers
             IQueryable<Visit> query;
             if (!string.IsNullOrEmpty(office) && startDate != DateTime.MinValue && endDate != DateTime.MinValue)
             {
-                var officekeys = office.Split(',').Select(int.Parse).ToList();
-                query = _urgentCareContext.Visit.Include(x=>x.ImportLog).Where(x => officekeys.Contains(x.ClinicProfile.OfficeKey) && x.ServiceDate >= startDate && x.ServiceDate <= endDate && x.ImportLog == null);
+                var officekeys = office.Split(',').ToList();
+                query = _urgentCareContext.Visit.Include(x=>x.VisitImpotLog).Include(x=>x.Physican).Where(x => officekeys.Contains(x.Physican.OfficeKey) && x.ServiceDate >= startDate && x.ServiceDate <= endDate && !x.VisitImpotLog.Any());
             }
             else
             {
-                query = _urgentCareContext.Visit.Where(x=>x.ImportLog !=null && x.ImportLog.AmdimportLog == null);
+                query = _urgentCareContext.Visit.Where(x=>x.VisitImpotLog !=null );
             }
             var records = query.Select(y => new VisitRecordVm()
             {
@@ -94,7 +94,7 @@ namespace MedRecordManager.Controllers
                 PvRecordId = y.PvlogNum,
                 VisitTime = y.ServiceDate.ToShortDateString(),
                 PatientName = y.PvPaitent.FirstName + " " + y.PvPaitent.LastName,
-                OfficeKey = y.ClinicProfile.OfficeKey.ToString(),
+                OfficeKey = y.Physican.OfficeKey,
                 PVFinClass = y.PayerInformation.FirstOrDefault().Class.ToString(),
                 IcdCodes = y.Icdcodes.Replace("|", "<br/>"),
                 Payment = y.CoPayAmount.GetValueOrDefault(),
@@ -149,7 +149,7 @@ namespace MedRecordManager.Controllers
                
                 VisitDate = y.ServiceDate.ToShortDateString(),
                 PatientName = y.PvPaitent.FirstName + " " + y.PvPaitent.LastName,
-                PvPhone = y.PvPaitent.PatPhone
+                PvPhone = y.PvPaitent.CellPhone
             }).ToList();
 
             var total = records.Count();
@@ -260,7 +260,7 @@ namespace MedRecordManager.Controllers
                            PvRecordId = y.PvlogNum,
                            VisitTime = y.ServiceDate.ToShortDateString(),
                            PatientName = y.PvPaitent.FirstName + " " + y.PvPaitent.LastName,
-                           OfficeKey = y.ClinicProfile.OfficeKey.ToString(),
+                           OfficeKey = y.Physican.OfficeKey.ToString(),
                            PVFinClass = y.PayerInformation.FirstOrDefault().Class.ToString(),
                            IcdCodes = y.Icdcodes.Replace("|", "<br/>"),
                            Payment = y.CoPayAmount.GetValueOrDefault(),

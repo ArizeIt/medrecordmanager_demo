@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace UrgentCareData.Models
 {
@@ -14,7 +15,6 @@ namespace UrgentCareData.Models
         public bool? ChargeImported { get; set; }
 
         public AdvanceMdimportLog AmdimportLog { get; set; }
-
         public Visit Visit { get; set; }
     }
 }

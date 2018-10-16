@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using UrgentCareData.Models;
 
 namespace UrgentCareData.Models
 {
@@ -9,6 +8,7 @@ namespace UrgentCareData.Models
         public Visit()
         {
             PayerInformation = new HashSet<PayerInformation>();
+            VisitImpotLog = new HashSet<VisitImpotLog>();
             VisitProcCode = new HashSet<VisitProcCode>();
         }
 
@@ -41,18 +41,14 @@ namespace UrgentCareData.Models
         public int? ChartId { get; set; }
         public int GuarantorPayerId { get; set; }
         public int? SourceProcessId { get; set; }
-
         public bool Flagged { get; set; }
 
         public Chart Chart { get; set; }
         public GuarantorInformation GuarantorPayer { get; set; }
         public Physican Physican { get; set; }
         public PatientInformation PvPaitent { get; set; }
-
-        public ClinicProfile ClinicProfile { get; set; }
         public ICollection<PayerInformation> PayerInformation { get; set; }
+        public ICollection<VisitImpotLog> VisitImpotLog { get; set; }
         public ICollection<VisitProcCode> VisitProcCode { get; set; }
-
-        public VisitImpotLog ImportLog { get; set; }
     }
 }

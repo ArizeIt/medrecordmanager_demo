@@ -1,6 +1,9 @@
-﻿namespace UrgentCareData.Models
+﻿using System;
+using System.Collections.Generic;
+
+namespace UrgentCareData.Models
 {
-    public class AdvancedMdcolumnHeader
+    public partial class AdvancedMdcolumnHeader
     {
         public string Clinic { get; set; }
         public int OfficeKey { get; set; }

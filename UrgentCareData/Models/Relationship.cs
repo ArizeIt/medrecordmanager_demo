@@ -1,4 +1,7 @@
-﻿namespace UrgentCareData.Models
+﻿using System;
+using System.Collections.Generic;
+
+namespace UrgentCareData.Models
 {
     public partial class Relationship
     {

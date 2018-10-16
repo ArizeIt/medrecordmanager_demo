@@ -7,6 +7,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MedRecordManager", "MedReco
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UrgentCareData", "UrgentCareData\UrgentCareData.csproj", "{47550939-7B2A-41C6-B5F5-6EDDD6EB44F6}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CucmsApi", "CucmsApi\CucmsApi.csproj", "{A3ADB3BB-6E99-4A3B-9514-3822D1672555}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SourceLoader", "SourceLoader\SourceLoader.csproj", "{2F21F29D-01BC-43F9-A4D9-ED88FF5E58F9}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +25,14 @@ Global
 		{47550939-7B2A-41C6-B5F5-6EDDD6EB44F6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{47550939-7B2A-41C6-B5F5-6EDDD6EB44F6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{47550939-7B2A-41C6-B5F5-6EDDD6EB44F6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A3ADB3BB-6E99-4A3B-9514-3822D1672555}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A3ADB3BB-6E99-4A3B-9514-3822D1672555}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A3ADB3BB-6E99-4A3B-9514-3822D1672555}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A3ADB3BB-6E99-4A3B-9514-3822D1672555}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2F21F29D-01BC-43F9-A4D9-ED88FF5E58F9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2F21F29D-01BC-43F9-A4D9-ED88FF5E58F9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2F21F29D-01BC-43F9-A4D9-ED88FF5E58F9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2F21F29D-01BC-43F9-A4D9-ED88FF5E58F9}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

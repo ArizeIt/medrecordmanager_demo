@@ -1,12 +1,16 @@
-﻿using System.Security.Cryptography.X509Certificates;
+﻿using System;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata;
 using UrgentCareData.Models;
 
 namespace UrgentCareData
 {
     public partial class UrgentCareContext : DbContext
     {
-       
+        public UrgentCareContext()
+        {
+        }
+
         public UrgentCareContext(DbContextOptions<UrgentCareContext> options)
             : base(options)
         {
@@ -15,10 +19,13 @@ namespace UrgentCareData
         public virtual DbSet<AdvancedMdcolumnHeader> AdvancedMdcolumnHeader { get; set; }
         public virtual DbSet<AdvancedMdprogram> AdvancedMdprogram { get; set; }
         public virtual DbSet<AdvanceMdimportLog> AdvanceMdimportLog { get; set; }
+        public virtual DbSet<BatchJob> BatchJob { get; set; }
         public virtual DbSet<Chart> Chart { get; set; }
         public virtual DbSet<ChartDocument> ChartDocument { get; set; }
         public virtual DbSet<ChartImportLog> ChartImportLog { get; set; }
         public virtual DbSet<ClinicProfile> ClinicProfile { get; set; }
+        public virtual DbSet<EntityChangeHistory> EntityChangeHistory { get; set; }
+        public virtual DbSet<FinClass> FinClass { get; set; }
         public virtual DbSet<GuarantorImportLog> GuarantorImportLog { get; set; }
         public virtual DbSet<GuarantorInformation> GuarantorInformation { get; set; }
         public virtual DbSet<InsuranceInformation> InsuranceInformation { get; set; }
@@ -35,16 +42,16 @@ namespace UrgentCareData
         public virtual DbSet<VisitImpotLog> VisitImpotLog { get; set; }
         public virtual DbSet<VisitProcCode> VisitProcCode { get; set; }
 
-
-        // Unable to generate entity type for table 'dbo.FinClass'. Please see the warning messages.
-
+        // Unable to generate entity type for table 'dbo.SystemUser'. Please see the warning messages.
+        // Unable to generate entity type for table 'dbo.doctorsMapping'. Please see the warning messages.
+        // Unable to generate entity type for table 'dbo.InsurancecarriersMapping'. Please see the warning messages.
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             if (!optionsBuilder.IsConfigured)
             {
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. See http://go.microsoft.com/fwlink/?LinkId=723263 for guidance on storing connection strings.
-                optionsBuilder.UseSqlServer("Server=(localdb)\\mssqllocaldb;Database=UrgentCare;Trusted_Connection=True;MultipleActiveResultSets=true");
+                optionsBuilder.UseSqlServer("Server=(local);Database=UrgentCare;Integrated Security=True;Trusted_Connection=True;");
             }
         }
 
@@ -68,7 +75,6 @@ namespace UrgentCareData
                 entity.Property(e => e.FacilityId)
                     .HasMaxLength(50)
                     .IsUnicode(false);
-               
             });
 
             modelBuilder.Entity<AdvancedMdprogram>(entity =>
@@ -109,6 +115,33 @@ namespace UrgentCareData
                 entity.Property(e => e.ImportedDate).HasColumnType("datetime");
 
                 entity.Property(e => e.Status).HasMaxLength(50);
+            });
+
+            modelBuilder.Entity<BatchJob>(entity =>
+            {
+                entity.HasKey(e => e.RecordsProcessed);
+
+                entity.Property(e => e.RecordsProcessed).ValueGeneratedNever();
+
+                entity.Property(e => e.BatchJobId).ValueGeneratedOnAdd();
+
+                entity.Property(e => e.CreatedBy)
+                    .IsRequired()
+                    .HasMaxLength(200);
+
+                entity.Property(e => e.CreatedDateTime).HasColumnType("datetime");
+
+                entity.Property(e => e.FinishedDateTime).HasColumnType("datetime");
+
+                entity.Property(e => e.JobName)
+                    .IsRequired()
+                    .HasMaxLength(50);
+
+                entity.Property(e => e.JobStatus)
+                    .IsRequired()
+                    .HasMaxLength(50);
+
+                entity.Property(e => e.Paramters).IsRequired();
             });
 
             modelBuilder.Entity<Chart>(entity =>
@@ -192,6 +225,42 @@ namespace UrgentCareData
                 entity.Property(e => e.ClinicFullName)
                     .HasMaxLength(150)
                     .IsUnicode(false);
+            });
+
+            modelBuilder.Entity<EntityChangeHistory>(entity =>
+            {
+                entity.HasKey(e => e.ChangeHistoryId);
+
+                entity.Property(e => e.ModifedEntityName)
+                    .IsRequired()
+                    .HasMaxLength(100);
+
+                entity.Property(e => e.ModifiedBy)
+                    .IsRequired()
+                    .HasMaxLength(200);
+
+                entity.Property(e => e.ModifiedDate).HasColumnType("datetime");
+
+                entity.Property(e => e.OriginalValue).IsRequired();
+            });
+
+            modelBuilder.Entity<FinClass>(entity =>
+            {
+                entity.Property(e => e.AmFinClassCode)
+                    .HasColumnName("Am_FinClassCode")
+                    .HasMaxLength(50);
+
+                entity.Property(e => e.AmFinancialClass)
+                    .HasColumnName("AM_FinancialClass")
+                    .HasMaxLength(50);
+
+                entity.Property(e => e.OfficeKey)
+                    .HasMaxLength(50)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.PvClassCode).HasColumnName("Pv_ClassCode");
+
+                entity.Property(e => e.PvName).HasMaxLength(50);
             });
 
             modelBuilder.Entity<GuarantorImportLog>(entity =>
@@ -380,14 +449,26 @@ namespace UrgentCareData
                     .HasMaxLength(25)
                     .IsUnicode(false);
 
+                entity.Property(e => e.CellPhone)
+                    .HasMaxLength(25)
+                    .IsUnicode(false);
+
                 entity.Property(e => e.City)
                     .IsRequired()
                     .HasMaxLength(50)
                     .IsUnicode(false);
 
+                entity.Property(e => e.Email)
+                    .HasMaxLength(100)
+                    .IsUnicode(false);
+
                 entity.Property(e => e.FirstName)
                     .IsRequired()
                     .HasMaxLength(50)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.HomePhone)
+                    .HasMaxLength(25)
                     .IsUnicode(false);
 
                 entity.Property(e => e.LastName)
@@ -397,10 +478,6 @@ namespace UrgentCareData
 
                 entity.Property(e => e.MiddleName)
                     .HasMaxLength(50)
-                    .IsUnicode(false);
-
-                entity.Property(e => e.PatPhone)
-                    .HasMaxLength(25)
                     .IsUnicode(false);
 
                 entity.Property(e => e.Sex)
@@ -655,8 +732,6 @@ namespace UrgentCareData
                     .HasColumnName("EMCode")
                     .HasMaxLength(10);
 
-                entity.Property(e => e.Flagged).HasColumnName("Flagged");
-
                 entity.Property(e => e.Icdcodes)
                     .HasColumnName("ICDCodes")
                     .HasMaxLength(500);
@@ -710,14 +785,6 @@ namespace UrgentCareData
                     .HasForeignKey(d => new { d.PhysicanId, d.ClinicId })
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_Visit_Physican");
-
-                entity.HasOne(d => d.ClinicProfile)
-                    .WithMany(p => p.Visits)
-                    .HasForeignKey(d => d.ClinicId);
-
-                entity.HasOne(d => d.ImportLog)
-                    .WithOne(x => x.Visit).HasForeignKey<VisitImpotLog>(x => x.VisitId);
-
             });
 
             modelBuilder.Entity<VisitImpotLog>(entity =>
@@ -746,7 +813,11 @@ namespace UrgentCareData
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_VisitImpotLog_AdvanceMDImportLog");
 
-             
+                entity.HasOne(d => d.Visit)
+                    .WithMany(p => p.VisitImpotLog)
+                    .HasForeignKey(d => d.VisitId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_VisitImpotLog_Visit");
             });
 
             modelBuilder.Entity<VisitProcCode>(entity =>
@@ -760,6 +831,5 @@ namespace UrgentCareData
                     .HasConstraintName("FK_VisitProcCode_Visit");
             });
         }
-
     }
 }

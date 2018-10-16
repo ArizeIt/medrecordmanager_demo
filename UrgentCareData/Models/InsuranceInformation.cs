@@ -1,5 +1,5 @@
-﻿using System.Collections.Generic;
-using UrgentCareData.Models;
+﻿using System;
+using System.Collections.Generic;
 
 namespace UrgentCareData.Models
 {
