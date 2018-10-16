@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using UgentCareDate;
+using UrgentCareData;
 
 namespace UrgentCareData.Migrations
 {
@@ -21,7 +21,7 @@ namespace UrgentCareData.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128)
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-            modelBuilder.Entity("UgentCareDate.Models.ChartImportLog", b =>
+            modelBuilder.Entity("UrgentCareData.Models.ChartImportLog", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -50,7 +50,7 @@ namespace UrgentCareData.Migrations
                     b.ToTable("ChartImportLog");
                 });
 
-            modelBuilder.Entity("UgentCareDate.Models.GuarantorInformation", b =>
+            modelBuilder.Entity("UrgentCareData.Models.GuarantorInformation", b =>
                 {
                     b.Property<int>("PayerNum")
                         .HasColumnName("Payer_Num");
@@ -103,7 +103,7 @@ namespace UrgentCareData.Migrations
                     b.ToTable("GuarantorInformation");
                 });
 
-            modelBuilder.Entity("UgentCareDate.Models.PatientImportLog", b =>
+            modelBuilder.Entity("UrgentCareData.Models.PatientImportLog", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -138,7 +138,7 @@ namespace UrgentCareData.Migrations
                     b.ToTable("PatientImportLog");
                 });
 
-            modelBuilder.Entity("UgentCareDate.Models.PatientInformation", b =>
+            modelBuilder.Entity("UrgentCareData.Models.PatientInformation", b =>
                 {
                     b.Property<int>("PatNum")
                         .HasColumnName("Pat_Num");
@@ -205,7 +205,7 @@ namespace UrgentCareData.Migrations
                     b.ToTable("PatientInformation");
                 });
 
-            modelBuilder.Entity("UgentCareDate.Models.PayerImportLog", b =>
+            modelBuilder.Entity("UrgentCareData.Models.PayerImportLog", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -238,7 +238,7 @@ namespace UrgentCareData.Migrations
                     b.ToTable("PayerImportLog");
                 });
 
-            modelBuilder.Entity("UgentCareDate.Models.PayerInformation", b =>
+            modelBuilder.Entity("UrgentCareData.Models.PayerInformation", b =>
                 {
                     b.Property<int>("PayerInfoId")
                         .ValueGeneratedOnAdd()
@@ -276,7 +276,7 @@ namespace UrgentCareData.Migrations
                     b.ToTable("PayerInformation");
                 });
 
-            modelBuilder.Entity("UgentCareDate.Models.Physican", b =>
+            modelBuilder.Entity("UrgentCareData.Models.Physican", b =>
                 {
                     b.Property<int>("PvPhysicanId")
                         .HasColumnName("PV_PhysicanId");
@@ -317,7 +317,7 @@ namespace UrgentCareData.Migrations
                     b.ToTable("Physican");
                 });
 
-            modelBuilder.Entity("UgentCareDate.Models.VisitImpotLog", b =>
+            modelBuilder.Entity("UrgentCareData.Models.VisitImpotLog", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -354,7 +354,7 @@ namespace UrgentCareData.Migrations
                     b.ToTable("VisitImpotLog");
                 });
 
-            modelBuilder.Entity("UgentCareDate.Models.VisitProcCode", b =>
+            modelBuilder.Entity("UrgentCareData.Models.VisitProcCode", b =>
                 {
                     b.Property<int>("VisitProcCodeId")
                         .ValueGeneratedOnAdd()
@@ -917,7 +917,7 @@ namespace UrgentCareData.Migrations
                     b.ToTable("Visit");
                 });
 
-            modelBuilder.Entity("UgentCareDate.Models.ChartImportLog", b =>
+            modelBuilder.Entity("UrgentCareData.Models.ChartImportLog", b =>
                 {
                     b.HasOne("UrgentCareData.Models.AdvanceMdimportLog", "Amdimport")
                         .WithMany("ChartImportLog")
@@ -925,7 +925,7 @@ namespace UrgentCareData.Migrations
                         .HasConstraintName("FK_ChartImportLog_AdvanceMDImportLog");
                 });
 
-            modelBuilder.Entity("UgentCareDate.Models.PatientImportLog", b =>
+            modelBuilder.Entity("UrgentCareData.Models.PatientImportLog", b =>
                 {
                     b.HasOne("UrgentCareData.Models.AdvanceMdimportLog", "Amdimport")
                         .WithMany("PatientImportLog")
@@ -933,7 +933,7 @@ namespace UrgentCareData.Migrations
                         .HasConstraintName("FK_PatientImportLog_AdvanceMDImportLog");
                 });
 
-            modelBuilder.Entity("UgentCareDate.Models.PayerImportLog", b =>
+            modelBuilder.Entity("UrgentCareData.Models.PayerImportLog", b =>
                 {
                     b.HasOne("UrgentCareData.Models.AdvanceMdimportLog", "Amdimport")
                         .WithMany("PayerImportLog")
@@ -941,7 +941,7 @@ namespace UrgentCareData.Migrations
                         .HasConstraintName("FK_PayerImportLog_AdvanceMDImportLog");
                 });
 
-            modelBuilder.Entity("UgentCareDate.Models.PayerInformation", b =>
+            modelBuilder.Entity("UrgentCareData.Models.PayerInformation", b =>
                 {
                     b.HasOne("UrgentCareData.Models.InsuranceInformation", "Insurance")
                         .WithMany("PayerInformation")
@@ -954,7 +954,7 @@ namespace UrgentCareData.Migrations
                         .HasConstraintName("FK_PayerInformation_Visit");
                 });
 
-            modelBuilder.Entity("UgentCareDate.Models.VisitImpotLog", b =>
+            modelBuilder.Entity("UrgentCareData.Models.VisitImpotLog", b =>
                 {
                     b.HasOne("UrgentCareData.Models.AdvanceMdimportLog", "AmdimportLog")
                         .WithMany("VisitImpotLog")
@@ -962,7 +962,7 @@ namespace UrgentCareData.Migrations
                         .HasConstraintName("FK_VisitImpotLog_AdvanceMDImportLog");
                 });
 
-            modelBuilder.Entity("UgentCareDate.Models.VisitProcCode", b =>
+            modelBuilder.Entity("UrgentCareData.Models.VisitProcCode", b =>
                 {
                     b.HasOne("UrgentCareData.Models.Visit", "Visit")
                         .WithMany("VisitProcCode")
@@ -980,7 +980,7 @@ namespace UrgentCareData.Migrations
 
             modelBuilder.Entity("UrgentCareData.Models.GuarantorImportLog", b =>
                 {
-                    b.HasOne("UgentCareDate.Models.GuarantorInformation", "PayerNumberNavigation")
+                    b.HasOne("UrgentCareData.Models.GuarantorInformation", "PayerNumberNavigation")
                         .WithMany("GuarantorImportLog")
                         .HasForeignKey("PayerNumber")
                         .HasConstraintName("FK_GuarantorImportLog_AdvanceMDImportLog");
@@ -998,17 +998,17 @@ namespace UrgentCareData.Migrations
                         .HasForeignKey("ClinicId")
                         .OnDelete(DeleteBehavior.Cascade);
 
-                    b.HasOne("UgentCareDate.Models.GuarantorInformation", "GuarantorPayer")
+                    b.HasOne("UrgentCareData.Models.GuarantorInformation", "GuarantorPayer")
                         .WithMany("Visit")
                         .HasForeignKey("GuarantorPayerId")
                         .HasConstraintName("FK_Visit_GuarantorInformation");
 
-                    b.HasOne("UgentCareDate.Models.PatientInformation", "PvPaitent")
+                    b.HasOne("UrgentCareData.Models.PatientInformation", "PvPaitent")
                         .WithMany("Visit")
                         .HasForeignKey("PvPaitentId")
                         .HasConstraintName("FK_Visit_Patient_Information");
 
-                    b.HasOne("UgentCareDate.Models.Physican", "Physican")
+                    b.HasOne("UrgentCareData.Models.Physican", "Physican")
                         .WithMany("Visit")
                         .HasForeignKey("PhysicanId", "ClinicId")
                         .HasConstraintName("FK_Visit_Physican");

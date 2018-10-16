@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using MedRecordManager.Data;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using UgentCareDate;
+using UrgentCareData;
 using MedRecordManager.Services;
 using Microsoft.AspNetCore.Authentication.Cookies;
 

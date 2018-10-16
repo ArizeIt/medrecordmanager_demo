@@ -1,5 +1,5 @@
 ﻿using System;
-using UgentCareDate.Models;
+using UrgentCareData.Models;
 
 namespace UrgentCareData.Models
 {

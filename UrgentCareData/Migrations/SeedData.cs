@@ -2,7 +2,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Linq;
-using UgentCareDate;
+using UrgentCareData;
 using UrgentCareData.Models;
 
 namespace UrgentCareData.Migrations

@@ -1,9 +1,8 @@
 ﻿using System.Security.Cryptography.X509Certificates;
 using Microsoft.EntityFrameworkCore;
-using UgentCareDate.Models;
 using UrgentCareData.Models;
 
-namespace UgentCareDate
+namespace UrgentCareData
 {
     public partial class UrgentCareContext : DbContext
     {

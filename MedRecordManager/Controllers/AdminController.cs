@@ -5,8 +5,7 @@ using MedRecordManager.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using UgentCareDate;
-using UgentCareDate.Models;
+using UrgentCareData;
 using UrgentCareData.Models;
 
 namespace MedRecordManager.Controllers

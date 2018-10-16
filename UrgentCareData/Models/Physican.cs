@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UrgentCareData.Models;
 
-namespace UgentCareDate.Models
+namespace UrgentCareData.Models
 {
     public partial class Physican
     {

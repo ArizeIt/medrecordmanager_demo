@@ -14,8 +14,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using UgentCareDate;
-using UgentCareDate.Models;
+using UrgentCareData;
 using UrgentCareData.Models;
 
 namespace MedRecordManager.Controllers
@@ -283,29 +282,12 @@ namespace MedRecordManager.Controllers
         [HttpPost]
         public async Task<IActionResult> RunBatch(int office, DateTime startDate, DateTime endDate)
         {
-            using (var webClient = new HttpClient())
-            {
-                webClient.BaseAddress = new Uri("http://localhost:65094/");
-                webClient.DefaultRequestHeaders.Accept.Clear();
-             
-                var querystring = $"officeKey={office}&startTime={startDate}&endTime={endDate}";
-
-                var response = await webClient.PostAsync("api/Default/ImportToAmd?" + querystring, null);
-
-                var message = await response.Content.ReadAsStringAsync();
-
-                return Json(new { message });
-            }
-        }
-
-        public async Task<IActionResult> Testrun(string offices, DateTime startDate, DateTime endDate)
-        {
             var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
             var isDevelopment = environment == EnvironmentName.Development;
 
             using (var webClient = new HttpClient())
             {
-                if(environment == EnvironmentName.Development)
+                if (environment == EnvironmentName.Development)
                 {
                     webClient.BaseAddress = new Uri("http://localhost:65094/");
                 }
@@ -314,9 +296,11 @@ namespace MedRecordManager.Controllers
                     webClient.BaseAddress = new Uri("http://172.31.22.98/");
                 }
                 webClient.DefaultRequestHeaders.Accept.Clear();
-                webClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));                               
+               
+             
+                var querystring = $"officeKey={office}&startTime={startDate}&endTime={endDate}";
 
-                var response = await webClient.GetAsync("api/default");
+                var response = await webClient.PostAsync("api/Default/ImportToAmd?" + querystring, null);
 
                 var message = await response.Content.ReadAsStringAsync();
 
