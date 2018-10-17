@@ -1,4 +1,5 @@
-﻿using System;
+﻿using PVAMCommon;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -10,10 +11,12 @@ namespace MedRecordManager.Services
     // For more details see this link https://go.microsoft.com/fwlink/?LinkID=532713
     public class AuthMessageSender : IEmailSender, ISmsSender
     {
-        public Task SendEmailAsync(string email, string subject, string message)
+        public  Task SendEmailAsync(string email, string subject, string message)
         {
             // Plug in your email service here to send an email.
-            return Task.FromResult(0);
+            var smtpClient = new SmtpMailer("",25,"","");
+
+           return smtpClient.SendMailAsync("admin", new List<string>() { email }, null, subject, message, null);
         }
 
         public Task SendSmsAsync(string number, string message)

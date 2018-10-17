@@ -25,6 +25,7 @@ namespace CucmsApi
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
+            services.AddSwaggerGen(c => c.SwaggerDoc("v1", new Swashbuckle.AspNetCore.Swagger.Info { Title = "Medical Record Process Api", Version = "v1" }));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -35,7 +36,23 @@ namespace CucmsApi
                 app.UseDeveloperExceptionPage();
             }
 
-            app.UseMvc();
+            app.UseHttpsRedirection();
+
+            app.UseMvc(routes => {
+                routes.MapRoute(
+                    name: "defaultApi",
+                    template: "{controller=default}/{action=get}/{id}"
+                    );
+            });
+
+            app.UseSwagger();
+            app.UseSwaggerUI(c => {
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "Medical Record Process Api v1");
+                c.RoutePrefix = "";
+            });
+
+          
+
         }
     }
 }

@@ -41,5 +41,7 @@ namespace AdvancedMDDomain.DTOs.Responses
         public string S { get; set; }
         [XmlAttribute(AttributeName = "lst")]
         public string Lst { get; set; }
+        [XmlIgnore]
+        public string Error { get; set; }
     }
 }

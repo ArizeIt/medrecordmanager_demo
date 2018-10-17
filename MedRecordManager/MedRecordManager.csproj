@@ -16,6 +16,8 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\CucmsCommon\CucmsCommon.csproj" />
+    <ProjectReference Include="..\PracticeVelocityDomain\PracticeVelocityDomain.csproj" />
     <ProjectReference Include="..\UrgentCareData\UrgentCareData.csproj" />
   </ItemGroup>
 
