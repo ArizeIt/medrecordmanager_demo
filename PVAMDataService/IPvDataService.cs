@@ -10,79 +10,81 @@ namespace PVAMDataService
     {
         bool SavePvXmlRecord(Log_Record pvRecord, string filePath, int sourceProcessId, bool additionalCharge);
 
-        void SaveProcessLog(SourceProcessLog log);
+        //void SaveProcessLog(SourceProcessLog log);
 
-        bool IfFileProcessed(string filename);
+        //bool IfFileProcessed(string filename);
 
-        int InitiateNewProcessLog(string fileName);
+        //int InitiateNewProcessLog(string fileName);
 
-        void UpdateProcessLogById(int logId, int goodRecCount, int totalRecCount);
+        //void UpdateProcessLogById(int logId, int goodRecCount, int totalRecCount);
 
-        void UpdatePatientLog(int pvPatientId, string amdPatianId, string officekey, int amdImportId);
+        //void UpdatePatientLog(int pvPatientId, string amdPatianId, string officekey, int amdImportId);
 
-        void UpdateGuarantorLog(int guarantorPayerId, string resPartyId, int amdImportId, string officeKey);
+        //void UpdateGuarantorLog(int guarantorPayerId, string resPartyId, int amdImportId, string officeKey);
 
-        void UpdatePatientDoc(string amdDocId, PatientDocument patDoc);
+        //void UpdatePatientDoc(string amdDocId, PatientDocument patDoc);
 
-        void UpdatePhysician(Physican physicain, Profile profileId);
+        //void UpdatePhysician(Physican physicain, Profile profileId);
 
-        void UpdateVisitImportLog(int visitImportid, bool imported);
+        //void UpdateVisitImportLog(int visitImportid, bool imported);
 
-        IList<PatientImportLog> GetPatientImportLogByOfficeKey(string officeKey);
+        //IList<PatientImportLog> GetPatientImportLogByOfficeKey(string officeKey);
 
-        IList<Visit> GetVisitGraph(int processId);
+        //IList<Visit> GetVisitGraph(int processId);
 
-        IList<Visit> GetUnSyncedVisitGraph(DateTime startDate, DateTime endDate);
+        //IList<Visit> GetUnSyncedVisitGraph(DateTime startDate, DateTime endDate);
 
-        IList<ChartDocument> GetChartDocuments(int chartid);
+        //IList<ChartDocument> GetChartDocuments(int chartid);
 
-        IList<AdvancedMdcolumnHeader> GetColumHeaders(int officeKey);
+        //IList<AdvancedMdcolumnHeader> GetColumHeaders(int officeKey);
 
-        PatientImportLog GetPatientImportByPvId(int patNum, string officeKey);
+        //IList<PatientDocument> GetPatientDocs(int visitId);
 
-        PatientImportLog GetPatientImportByAmdId(string amdPatId);
+        //PatientImportLog GetPatientImportByPvId(int patNum, string officeKey);
 
-        GuarantorImportLog GetGuarantorImportLog(int payerNumber, string officeKey);
+        //PatientImportLog GetPatientImportByAmdId(string amdPatId);
 
-        SourceProcessLog GetSourceProcessLog(string fileName);
+        //GuarantorImportLog GetGuarantorImportLog(int payerNumber, string officeKey);
 
-        AdvanceMdimportLog GetImportLogByProcess(int processId);
+        //SourceProcessLog GetSourceProcessLog(string fileName);
 
-        InsuranceInformation FindInsuranceInfo(int? insuranceid);
+        //AdvanceMdimportLog GetImportLogByProcess(int processId);
 
-        IList<Relationship> GetAllRelationships();
+        //InsuranceInformation FindInsuranceInfo(int? insuranceid);
 
-        IList<FinClass> GetALlFinclasses(string officeKey);
+        //IList<Relationship> GetAllRelationships();
 
-        IList<Physican> GetAllPhysicians();
+        //IList<FinClass> GetALlFinclasses(string officeKey);
 
-        IList<ProgramConfig> GetProgramConfigs();
+        //IList<Physican> GetAllPhysicians();
 
-        Physican GetAmdProfileId(int pvPhysicanId, int officeKey, string clinic);
-        Physican GetMatchingProfileIdByPv(int pvPhysicanId, int officeKey);
+        //IList<ProgramConfig> GetProgramConfigs();
 
-        Physican GetDefaultProfile(int officeKey, string clinic);
+        //Physican GetAmdProfileId(int pvPhysicanId, int officeKey, string clinic);
+        //Physican GetMatchingProfileIdByPv(int pvPhysicanId, int officeKey);
 
-        IList<ClinicProfile> GetClinicsByOfficekey(int officeKey);
+        //Physican GetDefaultProfile(int officeKey, string clinic);
 
-        VisitImpotLog FindVisitImpotLogByVisitId(int visitId);
+        //IList<ClinicProfile> GetClinicsByOfficekey(int officeKey);
 
-        PayerImportLog FindInsurancePayerLog(int payerInfoId);
+        //VisitImpotLog FindVisitImpotLogByVisitId(int visitId);
 
-        ChartImportLog FindChartDocLog(int chartDocId);
+        //PayerImportLog FindInsurancePayerLog(int payerInfoId);
+
+        //ChartImportLog FindChartDocLog(int chartDocId);
 
 
-        AdvanceMdimportLog SaveAmdImportLog(int sourceProcessId);
+        //AdvanceMdimportLog SaveAmdImportLog(int sourceProcessId);
 
-        void SavePatientImportLog(string amdPaitentId, int patnum, string officeKey, int amdLogId);
+        //void SavePatientImportLog(string amdPaitentId, int patnum, string officeKey, int amdLogId);
 
-        void SaveResPartyImportLog(int amdImportId, string amdRespartyId, int payerNum, string officeKey);
+        //void SaveResPartyImportLog(int amdImportId, string amdRespartyId, int payerNum, string officeKey);
 
-        void SaveVisitImportLog(int amdImportId, int visitId, string officeKey, string amdVisitId);
+        //void SaveVisitImportLog(int amdImportId, int visitId, string officeKey, string amdVisitId);
 
-        void SavePayerImportLog(int amdImportId, string amdInsId, int payerInfoId, string OfficeKey);
+        //void SavePayerImportLog(int amdImportId, string amdInsId, int payerInfoId, string OfficeKey);
 
-        void SaveChartImportLog(int amdImportLogId, int chartDocId, string amdFileId);
+        //void SaveChartImportLog(int amdImportLogId, int chartDocId, string amdFileId);
 
     }
 }

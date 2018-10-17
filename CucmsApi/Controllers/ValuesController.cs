@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using CucmsService.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CucmsApi.Controllers
@@ -10,6 +11,11 @@ namespace CucmsApi.Controllers
     [ApiController]
     public class ValuesController : ControllerBase
     {
+        private readonly IIntegrationService _integrationService;
+        public ValuesController(IIntegrationService integrationService)
+        {
+            _integrationService = integrationService;
+        }
         // GET api/values
         [HttpGet]
         public ActionResult<IEnumerable<string>> Get()
@@ -34,6 +40,7 @@ namespace CucmsApi.Controllers
         [HttpPut("{id}")]
         public void Put(int id, [FromBody] string value)
         {
+           
         }
 
         // DELETE api/values/5

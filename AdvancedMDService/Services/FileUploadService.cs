@@ -17,7 +17,7 @@ namespace AdvancedMDService
     {
       
 
-        public async Task<IPpmResponse> Upload(Uri apiUri, string userContext, PpmUploadFileRequest fileRequest)
+        public async Task<PpmUploadFileResponse> Upload(Uri apiUri, string userContext, PpmUploadFileRequest fileRequest)
         {
             var webclient = new HttpWebClient();
             fileRequest.Action = RequestAction.UploadFile.Value;
@@ -30,7 +30,7 @@ namespace AdvancedMDService
             }
             catch (Exception ex)
             {
-                return new PpmUpdatePatientResponse
+                return new PpmUploadFileResponse
                 {
                     Error = "Upload Failed: " + ex.InnerException.Message
                 };

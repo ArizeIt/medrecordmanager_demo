@@ -5,6 +5,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\AdvancedMDService\AdvancedMDService.csproj" />
     <ProjectReference Include="..\PVAMDataService\PVAMDataService.csproj" />
   </ItemGroup>
 

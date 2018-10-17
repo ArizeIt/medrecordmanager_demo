@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using CucmsService.Interfaces;
+using CucmsService.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
@@ -26,6 +28,8 @@ namespace CucmsApi
         {
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
             services.AddSwaggerGen(c => c.SwaggerDoc("v1", new Swashbuckle.AspNetCore.Swagger.Info { Title = "Medical Record Process Api", Version = "v1" }));
+
+            services.AddScoped<IIntegrationService, IntegrationService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

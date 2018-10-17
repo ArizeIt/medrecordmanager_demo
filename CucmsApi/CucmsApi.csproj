@@ -15,4 +15,8 @@
     <PackageReference Include="Swashbuckle.aspnetcore" Version="3.0.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\CucmsService\CucmsService.csproj" />
+  </ItemGroup>
+
 </Project>
