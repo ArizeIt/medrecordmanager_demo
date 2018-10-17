@@ -19,7 +19,7 @@ namespace PVAMCommon
         /// <param name="cookie"></param>
         /// <param name="postmsg"></param>
         /// <returns></returns>
-        public  async Task<string> WebPostAsync(Uri server, string cookie, string postmsg)
+        public async Task<string> WebPostAsync(Uri server, string cookie, string postmsg)
         {
             HttpWebRequest request = (HttpWebRequest)WebRequest.Create(server.ToString());
             request.CookieContainer = new CookieContainer();
@@ -36,7 +36,7 @@ namespace PVAMCommon
 
 
             // Send the request
-            XmlTextWriter writer = new XmlTextWriter(request.GetRequestStream(), Encoding.UTF8)
+            XmlTextWriter writer = new XmlTextWriter(await request.GetRequestStreamAsync(), Encoding.UTF8)
             {
                 Namespaces = false
             };
@@ -46,7 +46,7 @@ namespace PVAMCommon
 
             // Return the response
             var response = await request.GetResponseAsync();
-            StreamReader reader = new StreamReader( response.GetResponseStream());
+            StreamReader reader = new StreamReader(response.GetResponseStream());
 
             return reader.ReadToEnd();
         }
