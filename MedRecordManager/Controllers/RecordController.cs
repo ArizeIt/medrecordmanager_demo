@@ -307,5 +307,24 @@ namespace MedRecordManager.Controllers
                 return Json(new { message });
             }
         }
+
+        public IActionResult GetJobProcess(int? page, int? limit, string sortBy, string direction)
+        {
+            var query = _urgentCareContext.SourceProcessLog.Where(x => x.ProcessedDate >= DateTime.Today.AddDays(-7));
+
+            var records = query.ToList();
+
+            var total = records.Count();
+
+            if (page.HasValue && limit.HasValue)
+            {
+                var start = (page.Value - 1) * limit.Value;
+                records = records.Skip(start).Take(limit.Value).ToList();
+            }
+            return Json(new { records, total });
+        }
+        
+
+        
     }
 }
