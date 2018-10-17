@@ -8,7 +8,8 @@
     "jquery-validation-unobtrusive": "v3.2.10",
     "jquery-ajax-unobtrusive": "v3.2.5",
     "moment": "2.22.2",
-    "gijgo": "v1.9.10"
+    "gijgo": "v1.9.10",
+    "chart.js": "~2.7.3"
   },
   "resolutions": {
     "jquery-validation-unobtrusive": "v3.2.10",

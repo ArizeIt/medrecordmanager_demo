@@ -60,9 +60,9 @@
         <script src="~/lib/jquery-ajax-unobtrusive/dist/jquery.unobtrusive-ajax.js"></script>
         <script src="~/lib/jquery-validation-unobtrusive/dist/jquery.validate.unobtrusive.js"></script>
         <script src="~/lib/gijgo/dist/combined/js/gijgo.js"></script>
-        @*<script src="~/js/init.js"></script>*@
+        <script src="~/lib/chart.js/dist/Chart.js"></script>
         <script src="~/js/adminlte.js"></script>
-        @*<script src="~/js/site.js" asp-append-version="true"></script>*@
+       
     </environment>
     <environment names="Staging,Production">
         <script src="https://ajax.aspnetcdn.com/ajax/jquery/jquery-2.2.0.min.js"
@@ -83,9 +83,8 @@
         <script src="~/lib/jquery-ajax-unobtrusive/dist/jquery.unobtrusive-ajax.min.js"></script>
         <script src="~/lib/jquery-validation-unobtrusive/dist/jquery.validate.unobtrusive.min.js"></script>
         <script src="~/lib/gijgo/dist/combined/js/gijgo.min.js"></script>
-        @*<script src="~/js/init.js"></script>*@
+        <script src="~/lib/chart.js/dist/Chart.min.js"></script>
         <script src="~/js/adminlte.js"></script>
-        @*<script src="~/js/site.min.js" asp-append-version="true"></script>*@
     </environment>
 
     @RenderSection("Scripts", required: false)

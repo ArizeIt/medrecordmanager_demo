@@ -47,24 +47,32 @@ namespace MedRecordManager.Controllers
 
         public IActionResult GetJobProcess(int? page, int? limit)
         {
-            var records = _urgentCareContext.SourceProcessLog
+            try
+            {
+                var records = _urgentCareContext.SourceProcessLog
                 .Where(x => x.ProcessedDate >= DateTime.Today.AddDays(-7))
-                .Select(x=> new {
+                .Select(x => new {
                     processId = x.ProcessId,
                     processedDate = x.ProcessedDate.Value.ToString("yyyy-MM-dd HH:MM:ss"),
                     sourceFileName = x.SourceFileName,
-                    processResult =x.ProcessResult,
+                    processResult = x.ProcessResult,
                     successFlag = x.SuccessFlag
-                }).OrderByDescending(x=>x.processedDate).ToList();
+                }).OrderByDescending(x => x.processedDate).ToList();
 
-            var total = records.Count();
+                var total = records.Count();
 
-            if (page.HasValue && limit.HasValue)
-            {
-                var start = (page.Value - 1) * limit.Value;
-                records = records.Skip(start).Take(limit.Value).ToList();
+                if (page.HasValue && limit.HasValue)
+                {
+                    var start = (page.Value - 1) * limit.Value;
+                    records = records.Skip(start).Take(limit.Value).ToList();
+                }
+                return Json(new { records, total });
             }
-            return Json(new { records, total });
+            
+            catch
+            {
+                return Json(new { success = false });
+            }
         }
 
     }
