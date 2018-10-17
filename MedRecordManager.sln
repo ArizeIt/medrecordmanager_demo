@@ -17,7 +17,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AdvancedMDDomain", "Advance
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CucmsCommon", "CucmsCommon\CucmsCommon.csproj", "{B17B29CA-868E-46DD-8CAD-D1D8DF5066FD}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AdvancedMDService", "AdvancedMDService\AdvancedMDService.csproj", "{ABD4E03E-AFBF-4DCF-BD7B-49E9386B8AE8}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AdvancedMDService", "AdvancedMDService\AdvancedMDService.csproj", "{ABD4E03E-AFBF-4DCF-BD7B-49E9386B8AE8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CucmsService", "CucmsService\CucmsService.csproj", "{B33A6A9F-AC79-4852-8850-9F2627487420}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -57,6 +59,10 @@ Global
 		{ABD4E03E-AFBF-4DCF-BD7B-49E9386B8AE8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{ABD4E03E-AFBF-4DCF-BD7B-49E9386B8AE8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{ABD4E03E-AFBF-4DCF-BD7B-49E9386B8AE8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B33A6A9F-AC79-4852-8850-9F2627487420}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B33A6A9F-AC79-4852-8850-9F2627487420}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B33A6A9F-AC79-4852-8850-9F2627487420}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B33A6A9F-AC79-4852-8850-9F2627487420}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
