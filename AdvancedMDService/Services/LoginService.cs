@@ -1,7 +1,6 @@
 ﻿using AdvancedMDInterface;
 using System;
 using System.Globalization;
-using AdvancedMDDomain.DTOs;
 using AdvancedMDDomain;
 using PVAMCommon;
 using System.Linq;
@@ -10,6 +9,7 @@ using AdvancedMDDomain.DTOs.Requests;
 using AdvancedMDDomain.DTOs.Responses;
 using AdvancedMDDomain.Lookups;
 using System.Threading.Tasks;
+using System.Net.Http;
 
 namespace AdvancedMDService
 {
@@ -30,6 +30,11 @@ namespace AdvancedMDService
                 Officecode = officecode,
                 Appname = appname
             };
+
+            //var newClient = new HttpClient();
+            //var stringContent = new StringContent(loginMsg.Serialize());
+
+            //var reply =  await newClient.PostAsync("https://sl1-api01.advancedmd.com/practicemanager/xmlrpc/processrequest.asp", stringContent);
 
             var redirectMessage = await apiClient.WebPostAsync(apiUrl, cookie, loginMsg.Serialize());
 

@@ -36,13 +36,7 @@ namespace MedRecordManager.Controllers
             {
                 Type = "Daily",
 
-                OfficeKeys = _urgentCareContext.ProgramConfig.Where(x=> !x.AmdSync).DistinctBy(x => x.AmdofficeKey).Select(y =>
-                    new SelectListItem
-                    {
-                        Selected = false,
-                        Text = y.AmdofficeKey.ToString(),
-                        Value = y.AmdofficeKey.ToString()
-                    })
+                OfficeKeys = GetAvaliableOfficeKeys()
             };
             return View("RecordView", vm);
         }
@@ -53,13 +47,8 @@ namespace MedRecordManager.Controllers
             var vm = new SearchInputs()
             {
                 Type = "Callback",
-                OfficeKeys = _urgentCareContext.ProgramConfig.Where(x => !x.AmdSync).DistinctBy(x => x.AmdofficeKey).Select(y =>
-                     new SelectListItem
-                     {
-                         Selected = false,
-                         Text = y.AmdofficeKey.ToString(),
-                         Value = y.AmdofficeKey.ToString()
-                     }),
+
+                OfficeKeys = GetAvaliableOfficeKeys(),
 
                 Clinics = _urgentCareContext.ClinicProfile.DistinctBy(x => x.ClinicId).Select(y =>
                     new SelectListItem
@@ -308,5 +297,18 @@ namespace MedRecordManager.Controllers
             }
         }
         
+
+        private IEnumerable<SelectListItem> GetAvaliableOfficeKeys()
+        {
+            return _urgentCareContext.Visit.Include(x => x.Physican).Where(x => x.SourceProcessId > 800).DistinctBy(x => x.Physican.OfficeKey)
+                 .Select(y =>
+                      new SelectListItem
+                      {
+                          Selected = false,
+                          Text = y.Physican.OfficeKey.ToString(),
+                          Value = y.Physican.OfficeKey.ToString()
+                      });
+
+        }
     }
 }

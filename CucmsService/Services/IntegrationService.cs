@@ -6,7 +6,6 @@ using CucmsService.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using PracticeVelocityDomain.DTOs;
 using PVAMCommon;
-using PVAMDataService;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -355,8 +354,6 @@ namespace CucmsService.Services
             return null;
             //    dataSrv.UpdatePatientDoc(response.Results.Filelist.File.Id, patDoc);
         }
-
-
 
         private async Task<bool> SavePvXmlRecord(Log_Record pvRecord, int sourceProcessId, int officekey,  string filePath, bool additionalCharge)
         {
