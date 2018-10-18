@@ -16,5 +16,9 @@ namespace CucmsService.Interfaces
 
         Task<ResponseFile> AddChartDocAsync(Uri apiUrl, string apiToken, ChartDocument chartDoc, string amdPatientId);
         Task<ResponseFile> AddPatientDocAsync(Uri apiUrl, string apiToken, PatientDocument patDoc, string amdPatientId);
+
+        Task<string> UpdateGuarantor(int visitId, int officeKey);
+
+        Task<string> AddVisit(int visitId, int officekey,string amdPatientId, string importLogId, string facilityId, string providerId);
     }
 }

@@ -272,8 +272,7 @@ namespace CucmsService.Services
                     var token = response.Results.Usercontext.Text;
 
                     foreach (var visitRec in visits)
-                    {
-                        var amdPatientId = string.Empty;
+                    {                       
                         var facilityId = string.Empty;
 
                         var findFacility = await _urgentCareContext.AdvancedMdcolumnHeader.FirstOrDefaultAsync(x => x.Clinic == visitRec.ClinicId);
@@ -305,12 +304,9 @@ namespace CucmsService.Services
                                     {
                                         //patient in the system, update the records
                                         existingPatient = true;
-                                        UpdateGuarantor(visitRec, pvDataService, lookUpSrv, patientSrv, importLogId, config.AMDOfficeKey.ToString(), errors);
-                                        AddVisit(visitRec, pvDataService, visitSrv, lookUpSrv, config.AMDOfficeKey.ToString(),
-                                        importedPatient.AmdPatientId,
-                                            importLogId,
-                                            physician.AmProviderId, lookUpColumHeaders, facilityId, true, batchNumber);
-                                        amdPatientId = importedPatient.AmdpatientId;
+                                        var u = UpdateGuarantor(visitRec.VisitId, officeKey);
+                                        var v = AddVisit(visitRec.VisitId, officeKey, importedPatient.AmdpatientId,  physician.AmProviderId,  facilityId);
+                                        
                                     }
                                     else // no previous import , try to insert as new
                                     {
@@ -891,6 +887,16 @@ namespace CucmsService.Services
 
             }
             return amdPhysician;
+        }
+
+        public async Task<string> UpdateGuarantor(int visitId, int officeKey)
+        {
+            throw new NotImplementedException();
+        }
+
+        public async Task<string> AddVisit(int visitId, int officekey, string amdPatientId, string facilityId, string providerId)
+        {
+            throw new NotImplementedException();
         }
     }
 }
