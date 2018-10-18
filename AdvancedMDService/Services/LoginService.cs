@@ -15,7 +15,7 @@ namespace AdvancedMDService
 {
     public class LoginService : ILoginService
     {       
-        public async Task<IPpmResponse> ProcessLogin(Uri apiUrl, int noCooki, string username, string password, string officecode, string appname, string cookie)
+        public async Task<PpmLoginResponse> ProcessLogin(Uri apiUrl, int noCooki, string username, string password, string officecode, string appname, string cookie)
         {
             var apiClient = new HttpWebClient();
 
@@ -35,38 +35,46 @@ namespace AdvancedMDService
             //var stringContent = new StringContent(loginMsg.Serialize());
 
             //var reply =  await newClient.PostAsync("https://sl1-api01.advancedmd.com/practicemanager/xmlrpc/processrequest.asp", stringContent);
-
-            var redirectMessage = await apiClient.WebPostAsync(apiUrl, cookie, loginMsg.Serialize());
-
-            if (!string.IsNullOrEmpty(redirectMessage))
+            try
             {
-                var xDoc = XElement.Parse(redirectMessage);
-                var results = xDoc.Descendants().FirstOrDefault(x => x.Name == "Results");
-                var userContext = xDoc.Descendants().FirstOrDefault(x => x.Name == "usercontext");
+                var redirectMessage = await apiClient.WebPostAsync(apiUrl, cookie, loginMsg.Serialize());
 
-                if (results != null && results.HasAttributes)
+                if (!string.IsNullOrEmpty(redirectMessage))
                 {
-                    if (results.Attribute("success").Value == "1" &&
-                        userContext != null)
-                    {
-                        return redirectMessage.Deserialize<PpmLoginResponse>();
-                    }
+                    var xDoc = XElement.Parse(redirectMessage);
+                    var results = xDoc.Descendants().FirstOrDefault(x => x.Name == "Results");
+                    var userContext = xDoc.Descendants().FirstOrDefault(x => x.Name == "usercontext");
 
-                    var code = xDoc.Descendants().FirstOrDefault(x => x.Name == "code");
-                    if (code != null && code.Value == "-2147220476")
+                    if (results != null && results.HasAttributes)
                     {
-                        var redirectResponse = redirectMessage.Deserialize<PpmLoginResponse>();
-                        var redirecturl = new Uri(redirectResponse.Results.Usercontext.Webserver + "/xmlrpc/processrequest.asp");
-                        await ProcessLogin(redirecturl, 1, username, password, redirectResponse.Results.Usercontext.Officecode, appname, null);
+                        if (results.Attribute("success").Value == "1" && userContext != null)
+                        {
+                            return redirectMessage.Deserialize<PpmLoginResponse>();
+                        }
+
+                        var code = xDoc.Descendants().FirstOrDefault(x => x.Name == "code");
+                        if (code != null && code.Value == "-2147220476")
+                        {
+                            var redirectResponse = redirectMessage.Deserialize<PpmLoginResponse>();
+                            var redirecturl = new Uri(redirectResponse.Results.Usercontext.Webserver + "/xmlrpc/processrequest.asp");
+                            await ProcessLogin(redirecturl, 1, username, password, redirectResponse.Results.Usercontext.Officecode, appname, null);
+                        }
                     }
                 }
-                return redirectMessage.Deserialize<PpmLoginBadResponse>();
+                return new PpmLoginResponse()
+                {
+                    Results = null,
+                    Error = "Login Failed"
+                };
             }
-            return new PpmLoginResponse()
+            catch(Exception ex )
             {
-                Results = null,
-                Error = "Login Failed"
-            };
+                return new PpmLoginResponse()
+                {
+                    Results = null,
+                    Error = ex.Message
+                };
+            }
         }
     }
 }

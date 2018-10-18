@@ -44,7 +44,7 @@ namespace AdvancedMDService
             }
         }
 
-        public async Task<IPpmResponse> LookupProviderByNameAsync(Uri apiUrl, string userContext, string providerName)
+        public async Task<PpmLookUpProviderResponse> LookupProviderByNameAsync(Uri apiUrl, string userContext, string providerName)
         {
             var lookuprquest = new PpmLookUpProviderRequest
             {
@@ -61,17 +61,17 @@ namespace AdvancedMDService
             {
                 return response.Deserialize<PpmLookUpProviderResponse>();
             }
-            catch (Exception ex)
+            catch 
             {
                 return new PpmLookUpProviderResponse
                 {
-                    Error = ex.Message,
+                    Error = response,
                     Results = null
                 };
             }
         }
 
-        public async Task<IPpmResponse> LookupProviderByCode(Uri apiUrl, string userContext, string code)
+        public async Task<PpmLookUpProviderResponse> LookupProviderByCode(Uri apiUrl, string userContext, string code)
         {
             var lookuprquest = new PpmLookUpProviderRequest
             {
@@ -89,11 +89,11 @@ namespace AdvancedMDService
             {
                 return response.Deserialize<PpmLookUpProviderResponse>();
             }
-            catch (Exception ex)
+            catch 
             {
                 return new PpmLookUpProviderResponse
                 {
-                    Error = ex.Message,
+                    Error = response,
                     Results = null
                 };
             }

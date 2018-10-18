@@ -11,7 +11,7 @@ namespace CucmsService.Interfaces
     public interface IIntegrationService
     {
         Task ProcessSourceFile(string sourceFilename, string userName);
-        Task<IList<ImportResult>> BatchImportAsync(BatchJob job, ProgramConfig config, DateTime startDate, DateTime endDate);
+        Task<IList<ImportResult>> BatchImportAsync(BatchJob job, int officeKey, DateTime startDate, DateTime endDate);
         Task<ImportResult> ImportVisitAsync(int visitId);
 
         Task<ResponseFile> AddChartDocAsync(Uri apiUrl, string apiToken, ChartDocument chartDoc, string amdPatientId);

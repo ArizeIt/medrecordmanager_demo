@@ -55,6 +55,7 @@ namespace AdvancedMDDomain.DTOs.Responses
         public string S { get; set; }
         [XmlAttribute(AttributeName = "lst")]
         public string Lst { get; set; }
+       
     }
    
 }

@@ -1,4 +1,5 @@
 ﻿using AdvancedMDDomain;
+using AdvancedMDDomain.DTOs.Responses;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,8 +10,8 @@ namespace AdvancedMDInterface
 {
     public interface ILookupService 
     {
-        Task<IPpmResponse> LookupProviderByName(Uri apiUrl, string userContext, string providerName);
-        Task<IPpmResponse> LookupProviderByCode(Uri apiUrl, string userContext, string code);
+        Task<PpmLookUpProviderResponse> LookupProviderByName(Uri apiUrl, string userContext, string providerName);
+        Task<PpmLookUpProviderResponse> LookupProviderByCode(Uri apiUrl, string userContext, string code);
         Task<IPpmResponse> LookupFinClassByName(Uri apiUrl, string userContext, string finclassName);
         Task<IPpmResponse> LookupFinClassById(Uri apiUrl, string userContext, string fineclassCode);
         Task<IPpmResponse> LookupAcctType(Uri apiUrl, string userContext, string code);

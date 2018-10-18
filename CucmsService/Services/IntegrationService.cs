@@ -22,14 +22,20 @@ namespace CucmsService.Services
 {
     public class IntegrationService : IIntegrationService
     {
-      
+
         private readonly ISourceService _sourceService;
         private readonly IFileUploadService _fileUploadService;
+        private readonly IVisitService _visitservice;
+        private readonly ILoginService _loginService;
+        private readonly ILookupService _lookupService;
         private readonly UrgentCareContext _urgentCareContext;
-        public IntegrationService(ISourceService sourceService, IFileUploadService fileUploadService, UrgentCareContext urgentCareContext)
+        public IntegrationService(ISourceService sourceService, IFileUploadService fileUploadService, IVisitService visitservice, ILoginService loginService, ILookupService lookupService, UrgentCareContext urgentCareContext)
         {
             _sourceService = sourceService;
             _fileUploadService = fileUploadService;
+            _visitservice = visitservice;
+            _loginService = loginService;
+            _lookupService = lookupService;
             _urgentCareContext = urgentCareContext;
         }
 
@@ -37,7 +43,7 @@ namespace CucmsService.Services
         {
             var processId = 0;
 
-            var configs = await _urgentCareContext.ProgramConfig.Where(x=>x.Enabled).ToListAsync();
+            var configs = await _urgentCareContext.ProgramConfig.Where(x => x.Enabled).ToListAsync();
 
             foreach (var config in configs)
             {
@@ -115,9 +121,9 @@ namespace CucmsService.Services
                                     MarkDelete = false,
                                     SourceFileName = sourceFile,
                                 };
-                                _urgentCareContext.SourceProcessLog.Add(newLog);                            
+                                _urgentCareContext.SourceProcessLog.Add(newLog);
                                 await _urgentCareContext.SaveChangesAsync();
-                                     
+
                                 processId = newLog.ProcessId;
 
                                 if (records.Any())
@@ -128,7 +134,7 @@ namespace CucmsService.Services
                                         bool processFlag;
                                         try
                                         {
-                                            processFlag = await SavePvXmlRecord(record, processId,  config.AmdofficeKey, config.FilePath, config.AdditionalCharge);
+                                            processFlag = await SavePvXmlRecord(record, processId, config.AmdofficeKey, config.FilePath, config.AdditionalCharge);
                                         }
                                         catch (Exception ex)
                                         {
@@ -146,7 +152,7 @@ namespace CucmsService.Services
 
                                 }
                                 //first update the records
-            
+
                                 try
                                 {
                                     newLog.MarkAsProcessed = true;
@@ -156,7 +162,7 @@ namespace CucmsService.Services
                                     newLog.ProcessResult =
                                         $"{goodRecord} of total {records.Count} were processed from the source file.";
                                     _urgentCareContext.SourceProcessLog.Attach(newLog);
-                                   await _urgentCareContext.SaveChangesAsync();
+                                    await _urgentCareContext.SaveChangesAsync();
                                 }
                                 catch (ValidationException validationException)
                                 {
@@ -164,7 +170,7 @@ namespace CucmsService.Services
                                     throw;
                                 }
 
-                                
+
                                 if (goodRecord != records.Count)
                                 {
                                     // mailer.SendExceptionEmail(fromAddress, techAddress, emailbody);
@@ -238,11 +244,194 @@ namespace CucmsService.Services
             }
         }
 
-       
-        public Task<IList<ImportResult>> BatchImportAsync(BatchJob job, ProgramConfig config, DateTime startDate, DateTime endDate)
+
+        public async Task<IList<ImportResult>> BatchImportAsync(BatchJob job, int officeKey, DateTime startDate, DateTime endDate)
         {
-            throw new NotImplementedException();
+            var errors = new List<string>();
+            var importFailed = new List<string>();
+
+            //var imported = pvDataService.GetImportLogByProcess(processId);
+            //var importLogId = imported == null ? pvDataService.SaveAmdImportLog(processId).Id : imported.Id;
+
+
+
+            var visits = await _urgentCareContext.Visit.ToListAsync();
+
+            if (visits != null && visits.Any())
+            {
+                var config = await _urgentCareContext.ProgramConfig.FirstOrDefaultAsync(x => x.AmdofficeKey == officeKey);
+                var response = await _loginService.ProcessLogin(new Uri(config.Apiuri), 1, config.ApiuserName, config.Apipassword, officeKey.ToString(), config.AmdAppName, null);
+
+                if (response.Results == null)
+                {
+                    //TODO:  log the or email 
+                }
+                else
+                {
+                    var apiUrl = new Uri(response.Results.Api);
+                    var token = response.Results.Usercontext.Text;
+
+                    foreach (var visitRec in visits)
+                    {
+                        var amdPatientId = string.Empty;
+                        var facilityId = string.Empty;
+
+                        var findFacility = await _urgentCareContext.AdvancedMdcolumnHeader.FirstOrDefaultAsync(x => x.Clinic == visitRec.ClinicId);
+
+                        if (findFacility == null)
+                        {
+                            errors.Add("UnMapped Clinic " + visitRec.ClinicId + " Visit reocrd:" + visitRec.PvlogNum + " is skipped");
+                        }
+                        else
+                        {
+                            var physician = await _urgentCareContext.Physican.FirstOrDefaultAsync(x => x.PvPhysicanId == visitRec.PhysicanId && x.OfficeKey == officeKey.ToString());
+                            if (physician != null)
+                            {
+                                var provider = await LocateProvider(apiUrl, token, physician);
+                            }
+                            else
+                            {
+
+                                importFailed.Add(string.Format("Pysicain was not found, record is skipped. Visit record number:" + visitRec.PvlogNum));
+                            }
+                            if (!string.IsNullOrEmpty(physician?.AmProviderId))
+                            {
+                                var importedPatient = await  _urgentCareContext.PatientImportLog.FirstOrDefaultAsync(x => x.PvpatientId == visitRec.PvPaitentId && x.OfficeKey == officeKey.ToString());
+
+                                bool existingPatient = false;
+                                try
+                                {
+                                    if (importedPatient != null && importedPatient.Id != 0)
+                                    {
+                                        //patient in the system, update the records
+                                        existingPatient = true;
+                                        UpdateGuarantor(visitRec, pvDataService, lookUpSrv, patientSrv, importLogId, config.AMDOfficeKey.ToString(), errors);
+                                        AddVisit(visitRec, pvDataService, visitSrv, lookUpSrv, config.AMDOfficeKey.ToString(),
+                                        importedPatient.AmdPatientId,
+                                            importLogId,
+                                            physician.AmProviderId, lookUpColumHeaders, facilityId, true, batchNumber);
+                                        amdPatientId = importedPatient.AmdpatientId;
+                                    }
+                                    else // no previous import , try to insert as new
+                                    {
+                                        try
+                                        {
+                                            var respartyId = string.Empty;
+                                            amdPatientId = AddPatient(patientSrv, visitRec.PvPaitentId, importLogId, config.AMDOfficeKey.ToString(), pvDataService,
+                                                visitRec, lookUpRelations, lookUpFinClasses, physician.AmProviderId, out existingPatient, out respartyId);
+                                            if (!string.IsNullOrEmpty(amdPatientId))
+                                            {
+                                                //if(!string.IsNullOrEmpty(respartyId))
+                                                //{
+                                                //    UpdateResparty(visitRec, respartyId, patientSrv, errors);
+                                                //}
+                                                AddVisit(visitRec, pvDataService, visitSrv, lookUpSrv, config.AMDOfficeKey.ToString(), amdPatientId, importLogId,
+                                                    physician.AmProviderId, lookUpColumHeaders, facilityId, existingPatient, batchNumber);
+                                            }
+                                            else
+                                            {
+                                                //log and inform the problem.
+                                                importFailed.Add(string.Format("Patient was not found in AMD and can not be imported. PV PatientId: " + visitRec.PatientInfo.Pat_Num));
+                                            }
+                                        }
+                                        catch (Exception)
+                                        {
+
+                                            importFailed.Add(string.Format("Patient can not be imported due to exceptions. PV PatientId: " + visitRec.PatientInfo.Pat_Num));
+                                            throw;
+                                        }
+                                        //can not find previous imported data then add the patient and the log
+
+                                    }
+
+                                    //save the patient notes
+                                    if (!string.IsNullOrEmpty(visitRec.Notes))
+                                    {
+                                        patientSrv.SavePatientNote(amdPatientId, amdPatientId, visitRec.Notes);
+                                    }
+
+                                    if (visitRec.Payers != null && visitRec.Payers.Any())
+                                    {
+                                        foreach (var payer in visitRec.Payers)
+                                        {
+                                            if (pvDataService.FindInsurancePayerLog(payer.PayerInfoId) == null)
+                                            {
+                                                AddPayerandInsurer(pvDataService, lookUpSrv, amdPatientId, payer, config.AMDOfficeKey.ToString(), visitRec, lookUpRelations,
+                                                    importLogId, importFailed, errors);
+                                            }
+                                        }
+                                    }
+
+
+
+                                    if (visitRec.PatientDocuments != null && visitRec.PatientDocuments.Any() && !string.IsNullOrEmpty(amdPatientId))
+                                    {
+                                        //upload patient Doc
+                                        foreach (var patDoc in visitRec.PatientDocuments)
+                                        {
+                                            if (string.IsNullOrEmpty(patDoc.AmdFileId))
+                                            {
+                                                try
+                                                {
+                                                    AddPatientDoc(patDoc, amdPatientId, pvDataService);
+                                                }
+                                                catch
+                                                {
+                                                    importFailed.Add(string.Format("Failed to add the patient document, document name: {0} , Patient Name: {1}, Pv Patient Id: {2}", patDoc.FileName, (visitRec.PatientInfo.FirstName + "" + visitRec.PatientInfo.LastName), visitRec.PatientInfo.Pat_Num));
+                                                }
+                                            }
+                                        }
+                                    }
+
+                                    if (visitRec.Chart != null)
+                                    {
+                                        var chartDocs = pvDataService.GetChartDocuments(visitRec.Chart.ChartId);
+                                        if (chartDocs != null && chartDocs.Any() && !string.IsNullOrEmpty(amdPatientId))
+                                        {
+                                            foreach (var chartDoc in chartDocs)
+                                            {
+                                                if (pvDataService.FindChartDocLog(chartDoc.ChartDocId) == null)
+                                                {
+                                                    try
+                                                    {
+                                                        AddChartDoc(chartDoc, amdPatientId, pvDataService, importLogId);
+                                                    }
+                                                    catch
+                                                    {
+                                                        importFailed.Add(string.Format("Failed to add the patient chart, Chart name: {0} , Patient Name: {1}, Pv Patient Id: {2}", chartDoc.FileName, (visitRec.PatientInfo.FirstName + "" + visitRec.PatientInfo.LastName), visitRec.PatientInfo.Pat_Num));
+                                                    }
+                                                }
+                                            }
+                                        }
+
+                                    }
+                                }
+
+
+                                catch (Exception e)
+                                {
+                                    errors.Add(e.StackTrace);
+                                }
+                            }
+                        }
+                    }
+                    if (errors.Any())
+                    {
+                        var mailbody = errors.Aggregate(string.Empty,
+                            (current, error) => current + (error + Environment.NewLine));
+                        //mailer.SendExceptionEmail(config.FromEmailAddress, config.TechEmailAddress, mailbody);
+                    }
+
+                    if (importFailed.Any())
+                    {
+                        var mailbody = importFailed.Aggregate(string.Empty,
+                            (current, fail) => current + (fail + Environment.NewLine));
+                        // mailer.SendResultEmail(config.FromEmailAddress, config.ToEmailAddress.Split(';').ToList(), config.CCEmailAddress.Split(';').ToList(), mailbody);
+                    }
+                }
+            }
         }
+
 
         public Task<ImportResult> ImportVisitAsync(int visitId)
         {
@@ -304,8 +493,8 @@ namespace CucmsService.Services
         }
 
         public async Task<ResponseFile> AddPatientDocAsync(Uri apiUrl, string apiToken, PatientDocument patDoc, string amdPatientId)
-        {   
-            if(patDoc.FileImage.Length > 0)
+        {
+            if (patDoc.FileImage.Length > 0)
             {
                 var filenames = patDoc.FileName.Split('.');
                 var fileContent = Convert.ToBase64String(patDoc.FileImage);
@@ -346,16 +535,16 @@ namespace CucmsService.Services
                     }
                 };
                 var response = await _fileUploadService.Upload(apiUrl, apiToken, uploadRequest);
-                if(response.Results != null)
+                if (response.Results != null)
                 {
                     return response.Results.Filelist.File;
-                }             
+                }
             }
             return null;
             //    dataSrv.UpdatePatientDoc(response.Results.Filelist.File.Id, patDoc);
         }
 
-        private async Task<bool> SavePvXmlRecord(Log_Record pvRecord, int sourceProcessId, int officekey,  string filePath, bool additionalCharge)
+        private async Task<bool> SavePvXmlRecord(Log_Record pvRecord, int sourceProcessId, int officekey, string filePath, bool additionalCharge)
         {
             var pvLogNum = int.Parse(pvRecord.Log_Num);
 
@@ -421,7 +610,7 @@ namespace CucmsService.Services
                     }
                 }
 
-                var existingPatient = await 
+                var existingPatient = await
                     _urgentCareContext.PatientInformation.FindAsync(int.Parse(pvRecord.Patient_Information.Pat_NUM));
                 if (existingPatient != null)
                 {
@@ -483,8 +672,8 @@ namespace CucmsService.Services
                 {
                     oVisit.Physican = matchingPhysican;
                 }
-                
-               
+
+
                 //conditional mapping if record exists
 
                 if (pvRecord.Patient_Information.GuarantorInformation?.Payer != null)
@@ -672,6 +861,36 @@ namespace CucmsService.Services
             }
         }
 
+        private async Task<Profile> LocateProvider(Uri apiUrl, string token, Physican physician)
+        {
+            var amdPhysician = new Profile();
+            if (string.IsNullOrEmpty(physician.AmProviderId))
+            {
+                if (!string.IsNullOrEmpty(physician.AmdCode))
+                {
+                    var providerRes = await _lookupService.LookupProviderByCode(apiUrl, token, physician.AmdCode);
 
+                    amdPhysician = providerRes.Results.Profilelist.Profile.FirstOrDefault();
+                }
+                else
+                {
+                    var providerRes = await _lookupService.LookupProviderByName(apiUrl, token, physician.LastName);
+
+                    if (providerRes.Results.Profilelist.Profile.Count != 0 && amdPhysician.Id == null)
+                    {
+                        foreach (var profile in providerRes.Results.Profilelist.Profile)
+                        {
+                            if (profile.Name.Trim().ToUpper() == (physician.LastName + ", " + physician.FirstName).ToUpper() || profile.Name.Trim().ToUpper() == (physician.LastName + "," + physician.FirstName).ToUpper())
+                            {
+                                amdPhysician = profile;
+                                break;
+                            }
+                        }
+                    }
+                }
+
+            }
+            return amdPhysician;
+        }
     }
 }
