@@ -2,9 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
-using System.Net.Http.Headers;
 using System.Threading.Tasks;
-using System.Web;
 using MedRecordManager.Extension;
 using MedRecordManager.Models;
 using MedRecordManager.Models.DailyRecord;
@@ -14,7 +12,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-
+using Newtonsoft.Json;
 using UrgentCareData;
 using UrgentCareData.Models;
 
@@ -197,12 +195,49 @@ namespace MedRecordManager.Controllers
         }
 
         [HttpPost]
-        public IActionResult UpdateVisit(VisitRecordVm record)
+        public async Task<IActionResult> UpdateVisitAsync(VisitRecordVm record)
         {
             var visit = _urgentCareContext.Visit.FirstOrDefault(x => x.VisitId == record.VisitId);
 
             if(visit != null)
             {
+                var oldValue = JsonConvert.SerializeObject(visit);
+                var newValue = JsonConvert.SerializeObject(record);
+
+
+
+                visit.ClinicId = record.ClinicName;
+
+                if(!string.IsNullOrEmpty(record.PatientName))
+                    {
+                    var namearray = record.PatientName.Split(',');
+                    visit.PvPatient.FirstName = namearray[1];
+                    visit.PvPatient.LastName = namearray[0];
+                }
+
+                _urgentCareContext.Visit.Attach(visit);
+
+               
+
+
+                var history = await _urgentCareContext.EntityChangeHistory.FirstOrDefaultAsync(x => x.VisitId == record.VisitId);
+
+
+                if(history!= null)
+                {
+                    history.ModifedEntityName = "Visit";
+                    history.ModifiedBy = User.Identity.Name;
+                    history.ModifiedDate = DateTime.UtcNow;
+                    _urgentCareContext.EntityChangeHistory.Attach(history);
+                }
+
+                else
+                {
+                    _urgentCareContext.Add(new EntityChangeHistory
+                    {
+                    });
+                }
+                await _urgentCareContext.SaveChangesAsync();
                 return Json(new {success = true, record });
             }
             else
@@ -213,7 +248,6 @@ namespace MedRecordManager.Controllers
         }
 
         [HttpPost]
-
         public IActionResult FlagVisit(int visitId, bool flag)
         {
             var visit = _urgentCareContext.Visit.FirstOrDefault(x => x.VisitId == visitId);
@@ -298,7 +332,7 @@ namespace MedRecordManager.Controllers
             }
         }
 
-        [HttpPost]
+        
         public IActionResult GetModifiedRecord(int? page, int? limit)
         {
             var records = _urgentCareContext.EntityChangeHistory.Join(
@@ -326,6 +360,7 @@ namespace MedRecordManager.Controllers
             return Json(new { records, total });
         }
 
+        
 
         private IEnumerable<SelectListItem> GetAvaliableOfficeKeys()
         {

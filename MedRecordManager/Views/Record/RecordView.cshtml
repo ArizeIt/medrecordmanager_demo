@@ -8,6 +8,7 @@
 
         var dailyGrid;
         var flaggedGrid;
+        var modifiedGrid;
 
         $(document).ready(function () {
             var type = $('#searchType').val();
@@ -54,12 +55,21 @@
                     $update.show();
                     $cancel.show();
                 });
-                $update.on('click', function (e) {
-                    $grid.update($(this).data('key'));
-                    $edit.show();
-                    $detail.show();
-                    $update.hide();
-                    $cancel.hide();
+                $update.on('click', function (e) {                   
+                    $.ajax({
+                        url: 'Record/UpdateVisitAsync',
+                        data: data,
+                        type: 'POST',
+                        success: function (response) {
+                            //fade message
+                            $grid.update($(this).data('key'));
+                            $edit.show();
+                            $detail.show();
+                            $update.hide();
+                            $cancel.hide();
+                        }
+                    });
+                    
                 });
                 $cancel.on('click', function (e) {
                     $grid.cancel($(this).data('key'));
