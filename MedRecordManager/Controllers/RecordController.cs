@@ -14,6 +14,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+
 using UrgentCareData;
 using UrgentCareData.Models;
 
@@ -296,7 +297,35 @@ namespace MedRecordManager.Controllers
                 return Json(new { message });
             }
         }
-        
+
+        [HttpPost]
+        public IActionResult GetModifiedRecord(int? page, int? limit)
+        {
+            var records = _urgentCareContext.EntityChangeHistory.Join(
+                _urgentCareContext.Visit,
+                i => i.VisitId,
+                o => o.VisitId,
+                (i, o) => new
+                {
+                    id = i.ChangeHistoryId,
+                    ChangedBy = i.ModifiedBy,
+                    ChangedDate = i.ModifiedDate,
+                    PatientName = o.PvPatient.LastName + ", " + o.PvPatient.LastName + o.PvPatient.MiddleName,
+                    ProviderName = o.Physican.LastName + ", " + o.Physican.LastName + o.Physican.MiddleName,
+                    Clinic = o.ClinicId
+
+                }).ToList();
+
+            var total = records.Count();
+
+            if (page.HasValue && limit.HasValue)
+            {
+                var start = (page.Value - 1) * limit.Value;
+                records = records.Skip(start).Take(limit.Value).ToList();
+            }
+            return Json(new { records, total });
+        }
+
 
         private IEnumerable<SelectListItem> GetAvaliableOfficeKeys()
         {
