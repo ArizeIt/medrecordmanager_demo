@@ -16,7 +16,7 @@ namespace AdvancedMDService
     public class LookupService : ILookupService
     {
        
-        public async Task<IPpmResponse> LookupProviderByName(Uri apiUrl, string userContext, string providerName)
+        public async Task<PpmLookUpProviderResponse> LookupProviderByName(Uri apiUrl, string userContext, string providerName)
         {
             var lookuprquest = new PpmLookUpProviderRequest
             {
@@ -399,5 +399,7 @@ namespace AdvancedMDService
         {
             throw new NotImplementedException();
         }
+
+      
     }
 }

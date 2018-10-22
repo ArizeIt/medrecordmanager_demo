@@ -17,7 +17,7 @@ namespace AdvancedMDService
     public class VisitService : IVisitService
     {
       
-        public async Task<IPpmResponse> AddVisit(Uri apiUrl, string userContext, string clinic, string patientId, string providerId, string columnHead, string visitType, string date, string timeIn, string duration)
+        public async Task<PpmAddVisitResponse> AddVisit(Uri apiUrl, string userContext, string clinic, string patientId, string providerId, string columnHead, string visitType, string date, string timeIn, string duration)
         {
             
 
@@ -51,12 +51,10 @@ namespace AdvancedMDService
                     Force = "1",
                 };
             }
-
-            var apiClient = new HttpWebClient();
-            var response = await apiClient.WebPostAsync(apiUrl, userContext, addVisitRequest.Serialize());          
             try
             {
-   
+                var apiClient = new HttpWebClient();
+                var response = await apiClient.WebPostAsync(apiUrl, userContext, addVisitRequest.Serialize());            
                 return  response.Deserialize<PpmAddVisitResponse>();
             }
             catch (Exception ex)
