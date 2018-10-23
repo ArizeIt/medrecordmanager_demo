@@ -31,12 +31,12 @@ namespace MedRecordManager.Controllers
 
             var input = new SearchInputs
             {
-                OfficeKeys = _urgentData.Set<ClinicProfile>().DistinctBy(x => x.OfficeKey).OrderBy(x => x.OfficeKey).Select(x =>
+                OfficeKeys = _urgentData.Set<ProgramConfig>().DistinctBy(x => x.AmdofficeKey).OrderBy(x => x.AmdofficeKey).Select(x =>
                   new SelectListItem
                   {
                       Selected = false,
-                      Text = x.OfficeKey.ToString(),
-                      Value = x.OfficeKey.ToString()
+                      Text = x.AmdofficeKey.ToString(),
+                      Value = x.AmdofficeKey.ToString()
                   }
                     )
             };

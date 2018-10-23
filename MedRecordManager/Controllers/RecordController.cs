@@ -202,10 +202,7 @@ namespace MedRecordManager.Controllers
             if(visit != null)
             {
                 var oldValue = JsonConvert.SerializeObject(visit);
-                var newValue = JsonConvert.SerializeObject(record);
-
-
-
+                               
                 visit.ClinicId = record.ClinicName;
 
                 if(!string.IsNullOrEmpty(record.PatientName))
