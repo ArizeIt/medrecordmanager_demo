@@ -171,6 +171,18 @@
 
             }
 
+
+            modifiedGrid = $('#changeTable').grid({
+                primaryKey: 'visitId',
+                dataSource: '/Record/GetModifiedRecord',
+                data: {
+                    startDate: $('#startDate').val(),
+                    endDate: $('#endDate').val()
+                },
+                autoGenerateColumns: true,
+                pager: { limit: 10, sizes: [2, 5, 10, 20] },
+            });
+
             patientGrid = $('#patientGrid').grid({
                 primaryKey: 'PvPatientId',
                 datasource: '/record/GetPatientDetail',
@@ -237,6 +249,7 @@
                         dailyGrid.reload({ office: $('#officeKey').val(), startDate: $('#startDate').val(), endDate: $('#endDate').val() });
                     }
                     $('.dataView').show();
+                    $('.modified').hide();
                     //if (dailyGrid.data().records.length <= 0) {
                     //    $('#btnRun').hide()
                     //}
@@ -253,16 +266,8 @@
             $('#btnNext').click(function () {
                 $('.dataView').hide();
                 $('.modified').show();
-                modifiedGrid = $('#changeTable').grid({
-                    primaryKey: 'visitId',
-                    dataSource: '/Record/GetModifiedRecord',
-                    data: {
-                        startDate: $('#startDate').val(),
-                        endDate: $('#endDate').val()
-                    },
-                    autoGenerateColumns: true,
-                    pager: { limit: 10, sizes: [2, 5, 10, 20] },
-                });
+                modifiedGrid.clear();
+                modifiedGrid.reload({ startDate: $('#startDate').val(), endDate: $('#endDate').val()})
 
             });
 

@@ -317,26 +317,53 @@ namespace MedRecordManager.Controllers
             }
         }
 
-        
-        public async Task<IActionResult> GetModifiedRecord(int? page, int? limit, DateTime startDate, DateTime endDate)
+
+        public IActionResult GetModifiedRecord(int? page, int? limit, DateTime startDate, DateTime endDate)
         {
-            var records = await _urgentCareContext.Audits.Select(x=> new {
-
-                modifiedBy = x.ModifiedBy,
-                modefiedTime = x.ModifiedTime.ToString("yyyy-MM-dd HH:MM:ss"),
-                newValues = x.NewValues,
-                oldValues = x.OldValues,
-                id =x.KeyValues
-            }).ToListAsync();
-
-            var total = records.Count();
-
-            if (page.HasValue && limit.HasValue)
+            var total = 0;
+            if (startDate != DateTime.MinValue && endDate != DateTime.MinValue)
             {
-                var start = (page.Value - 1) * limit.Value;
-                records = records.Skip(start).Take(limit.Value).ToList();
+                var records = _urgentCareContext.Audits.Select(x => new
+                {
+
+                    modifiedBy = x.ModifiedBy,
+                    modefiedTime = x.ModifiedTime.ToString("yyyy-MM-dd HH:MM:ss"),
+                    newValues = x.NewValues,
+                    oldValues = x.OldValues,
+                    id = x.KeyValues
+                }).ToList();
+
+                var visits = _urgentCareContext.Visit.Include(x => x.VisitImpotLog).Where(x => x.ServiceDate >= startDate && x.ServiceDate <= endDate && x.VisitImpotLog.Any()).ToList();
+                foreach (var record in records.ToArray())
+                {
+                    var key = JsonConvert.DeserializeObject<Dictionary<string, int>>(record.id);
+
+
+                    if (visits.Any(x => key.Values.Contains(x.VisitId)))
+                    {
+                        records.Remove(record);
+                    }
+
+                }
+
+
+                total = records.Count();
+
+                if (page.HasValue && limit.HasValue)
+                {
+                    var start = (page.Value - 1) * limit.Value;
+                    records = records.Skip(start).Take(limit.Value).ToList();
+                }
+                return Json(new { records, total });
             }
-            return Json(new { records, total });
+            else
+            {
+                var records = new Audit();
+
+
+                return Json(new { records, total });
+            }
+
         }
 
 
