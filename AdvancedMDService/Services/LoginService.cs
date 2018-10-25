@@ -32,7 +32,7 @@ namespace AdvancedMDService
             };
 
             //var newClient = new HttpClient();
-            //var stringContent = new StringContent(loginMsg.Serialize());
+            //var stringContent = new HttpContent(loginMsg.Serialize(), );
 
             //var reply =  await newClient.PostAsync("https://sl1-api01.advancedmd.com/practicemanager/xmlrpc/processrequest.asp", stringContent);
             try

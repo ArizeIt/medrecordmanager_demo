@@ -187,9 +187,11 @@ namespace MedRecordManager.Controllers
 
         }
 
-        public IActionResult GetClinic()
+        public IActionResult GetClinics(int visitId)
         {
-            var clinics = _urgentCareContext.ClinicProfile.Select(x => new {id = x.ClinicId, text= x.ClinicId});
+            var visit = _urgentCareContext.Visit.FirstOrDefault(x => x.VisitId == visitId);
+            var physcian = _urgentCareContext.Physican.Where(x => x.PvPhysicanId == visit.PhysicanId);
+            var clinics = physcian.Select(x => new {name = x.Clinic});
 
             return Json(clinics);
         }
@@ -197,49 +199,30 @@ namespace MedRecordManager.Controllers
         [HttpPost]
         public async Task<IActionResult> UpdateVisitAsync(VisitRecordVm record)
         {
-            var visit = _urgentCareContext.Visit.FirstOrDefault(x => x.VisitId == record.VisitId);
+            var visit = _urgentCareContext.Visit.Include(x => x.PvPatient).FirstOrDefault(x => x.VisitId == record.VisitId);
 
-            if(visit != null)
+            if (visit != null)
             {
-                var oldValue = JsonConvert.SerializeObject(visit);
-                               
-                visit.ClinicId = record.ClinicName;
-
-                if(!string.IsNullOrEmpty(record.PatientName))
-                    {
-                    var namearray = record.PatientName.Split(',');
-                    visit.PvPatient.FirstName = namearray[1];
-                    visit.PvPatient.LastName = namearray[0];
-                }
-
-                _urgentCareContext.Visit.Attach(visit);
-
-               
-
-
-                var history = await _urgentCareContext.EntityChangeHistory.FirstOrDefaultAsync(x => x.VisitId == record.VisitId);
-
-
-                if(history!= null)
+                if (visit.ClinicId != record.ClinicName)
                 {
-                    history.ModifedEntityName = "Visit";
-                    history.ModifiedBy = User.Identity.Name;
-                    history.ModifiedDate = DateTime.UtcNow;
-                    _urgentCareContext.EntityChangeHistory.Attach(history);
+                    visit.ClinicId = record.ClinicName;
+                    visit.IsModified = true;
+                    _urgentCareContext.Visit.Attach(visit);
+                    var saved = await _urgentCareContext.SaveChangesAsyncWithAudit(User.Identity.Name);
+                    if (saved < 0)
+                    {
+                        return Json(new { success = false, message = "Can not save this record." });
+                    }
                 }
-
                 else
                 {
-                    _urgentCareContext.Add(new EntityChangeHistory
-                    {
-                    });
+                    return Json(new { success = false, message = "Value is unchanged" });
                 }
-                await _urgentCareContext.SaveChangesAsync();
-                return Json(new {success = true, record });
+                return Json(new { success = true, record });
             }
             else
             {
-                return Json(new { success = false, message = "Can not located this visit record."});
+                return Json(new { success = false, message = "Can not located this visit record." });
             }
 
         }
@@ -301,11 +284,13 @@ namespace MedRecordManager.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> RunBatch(int office, DateTime startDate, DateTime endDate)
+        public async Task<IActionResult> RunBatch(DateTime startDate, DateTime endDate)
         {
             var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
             var isDevelopment = environment == EnvironmentName.Development;
-
+            var allclinics = _urgentCareContext.Visit.Where(x => x.ServiceDate >= startDate && x.ServiceDate <= endDate).Select(x => x.ClinicId).ToList();
+            var officekeys = _urgentCareContext.ClinicProfile.Where(x => allclinics.Contains(x.ClinicId)).DistinctBy(x => x.OfficeKey).Select(x => x.OfficeKey).ToList();
+            var message = string.Empty; 
             using (var webClient = new HttpClient())
             {
                 if (environment == EnvironmentName.Development)
@@ -318,34 +303,31 @@ namespace MedRecordManager.Controllers
                 }
                 webClient.DefaultRequestHeaders.Accept.Clear();
                
-             
-                var querystring = $"officeKey={office}&startTime={startDate}&endTime={endDate}";
+             foreach(var key in officekeys)
+                {
+                    var querystring = $"officeKey={key}&startTime={startDate}&endTime={endDate}";
 
-                var response = await webClient.PostAsync("api/Default/ImportToAmd?" + querystring, null);
+                    var response = await webClient.PostAsync("api/Default/ImportToAmd?" + querystring, null);
 
-                var message = await response.Content.ReadAsStringAsync();
+                    message += await response.Content.ReadAsStringAsync();
+                }
+               
 
                 return Json(new { message });
             }
         }
 
         
-        public IActionResult GetModifiedRecord(int? page, int? limit)
+        public async Task<IActionResult> GetModifiedRecord(int? page, int? limit, DateTime startDate, DateTime endDate)
         {
-            var records = _urgentCareContext.EntityChangeHistory.Join(
-                _urgentCareContext.Visit,
-                i => i.VisitId,
-                o => o.VisitId,
-                (i, o) => new
-                {
-                    id = i.ChangeHistoryId,
-                    ChangedBy = i.ModifiedBy,
-                    ChangedDate = i.ModifiedDate,
-                    PatientName = o.PvPatient.LastName + ", " + o.PvPatient.LastName + o.PvPatient.MiddleName,
-                    ProviderName = o.Physican.LastName + ", " + o.Physican.LastName + o.Physican.MiddleName,
-                    Clinic = o.ClinicId
+            var records = await _urgentCareContext.Audits.Select(x=> new {
 
-                }).ToList();
+                modifiedBy = x.ModifiedBy,
+                modefiedTime = x.ModifiedTime.ToString("yyyy-MM-dd HH:MM:ss"),
+                newValues = x.NewValues,
+                oldValues = x.OldValues,
+                id =x.KeyValues
+            }).ToListAsync();
 
             var total = records.Count();
 
@@ -357,17 +339,16 @@ namespace MedRecordManager.Controllers
             return Json(new { records, total });
         }
 
-        
 
         private IEnumerable<SelectListItem> GetAvaliableOfficeKeys()
         {
-            return _urgentCareContext.Visit.Include(x => x.Physican).Where(x => x.SourceProcessId > 800).DistinctBy(x => x.Physican.OfficeKey)
+            return _urgentCareContext.ProgramConfig.Where(x=>! x.AmdSync).DistinctBy(x => x.AmdofficeKey)
                  .Select(y =>
                       new SelectListItem
                       {
                           Selected = false,
-                          Text = y.Physican.OfficeKey.ToString(),
-                          Value = y.Physican.OfficeKey.ToString()
+                          Text = y.AmdofficeKey.ToString(),
+                          Value = y.AmdofficeKey.ToString()
                       });
 
         }

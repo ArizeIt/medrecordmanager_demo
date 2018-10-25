@@ -44,6 +44,8 @@ namespace UrgentCareData.Models
         public int? SourceProcessId { get; set; }
         public bool Flagged { get; set; }
 
+        public bool IsModified { get; set; }
+
         public virtual Chart Chart { get; set; }
         public virtual GuarantorInformation GuarantorPayer { get; set; }
         public virtual Physican Physican { get; set; }

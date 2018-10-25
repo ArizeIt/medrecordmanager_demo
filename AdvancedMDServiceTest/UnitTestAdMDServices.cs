@@ -22,7 +22,7 @@ namespace AdvancedMDServiceTest
             var uri = new Uri("https://sl1-api01.advancedmd.com/practicemanager/xmlrpc/processrequest.asp");
             var app = new LoginService();
 
-            //var response = app.ProcessLogin(uri, 1, "cmcus0228", "wer789gg", "133358", "MyApp", null).Result;
+            var response = app.ProcessLogin(uri, 1, "cmcus0228", "wer789gg", "133358", "MyApp", null).Result;
             ////var response = app.ProcessLogin(1, "cmcus0228", "rbw!@345", "132677", "MyApp", null);
             ////var response = app.ProcessLogin(1, "CMUC-FUL", "xcv900bb", "991347", "MyApp", null);
             ////var response = app.ProcessLogin(1, "SINAI0725", "hjp()567", "132637", "MyApp", null);
@@ -30,12 +30,12 @@ namespace AdvancedMDServiceTest
             ////var response = app.ProcessLogin(1, "PRA0925", "RLaJ4eH1", "137273", "MyApp", null);
 
 
-            //if (response.GetType() == typeof(PpmLoginResponse))
-            //{
-            //    var sucessResponse = (PpmLoginResponse)response;
-            //    ApiUrl = new Uri(sucessResponse.Results.Api);
-            //    UserContext = sucessResponse.Results.Usercontext.Text;
-            //}
+            if (response.GetType() == typeof(PpmLoginResponse))
+            {
+               
+                ApiUrl = new Uri(response.Results.Usercontext.Webserver + "/xmlrpc/processrequest.asp");
+                UserContext = response.Results.Usercontext.Text;
+            }
 
         }
 
@@ -44,9 +44,7 @@ namespace AdvancedMDServiceTest
         public void CanLookupProviders()
         {
             var srv = new LookupService();
-
-
-            var response = (PpmLookUpProviderResponse)srv.LookupProviderByName(ApiUrl, UserContext, "b").Result;
+            var response = srv.LookupProviderByName(ApiUrl, UserContext, "b").Result;
             Assert.IsNotNull(response.Results.Profilelist);
         }
 

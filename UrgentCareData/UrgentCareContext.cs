@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 using UrgentCareData.Models;
@@ -41,6 +43,8 @@ namespace UrgentCareData
         public virtual DbSet<Visit> Visit { get; set; }
         public virtual DbSet<VisitImpotLog> VisitImpotLog { get; set; }
         public virtual DbSet<VisitProcCode> VisitProcCode { get; set; }
+        public virtual DbSet<Audit> Audits { get; set; }
+
 
         // Unable to generate entity type for table 'dbo.SystemUser'. Please see the warning messages.
         // Unable to generate entity type for table 'dbo.doctorsMapping'. Please see the warning messages.
@@ -56,6 +60,42 @@ namespace UrgentCareData
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.Entity<Audit>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+
+                entity.ToTable("Audit");
+
+                entity.Property(e => e.KeyValues)
+                .IsRequired()
+                .IsUnicode(false);
+
+                entity.Property(e => e.ModifiedBy)
+                .IsRequired()
+                .HasMaxLength(200)
+                .IsUnicode(false);
+
+                entity.Property(e => e.ModifiedTime).HasColumnType("datetime");
+             
+
+                entity.Property(e => e.NewValues)
+               .IsRequired()
+               .HasMaxLength(200)
+               .IsUnicode(false);
+
+                entity.Property(e => e.OldValues)
+               .IsRequired()
+               .HasMaxLength(200)
+               .IsUnicode(false);
+
+                entity.Property(e => e.TableName)
+               .IsRequired()
+               .HasMaxLength(200)
+               .IsUnicode(false);
+
+
+            });
+
             modelBuilder.Entity<AdvancedMdcolumnHeader>(entity =>
             {
                 entity.HasKey(e => new { e.Clinic, e.OfficeKey });
@@ -839,5 +879,7 @@ namespace UrgentCareData
                     .HasConstraintName("FK_VisitProcCode_Visit");
             });
         }
+      
     }
 }
+

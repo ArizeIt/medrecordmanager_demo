@@ -55,22 +55,15 @@
                     $update.show();
                     $cancel.show();
                 });
-                $update.on('click', function (e) {                   
-                    $.ajax({
-                        url: 'Record/UpdateVisitAsync',
-                        data: data,
-                        type: 'POST',
-                        success: function (response) {
-                            //fade message
-                            $grid.update($(this).data('key'));
-                            $edit.show();
-                            $detail.show();
-                            $update.hide();
-                            $cancel.hide();
-                        }
-                    });
-                    
+                $update.on('click', function (e, id, record) {
+                    $grid.update($(this).data('key'));
+                    $edit.show();
+                    $detail.show();
+                    $update.hide();
+                    $cancel.hide();       
                 });
+                    
+  
                 $cancel.on('click', function (e) {
                     $grid.cancel($(this).data('key'));
                     $edit.show();
@@ -111,8 +104,8 @@
                         //{ field: 'pvRecordId', width:100, title: 'PV RecordId' },
                         { field: 'Flag', width:50, renderer: flagManager },
                         { filed: 'visitId', hidden: true },
-                        { field: 'patientName', width: 300, title: 'Patient Name', editor: true, priority: 1 },
-                        { field: 'clinicName', width: 150, title: 'Clinic Name', priority: 2, type: 'dropdown', editor: { dataSource: '/Record/GetClinic', valueField: 'id' }, editField: 'clinicName' },
+                        { field: 'patientName', width: 300, title: 'Patient Name',  priority: 1 },
+                        { field: 'clinicName', width: 150, title: 'Clinic Name', priority: 2, type: 'dropdown', editor: select2editor},
                         { field: 'pvFinClass', minWidth:100, title: 'Finacial Class' },
                         { field: 'payment', minWidth: 100, title: 'Payment $'},
                         //{ field: 'diagCode', width: 150,title: 'Diag Codes' },
@@ -141,7 +134,7 @@
                 dailyGrid.on('rowDataChanged', function (e, id, record) {
                     var data = $.extend(true, {}, record);
                     $.ajax({
-                        url: '/Record/UpdateVisit',
+                        url: '/Record/UpdateVisitAsync',
                         data: { record: data },
                         method: 'POST',
                         cache: false,
@@ -150,7 +143,7 @@
                                 alert(response.message)
                             }
                             else {
-                                alert(response.record.pvRecordId + " has been updated.")
+                                alert(response.record.visitId + " has been updated.")
                             }
                         }
                     }).fail(function () {
@@ -244,6 +237,12 @@
                         dailyGrid.reload({ office: $('#officeKey').val(), startDate: $('#startDate').val(), endDate: $('#endDate').val() });
                     }
                     $('.dataView').show();
+                    //if (dailyGrid.data().records.length <= 0) {
+                    //    $('#btnRun').hide()
+                    //}
+                    //else {
+                    //    $('#btnRun').show()
+                    //}
                 }
                 else {
                     $('.dataView').hide();
@@ -251,23 +250,39 @@
             });
 
 
+            $('#btnNext').click(function () {
+                $('.dataView').hide();
+                $('.modified').show();
+                modifiedGrid = $('#changeTable').grid({
+                    primaryKey: 'visitId',
+                    dataSource: '/Record/GetModifiedRecord',
+                    data: {
+                        startDate: $('#startDate').val(),
+                        endDate: $('#endDate').val()
+                    },
+                    autoGenerateColumns: true,
+                    pager: { limit: 10, sizes: [2, 5, 10, 20] },
+                });
+
+            });
+
             $('#btnRun').click(function () {
                 $('#btnRun').attr('disabled', true);
                 $.ajax({
                     url: '/Record/RunBatch',
                     data: {
-                        office: $('#officeKey').val(),
                         startDate: $('#startDate').val(),
                         endDate: $('#endDate').val()
                     },
                     type: 'POST',
-                   
+
                     success: function (response) {                       
                             $('#btnRun').attr('disabled', false);                           
                     },
                     dataType:'json'
                 })
             });
+
 
             function addTab(id) {
                 if ($('#detail' + id).length == 0) {
@@ -290,6 +305,29 @@
                     $('a[href$="#detail' + id+'"]').click();
                 }
             };
+
+            function select2editor($editorContainer, value, record) {
+                var select = $('<select />');
+                $.ajax({
+                    type: 'GET',
+                    url: '/Record/GetClinics',
+                    data: {
+                        visitId: record.visitId
+                    },
+                    cache: false,
+                    success: function (response) {
+                        
+                        $.each(response, function (i,item) {
+                            $('<option />', { value: item.name, text: item.name }).appendTo(select)
+                        });
+                        
+                    }
+                });
+                $editorContainer.append(select);
+                        //select.select2();
+            }
+
+           
         
         });
 
@@ -378,9 +416,13 @@
                     </div>
                 </div>
             </div>
+            <div class="row dataView top-buffer" style="display:none">
+                <div class="col-sm-1 col-lg-offset-11 " style="text-align: left">
+                    <button class="btn btn-success text-right" id="btnNext">Next</button>
+                </div>
+            </div>
 
-
-            <div class="row" style="display:none">
+            <div class="row modified" style="display:none">
                 <div class="col-md-12">
                     <div id="Results">
                         <div class="box box-danger">
@@ -395,12 +437,13 @@
                 </div>
             </div>
 
-
-            <div class="row dataView top-buffer" style="display:none">
+            <div class="row modified top-buffer" style="display:none">
                 <div class="col-sm-1 col-lg-offset-11 " style="text-align: left">
-                    <button class="btn btn-success text-right" id="btnRun">Next</button>
+                    <button class="btn btn-success text-right" id="btnRun">run</button>
                 </div>
             </div>
+
+
             <div class="row top-buffer">
                 <div class="col-md-12">
                     <div class="box box-warning">
