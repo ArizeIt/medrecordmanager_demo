@@ -21,22 +21,13 @@ namespace UrgentCareData
         }
         public async Task<int> SaveChangesAsyncWithAudit(string currentUser, CancellationToken cancellationToken = default(CancellationToken))
         {
-            
-            var auditEntries = OnBeforeSaveChanges(currentUser);
-            try
-            {
-                var result = await base.SaveChangesAsync(cancellationToken);
-                await OnAfterSaveChanges(auditEntries);
-                return result;
-            }
-            catch(Exception ex)
-            {
-                //TODO: log ex
-                return -1;
-            }
-        }
 
-       
+            var auditEntries = OnBeforeSaveChanges(currentUser);
+            var result = await base.SaveChangesAsync(cancellationToken);
+            await OnAfterSaveChanges(auditEntries);
+            return result;
+
+        }
 
         private List<AuditEntry> OnBeforeSaveChanges(string currentUser)
         {

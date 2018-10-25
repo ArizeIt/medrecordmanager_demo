@@ -104,8 +104,8 @@
                         //{ field: 'pvRecordId', width:100, title: 'PV RecordId' },
                         { field: 'Flag', width:50, renderer: flagManager },
                         { filed: 'visitId', hidden: true },
-                        { field: 'patientName', width: 300, title: 'Patient Name',  priority: 1 },
-                        { field: 'clinicName', width: 150, title: 'Clinic Name', priority: 2, type: 'dropdown', editor: select2editor},
+                        { field: 'patientName', width: 300, title: 'Patient Name', priority: 1 },
+                        { field: 'clinicName', width: 150, title: 'Clinic Name', priority: 2, type: 'dropdown', editor: { dataSource: '/Record/GetClinics', valueField: 'id' }, editField: 'clinicName' },
                         { field: 'pvFinClass', minWidth:100, title: 'Finacial Class' },
                         { field: 'payment', minWidth: 100, title: 'Payment $'},
                         //{ field: 'diagCode', width: 150,title: 'Diag Codes' },
@@ -311,29 +311,6 @@
                 }
             };
 
-            function select2editor($editorContainer, value, record) {
-                var select = $('<select />');
-                $.ajax({
-                    type: 'GET',
-                    url: '/Record/GetClinics',
-                    data: {
-                        visitId: record.visitId
-                    },
-                    cache: false,
-                    success: function (response) {
-                        
-                        $.each(response, function (i,item) {
-                            $('<option />', { value: item.name, text: item.name }).appendTo(select)
-                        });
-                        
-                    }
-                });
-                $editorContainer.append(select);
-                        //select.select2();
-            }
-
-           
-        
         });
 
     </script>

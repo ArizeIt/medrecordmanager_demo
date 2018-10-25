@@ -1,10 +1,9 @@
-﻿using System;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Internal;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.Serialization;
 using System.Xml.Xsl;
@@ -77,5 +76,18 @@ namespace PVAMCommon
             }
         }
 
+
+        public static IQueryable<object> Set(this DbContext _context, Type t)
+        {
+            return (IQueryable<object>)_context.GetType().GetMethod("Set").MakeGenericMethod(t).Invoke(_context, null);
+        }
+
+
+        public static IQueryable<object> Set(this DbContext _context, string table)
+        {
+            Type TableType = _context.GetType().Assembly.GetExportedTypes().FirstOrDefault(t => t.Name == table);
+            IQueryable<object> ObjectContext = _context.Set(TableType);
+            return ObjectContext;
+        }
     }
 }

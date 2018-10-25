@@ -13,6 +13,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
+using PVAMCommon;
 using UrgentCareData;
 using UrgentCareData.Models;
 
@@ -187,12 +188,9 @@ namespace MedRecordManager.Controllers
 
         }
 
-        public IActionResult GetClinics(int visitId)
+        public async Task<IActionResult> GetClinics()
         {
-            var visit = _urgentCareContext.Visit.FirstOrDefault(x => x.VisitId == visitId);
-            var physcian = _urgentCareContext.Physican.Where(x => x.PvPhysicanId == visit.PhysicanId);
-            var clinics = physcian.Select(x => new {name = x.Clinic});
-
+            var clinics = await  _urgentCareContext.ClinicProfile.Select(x => new { id = x.ClinicId, text = x.ClinicId }).ToListAsync();
             return Json(clinics);
         }
 
@@ -205,7 +203,16 @@ namespace MedRecordManager.Controllers
             {
                 if (visit.ClinicId != record.ClinicName)
                 {
-                    visit.ClinicId = record.ClinicName;
+                    var physician = _urgentCareContext.Physican.FirstOrDefault(x => x.PvPhysicanId == visit.PhysicanId && x.Clinic == visit.ClinicId);
+               
+                    if (physician != null)
+                    {
+                        visit.ClinicId = record.ClinicName;
+                    }
+                    else
+                    {
+                        visit.PhysicanId = _urgentCareContext.Physican.FirstOrDefault(x => x.Clinic == visit.ClinicId && x.IsDefault).PvPhysicanId;
+                    }
                     visit.IsModified = true;
                     _urgentCareContext.Visit.Attach(visit);
                     var saved = await _urgentCareContext.SaveChangesAsyncWithAudit(User.Identity.Name);
@@ -312,7 +319,6 @@ namespace MedRecordManager.Controllers
                     message += await response.Content.ReadAsStringAsync();
                 }
                
-
                 return Json(new { message });
             }
         }
@@ -333,11 +339,14 @@ namespace MedRecordManager.Controllers
                     id = x.KeyValues
                 }).ToList();
 
-                var visits = _urgentCareContext.Visit.Include(x => x.VisitImpotLog).Where(x => x.ServiceDate >= startDate && x.ServiceDate <= endDate && x.VisitImpotLog.Any()).ToList();
+                var visits = _urgentCareContext.Visit.Include(x => x.VisitImpotLog).Where(x => x.ServiceDate >= startDate && x.ServiceDate <= endDate && x.IsModified).ToList();
                 foreach (var record in records.ToArray())
                 {
                     var key = JsonConvert.DeserializeObject<Dictionary<string, int>>(record.id);
-
+                    //var predicate = new Func<object, int, bool>(x => x);
+                    //var match = _urgentCareContext.Set(key.Keys.FirstOrDefault()).AsParallel();
+                    //match.Where(predicate);
+                    var visit = Type.GetType("Visit");
 
                     if (visits.Any(x => key.Values.Contains(x.VisitId)))
                     {
@@ -345,7 +354,6 @@ namespace MedRecordManager.Controllers
                     }
 
                 }
-
 
                 total = records.Count();
 
