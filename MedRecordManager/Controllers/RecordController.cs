@@ -295,9 +295,8 @@ namespace MedRecordManager.Controllers
         {
             var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
             var isDevelopment = environment == EnvironmentName.Development;
-            var allclinics = _urgentCareContext.Visit.Where(x => x.ServiceDate >= startDate && x.ServiceDate <= endDate).Select(x => x.ClinicId).ToList();
-            var officekeys = _urgentCareContext.ClinicProfile.Where(x => allclinics.Contains(x.ClinicId)).DistinctBy(x => x.OfficeKey).Select(x => x.OfficeKey).ToList();
-            var message = string.Empty; 
+            var allclinics = _urgentCareContext.Visit.Include(x => x.VisitImpotLog).Where(x => x.ServiceDate >= startDate && x.ServiceDate <= endDate && !x.Flagged && !x.VisitImpotLog.Any()).Select(x => x.ClinicId).ToList();
+            var officekeys = string.Join(",", _urgentCareContext.ClinicProfile.Where(x => allclinics.Contains(x.ClinicId)).DistinctBy(x => x.OfficeKey).Select(x => x.OfficeKey).ToArray());
             using (var webClient = new HttpClient())
             {
                 if (environment == EnvironmentName.Development)
@@ -309,17 +308,16 @@ namespace MedRecordManager.Controllers
                     webClient.BaseAddress = new Uri("http://172.31.22.98/");
                 }
                 webClient.DefaultRequestHeaders.Accept.Clear();
-               
-             foreach(var key in officekeys)
-                {
-                    var querystring = $"officeKey={key}&startTime={startDate}&endTime={endDate}";
 
-                    var response = await webClient.PostAsync("api/Default/ImportToAmd?" + querystring, null);
 
-                    message += await response.Content.ReadAsStringAsync();
-                }
-               
-                return Json(new { message });
+                var querystring = $"officeKey={officekeys}&startTime={startDate}&endTime={endDate}";
+
+                var response = await webClient.PostAsync("api/Default/ImportToAmd?" + querystring, null);
+
+                await response.Content.ReadAsStringAsync();
+
+
+                return Json(new { sucess = true });
             }
         }
 
@@ -329,7 +327,12 @@ namespace MedRecordManager.Controllers
             var total = 0;
             if (startDate != DateTime.MinValue && endDate != DateTime.MinValue)
             {
-                var records = _urgentCareContext.Audits.Select(x => new
+              
+
+                var visits = _urgentCareContext.Visit.Include(x => x.VisitImpotLog).Where(x => x.ServiceDate >= startDate && x.ServiceDate <= endDate && x.IsModified && !x.VisitImpotLog.Any()).ToList();
+                var Keys = visits.Select(x => "{\"VisitId\":" +x.VisitId +"}").ToList();
+               
+                var records = _urgentCareContext.Audits.Where(x=> Keys.Contains(x.KeyValues)).Select(x => new
                 {
 
                     modifiedBy = x.ModifiedBy,
@@ -338,22 +341,6 @@ namespace MedRecordManager.Controllers
                     oldValues = x.OldValues,
                     id = x.KeyValues
                 }).ToList();
-
-                var visits = _urgentCareContext.Visit.Include(x => x.VisitImpotLog).Where(x => x.ServiceDate >= startDate && x.ServiceDate <= endDate && x.IsModified).ToList();
-                foreach (var record in records.ToArray())
-                {
-                    var key = JsonConvert.DeserializeObject<Dictionary<string, int>>(record.id);
-                    //var predicate = new Func<object, int, bool>(x => x);
-                    //var match = _urgentCareContext.Set(key.Keys.FirstOrDefault()).AsParallel();
-                    //match.Where(predicate);
-                    var visit = Type.GetType("Visit");
-
-                    if (visits.Any(x => key.Values.Contains(x.VisitId)))
-                    {
-                        records.Remove(record);
-                    }
-
-                }
 
                 total = records.Count();
 
