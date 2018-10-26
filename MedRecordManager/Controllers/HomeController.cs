@@ -4,6 +4,8 @@ using MedRecordManager.Models;
 using UrgentCareData;
 using System.Linq;
 using System;
+using System.Collections.Generic;
+using UrgentCareData.Models;
 
 namespace MedRecordManager.Controllers
 {
@@ -47,19 +49,23 @@ namespace MedRecordManager.Controllers
 
         public IActionResult GetJobProcess(int? page, int? limit)
         {
+            var empty = new List<SourceProcessLog>();
+            var total = 0;
             try
             {
                 var records = _urgentCareContext.SourceProcessLog
-                .Where(x => x.ProcessedDate >= DateTime.Today.AddDays(-7))
+                .Where(x => x.ProcessedDate >= DateTime.Today.AddDays(-8))
                 .Select(x => new {
                     processId = x.ProcessId,
                     processedDate = x.ProcessedDate.Value.ToString("yyyy-MM-dd HH:MM:ss"),
-                    sourceFileName = x.SourceFileName,
+                    sourceFileName = x.SourceFileName.Substring(x.SourceFileName.LastIndexOf("\\")+1),
                     processResult = x.ProcessResult,
                     successFlag = x.SuccessFlag
-                }).OrderByDescending(x => x.processedDate).ToList();
+                }).OrderByDescending(x => x.processedDate).ToList().Take(15);
 
-                var total = records.Count();
+               
+
+                total = records.Count();
 
                 if (page.HasValue && limit.HasValue)
                 {
@@ -71,7 +77,7 @@ namespace MedRecordManager.Controllers
             
             catch
             {
-                return Json(new { success = false });
+                return Json(new { empty, total });
             }
         }
 
