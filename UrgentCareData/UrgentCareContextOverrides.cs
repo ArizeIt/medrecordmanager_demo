@@ -84,7 +84,7 @@ namespace UrgentCareData
             // Save audit entities that have all the modifications
             foreach (var auditEntry in auditEntries.Where(_ => !_.HasTemporaryProperties))
             {
-                Audits.Add(auditEntry.ToAudit());
+                Audit.Add(auditEntry.ToAudit());
             }
 
             // keep a list of entries where the value of some properties are unknown at this step
@@ -114,7 +114,7 @@ namespace UrgentCareData
                 }
 
                 // Save the Audit entry
-                Audits.Add(auditEntry.ToAudit());
+                Audit.Add(auditEntry.ToAudit());
             }
 
             return SaveChangesAsync();

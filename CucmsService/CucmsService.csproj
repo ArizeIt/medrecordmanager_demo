@@ -6,7 +6,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\AdvancedMDService\AdvancedMDService.csproj" />
-    <ProjectReference Include="..\PVAMDataService\PVAMDataService.csproj" />
+    <ProjectReference Include="..\PracticeVelocityDomain\PracticeVelocityDomain.csproj" />
   </ItemGroup>
 
 </Project>

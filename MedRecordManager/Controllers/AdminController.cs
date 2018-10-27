@@ -67,10 +67,10 @@ namespace MedRecordManager.Controllers
         }
 
         [HttpGet]
-        public IActionResult getMapedPh(string officeKey)
+        public IActionResult getMapedPh(int officeKey)
         {
           
-            if(!string.IsNullOrEmpty(officeKey))
+            if(officeKey!=0)
             {
                 var vm = new List<PhysicianVm>();
                 vm = _urgentData.Set<Physican>().Where(x => x.OfficeKey == officeKey).Select(x => new PhysicianVm()
@@ -119,7 +119,7 @@ namespace MedRecordManager.Controllers
             {
                 if (physician.pvPhysicianId.HasValue)
                 {
-                    if (_urgentData.Set<Physican>().FirstOrDefault(x => x.PvPhysicanId == physician.pvPhysicianId && x.OfficeKey == physician.Inputs.OfficeKey.ToString()) == null)
+                    if (_urgentData.Set<Physican>().FirstOrDefault(x => x.PvPhysicanId == physician.pvPhysicianId && x.OfficeKey == physician.Inputs.OfficeKey) == null)
                     {
                         _urgentData.Set<Physican>().Add(new Physican
                         {
@@ -129,7 +129,7 @@ namespace MedRecordManager.Controllers
                             FirstName = physician.pvFirstName,
                             LastName = physician.pvLastName,
                             IsDefault = physician.IsDefault,
-                            OfficeKey = physician.Inputs.OfficeKey.ToString()
+                            OfficeKey = physician.Inputs.OfficeKey
 
                         });
                         _urgentData.SaveChanges();
@@ -145,7 +145,7 @@ namespace MedRecordManager.Controllers
         }
 
         [HttpPost]
-        public IActionResult DeletePhyisican(int pvPhysicianId, string officeKey)
+        public IActionResult DeletePhyisican(int pvPhysicianId, int officeKey)
         {
             var match = _urgentData.Set<Physican>().FirstOrDefault(x => x.PvPhysicanId == pvPhysicianId && x.OfficeKey == officeKey);
             if (match != null)

@@ -36,17 +36,18 @@ namespace UrgentCareData.Models
         public DateTime TimeIn { get; set; }
         public DateTime TimeOut { get; set; }
         public string Notes { get; set; }
-        public int PvPaitentId { get; set; }
+        public int PvPatientId { get; set; }
         public string ProcCodes { get; set; }
         public int? ProcQty { get; set; }
         public int? ChartId { get; set; }
         public int GuarantorPayerId { get; set; }
         public int? SourceProcessId { get; set; }
         public bool Flagged { get; set; }
-
         public bool IsModified { get; set; }
+        public int? OfficeKey { get; set; }
 
         public virtual Chart Chart { get; set; }
+        public virtual ClinicProfile Clinic { get; set; }
         public virtual GuarantorInformation GuarantorPayer { get; set; }
         public virtual Physican Physican { get; set; }
         public virtual PatientInformation PvPatient { get; set; }

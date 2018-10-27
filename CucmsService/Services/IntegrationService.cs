@@ -288,7 +288,7 @@ namespace CucmsService.Services
                         }
                         else
                         {
-                            var physician = await _urgentCareContext.Physican.FirstOrDefaultAsync(x => x.PvPhysicanId == visitRec.PhysicanId && x.OfficeKey == officeKey.ToString());
+                            var physician = await _urgentCareContext.Physican.FirstOrDefaultAsync(x => x.PvPhysicanId == visitRec.PhysicanId && x.OfficeKey == officeKey);
                             if (physician != null)
                             {
                                 var provider = await LocateProvider(apiUrl, token, physician);
@@ -300,7 +300,7 @@ namespace CucmsService.Services
                             }
                             if (!string.IsNullOrEmpty(physician?.AmProviderId))
                             {
-                                var importedPatient = await  _urgentCareContext.PatientImportLog.FirstOrDefaultAsync(x => x.PvpatientId == visitRec.PvPaitentId && x.OfficeKey == officeKey.ToString());
+                                var importedPatient = await  _urgentCareContext.PatientImportLog.FirstOrDefaultAsync(x => x.PvpatientId == visitRec.PvPatientId && x.OfficeKey == officeKey);
 
 
                                 try
@@ -801,7 +801,7 @@ namespace CucmsService.Services
                 }
 
                 var physicianId = int.Parse(pvRecord.Physican_ID);
-                var matchingPhysican = await _urgentCareContext.Physican.FirstOrDefaultAsync(x => x.PvPhysicanId == physicianId && x.OfficeKey == officekey.ToString());
+                var matchingPhysican = await _urgentCareContext.Physican.FirstOrDefaultAsync(x => x.PvPhysicanId == physicianId && x.OfficeKey == officekey);
 
                 if (matchingPhysican == null)
                 {
@@ -812,7 +812,7 @@ namespace CucmsService.Services
                         LastName = pvRecord.Physican.ParseToList(',')[0],
                         DisplayName = pvRecord.Physican,
                         Clinic = pvRecord.Clinic,
-                        OfficeKey = officekey.ToString(),
+                        OfficeKey = officekey,
                     };
                 }
                 else

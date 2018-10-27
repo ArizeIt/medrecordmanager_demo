@@ -149,7 +149,7 @@ namespace PVAMDataService
                             LastName = existingPhysican.First().LastName,
                             DisplayName = pvRecord.Physican,
                             Clinic = pvRecord.Clinic,
-                            OfficeKey = _urgentCareContext.ClinicProfile.FirstOrDefault(x => x.ClinicId == pvRecord.Clinic).OfficeKey.ToString(),
+                            OfficeKey = _urgentCareContext.ClinicProfile.FirstOrDefault(x => x.ClinicId == pvRecord.Clinic).OfficeKey.Value,
                         };
                     }
                     else
@@ -168,7 +168,7 @@ namespace PVAMDataService
                             //LastName = pvRecord.Physican.ParseToList(',')[0],
                             DisplayName = pvRecord.Physican,
                             Clinic = pvRecord.Clinic,
-                            OfficeKey = firstOrDefault.OfficeKey.ToString(),
+                            OfficeKey = firstOrDefault.OfficeKey.Value,
                         };
                 }
 
@@ -371,7 +371,7 @@ namespace PVAMDataService
             _urgentCareContext.SaveChanges();
         }
 
-        public void UpdatePatientLog(int pvPatientId, string amdPatianId, string officekey, int amdImportId)
+        public void UpdatePatientLog(int pvPatientId, string amdPatianId, int officekey, int amdImportId)
         {
 
             var existingRec = _urgentCareContext.PatientImportLog.FirstOrDefault(x => x.PvpatientId == pvPatientId);
@@ -469,7 +469,7 @@ namespace PVAMDataService
             }
         }
 
-        public PatientImportLog GetPatientImportByPvId(int patNum, string officeKey)
+        public PatientImportLog GetPatientImportByPvId(int patNum, int officeKey)
         {
             using (var db = new UrgentCareContext())
             {
@@ -535,7 +535,7 @@ namespace PVAMDataService
             {
                 var match =
                     _urgentCareContext.Physican.FirstOrDefault(
-                        x => x.PvPhysicanId == pvPhysicanId && x.Clinic == clinic && x.OfficeKey == officeKey.ToString());
+                        x => x.PvPhysicanId == pvPhysicanId && x.Clinic == clinic && x.OfficeKey == officeKey);
                 return match;
             }
         }
@@ -546,7 +546,7 @@ namespace PVAMDataService
             {
                 var match =
                     _urgentCareContext.Physican.FirstOrDefault(
-                        x => x.PvPhysicanId == pvPhysicanId && x.OfficeKey == officeKey.ToString());
+                        x => x.PvPhysicanId == pvPhysicanId && x.OfficeKey == officeKey);
                 return match;
             }
         }
@@ -555,7 +555,7 @@ namespace PVAMDataService
         {
 
             var match =
-                _urgentCareContext.Physican.FirstOrDefault(x => x.OfficeKey == officeKey.ToString() && x.IsDefault);
+                _urgentCareContext.Physican.FirstOrDefault(x => x.OfficeKey == officeKey && x.IsDefault);
             return match;
 
         }
@@ -566,7 +566,7 @@ namespace PVAMDataService
             return _urgentCareContext.Physican.ToList();
         }
 
-        public void SavePatientImportLog(string amdPaitentId, int patnum, string officeKey, int amdLogId)
+        public void SavePatientImportLog(string amdPaitentId, int patnum, int officeKey, int amdLogId)
         {
 
             var newRec = new PatientImportLog
@@ -812,7 +812,7 @@ namespace PVAMDataService
             
         }
 
-        public IList<PatientImportLog> GetPatientImportLogByOfficeKey(string officeKey)
+        public IList<PatientImportLog> GetPatientImportLogByOfficeKey(int officeKey)
         {
            
             return _urgentCareContext.PatientImportLog.Where(x => x.OfficeKey == officeKey).ToList();

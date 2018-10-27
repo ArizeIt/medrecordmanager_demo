@@ -65,19 +65,20 @@ namespace MedRecordManager.Controllers
         public IActionResult LoadDaily(int? page, int? limit, string sortBy, string direction, string office, DateTime startDate, DateTime endDate)
         {
             IQueryable<Visit> query;
+            var total = 0;
             if (!string.IsNullOrEmpty(office) && startDate != DateTime.MinValue && endDate != DateTime.MinValue)
             {
                 var officekeys = office.Split(',').ToList();
-                query = _urgentCareContext.Visit.Include(x=>x.VisitImpotLog).Include(x=>x.Physican).Where(x => officekeys.Contains(x.Physican.OfficeKey) && x.ServiceDate >= startDate && x.ServiceDate <= endDate && !x.VisitImpotLog.Any());
+                query = _urgentCareContext.Visit.Include(x=>x.VisitImpotLog).Include(x=>x.Physican).Where(x => officekeys.Contains(x.Physican.OfficeKey.ToString()) && x.ServiceDate >= startDate && x.ServiceDate <= endDate && !x.VisitImpotLog.Any());
             }
             else
             {
-                query = _urgentCareContext.Visit.Where(x=>x.VisitImpotLog !=null );
+                query = _urgentCareContext.Visit.Take(0);
             }
             var records = query.Select(y => new VisitRecordVm()
             {
                 VisitId = y.VisitId,
-                PatientId = y.PvPaitentId,
+                PatientId = y.PvPatientId,
                 ClinicName = y.ClinicId,
                 DiagCode = y.DiagCodes.Replace("|", "<br/>"),
                 PvRecordId = y.PvlogNum,
@@ -86,12 +87,12 @@ namespace MedRecordManager.Controllers
                 OfficeKey = y.Physican.OfficeKey,
                 PVFinClass = y.PayerInformation.FirstOrDefault().Class.ToString(),
                 IcdCodes = y.Icdcodes.Replace("|", "<br/>"),
-                Payment = y.CoPayAmount.GetValueOrDefault(),
+                Payment = y.CoPayAmount.GetValueOrDefault(0),
                 ProcCodes = y.ProcCodes.Replace(",|", "<br/>").Replace("|", "<br/>"),
                 IsFlagged = y.Flagged
             }).ToList();
 
-            var total = records.Count();
+            total = records.Count();
 
             if (page.HasValue && limit.HasValue)
             {
@@ -133,7 +134,7 @@ namespace MedRecordManager.Controllers
             }
             var records = query.Select(y => new PatientVisitVM()
             {
-                PvId = y.PvPaitentId.ToString(),
+                PvId = y.PvPatientId.ToString(),
                 PvClinic = y.ClinicId,
                
                 VisitDate = y.ServiceDate.ToShortDateString(),
@@ -163,7 +164,7 @@ namespace MedRecordManager.Controllers
             var visitRec = _urgentCareContext.Visit.SingleOrDefault(x => x.VisitId == visitId);
             if(visitRec !=null)
             {
-                detailRecord.GuarantorInfo = _urgentCareContext.GuarantorInformation.Where(x => x.PvPatientId == visitRec.PvPaitentId).Select(g=> new Guarantor {
+                detailRecord.GuarantorInfo = _urgentCareContext.GuarantorInformation.Where(x => x.PvPatientId == visitRec.PvPatientId).Select(g=> new Guarantor {
                     FirstName = g.FirstName,
                     LastName = g.LastName,
 
@@ -203,19 +204,20 @@ namespace MedRecordManager.Controllers
             {
                 if (visit.ClinicId != record.ClinicName)
                 {
-                    var physician = _urgentCareContext.Physican.FirstOrDefault(x => x.PvPhysicanId == visit.PhysicanId && x.Clinic == visit.ClinicId);
-               
-                    if (physician != null)
+                    var newfficeKey = _urgentCareContext.ClinicProfile.FirstOrDefault(x => x.ClinicId == record.ClinicName).OfficeKey;
+                    var physicians = _urgentCareContext.Physican.Where(x => x.PvPhysicanId == visit.PhysicanId && x.OfficeKey == newfficeKey);
+
+                    if (!physicians.Any())
                     {
-                        visit.ClinicId = record.ClinicName;
+                        visit.PhysicanId = _urgentCareContext.Physican.FirstOrDefault(x => x.OfficeKey == newfficeKey && x.IsDefault).PvPhysicanId;
                     }
-                    else
-                    {
-                        visit.PhysicanId = _urgentCareContext.Physican.FirstOrDefault(x => x.Clinic == visit.ClinicId && x.IsDefault).PvPhysicanId;
-                    }
+                    
+                    visit.ClinicId = record.ClinicName;
                     visit.IsModified = true;
                     _urgentCareContext.Visit.Attach(visit);
+
                     var saved = await _urgentCareContext.SaveChangesAsyncWithAudit(User.Identity.Name);
+
                     if (saved < 0)
                     {
                         return Json(new { success = false, message = "Can not save this record." });
@@ -265,13 +267,13 @@ namespace MedRecordManager.Controllers
             var records = _urgentCareContext.Visit.Where(x => x.Flagged)
                 .Select(y => new VisitRecordVm {
                            VisitId = y.VisitId,
-                           PatientId = y.PvPaitentId,
+                           PatientId = y.PvPatientId,
                            ClinicName = y.ClinicId,
                            DiagCode = y.DiagCodes.Replace("|", "<br/>"),
                            PvRecordId = y.PvlogNum,
                            VisitTime = y.ServiceDate.ToShortDateString(),
                            PatientName = y.PvPatient.FirstName + " " + y.PvPatient.LastName,
-                           OfficeKey = y.Physican.OfficeKey.ToString(),
+                           OfficeKey = y.Physican.OfficeKey,
                            PVFinClass = y.PayerInformation.FirstOrDefault().Class.ToString(),
                            IcdCodes = y.Icdcodes.Replace("|", "<br/>"),
                            Payment = y.CoPayAmount.GetValueOrDefault(),
@@ -332,7 +334,7 @@ namespace MedRecordManager.Controllers
                 var visits = _urgentCareContext.Visit.Include(x => x.VisitImpotLog).Where(x => x.ServiceDate >= startDate && x.ServiceDate <= endDate && x.IsModified && !x.VisitImpotLog.Any()).ToList();
                 var Keys = visits.Select(x => "{\"VisitId\":" +x.VisitId +"}").ToList();
                
-                var records = _urgentCareContext.Audits.Where(x=> Keys.Contains(x.KeyValues)).Select(x => new
+                var records = _urgentCareContext.Audit.Where(x=> Keys.Contains(x.KeyValues)).Select(x => new
                 {
 
                     modifiedBy = x.ModifiedBy,

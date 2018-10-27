@@ -12,7 +12,7 @@ namespace MedRecordManager.Models.DailyRecord
         
         public string DiagCode { get;set;}
 
-        public string OfficeKey{get;set;}
+        public int OfficeKey{get;set;}
 
         public string VisitTime{get;set;}
 
