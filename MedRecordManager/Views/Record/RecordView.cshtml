@@ -13,27 +13,27 @@
         $(document).ready(function () {
             var type = $('#searchType').val();
             var flagManager = function (value, record, $cell, $displayEl, id, $grid) {
+                var $flagModal = $('#flagModal');
                 var $checkBox = $('<input type="checkbox">').prop('checked', record.isFlagged)
                         .attr({
                             'dataKey': id
                             });
 
-                $checkBox.on('click', function () {
-                    var mark = $(this).is(':checked')
-                    $.ajax({
-                        type: 'POST',
-                        data: {
-                            visitId : id,
-                            flag: mark
-                        },
-                        url: '/Record/FlagVisit',
-                        cache: false,
-                        success: function () {
-                            flaggedGrid.reload({ page: 1 });
-                        }
-                    })
-
+                $checkBox.on('click', function (e) {
+                    var mark = $(this).is(':checked');
                    
+                    $flagModal.attr({
+                        'dataKey': id,
+                        'flagged': mark
+                    });
+                    if (mark) {                       
+                        $flagModal.find('.modal-body').children('p').html('This action will mark the current record for skipping the synchroniztion until it is unchecked.  Click Yes to go ahead, NO to cancel.')
+                    }
+                    else {                      
+                        $flagModal.find('.modal-body').children('p').html('This action will re instate the current record for synchroniztion. Click Yes to go ahead, NO to cancel.')                      
+                    }
+                    $flagModal.modal({ backdrop: 'static', keyboard: false });
+            
                 });
                 $displayEl.empty().append($checkBox);
             };
@@ -261,7 +261,7 @@
             });
 
 
-            $('#btnNext').click(function () {
+            $('#btnNext').on('click', function () {
                 $('.dataView').hide();
                 $('.modified').show();
                 modifiedGrid.clear();
@@ -269,7 +269,7 @@
 
             });
 
-            $('#btnRun').click(function () {
+            $('#btnRun').on('click',function () {
                 $('#btnRun').attr('disabled', true);
                 $.ajax({
                     url: '/Record/RunBatch',
@@ -286,6 +286,26 @@
                 })
             });
 
+            $('#flagModal').on('click', '.btn-primary', function () {
+                var id = $('#flagModal').attr('datakey');
+                var mark = $('#flagModal').attr('flagged');      
+                $('#flagModal').removeAttr('dataKey');
+                $('#flagModal').removeAttr('flagged');
+                $('#flagModal').modal('hide');               
+                flagRecord(mark, id);
+            });
+
+            $('#flagModal').on('click', '.btn-secondary', function () {
+                var id = $('#flagModal').attr('datakey');
+                var mark = $('#flagModal').attr('flagged');
+                $('#flagModal').removeAttr('dataKey');
+                $('#flagModal').removeAttr('flagged');
+                $('#flagModal').modal('hide');
+                if (mark == 'false') {                  
+                    $('input[dataKey=' + id + ']').prop('checked', true);   
+                }
+                    
+            });  
 
             function addTab(id) {
                 if ($('#detail' + id).length == 0) {
@@ -309,11 +329,47 @@
                 }
             };
 
+            function flagRecord(mark, id){
+                $.ajax({
+                    type: 'POST',
+                    data: {
+                        visitId: id,
+                        flag: mark
+                    },
+                    url: '/Record/FlagVisit',
+                    cache: false,
+                    success: function () {
+                        flaggedGrid.reload({ page: 1 });
+
+                    }
+                }).done(function () {
+                    if (mark == 'false') {
+                        $('input[dataKey=' + id + ']').prop('checked', false);
+                    }   
+                });                                                             
+            };
         });
 
     </script>
 }
-
+    
+    <div class="modal" role="dialog" tabindex="-1" id="flagModal" >
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Attention</h4>
+                </div>
+                <div class="modal-body">
+                    <p/>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary">Yes</button>
+                    <button type="button" class="btn btn-secondary">No</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
     <ul class="nav nav-tabs" role="tablist">
         @if (Model.Type == "Daily")
         {
@@ -390,6 +446,7 @@
                         </button>
                         <strong>Holy guacamole!</strong> You should check in on some of those fields below.
                     </div>*@
+                    
                     <div id="Results">
                         <div class="box box-danger">
                             <div class="box-header with-border">
