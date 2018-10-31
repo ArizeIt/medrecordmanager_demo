@@ -132,7 +132,7 @@
                 });
 
                 dailyGrid.on('rowDataChanged', function (e, id, record) {
-                    
+                    var $alert = $('#visitGridAlert');
                     var data = $.extend(true, {}, record);
                     $.ajax({
                         url: '/Record/UpdateVisitAsync',
@@ -140,19 +140,29 @@
                         method: 'POST',
                         cache: false,
                         success: function (response) {
-                            if (!response.success) {
-                                $('.alert').addClass('alert-warning')
-                                
+                            var caption; 
+                            if (response.success) {
+                                $alert.addClass('alert alert-success')                               
+                                caption = 'Sucessful! '
                             }
                             else {
-                                $('.alert').addClass('alert-success')                               
+                                $alert.addClass('alert alert-warning')                           
+                                caption = 'Warning! '
                             }
-                            $('.alert').alert();
+                            $alert.children('.alert-content').empty();
+                            $alert.children('.alert-content').append('<strong>' + caption+ '</strong >' + response.message)
                         }
-                    }).fail(function () {
-                        $('.alert').addClass('alert-danger')
                     })
-                })
+                     .fail(function () {
+                            $('#visitGridAlert').addClass('alert alert-danger')
+                            $alert.append(' <strong>Failed!</strong> ')
+                      })
+                     .done(function () {
+                            $alert.fadeTo(4000, 500).slideUp(1000, function () {
+                                $alert.slideUp(1000)
+                         });
+                      })
+                });
             }
             else if (type == 'Callback') {
                 dailyGrid = $('#visitTable').grid({
@@ -301,8 +311,11 @@
                 $('#flagModal').removeAttr('dataKey');
                 $('#flagModal').removeAttr('flagged');
                 $('#flagModal').modal('hide');
-                if (mark == 'false') {                  
-                    $('input[dataKey=' + id + ']').prop('checked', true);   
+                if (mark == 'false') {
+                    $('input[dataKey=' + id + ']').prop('checked', true);
+                }
+                else {
+                    $('input[dataKey=' + id + ']').prop('checked', false);
                 }
                     
             });  
@@ -353,14 +366,14 @@
     </script>
 }
     
-    <div class="modal" role="dialog" tabindex="-1" id="flagModal" >
+    <div class="modal fade" role="dialog" tabindex="-1" id="flagModal" >
         <div class="modal-dialog modal-dialog-centered" role="document">
             <div class="modal-content">
                 <div class="modal-header">
                     <h4 class="modal-title">Attention</h4>
                 </div>
                 <div class="modal-body">
-                    <p/>
+                    <p></p>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-primary">Yes</button>
@@ -440,13 +453,12 @@
             </div>
             <div class="row dataView" style="display:none">
                 <div class="col-md-12">
-                    @*<div class="alert alert-dismissible fade show" role="alert">
+                    <div class="alert-dismissible fade" role="alert" id="visitGridAlert">
                         <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
                         </button>
-                        <strong>Holy guacamole!</strong> You should check in on some of those fields below.
-                    </div>*@
-                    
+                        <div class="alert-content"></div>
+                    </div>                   
                     <div id="Results">
                         <div class="box box-danger">
                             <div class="box-header with-border">

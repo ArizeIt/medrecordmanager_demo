@@ -227,7 +227,7 @@ namespace MedRecordManager.Controllers
                 {
                     return Json(new { success = false, message = "Value is unchanged" });
                 }
-                return Json(new { success = true, record });
+                return Json(new { success = true, message= $"Visit number {0} is updated." , record.VisitId});
             }
             else
             {
