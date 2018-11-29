@@ -27,6 +27,8 @@ namespace MedRecordManager.Models.DailyRecord
         public int VisitId { get; set; }
 
         public bool IsFlagged { get; set; }
+
+        public int PhysicanId { get; set; }
     }
 
     public class PatientVisitVM

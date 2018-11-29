@@ -106,6 +106,7 @@
                         { filed: 'visitId', hidden: true },
                         { field: 'patientName', width: 250, title: 'Patient Name', priority: 1 },
                         { field: 'clinicName', width: 200, title: 'Clinic Name', priority: 2, type: 'dropdown', editor: { dataSource: '/Record/GetClinics', valueField: 'id' }, editField: 'clinicName' },
+                        { field: 'physicanId', width: 200, title: 'Physican Number', priority: 3, type: 'dropdown', editor: select2editor },
                         { field: 'pvFinClass', minWidth: 100, title: 'Finacial Class' },
                         { field: 'payment', minWidth: 100, title: 'Payment', /*renderer: function (value, record) {  value }*/ },
                         //{ field: 'diagCode', width: 150,title: 'Diag Codes' },
@@ -318,8 +319,9 @@
                     $('input[dataKey=' + id + ']').prop('checked', false);
                 }
                     
-            });  
+            });
 
+        
             function addTab(id) {
                 if ($('#detail' + id).length == 0) {
                     $('.nav-tabs').find('li').last().after('<li><a data-toggle="tab" href="#detail' + id + '"><b>Visit ' + id + '</b></a></li>');
@@ -361,6 +363,35 @@
                     }   
                 });                                                             
             };
+
+            function select2editor($editorContainer, value, record) {
+                var select = $('<select><option value="'+ value+'">'+ value +'</option></select>');
+                $editorContainer.append(select);
+                select.select2({
+                    width: '150px',
+                    minimumResultsForSearch: -1,
+                    ajax: {
+                        url: '/Record/GetPhysicians',
+                        data: function () {
+                            return {
+                                clinicId: record.clinicName 
+                            };
+                        },
+                        processResults: function (data) {
+
+                            return {
+                                results: $.map(data, function (item) {
+                                    return {
+                                        text: item.text,
+                                        id: item.id,
+                                        data: item
+                                    };
+                                })
+                            };
+                        }
+                    }
+                });
+            }
         });
 
     </script>

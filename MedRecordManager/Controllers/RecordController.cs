@@ -80,6 +80,7 @@ namespace MedRecordManager.Controllers
                 VisitId = y.VisitId,
                 PatientId = y.PvPatientId,
                 ClinicName = y.ClinicId,
+                PhysicanId = y.Physican.PvPhysicanId,
                 DiagCode = y.DiagCodes.Replace("|", "<br/>"),
                 PvRecordId = y.PvlogNum,
                 VisitTime = y.ServiceDate.ToShortDateString(),
@@ -195,6 +196,13 @@ namespace MedRecordManager.Controllers
             return Json(clinics);
         }
 
+
+        public async Task<IActionResult> GetPhysicians(string clinicId)
+        {
+            var physicians = await _urgentCareContext.Physican.Where(x => x.Clinic == clinicId).Select(x=> new { id = x.PvPhysicanId, text = x.PvPhysicanId }).ToListAsync();
+            return Json(physicians);
+        }
+
         [HttpPost]
         public async Task<IActionResult> UpdateVisitAsync(VisitRecordVm record)
         {
@@ -222,6 +230,20 @@ namespace MedRecordManager.Controllers
                     {
                         return Json(new { success = false, message = "Can not save this record." });
                     }
+                }
+
+                else if(visit.PhysicanId != record.PhysicanId)
+                {
+                    visit.PhysicanId = record.PhysicanId;
+                    visit.IsModified = true;
+                    _urgentCareContext.Visit.Attach(visit);
+                    var saved = await _urgentCareContext.SaveChangesAsyncWithAudit(User.Identity.Name);
+
+                    if (saved < 0)
+                    {
+                        return Json(new { success = false, message = "Can not save this record." });
+                    }
+
                 }
                 else
                 {
