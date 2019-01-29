@@ -21,15 +21,32 @@
             });
         });
 
-        $(document).on('click', '.addPh', function () {
+        $(document).on('click', '.editPh', function () {
+            var pvid = $(this).parent().parent().find('.primaryId').text()
+            $.ajax({
+                url: '/admin/editPhyisican',
+                type: 'post',
+                data: {
+                    pvPhysicianId: parseInt(pvid, 10),
+                    officeKey: $('#ddlOfficeKey').val()
+                }
+            }).done(function (response) {
+                $('#results').html(response);
+                $('#addNew').html('');
+            });
+        });
+
+        function addPhysician() {
             $.ajax({
                 url: '/admin/addPhysician',
-                type: 'get',
+                type: 'post',
+                data: { officeKey: $('#ddlOfficeKey').val() }
             }).done(function (response) {
                 $('#addNew').html(response);
                 $('#results').html('');
+                
             });
-        });
+        };
 
 
         function mappedPhysician() {
@@ -52,7 +69,8 @@
 
         $(document).ready(function () {
             $('#ddlOfficeKey').change(function () {
-                mappedPhysician()
+                mappedPhysician();
+                $('#addNewButton').show();
             });
       
         });
@@ -62,10 +80,19 @@
 <h2>Physican</h2>
 <form asp-action="SavePhysician" asp-controller="Admin" data-ajax="true" data-ajax-method="POST" data-ajax-complete="onComplete" data-ajax-success="onSuccess">
     <div class="row">
-        <div class="col-sm-2">
+        <div class="col-md-3">
             <div class="form-group">
                 <label asp-for="Inputs.OfficeKey" class="control-label">Office Key:</label>
                 <select class="form-control" asp-for="Inputs.OfficeKey" , asp-items="@Model.Inputs.OfficeKeys" id="ddlOfficeKey"></select>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="form-group">
+                <div class="control-group">
+                    <div style="margin-top: 24px;">
+                        <input type="button" value="Add New" class="btn btn-primary" id="addNewButton" style="display:none" onclick="addPhysician()" />
+                    </div>
+                </div>
             </div>
         </div>
     </div>

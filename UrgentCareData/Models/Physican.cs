@@ -21,6 +21,7 @@ namespace UrgentCareData.Models
         public string AmdCode { get; set; }
         public bool IsDefault { get; set; }
 
+        public bool Active { get; set; }
         public virtual ICollection<Visit> Visit { get; set; }
     }
 }

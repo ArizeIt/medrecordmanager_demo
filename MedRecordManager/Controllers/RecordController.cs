@@ -80,6 +80,8 @@ namespace MedRecordManager.Controllers
                 VisitId = y.VisitId,
                 PatientId = y.PvPatientId,
                 ClinicName = y.ClinicId,
+                PhysicianName = y.Physican.DisplayName,
+                InsuranceName = y.PayerInformation.FirstOrDefault().Insurance.PrimaryName,
                 PhysicanId = y.Physican.PvPhysicanId,
                 DiagCode = y.DiagCodes.Replace("|", "<br/>"),
                 PvRecordId = y.PvlogNum,

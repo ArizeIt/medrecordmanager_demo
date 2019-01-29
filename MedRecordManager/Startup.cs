@@ -11,6 +11,8 @@ using Microsoft.Extensions.DependencyInjection;
 using UrgentCareData;
 using MedRecordManager.Services;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using AdvancedMDService;
+using AdvancedMDInterface;
 
 namespace MedRecordManager
 {
@@ -56,11 +58,19 @@ namespace MedRecordManager
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
 
+            services.AddDistributedMemoryCache();
+            services.AddSession(opts =>
+            {
+                opts.IdleTimeout = TimeSpan.FromMinutes(20);
+            });
+
             // Add application services.
             services.AddTransient<IEmailSender, AuthMessageSender>();
             services.AddTransient<ISmsSender, AuthMessageSender>();
 
             services.AddScoped<IViewRenderService, ViewRenderService>();
+            services.AddScoped<ILookupService, LookupService>();
+            services.AddScoped<ILoginService, LoginService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -80,6 +90,7 @@ namespace MedRecordManager
             app.UseHttpsRedirection();
             app.UseStaticFiles();
             app.UseCookiePolicy();
+            app.UseSession();
 
             app.UseAuthentication();
           

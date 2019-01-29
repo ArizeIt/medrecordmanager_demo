@@ -1,8 +1,13 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
+using AdvancedMDDomain.DTOs.Responses;
+using AdvancedMDInterface;
 using MedRecordManager.Extension;
 using MedRecordManager.Models;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using UrgentCareData;
@@ -11,11 +16,23 @@ using UrgentCareData.Models;
 namespace MedRecordManager.Controllers
 {
     [Authorize]
+    [ResponseCache(NoStore = true, Duration = 0)]
     public class AdminController : Controller
     {
         private readonly UrgentCareContext _urgentData;
 
-        private SearchInputs Input {get { return InitializeInput(); } }
+        private readonly ILookupService _lookupService;
+
+        private readonly ILoginService _apiLoginServicce;
+
+        private readonly string apiContext; 
+
+        public AdminController(UrgentCareContext urgentData, ILookupService lookupService, ILoginService apiLoginServicce)
+        {
+            _urgentData = urgentData;
+            _lookupService = lookupService;
+            _apiLoginServicce = apiLoginServicce;
+        }
         private SearchInputs InitializeInput ()
         {
             IEnumerable<SelectListItem> emptyRecord = new SelectListItem[]
@@ -45,14 +62,16 @@ namespace MedRecordManager.Controllers
         }
 
 
-        public AdminController(UrgentCareContext urgentContext)
-        {
-            _urgentData = urgentContext;
-
-        }
+      
         public IActionResult Physician()
         {
-            return View("Physician", Input);
+
+            var physican = new PhysicianVm
+            {
+                Inputs = InitializeInput()
+            };
+         
+            return View("Physician", physican);
         }
 
         public IActionResult Clinic()
@@ -60,11 +79,11 @@ namespace MedRecordManager.Controllers
             return null;
         }
 
-        public IActionResult Rule ()
-        {
+        //public IActionResult Rule ()
+        //{
           
-            return View("RulePage", Input);
-        }
+        //    return View("RulePage", Input);
+        //}
 
         [HttpGet]
         public IActionResult getMapedPh(int officeKey)
@@ -73,7 +92,7 @@ namespace MedRecordManager.Controllers
             if(officeKey!=0)
             {
                 var vm = new List<PhysicianVm>();
-                vm = _urgentData.Set<Physican>().Where(x => x.OfficeKey == officeKey).Select(x => new PhysicianVm()
+                vm = _urgentData.Physican.Where(x => x.OfficeKey == officeKey && x.Active).Select(x => new PhysicianVm()
                 {
                     AmdDisplayName = x.DisplayName,
                     AmdProfileId = x.AmProviderId,
@@ -88,27 +107,48 @@ namespace MedRecordManager.Controllers
             return null;
         }
 
-        [HttpGet]
-        public IActionResult AddPhysician(string officeKey)
+        [HttpPost]
+        public async Task<IActionResult> AddPhysician(string officeKey)
         {
-            
-            var vm = new PhysicianVm {
-                MappedProviders = new List<SelectListItem>()
-                {
-                    new SelectListItem
-                    {
-                        Value ="Prof2056",
-                        Text = "Joe, Test"
-                    },
+            var vm = new PhysicianVm();
+            try
+            {
+               
+                vm.MappedProviders = vm.MappedProviders = await GetAmdProviderList(officeKey);
 
-                    new SelectListItem
-                    {
-                          Value ="Prof2057",
-                        Text = "Jane, Test"
-                    }
-                }
+                return PartialView("_AddPhysician", vm);
+            }
+
+            catch (Exception ex)
+            {
+                return PartialView("_Error");
+            }
+
+        }
+
+
+        [HttpPost]
+        public async Task<IActionResult> EditPhyisican(int pvPhysicianId, string officeKey)
+        {
+            int.TryParse(officeKey, out int numOfficeKey);
+            var existingPh = _urgentData.Physican.FirstOrDefault(x => x.PvPhysicanId == pvPhysicianId && x.OfficeKey == numOfficeKey);
+            var vm = new PhysicianVm {
+                pvFirstName = existingPh.FirstName,
+                pvLastName = existingPh.LastName,
+                pvPhysicianId = existingPh.PvPhysicanId
             };
-            return PartialView("_AddPhysician", vm);
+            try
+            {
+                vm.MappedProviders = await GetAmdProviderList(officeKey);
+                vm.MappedProviders.FirstOrDefault(x => x.Value == existingPh.AmProviderId).Selected = true;
+                return PartialView("_AddPhysician", vm);
+            }
+
+            catch (Exception ex)
+            {
+                return PartialView("_Error");
+            }
+
         }
 
         [HttpPost]
@@ -125,7 +165,6 @@ namespace MedRecordManager.Controllers
                         {
                             PvPhysicanId = physician.pvPhysicianId ?? default(int),
                             AmProviderId = physician.AmdDisplayName,
-                            AmdCode = "NVFR",
                             FirstName = physician.pvFirstName,
                             LastName = physician.pvLastName,
                             IsDefault = physician.IsDefault,
@@ -155,6 +194,28 @@ namespace MedRecordManager.Controllers
             }
 
             return getMapedPh(officeKey);
+        }
+
+        private async Task<IList<SelectListItem>> GetAmdProviderList(string officeKey)
+        {
+            int.TryParse(officeKey, out int numOfficeKey);
+
+            var config = _urgentData.ProgramConfig.FirstOrDefault(x => x.AmdofficeKey == numOfficeKey);
+            var apiUri = new Uri(config.Apiuri);
+
+            if (string.IsNullOrEmpty(HttpContext.Session.GetString("apiContext")) || string.IsNullOrEmpty(HttpContext.Session.GetString("redirectUrl")))
+            {
+                var apiResponse = await _apiLoginServicce.ProcessLogin(apiUri, 1, config.ApiuserName, config.Apipassword, config.AmdofficeKey.ToString(), config.AmdAppName, null);
+                if (apiResponse.GetType() == typeof(PpmLoginResponse))
+                {
+                    var sucessResponse = apiResponse;
+                    HttpContext.Session.SetString("apiContext", sucessResponse.Results.Usercontext.Text);
+                    HttpContext.Session.SetString("redirectUrl", sucessResponse.Results.Usercontext.Webserver + "/xmlrpc/processrequest.asp");
+                }
+            }
+
+            var lookupResult = await _lookupService.LookupProviderByName(new Uri(HttpContext.Session.GetString("redirectUrl")), HttpContext.Session.GetString("apiContext"), "");
+            return  lookupResult.Results.Profilelist.Profile.Where(x => x.Status == "ACTIVE").Select(x => new SelectListItem() { Text = x.Name + " (" + x.Code +")", Value = x.Id }).ToList();
         }
 
     }
