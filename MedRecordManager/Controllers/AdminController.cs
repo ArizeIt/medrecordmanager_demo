@@ -154,33 +154,56 @@ namespace MedRecordManager.Controllers
         [HttpPost]
         public IActionResult SavePhysician(PhysicianVm physician)
         {
-
+            var pvPhyId = physician.pvPhysicianId.GetValueOrDefault();
+            var officeKey = physician.Inputs.OfficeKey;
             if (ModelState.IsValid)
             {
                 if (physician.pvPhysicianId.HasValue)
                 {
-                    if (_urgentData.Set<Physican>().FirstOrDefault(x => x.PvPhysicanId == physician.pvPhysicianId && x.OfficeKey == physician.Inputs.OfficeKey) == null)
+                   
+
+                    if (!_urgentData.Physican.Any(x => x.PvPhysicanId == pvPhyId && x.OfficeKey == officeKey))
                     {
-                        _urgentData.Set<Physican>().Add(new Physican
+                        _urgentData.Physican.Add(new Physican
                         {
                             PvPhysicanId = physician.pvPhysicianId ?? default(int),
                             AmProviderId = physician.AmdDisplayName,
                             FirstName = physician.pvFirstName,
                             LastName = physician.pvLastName,
                             IsDefault = physician.IsDefault,
-                            OfficeKey = physician.Inputs.OfficeKey
+                            OfficeKey = physician.Inputs.OfficeKey,
+                            Active = true,
+                            DisplayName = physician.pvLastName + ", " + physician.pvFirstName
 
-                        });
-                        _urgentData.SaveChanges();
+                    });
+
                     }
                     else
                     {
-                        ModelState.AddModelError("Duplicate Physician", "This physican with the same Id and Office Key has already been mapped.");
+                        try {
+                            _urgentData.Physican.Any(x => x.PvPhysicanId == pvPhyId);
+
+                            var exitingPhy = _urgentData.Physican.FirstOrDefault(x => x.PvPhysicanId == pvPhyId); ;
+                            exitingPhy.PvPhysicanId = physician.pvPhysicianId ?? default(int);
+                            exitingPhy.AmProviderId = physician.AmdDisplayName;
+                            exitingPhy.FirstName = physician.pvFirstName;
+                            exitingPhy.LastName = physician.pvLastName;
+                            exitingPhy.IsDefault = physician.IsDefault;
+                            exitingPhy.DisplayName = physician.pvLastName + ", " + physician.pvFirstName;
+                            exitingPhy.Active = true;
+                            _urgentData.Attach(exitingPhy);
+                        }
+                        catch(Exception ex)
+                        {
+                            return PartialView("_Error");
+                        }
+                       
                     }
+                    _urgentData.SaveChanges();
                 }
             }
 
-            return PartialView("_MappedPhysician");
+           return  getMapedPh(officeKey);
         }
 
         [HttpPost]
@@ -203,7 +226,7 @@ namespace MedRecordManager.Controllers
             var config = _urgentData.ProgramConfig.FirstOrDefault(x => x.AmdofficeKey == numOfficeKey);
             var apiUri = new Uri(config.Apiuri);
 
-            if (string.IsNullOrEmpty(HttpContext.Session.GetString("apiContext")) || string.IsNullOrEmpty(HttpContext.Session.GetString("redirectUrl")))
+            if (string.IsNullOrEmpty(HttpContext.Session.GetString("apiContext")) || string.IsNullOrEmpty(HttpContext.Session.GetString("redirectUrl")) || string.IsNullOrEmpty(HttpContext.Session.GetString("officekey")) || HttpContext.Session.GetString("officekey") != officeKey)
             {
                 var apiResponse = await _apiLoginServicce.ProcessLogin(apiUri, 1, config.ApiuserName, config.Apipassword, config.AmdofficeKey.ToString(), config.AmdAppName, null);
                 if (apiResponse.GetType() == typeof(PpmLoginResponse))
@@ -211,6 +234,7 @@ namespace MedRecordManager.Controllers
                     var sucessResponse = apiResponse;
                     HttpContext.Session.SetString("apiContext", sucessResponse.Results.Usercontext.Text);
                     HttpContext.Session.SetString("redirectUrl", sucessResponse.Results.Usercontext.Webserver + "/xmlrpc/processrequest.asp");
+                    HttpContext.Session.SetString("officekey", officeKey);
                 }
             }
 
