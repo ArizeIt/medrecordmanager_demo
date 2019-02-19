@@ -1,0 +1,45 @@
+﻿@model IEnumerable<MedRecordManager.Models.ClinicVm>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                <label class="control-label">PV Location</label>
+            </th>
+            <th>
+                <label class="control-label">OffieKey</label>
+            </th>
+            <th>
+                <label class="control-label">OfficeKey Location</label>
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (Model.Any())
+        {
+            foreach (var item in Model)
+            {
+                <tr>
+                    <td class="primaryId">
+                        @Html.DisplayFor(modelItem => item.ClinicId)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.OfficeKey)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.AmdFacility)
+                    </td>
+                   
+                    <td>
+                        <button class="btn btn-link editPh">Edit</button>                    
+                    </td>
+                </tr>
+            }
+        }
+        else
+        {
+            <tr><td>No Mapped Clinics.</td></tr>
+
+        }
+    </tbody>
+</table>

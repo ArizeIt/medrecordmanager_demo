@@ -545,7 +545,7 @@ namespace UrgentCareData
                 entity.Property(e => e.AmdCode).HasMaxLength(50);
 
                 entity.Property(e => e.Clinic)
-                    .IsRequired()
+                   
                     .HasMaxLength(50);
 
                 entity.Property(e => e.DisplayName)
