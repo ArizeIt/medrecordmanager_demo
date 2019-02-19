@@ -76,7 +76,16 @@ namespace MedRecordManager.Controllers
 
         public IActionResult Clinic()
         {
-            return null;
+            var mappedClinics = _urgentData.ClinicProfile.Where(x => x.OfficeKey.HasValue).Select(x =>
+
+                 new ClinicVm
+                 {
+                     ClinicId = x.ClinicId,
+                     OfficeKey = x.OfficeKey.GetValueOrDefault().ToString(),
+                     AmdFacility = x.AmdcodeName
+                 });
+            return View("_MappedClinic", mappedClinics);
+                   
         }
 
         //public IActionResult Rule ()
