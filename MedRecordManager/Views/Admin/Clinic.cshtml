@@ -1,0 +1,64 @@
+﻿@model IEnumerable<MedRecordManager.Models.ClinicVm>
+
+@section scripts{
+    <script>
+        $(document).on('click', '.editClinic', function () {
+            var pvid = $(this).parent().parent().find('.primaryId').html().trim()
+            $.ajax({
+                url: '/admin/editClinic',
+                type: 'post',
+                data: {
+                    pvClinicId: pvid
+                }
+            }).done(function (response) {
+                $('#result').html('');
+                $('#addNew').html(response);
+            });
+        });
+
+        function mappedClinic() {
+            $.ajax({
+                url: '/admin/MappedClinic',
+                type: 'get',
+              
+            }).done(function (response) {
+                $('#result').html(response);
+                $('#addNew').html('');
+            });
+        };
+
+        function saveClinic() {
+
+            $.ajax({
+                url: '/admin/saveClinic',
+                type: 'post',
+                data: {
+                    clinicId: $('#pvClinic').val(),
+                    officeKey: $('#officekey').val(),
+                    amdCodeName: $('#amdCodeName').val()
+                }
+
+            }).done(function (response) {
+                $('#result').html(response);
+                $('#addNew').html('');
+            });
+        }
+
+    </script>
+}
+
+<div class="row top-buffer">
+    <div class="box box-widget">
+        <div class="box-header with-border">
+            <h3 class="box-title">Clinic</h3>
+        </div>
+        <div class="box-body">
+            <div id="addNew">
+            </div>
+            <div id="result">
+                @Html.Partial("_MappedClinic.cshtml", Model)
+            </div>
+            
+        </div>
+    </div>
+</div>

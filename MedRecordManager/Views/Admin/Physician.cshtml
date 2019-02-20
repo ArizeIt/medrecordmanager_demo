@@ -77,37 +77,40 @@
     </script>
 
 }
-<h2>Physican</h2>
-<form asp-action="SavePhysician" asp-controller="Admin" data-ajax="true" data-ajax-method="POST" data-ajax-complete="onComplete" data-ajax-success="onSuccess">
-    <div class="row">
-        <div class="col-md-3">
-            <div class="form-group">
-                <label asp-for="Inputs.OfficeKey" class="control-label">Office Key:</label>
-                <select class="form-control" asp-for="Inputs.OfficeKey" , asp-items="@Model.Inputs.OfficeKeys" id="ddlOfficeKey"></select>
+    <div class="row top-buffer">
+        <div class="box box-widget">
+            <div class="box-header with-border">
+                <h3 class="box-title">Physician</h3>
             </div>
-        </div>
-        <div class="col-md-3">
-            <div class="form-group">
-                <div class="control-group">
-                    <div style="margin-top: 24px;">
-                        <input type="button" value="Add New" class="btn btn-primary" id="addNewButton" style="display:none" onclick="addPhysician()" />
+            <div class="box-body">
+                <form asp-action="SavePhysician" asp-controller="Admin" data-ajax="true" data-ajax-method="POST" data-ajax-complete="onComplete" data-ajax-success="onSuccess">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label asp-for="Inputs.OfficeKey" class="control-label">Office Key:</label>
+                                <select class="form-control" asp-for="Inputs.OfficeKey" , asp-items="@Model.Inputs.OfficeKeys" id="ddlOfficeKey"></select>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <div class="control-group">
+                                    <div style="margin-top: 24px;">
+                                        <input type="button" value="Add New" class="btn btn-primary" id="addNewButton" style="display:none" onclick="addPhysician()" />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                </div>
+
+                    <div id="addNew">
+                    </div>
+                </form>
             </div>
         </div>
     </div>
 
-    <div class="row">
-        <div class="col-lg-10">
-            <div id="addNew">
-            </div>
-        </div>
-    </div>
-</form>
-    <div class="row">
-        <div class="col-lg-10">
-            <div id="results">
-            </div>
-        </div>
-    </div>
+   
+    <div id="results"></div>
+  
+
 

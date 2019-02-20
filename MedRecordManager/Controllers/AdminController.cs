@@ -82,15 +82,47 @@ namespace MedRecordManager.Controllers
                  {
                      ClinicId = x.ClinicId,
                      OfficeKey = x.OfficeKey.GetValueOrDefault().ToString(),
-                     AmdFacility = x.AmdcodeName
+                     AmdFacility = x.AmdcodeName,
+                     
                  });
-            return View("_MappedClinic", mappedClinics);
+            return View("Clinic", mappedClinics);
                    
+        }
+
+    
+        [HttpGet]
+        public IActionResult MappedClinic()
+        {
+            var mappedClinics = _urgentData.ClinicProfile.Where(x => x.OfficeKey.HasValue).Select(x =>
+
+                 new ClinicVm
+                 {
+                     ClinicId = x.ClinicId,
+                     OfficeKey = x.OfficeKey.GetValueOrDefault().ToString(),
+                     AmdFacility = x.AmdcodeName,
+
+                 });
+            return PartialView("_MappedClinic", mappedClinics);
+
+        }
+
+        [HttpPost]
+        public IActionResult SaveClinic(string clinicId, int officeKey, string amdCodeName)
+        {
+            var existingCp = _urgentData.ClinicProfile.FirstOrDefault(x => x.ClinicId == clinicId);
+            _urgentData.ClinicProfile.Attach(existingCp);
+            existingCp.OfficeKey = officeKey;
+            existingCp.AmdcodeName = amdCodeName;
+
+            _urgentData.SaveChanges();
+
+            return MappedClinic();
+
         }
 
         //public IActionResult Rule ()
         //{
-          
+
         //    return View("RulePage", Input);
         //}
 
@@ -151,6 +183,30 @@ namespace MedRecordManager.Controllers
                 vm.MappedProviders = await GetAmdProviderList(officeKey);
                 vm.MappedProviders.FirstOrDefault(x => x.Value == existingPh.AmProviderId).Selected = true;
                 return PartialView("_AddPhysician", vm);
+            }
+
+            catch (Exception ex)
+            {
+                return PartialView("_Error");
+            }
+
+        }
+
+        [HttpPost]
+        public IActionResult EditClinic(string pvClinicId)
+        {
+          
+            var existingCp = _urgentData.ClinicProfile.FirstOrDefault(x => x.ClinicId == pvClinicId.Trim());
+            var vm = new ClinicVm
+            {
+                AllClinics = _urgentData.ClinicProfile.Where(x=> !string.IsNullOrEmpty(x.ClinicFullName)).DistinctBy(x=>x.ClinicId).Select(x=> new SelectListItem { Text = x.ClinicId, Value = x.ClinicId}),
+                AllOfficeKeys = _urgentData.ClinicProfile.Where(x => !string.IsNullOrEmpty(x.ClinicFullName)).DistinctBy(x => x.OfficeKey).Select(x => new SelectListItem { Text = x.OfficeKey.ToString(), Value = x.OfficeKey.ToString(), Selected = x.OfficeKey == existingCp.OfficeKey }),
+                AllFacilities = _urgentData.ClinicProfile.Where(x => !string.IsNullOrEmpty(x.ClinicFullName)).DistinctBy(x => x.AmdcodeName).Select(x => new SelectListItem { Text = x.AmdcodeName, Value = x.AmdcodeName, Selected = x.AmdcodeName == existingCp.AmdcodeName }),
+                ClinicId = existingCp.ClinicId
+            };
+            try
+            {
+                return PartialView("_EditClinic", vm);
             }
 
             catch (Exception ex)

@@ -1,58 +1,70 @@
 ﻿@model IEnumerable<MedRecordManager.Models.PhysicianVm>
 
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                <label class="control-label">PV Physican Id</label>
-            </th>
-            <th>
-                <label class="control-label">Physican First Name</label>
-            </th>
-            <th>
-                <label class="control-label">Physican Last Name</label>
-            </th>
 
-            <th>
-                <label class="control-label">Amd Provider Name</label>
-            </th>
-            <th>
-                <label class="control-label">Amd Provider Code</label>
-            </th>
-        </tr>
-    </thead>
-    <tbody>
-        @if(Model.Any())
-        {
-            foreach (var item in Model)
-            {
-        <tr>
-            <td class="primaryId">
-                @Html.DisplayFor(modelItem => item.pvPhysicianId)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.pvFirstName)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.pvLastName)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.AmdDisplayName)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.AmdProviderCode)
-            </td>
-            <td>
-                <button class="btn btn-link editPh">Edit</button>|
-                <button class="btn btn-link deletePh">Deactivate</button>
-            </td>
-        </tr>
-            }
-        }
-        else
-        {
-           <tr><td>No Physisian has been found.</td></tr>
+ <div class="row">
+    <div class="box box-widget">
+        <div class="box-header with-border">
+            <h3 class="box-title">Results</h3>
+        </div>
+        <div class="box-body">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>
+                            <label class="control-label">PV Physican Id</label>
+                        </th>
+                        <th>
+                            <label class="control-label">Physican First Name</label>
+                        </th>
+                        <th>
+                            <label class="control-label">Physican Last Name</label>
+                        </th>
 
-        }
-    </tbody>
-</table>
+                        <th>
+                            <label class="control-label">Amd Provider Name</label>
+                        </th>
+                        <th>
+                            <label class="control-label">Amd Provider Code</label>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model.Any())
+                    {
+                        foreach (var item in Model)
+                        {
+                            <tr>
+                                <td class="primaryId">
+                                    @Html.DisplayFor(modelItem => item.pvPhysicianId)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.pvFirstName)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.pvLastName)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.AmdDisplayName)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.AmdProviderCode)
+                                </td>
+                                <td>
+                                    <button class="btn btn-link editPh">Edit</button>|
+                                    <button class="btn btn-link deletePh">Deactivate</button>
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr><td>No Physisian has been found.</td></tr>
+
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+ </div>
+
+

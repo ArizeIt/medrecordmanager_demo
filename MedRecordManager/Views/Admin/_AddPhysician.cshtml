@@ -1,52 +1,69 @@
 ﻿@model MedRecordManager.Models.PhysicianVm
 
-<h4>Add New Physician</h4>
-<hr />
-<div class="row">
-    <div class="col-md-12">
+<div class="row">  
         <div class="box box-widget">
             <div class="box-header with-border">
-                <h3 class="box-title">Physician</h3>
+                <h3 class="box-title">Add New</h3>
             </div>
             <div class="box-body">
-                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-                <div class="form-group">
-                    <label class="control-label">PV Physician Number</label>
-                    <input asp-for="pvPhysicianId" class="form-control" />
-                    <span asp-validation-for="pvPhysicianId" class="text-danger"></span>
-                </div>
-                <div class="form-group">
-                    <label class="control-label">First Name</label>
-                    <input asp-for="pvFirstName" class="form-control" />
-                    <span asp-validation-for="pvFirstName" class="text-danger"></span>
-                </div>
-                <div class="form-group">
-                    <label class="control-label">Last Name</label>
-                    <input asp-for="pvLastName" class="form-control" />
-                    <span asp-validation-for="pvLastName" class="text-danger"></span>
-                </div>
-                <div class="form-group">
-                    <label class="control-label">AMD Provider Name</label>
-                    <select class="form-control" asp-for="AmdDisplayName" , asp-items="@Model.MappedProviders" id="amdProviderName"></select>
-                    <span asp-validation-for="pvLastName" class="text-danger"></span>
-                </div>
-                <div class="form-group">
-                    <input asp-for="IsDefault" class="checkbox-inline" />
-                    <label class="control-label">Default Provider</label>
-                </div>
-                <div class="form-group">
-                    <div class="row">
-                        <div class="col-sm-3">
-                            <input type="submit" class="btn btn-primary" title="Submit" value="Save">
-                        </div>
-                        <div class="col-sm-1">
-                            <button type="button" class="btn btn-link" onclick="mappedPhysician()">Back</button>
+                <div class="row">
+                    <div class="col-lg-3">
+                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                        <div class="form-group">
+                            <label class="control-label">PV Physician Number</label>
+                            <input asp-for="pvPhysicianId" class="form-control" />
+                            <span asp-validation-for="pvPhysicianId" class="text-danger"></span>
                         </div>
                     </div>
                 </div>
-            </div>
-        </div>           
-    </div>
+                <div class="row">
+                    <div class="col-lg-3">
+                        <div class="form-group">
+                            <label class="control-label">First Name</label>
+                            <input asp-for="pvFirstName" class="form-control" />
+                            <span asp-validation-for="pvFirstName" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-3">
+                        <div class="form-group">
+                            <label class="control-label">Last Name</label>
+                            <input asp-for="pvLastName" class="form-control" />
+                            <span asp-validation-for="pvLastName" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-lg-3">
+                        <div class="form-group">
+                            <label class="control-label">AMD Provider Name</label>
+                            <select class="form-control" asp-for="AmdDisplayName" , asp-items="@Model.MappedProviders" id="amdProviderName"></select>
+                            <span asp-validation-for="pvLastName" class="text-danger"></span>
+                        </div>
+                        <div class="form-group">
+                            <input asp-for="IsDefault" class="checkbox-inline" />
+                            <label class="control-label">Default Provider</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-3">
+                        <div class="form-group">
+                            <div class="row">
+                                <div class="col-sm-3">
+                                    <input type="submit" class="btn btn-primary" title="Submit" value="Save">
+                                </div>
+                                <div class="col-sm-1">
+                                    <button type="button" class="btn btn-link" onclick="mappedPhysician()">Back</button>
+                                </div>
+                            </div>
+                        </div>
+                        </div>
+                    </div>
+             </div>
+         </div>
 </div>
 
 

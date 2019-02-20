@@ -1,0 +1,44 @@
+﻿@model ClinicVm
+
+
+<div class="row">
+    <div class="col-lg-3">
+        <div class="form-group">
+            <label class="control-label">PV Location</label>
+            <select class="form-control" asp-for="ClinicId" , asp-items="@Model.AllClinics" id="pvClinic"></select>
+        </div>
+
+    </div>
+
+    <div class="col-lg-3">
+        <div class="form-group">
+            <label class="control-label">Office Key</label>
+            <select class="form-control" asp-for="OfficeKey" , asp-items="@Model.AllOfficeKeys" id="officekey"></select>
+        </div>
+
+    </div>
+
+    <div class="col-lg-3">
+        <div class="form-group">
+            <label class="control-label">OfficeKey Location</label>
+            <select class="form-control" asp-for="AmdFacility" , asp-items="@Model.AllFacilities" id="amdCodeName"></select>
+        </div>
+
+    </div>
+</div>
+<div class="row">
+                <div class="col-lg-3">
+                    <div class="form-group">
+                        <div class="row">
+                            <div class="col-sm-3">
+                                <button type="button" class="btn btn-primary" onclick="saveClinic()">Save</button>
+                            </div>
+                            <div class="col-sm-1">
+                                <button type="button" class="btn btn-link" onclick="mappedClinic()">Back</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+</div>
+
+
