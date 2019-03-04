@@ -113,18 +113,18 @@
                             </div>
                         </div>
                         <div class="row">
-                            <div class="col-lg-3">
-                                <div class="form-group">
+                            <div class="col-lg-12">
+                                <div class="form-group pull-right">
                                     <div style="margin-top: 24px;">
                                         <button class="btn btn-primary" id="btnPatient">Save</button>
                                     </div>
                                 </div>
                             </div>
-                        </div>                     
+                        </div>
                     </div>
+                </div>
             </div>
         </div>
-    </div>
 
     </div>
     @if (Model.GuarantorInfo != null)
@@ -218,15 +218,13 @@
                                         <span asp-validation-for="GuarantorInfo.Phone" class="text-danger"></span>
                                     </div>
                                 </div>
-                                 <div class="col-lg-3">
-                                    <div class="form-group">
-                                        <div style="margin-top: 24px;">
-                                            <button class="btn btn-primary">Save</button>
-                                         </div>
+                                <div class="col-lg-12">
+                                    <div class=" pull-right">
+                                      <button class="btn btn-primary">Save</button>
                                     </div>
                                 </div>
                             </div>
-                            
+
                         </div>
                     </div>
                 </div>
@@ -308,11 +306,9 @@
                                     </div>
                                 </div>
                                 <div class="row">
-                                    <div class="col-lg-3 align-right">
-                                        <div class="form-group">
-                                            <div style="margin-top: 24px;">
-                                                <button class="btn btn-primary" id="btnPatient">Save</button>
-                                            </div>
+                                    <div class="col-lg-12">
+                                        <div class="pull-right">                                         
+                                          <button class="btn btn-primary" id="btnPatient">Save</button>
                                         </div>
                                     </div>
                                 </div>
@@ -325,47 +321,164 @@
 
     }
 
-    <div class="row">
-        <div class="col-md-12">
-            <div id="Results">
-                <div class="box box-info">
-                    <div class="box-header with-border">
-                        <h3 class="box-title">Chart</h3>
-                    </div>
-                    <div class="box-body">
-                        <div class="col-sm-10">
-                            @Html.HiddenFor(model => model.ChartId)
-                            <table class="table table-hover">
-                                <thead>
-                                    <tr>
-                                        <th scope="col">Insurance Name</th>
-                                        <th scope="col">Phone</th>
-                                        <th scope="col"></th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach (var chart in Model.VisitCharts)
-                                    {
-                                        <tr>
-                                            <th scope="row">@chart.ChartDocId</th>
-                                            <td>@chart.FileName</td>
+    @if (Model.ChartInfo != null)
+    {
+        <div class="row">
+            <div class="col-md-12">
+                <div id="chart">
+                    <div class="box box-info">
+                        <div class="box-header with-border">
+                            <h3 class="box-title">Chart</h3>
+                        </div>
+                        <div class="box-body">
+                            <div class="row">
+                                <div class="col-lg-3">
+                                    <div class="form-group">
+                                        <label class="control-label">Discahrged By</label>
+                                        <input asp-for="ChartInfo.DiscahrgedBy" class="form-control" disabled />
 
-                                        </tr>
+                                    </div>
+                                </div>
+                                <div class="col-lg-3 ">
+                                    <div class="form-group">
+                                        <label class="control-label">Discahrged By</label>
+                                        <input asp-for="ChartInfo.DischargedDate" class="form-control" disabled />
+
+                                    </div>
+                                </div>
+                                <div class="col-lg-3">
+                                    <div class="form-group">
+                                        <label class="control-label">Discahrged By</label>
+                                        <input asp-for="ChartInfo.SignoffBy" class="form-control" disabled />
+
+                                    </div>
+                                </div>
+                                <div class="col-lg-3 ">
+                                    <div class="form-group">
+                                        <label class="control-label">Discahrged By</label>
+                                        <input asp-for="ChartInfo.SignoffBy" class="form-control" disabled />
+
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                @if (Model.ChartInfo.ChartDocs.Any())
+                                {
+                                    @foreach (var doc in Model.ChartInfo.ChartDocs)
+                                    {
+                                        <div class="col-lg-3">
+                                            <div class="form-group">
+                                                <label class="control-label">File Name</label>
+                                                <a href=""><span>@doc.FileName</span></a>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-3">
+                                            <div class="form-group">
+                                                <label class="control-label">File Type</label>
+                                                <span>@doc.FileType</span>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-3">
+                                            <div class="form-group">
+                                                <label class="control-label">Last Updated By</label>
+                                                <span>@doc.LastUpdatedby</span>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-3">
+                                            <div class="form-group">
+                                                <label class="control-label">Last Updated On</label>
+                                                <span>@doc.LastUpdatedOn</span>
+                                            </div>
+                                        </div>
                                     }
-                                </tbody>
-                            </table>
-                            <label class="btn btn-primary" for="my-file-selector">
-                                <input id="my-file-selector" type="file" style="display:none"
-                                       onchange="$('#upload-file-info').html(this.files[0].name)">
-                                Button Text Here
-                            </label>
-                            <span class='label label-info' id="upload-file-info"></span>
+                                }
+                            </div>                          
+                            <div class="row">
+                                    <div class="col-lg-12">
+                                        @Html.HiddenFor(model => model.ChartId)
+                                        <div class="pull-right">
+                                            <label class="btn btn-primary" for="my-file-selector">
+                                                <input id="my-file-selector" type="file" style="display:none"
+                                                       onchange="$('#upload-file-info').html(this.files[0].name)">
+                                                Upload
+                                            </label>
+                                            <span class='label label-info' id="upload-file-info"></span>
+                                        </div>
+                                       
+                                    </div>
+                             </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
+    }
+
+
+
+    @if (Model.PatientDoc.Any())
+    {
+        <div class="row">
+            <div class="col-md-12">
+                <div id="doc">
+                    <div class="box box-default">
+                        <div class="box-header with-border">
+                            <h3 class="box-title">Document</h3>
+                        </div>
+                        <div class="box-body">
+                            <div class="row">
+                                @if (Model.PatientDoc.Any())
+                                {
+                                    @foreach (var doc in Model.PatientDoc)
+                                    {
+                                        <div class="col-lg-3">
+                                            <div class="form-group">
+                                                <label class="control-label">File Name</label>
+                                                <a href=""><span>@doc.FileName</span></a>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-3">
+                                            <div class="form-group">
+                                                <label class="control-label">File Type</label>
+                                                <span>@doc.Type</span>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-3">
+                                            <div class="form-group">
+                                                <label class="control-label">Last Verified By</label>
+                                                <span>@doc.LastVerifiedBy</span>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-3">
+                                            <div class="form-group">
+                                                <label class="control-label">Last Verified On</label>
+                                                <span>@doc.LastVeryfiedOn</span>
+                                            </div>
+                                        </div>
+                                    }
+                                }
+                            </div>
+                            <div class="row">
+                                <div class="col-lg-12">
+                                    <div class="pull-right">
+                                        <label class="btn btn-primary" for="my-file-selector">
+                                            <input id="my-file-selector" type="file" style="display:none"
+                                                   onchange="$('#upload-file-info').html(this.files[0].name)">
+                                            Upload
+                                        </label>
+                                        <span class='label label-info' id="upload-file-info"></span>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    }
+
 </div>
 
 

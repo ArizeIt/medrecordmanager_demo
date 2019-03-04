@@ -9,7 +9,7 @@ namespace MedRecordManager.Models.DailyRecord
 {
     public class DetailRecord
     {
-        public List<ChartDoc> VisitCharts { get; set; }
+        public PatientChart ChartInfo { get; set; }
 
         
         public int ChartId { get; set; }
@@ -47,6 +47,12 @@ namespace MedRecordManager.Models.DailyRecord
     public class ChartDoc
     {
         public string FileName { get; set; }
+
+        public int FileType { get; set; }
+
+        public string LastUpdatedby { get; set; }
+
+        public DateTime LastUpdatedOn { get; set; }
 
         public int ChartDocId { get; set; }
     }
@@ -93,6 +99,8 @@ namespace MedRecordManager.Models.DailyRecord
         public string Phone { get; set; }
 
         public string AmdCode { get; set; }
+
+        public int InsuranceId { get; set; }
     }
 
     public class Address
@@ -112,11 +120,26 @@ namespace MedRecordManager.Models.DailyRecord
     {
         public string FileName { get; set; }
 
-        public string Type { get; set; }
+        public int Type { get; set; }
 
-        public string lastVerifiedBy { get; set; }
+        public string LastVerifiedBy { get; set; }
 
-        public DateTime lastVeryfiedOn { get; set; }
+        public DateTime LastVeryfiedOn { get; set; }
+    }
+
+    public class PatientChart
+    {
+        public int ChartId { get; set; }
+
+        public DateTime DischargedDate { get; set; }
+
+        public string DiscahrgedBy { get; set; }
+
+        public DateTime SignoffDate { get; set; }
+
+        public string SignoffBy { get;  set; }
+
+        public IEnumerable<ChartDoc> ChartDocs { get; set; }
     }
 }   
 

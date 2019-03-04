@@ -169,7 +169,7 @@ namespace MedRecordManager.Controllers
                 }).ToList()
             };
 
-            var visitRec = _urgentCareContext.Visit.Include(x=>x.PvPatient).Include(x=>x.PayerInformation).Include(x=>x.GuarantorPayer).SingleOrDefault(x => x.VisitId == visitId);
+            var visitRec = _urgentCareContext.Visit.Include(x=>x.PvPatient).Include(x=>x.PayerInformation).Include(x=>x.GuarantorPayer).Include(x=>x.Chart.ChartDocument).Include(x=> x.PatientDocument).SingleOrDefault(x => x.VisitId == visitId);
 
             if (visitRec != null)
             {
@@ -193,7 +193,7 @@ namespace MedRecordManager.Controllers
 
                 detailRecord.InsuranceInfo = _urgentCareContext.InsuranceInformation.Where(x => insuranceIds.Contains(x.InsuranceId))
                     .Select(x => new Insurance {
-
+                        InsuranceId = x.InsuranceId,
                         Address = new Address
                         {
                             Address1 = x.PrimaryAddress1,
@@ -209,13 +209,7 @@ namespace MedRecordManager.Controllers
 
                 detailRecord.ChartId = visitRec.ChartId.Value;
 
-                detailRecord.VisitCharts = _urgentCareContext.ChartDocument.Where(x => x.ChartId == visitRec.ChartId).Select(c => new ChartDoc
-                {
-                    ChartDocId = c.ChartDocId,
-                    FileName = c.FileName
-
-                }).ToList();
-
+              
                 detailRecord.PaitentInfo = new Patient
                 {
                     FirstName = visitRec.PvPatient.FirstName,
@@ -236,6 +230,31 @@ namespace MedRecordManager.Controllers
                     CellPhone = visitRec.PvPatient.CellPhone,
                     Email = visitRec.PvPatient.Email
                 };
+
+                detailRecord.ChartInfo = new PatientChart
+                {
+                    ChartId = visitRec.ChartId.GetValueOrDefault(),
+                    SignoffBy = visitRec.Chart.SignedOffSealedBy,
+                    DiscahrgedBy =visitRec.Chart.DischargedBy,
+                    DischargedDate = visitRec.Chart.DischargedDate,
+                    SignoffDate = visitRec.Chart.SignOffSealedDate,
+                    ChartDocs = visitRec.Chart.ChartDocument.Select(x=> new ChartDoc {
+
+                        FileName = x.FileName,
+                        FileType = x.FileType,
+                        LastUpdatedby = x.LastUpdatedBy,
+                        LastUpdatedOn = x.LastUpdatedOn
+                        
+                    })
+                };
+
+                detailRecord.PatientDoc = visitRec.PatientDocument.Select(x=> new Document {
+                    FileName = x.FileName,
+                    Type = x.FileType,
+                    LastVerifiedBy = x.LastVerifedBy,
+                    LastVeryfiedOn = x.LastVerifiedOn
+
+                });
 
             if (HttpContext.Request.Headers["X-Requested-With"] == "XMLHttpRequest")
                 {
