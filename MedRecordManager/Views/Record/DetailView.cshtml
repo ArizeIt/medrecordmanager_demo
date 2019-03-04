@@ -6,6 +6,7 @@
 @{ 
     var tabId = "detail" + Model.VisitId;
 }
+
 <div class="tab-pane" id="@tabId">
 
     <div class="row">
@@ -13,62 +14,269 @@
             <div id="Results">
                 <div class="box box-danger">
                     <div class="box-header with-border">
-                        <h3 class="box-title">Modfied Records</h3>
+                        <h3 class="box-title">Patient @Model.PaitentInfo.PvNumber</h3>
                     </div>
                     <div class="box-body">
-                        <table class="table table-hover">
-                            <thead>
-                                <tr>
-                                    <th scope="col">Paitent</th>
-                                    <th scope="col">First Name</th>
-                                    <th scope="col">Last Name</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach (var guarantor in Model.GuarantorInfo)
-                                {
-                                    <tr>
-                                        <th scope="row">@guarantor.FirstName</th>
-                                        <td>@guarantor.LastName</td>
-                                        @*<td><button class="btn btn-warning">Delete</button></td>*@
-                                    </tr>
-                                }
-                            </tbody>
-                        </table>
+                        <div class="row">
+                            <div class="col-lg-3">
+                                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                                <div class="form-group">
+                                    <label class="control-label">First Name</label>
+                                    <input asp-for="PaitentInfo.FirstName" class="form-control" />
+                                    <span asp-validation-for="PaitentInfo.FirstName" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-lg-3">
+                                <div class="form-group">
+                                    <label class="control-label">Middle Name</label>
+                                    <input asp-for="PaitentInfo.MidName" class="form-control" />
+                                    <span asp-validation-for="PaitentInfo.MidName" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-lg-3">
+                                <div class="form-group">
+                                    <label class="control-label">Last Name</label>
+                                    <input asp-for="PaitentInfo.LastName" class="form-control" />
+                                    <span asp-validation-for="PaitentInfo.LastName" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-lg-3">
+                                <div class="form-group">
+                                    <label class="control-label">SSN</label>
+                                    <input asp-for="PaitentInfo.SSN" class="form-control" />
+                                    <span asp-validation-for="PaitentInfo.SSN" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-lg-3">
+                                <div class="form-group">
+                                    <label class="control-label">Address Line 1</label>
+                                    <input asp-for="PaitentInfo.Address.Address1" class="form-control" />
+                                    <span asp-validation-for="PaitentInfo.Address.Address1" class="text-danger"></span>
+                                </div>
+                            </div>
+
+                            <div class="col-lg-3">
+                                <div class="form-group">
+                                    <label class="control-label">Address Line 2</label>
+                                    <input asp-for="PaitentInfo.Address.Address2" class="form-control" />
+                                    <span asp-validation-for="PaitentInfo.Address.Address2" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-lg-3">
+                                <div class="form-group">
+                                    <label class="control-label">State</label>
+                                    <input asp-for="PaitentInfo.Address.State" class="form-control" />
+                                    <span asp-validation-for="PaitentInfo.Address.State" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-lg-3">
+                                <div class="form-group">
+                                    <label class="control-label">Zip</label>
+                                    <input asp-for="PaitentInfo.Address.Zip" class="form-control" />
+                                    <span asp-validation-for="PaitentInfo.Address.Zip" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-lg-3">
+                                <div class="form-group">
+                                    <label class="control-label">Home Phone</label>
+                                    <input asp-for="PaitentInfo.HomePhone" class="form-control" />
+                                    <span asp-validation-for="PaitentInfo.Address.Address1" class="text-danger"></span>
+                                </div>
+                            </div>
+
+                            <div class="col-lg-3">
+                                <div class="form-group">
+                                    <label class="control-label">Cell Phone</label>
+                                    <input asp-for="PaitentInfo.CellPhone" class="form-control" />
+                                    <span asp-validation-for="PaitentInfo.CellPhone" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-lg-3">
+                                <div class="form-group">
+                                    <label class="control-label">Email</label>
+                                    <input asp-for="PaitentInfo.Email" class="form-control" />
+                                    <span asp-validation-for="PaitentInfo.Email" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-lg-3">
+                                <div class="form-group">
+                                    <button>Save</button>
+                                </div>
+                            </div>
+                        </div>
+
                     </div>
                 </div>
             </div>
         </div>
     </div>
-    <h4>Chart Documents</h4>
+
+
+    @if (Model.GuarantorInfo != null)
+    {
+        <div class="row">
+            <div class="col-md-12">
+                <div id="Results">
+                    <div class="box box-primary">
+                        <div class="box-header with-border">
+                            <h3 class="box-title">Guarantor @Model.GuarantorInfo.PayerNum</h3>
+                        </div>
+                        <div class="box-body">
+                            <div class="row">
+                                <div class="col-lg-3">
+                                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                                    <div class="form-group">
+                                        <label class="control-label">First Name</label>
+                                        <input asp-for="GuarantorInfo.FirstName" class="form-control" />
+                                        <span asp-validation-for="GuarantorInfo.FirstName" class="text-danger"></span>
+                                    </div>
+                                </div>
+                                <div class="col-lg-3">
+                                    <div class="form-group">
+                                        <label class="control-label">Middle Name</label>
+                                        <input asp-for="GuarantorInfo.MidName" class="form-control" />
+                                        <span asp-validation-for="GuarantorInfo.MidName" class="text-danger"></span>
+                                    </div>
+                                </div>
+                                <div class="col-lg-3">
+                                    <div class="form-group">
+                                        <label class="control-label">Last Name</label>
+                                        <input asp-for="GuarantorInfo.LastName" class="form-control" />
+                                        <span asp-validation-for="GuarantorInfo.LastName" class="text-danger"></span>
+                                    </div>
+                                </div>
+
+                                <div class="col-lg-3">
+                                    <div class="form-group">
+                                        <label class="control-label">Relationship</label>
+                                        <select class="form-control dropdown" asp-for="GuarantorInfo.RelationshipCode" , asp-items="@Model.Relationship" id="ddlRelationship"></select>
+
+                                    </div>
+                                </div>
+
+                            </div>
+
+                            <div class="row">
+                                <div class="col-lg-3">
+                                    <div class="form-group">
+                                        <label class="control-label">Address Line 1</label>
+                                        <input asp-for="GuarantorInfo.Address.Address1" class="form-control" />
+                                        <span asp-validation-for="GuarantorInfo.Address.Address1" class="text-danger"></span>
+                                    </div>
+                                </div>
+
+                                <div class="col-lg-3">
+                                    <div class="form-group">
+                                        <label class="control-label">Address Line 2</label>
+                                        <input asp-for="GuarantorInfo.Address.Address2" class="form-control" />
+                                        <span asp-validation-for="GuarantorInfo.Address.Address2" class="text-danger"></span>
+                                    </div>
+                                </div>
+                                <div class="col-lg-3">
+                                    <div class="form-group">
+                                        <label class="control-label">City</label>
+                                        <input asp-for="GuarantorInfo.Address.City" class="form-control" />
+                                        <span asp-validation-for="GuarantorInfo.Address.City" class="text-danger"></span>
+                                    </div>
+                                </div>
+                                <div class="col-lg-3">
+                                    <div class="form-group">
+                                        <label class="control-label">State</label>
+                                        <input asp-for="GuarantorInfo.Address.State" class="form-control" />
+                                        <span asp-validation-for="GuarantorInfo.Address.State" class="text-danger"></span>
+                                    </div>
+                                </div>
+
+                            </div>
+                            <div class="row">
+                                <div class="col-lg-3">
+                                    <div class="form-group">
+                                        <label class="control-label">Zip</label>
+                                        <input asp-for="GuarantorInfo.Address.Zip" class="form-control" />
+                                        <span asp-validation-for="GuarantorInfo.Address.Zip" class="text-danger"></span>
+                                    </div>
+                                </div>
+                                <div class="col-lg-3">
+                                    <div class="form-group">
+                                        <label class="control-label">Phone</label>
+                                        <input asp-for="GuarantorInfo.phone" class="form-control" />
+                                        <span asp-validation-for="GuarantorInfo.phone" class="text-danger"></span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    }
+
+    @if (Model.InsuranceInfo != null)
+    {
+        <div class="row">
+            <div class="col-md-12">
+                <div id="Results">
+                    <div class="box box-default">
+                        <div class="box-header with-border">
+                            <h3 class="box-title">Insurance</h3>
+                        </div>
+                        <div class="box-body">
+                           
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    }
+
     <div class="row">
-        <div class="col-sm-10">
-            @Html.HiddenFor(model => model.ChartId)
-            <table class="table table-hover">
-                <thead>
-                    <tr>
-                        <th scope="col">#</th>
-                        <th scope="col">Document Name</th>
-                        <th scope="col">Action</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var chart in Model.VisitCharts)
-                    {
-                        <tr>
-                            <th scope="row">@chart.ChartDocId</th>
-                            <td>@chart.FileName</td>
-                            <td><button class="glyphicon-eject">Delete</button></td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
-            @*<label class="btn btn-primary" for="my-file-selector">
-                    <input id="my-file-selector" type="file" style="display:none"
-                           onchange="$('#upload-file-info').html(this.files[0].name)">
-                    Button Text Here
-                </label>
-                <span class='label label-info' id="upload-file-info"></span>*@
+        <div class="col-md-12">
+            <div id="Results">
+                <div class="box box-info">
+                    <div class="box-header with-border">
+                        <h3 class="box-title">Chart</h3>
+                    </div>
+                    <div class="box-body">
+                        <div class="col-sm-10">
+                            @Html.HiddenFor(model => model.ChartId)
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th scope="col">Insurance Name</th>
+                                        <th scope="col">Phone</th>
+                                        <th scope="col"></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var chart in Model.VisitCharts)
+                                    {
+                                        <tr>
+                                            <th scope="row">@chart.ChartDocId</th>
+                                            <td>@chart.FileName</td>
+
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                            <label class="btn btn-primary" for="my-file-selector">
+                                <input id="my-file-selector" type="file" style="display:none"
+                                       onchange="$('#upload-file-info').html(this.files[0].name)">
+                                Button Text Here
+                            </label>
+                            <span class='label label-info' id="upload-file-info"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </div>

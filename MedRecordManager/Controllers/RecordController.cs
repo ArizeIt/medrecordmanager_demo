@@ -161,18 +161,50 @@ namespace MedRecordManager.Controllers
         {
             var detailRecord = new DetailRecord
             {
-                VisitId = visitId.ToString()
+                VisitId = visitId.ToString(),
+                Relationship = _urgentCareContext.Relationship.Where(x=> x.AmrelationshipCode !=null).Select(x=> new SelectListItem
+                {
+                    Value = x.Hipaarelationship,
+                    Text = x.Description
+                }).ToList()
             };
 
-            var visitRec = _urgentCareContext.Visit.SingleOrDefault(x => x.VisitId == visitId);
+            var visitRec = _urgentCareContext.Visit.Include(x=>x.PvPatient).Include(x=>x.PayerInformation).Include(x=>x.GuarantorPayer).SingleOrDefault(x => x.VisitId == visitId);
+
             if(visitRec !=null)
             {
-                detailRecord.GuarantorInfo = _urgentCareContext.GuarantorInformation.Where(x => x.PvPatientId == visitRec.PvPatientId).Select(g=> new Guarantor {
-                    FirstName = g.FirstName,
-                    LastName = g.LastName,
+                detailRecord.GuarantorInfo = new Guarantor
+                {
+                    FirstName = visitRec.GuarantorPayer.FirstName,
+                    LastName = visitRec.GuarantorPayer.LastName,
+                    PayerNum = visitRec.GuarantorPayerId,
+                    RelationshipCode = visitRec.GuarantorPayer.RelationshipCode,
+                    Address = new Address
+                    {
+                        Address1 = visitRec.GuarantorPayer.Address1,
+                        Address2 = visitRec.GuarantorPayer.Address2,
+                        City = visitRec.GuarantorPayer.City,
+                        State = visitRec.GuarantorPayer.State,
+                        Zip = visitRec.GuarantorPayer.Zip
+                    }
+                };
 
-                }).ToList();
+                detailRecord.InsuranceInfo = _urgentCareContext.PayerInformation.Where(x => x.PayerNum == visitRec.GuarantorPayerId).Select(x => new Insurance
+                {
 
+                    Address = new Address
+                    {
+                        Address1 = x.Insurance.PrimaryAddress1,
+                        Address2 = x.Insurance.PrimaryAddress2,
+                        City = x.Insurance.PrimaryCity,
+                        State = x.Insurance.PrimaryState,
+                        Zip = x.Insurance.PrimaryZip
+                    },
+                    InsuranceName = x.Insurance.PrimaryName,
+                    Phone = x.Insurance.PrimaryPhone,
+                    AmdCode = x.Insurance.AmdCode
+                });
+                 
                 detailRecord.ChartId = visitRec.ChartId.Value;
 
                 detailRecord.VisitCharts = _urgentCareContext.ChartDocument.Where(x => x.ChartId == visitRec.ChartId).Select(c => new ChartDoc
@@ -181,6 +213,27 @@ namespace MedRecordManager.Controllers
                     FileName = c.FileName
 
                 }).ToList();
+
+                detailRecord.PaitentInfo = new Patient
+                {
+                    FirstName = visitRec.PvPatient.FirstName,
+                    LastName = visitRec.PvPatient.LastName,
+                    MidName = visitRec.PvPatient.MiddleName,
+                    PvNumber = visitRec.PvPatientId,
+                    SSN = visitRec.PvPatient.Ssn,
+                    Address = new Address
+                    {
+                        Address1 = visitRec.PvPatient.Address1,
+                        Address2 = visitRec.PvPatient.Address2,
+                        City = visitRec.PvPatient.City,
+                        State = visitRec.PvPatient.State,
+                        Zip = visitRec.PvPatient.Zip
+                    },
+                   
+                    HomePhone = visitRec.PvPatient.HomePhone,
+                    CellPhone = visitRec.PvPatient.CellPhone,
+                    Email = visitRec.PvPatient.Email
+                };
 
             if (HttpContext.Request.Headers["X-Requested-With"] == "XMLHttpRequest")
                 {
