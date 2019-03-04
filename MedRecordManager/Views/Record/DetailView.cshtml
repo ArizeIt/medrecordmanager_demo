@@ -14,7 +14,7 @@
             <div id="Results">
                 <div class="box box-danger">
                     <div class="box-header with-border">
-                        <h3 class="box-title">Patient @Model.PaitentInfo.PvNumber</h3>
+                        <h3 class="box-title">Patient # @Model.PaitentInfo.PvNumber</h3>
                     </div>
                     <div class="box-body">
                         <div class="row">
@@ -67,11 +67,21 @@
                             </div>
                             <div class="col-lg-3">
                                 <div class="form-group">
+                                    <label class="control-label">City</label>
+                                    <input asp-for="PaitentInfo.Address.City" class="form-control" />
+                                    <span asp-validation-for="PaitentInfo.Address.City" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-lg-3">
+                                <div class="form-group">
                                     <label class="control-label">State</label>
                                     <input asp-for="PaitentInfo.Address.State" class="form-control" />
                                     <span asp-validation-for="PaitentInfo.Address.State" class="text-danger"></span>
                                 </div>
                             </div>
+                        </div>
+
+                        <div class="row">
                             <div class="col-lg-3">
                                 <div class="form-group">
                                     <label class="control-label">Zip</label>
@@ -79,9 +89,6 @@
                                     <span asp-validation-for="PaitentInfo.Address.Zip" class="text-danger"></span>
                                 </div>
                             </div>
-                        </div>
-
-                        <div class="row">
                             <div class="col-lg-3">
                                 <div class="form-group">
                                     <label class="control-label">Home Phone</label>
@@ -104,28 +111,30 @@
                                     <span asp-validation-for="PaitentInfo.Email" class="text-danger"></span>
                                 </div>
                             </div>
+                        </div>
+                        <div class="row">
                             <div class="col-lg-3">
                                 <div class="form-group">
-                                    <button>Save</button>
+                                    <div style="margin-top: 24px;">
+                                        <button class="btn btn-primary" id="btnPatient">Save</button>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-
+                        </div>                     
                     </div>
-                </div>
             </div>
         </div>
     </div>
 
-
+    </div>
     @if (Model.GuarantorInfo != null)
     {
         <div class="row">
             <div class="col-md-12">
                 <div id="Results">
-                    <div class="box box-primary">
+                    <div class="box box-warning">
                         <div class="box-header with-border">
-                            <h3 class="box-title">Guarantor @Model.GuarantorInfo.PayerNum</h3>
+                            <h3 class="box-title">Guarantor # @Model.GuarantorInfo.PayerNum</h3>
                         </div>
                         <div class="box-body">
                             <div class="row">
@@ -205,8 +214,15 @@
                                 <div class="col-lg-3">
                                     <div class="form-group">
                                         <label class="control-label">Phone</label>
-                                        <input asp-for="GuarantorInfo.phone" class="form-control" />
-                                        <span asp-validation-for="GuarantorInfo.phone" class="text-danger"></span>
+                                        <input asp-for="GuarantorInfo.Phone" class="form-control" />
+                                        <span asp-validation-for="GuarantorInfo.Phone" class="text-danger"></span>
+                                    </div>
+                                </div>
+                                 <div class="col-lg-3">
+                                    <div class="form-group">
+                                        <div style="margin-top: 24px;">
+                                            <button class="btn btn-primary">Save</button>
+                                         </div>
                                     </div>
                                 </div>
                             </div>
@@ -224,12 +240,83 @@
         <div class="row">
             <div class="col-md-12">
                 <div id="Results">
-                    <div class="box box-default">
+                    <div class="box box-comment">
                         <div class="box-header with-border">
                             <h3 class="box-title">Insurance</h3>
                         </div>
                         <div class="box-body">
-                           
+                            @foreach (var item in Model.InsuranceInfo)
+                            {
+                                <div class="row">
+                                    <div class="col-lg-3">
+                                        <div class="form-group">
+                                            <label class="control-label">Primary Name</label>
+                                            <input asp-for="@item.InsuranceName" class="form-control" />
+                                            <span asp-validation-for="@item.InsuranceName" class="text-danger"></span>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-3">
+                                        <div class="form-group">
+                                            <label class="control-label">Phone Number</label>
+                                            <input asp-for="@item.Phone" class="form-control" />
+                                            <span asp-validation-for="@item.Phone" class="text-danger"></span>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-3">
+                                        <div class="form-group">
+                                            <label class="control-label">Address Line 1</label>
+                                            <input asp-for="@item.Address.Address1" class="form-control" />
+                                            <span asp-validation-for="@item.Address.Address1" class="text-danger"></span>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-3">
+                                        <div class="form-group">
+                                            <label class="control-label">Addres Line 2</label>
+                                            <input asp-for="@item.Address.Address2" class="form-control" />
+                                            <span asp-validation-for="@item.Address.Address2" class="text-danger"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-lg-3">
+                                        <div class="form-group">
+                                            <label class="control-label">City</label>
+                                            <input asp-for="@item.Address.City" class="form-control" />
+                                            <span asp-validation-for="@item.Address.City" class="text-danger"></span>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-3">
+                                        <div class="form-group">
+                                            <label class="control-label">State</label>
+                                            <input asp-for="@item.Address.State" class="form-control" />
+                                            <span asp-validation-for="@item.Address.State" class="text-danger"></span>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-3">
+                                        <div class="form-group">
+                                            <label class="control-label">Zip</label>
+                                            <input asp-for="@item.Address.Zip" class="form-control" />
+                                            <span asp-validation-for="@item.Address.Zip" class="text-danger"></span>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-3">
+                                        <div class="form-group">
+                                            <label class="control-label">Advanced MD Code</label>
+                                            <input asp-for="@item.AmdCode" class="form-control" />
+                                            <span asp-validation-for="@item.AmdCode" class="text-danger"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-lg-3 align-right">
+                                        <div class="form-group">
+                                            <div style="margin-top: 24px;">
+                                                <button class="btn btn-primary" id="btnPatient">Save</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
                         </div>
                     </div>
                 </div>

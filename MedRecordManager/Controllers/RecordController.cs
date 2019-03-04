@@ -171,7 +171,7 @@ namespace MedRecordManager.Controllers
 
             var visitRec = _urgentCareContext.Visit.Include(x=>x.PvPatient).Include(x=>x.PayerInformation).Include(x=>x.GuarantorPayer).SingleOrDefault(x => x.VisitId == visitId);
 
-            if(visitRec !=null)
+            if (visitRec != null)
             {
                 detailRecord.GuarantorInfo = new Guarantor
                 {
@@ -189,22 +189,24 @@ namespace MedRecordManager.Controllers
                     }
                 };
 
-                detailRecord.InsuranceInfo = _urgentCareContext.PayerInformation.Where(x => x.PayerNum == visitRec.GuarantorPayerId).Select(x => new Insurance
-                {
+                 var insuranceIds = visitRec.PayerInformation.DistinctBy(x => x.InsuranceId).Select(y=> y.InsuranceId);
 
-                    Address = new Address
-                    {
-                        Address1 = x.Insurance.PrimaryAddress1,
-                        Address2 = x.Insurance.PrimaryAddress2,
-                        City = x.Insurance.PrimaryCity,
-                        State = x.Insurance.PrimaryState,
-                        Zip = x.Insurance.PrimaryZip
-                    },
-                    InsuranceName = x.Insurance.PrimaryName,
-                    Phone = x.Insurance.PrimaryPhone,
-                    AmdCode = x.Insurance.AmdCode
-                });
-                 
+                detailRecord.InsuranceInfo = _urgentCareContext.InsuranceInformation.Where(x => insuranceIds.Contains(x.InsuranceId))
+                    .Select(x => new Insurance {
+
+                        Address = new Address
+                        {
+                            Address1 = x.PrimaryAddress1,
+                            Address2 = x.PrimaryAddress2,
+                            City = x.PrimaryCity,
+                            State = x.PrimaryState,
+                            Zip = x.PrimaryZip
+                        },
+                        InsuranceName = x.PrimaryName,
+                        Phone = x.PrimaryPhone,
+                        AmdCode = x.AmdCode
+                    });
+
                 detailRecord.ChartId = visitRec.ChartId.Value;
 
                 detailRecord.VisitCharts = _urgentCareContext.ChartDocument.Where(x => x.ChartId == visitRec.ChartId).Select(c => new ChartDoc

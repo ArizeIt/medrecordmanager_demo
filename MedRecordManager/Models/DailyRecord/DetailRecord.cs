@@ -11,6 +11,7 @@ namespace MedRecordManager.Models.DailyRecord
     {
         public List<ChartDoc> VisitCharts { get; set; }
 
+        
         public int ChartId { get; set; }
         public Guarantor GuarantorInfo { get; set; }
 
@@ -20,7 +21,9 @@ namespace MedRecordManager.Models.DailyRecord
 
         public Patient PaitentInfo{ get; set; }
 
+        public IEnumerable<Document> PatientDoc { get; set; }
         public IList<SelectListItem> Relationship { get; set; }
+
     }
 
     public class Guarantor
@@ -35,7 +38,7 @@ namespace MedRecordManager.Models.DailyRecord
 
         public Address Address { get; set; }
 
-        public string phone { get; set; }
+        public string Phone { get; set; }
 
         public string RelationshipCode { get; set; }
 
@@ -102,8 +105,18 @@ namespace MedRecordManager.Models.DailyRecord
         public string State { get; set; }
 
         public string Zip { get; set; }
-
        
+    }
+
+    public class Document
+    {
+        public string FileName { get; set; }
+
+        public string Type { get; set; }
+
+        public string lastVerifiedBy { get; set; }
+
+        public DateTime lastVeryfiedOn { get; set; }
     }
 }   
 
