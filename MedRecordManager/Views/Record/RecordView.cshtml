@@ -326,7 +326,7 @@
         
             function addTab(id) {
                 if ($('#detail' + id).length == 0) {
-                    $('.nav-tabs').find('li').last().after('<li><a data-toggle="tab" href="#detail' + id + '"><button class="close closeTab" type="button" >×</button><b>Visit ' + id + '</b></a></li>');
+                    $('.nav-tabs').find('li').last().after('<li><a data-toggle="tab" href="#detail' + id + '"><button type="button" class="close" aria-label="Close"><span aria-hidden="true">&times;</span></button><b>Visit ' + id + '</b></a></li>');
                     $.ajax({
                         type: "GET",
                         data: {

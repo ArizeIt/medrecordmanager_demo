@@ -127,11 +127,23 @@ namespace MedRecordManager.Controllers
         }
 
         [HttpGet]
-        public IActionResult GetInsurance(int? page, int? limit, string sortBy, string direction)
+        public IActionResult GetInsurance(int? page, int? limit, string insName )
         { 
             var total = 0;
+            IQueryable<InsuranceInformation> query;
+            
 
-            var records = _urgentData.InsuranceInformation.Select(y => new
+            if(!string.IsNullOrEmpty(insName))
+            {
+                query = _urgentData.InsuranceInformation.Where(x => x.PrimaryName.Contains(insName));
+            }
+            else
+            {
+                query = _urgentData.InsuranceInformation;
+
+              
+            }
+            var records = query.Select(y => new
             {
                 y.AmdCode,
                 y.InsuranceId,
