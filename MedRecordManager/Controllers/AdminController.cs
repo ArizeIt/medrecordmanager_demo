@@ -120,11 +120,40 @@ namespace MedRecordManager.Controllers
 
         }
 
-        //public IActionResult Rule ()
-        //{
+        public IActionResult Insurance()
+        {
 
-        //    return View("RulePage", Input);
-        //}
+            return View("insurance");
+        }
+
+        [HttpGet]
+        public IActionResult GetInsurance(int? page, int? limit, string sortBy, string direction)
+        { 
+            var total = 0;
+
+            var records = _urgentData.InsuranceInformation.Select(y => new
+            {
+                y.AmdCode,
+                y.InsuranceId,
+                y.PrimaryName,
+                y.PrimaryPhone,
+                y.PrimaryAddress1,
+                y.PrimaryAddress2,
+                y.PrimaryCity,
+                y.PrimaryState,
+                y.PrimaryZip
+            }).ToList();
+
+            total = records.Count();
+
+            if (page.HasValue && limit.HasValue)
+            {
+                var start = (page.Value - 1) * limit.Value;
+                records = records.Skip(start).Take(limit.Value).ToList();
+            }
+            return Json(new { records, total });
+        }
+
 
         [HttpGet]
         public IActionResult getMapedPh(int officeKey)
