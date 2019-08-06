@@ -55,9 +55,9 @@ namespace AdvancedMDService
                         var code = xDoc.Descendants().FirstOrDefault(x => x.Name == "code");
                         if (code != null && code.Value == "-2147220476")
                         {
-                            var redirectResponse = redirectMessage.Deserialize<PpmLoginResponse>();
+                            var redirectResponse = redirectMessage.Deserialize<PpmRedirectResponse>();
                             var redirecturl = new Uri(redirectResponse.Results.Usercontext.Webserver + "/xmlrpc/processrequest.asp");
-                            await ProcessLogin(redirecturl, 1, username, password, redirectResponse.Results.Usercontext.Officecode, appname, null);
+                            return await ProcessLogin(redirecturl, 1, username, password, officecode, appname, null);
                         }
                     }
                 }

@@ -141,7 +141,6 @@ namespace MedRecordManager.Controllers
             {
                 query = _urgentData.InsuranceInformation;
 
-              
             }
             var records = query.Select(y => new
             {
