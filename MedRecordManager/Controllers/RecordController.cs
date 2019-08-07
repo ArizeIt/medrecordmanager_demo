@@ -412,7 +412,7 @@ namespace MedRecordManager.Controllers
 
                 var querystring = $"officeKey={officekeys}&startTime={startDate}&endTime={endDate}";
 
-                var response = await webClient.PostAsync("api/Default/ImportToAmd?" + querystring, null);
+                var response = await webClient.PostAsync("cumsapi/Default/ImportToAmd?" + querystring, null);
 
                 await response.Content.ReadAsStringAsync();
 
