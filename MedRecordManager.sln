@@ -7,8 +7,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MedRecordManager", "MedReco
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UrgentCareData", "UrgentCareData\UrgentCareData.csproj", "{47550939-7B2A-41C6-B5F5-6EDDD6EB44F6}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CucmsApi", "CucmsApi\CucmsApi.csproj", "{A3ADB3BB-6E99-4A3B-9514-3822D1672555}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PracticeVelocityDomain", "PracticeVelocityDomain\PracticeVelocityDomain.csproj", "{D6D7228C-F4CF-493F-86CA-D9F0A4A7998C}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AdvancedMDDomain", "AdvancedMDDomain\AdvancedMDDomain.csproj", "{7309E350-5505-46FB-B5C4-972173D025F9}"
@@ -35,10 +33,6 @@ Global
 		{47550939-7B2A-41C6-B5F5-6EDDD6EB44F6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{47550939-7B2A-41C6-B5F5-6EDDD6EB44F6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{47550939-7B2A-41C6-B5F5-6EDDD6EB44F6}.Release|Any CPU.Build.0 = Release|Any CPU
-		{A3ADB3BB-6E99-4A3B-9514-3822D1672555}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{A3ADB3BB-6E99-4A3B-9514-3822D1672555}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{A3ADB3BB-6E99-4A3B-9514-3822D1672555}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{A3ADB3BB-6E99-4A3B-9514-3822D1672555}.Release|Any CPU.Build.0 = Release|Any CPU
 		{D6D7228C-F4CF-493F-86CA-D9F0A4A7998C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{D6D7228C-F4CF-493F-86CA-D9F0A4A7998C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D6D7228C-F4CF-493F-86CA-D9F0A4A7998C}.Release|Any CPU.ActiveCfg = Release|Any CPU

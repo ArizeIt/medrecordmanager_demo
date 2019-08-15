@@ -18,7 +18,7 @@ namespace AdvancedMDServiceTest
         public void Initialize()
         {
 
-            var uri = new Uri("https://sl1-api01.advancedmd.com/practicemanager/xmlrpc/processrequest.asp");
+            var uri = new Uri("https://partnerlogin.advancedmd.com/practicemanager/xmlrpc/processrequest.aspx");
             var app = new LoginService();
 
             var response = app.ProcessLogin(uri, 1, "cmcus0228", "wer789gg", "133358", "MyApp", null).Result;
