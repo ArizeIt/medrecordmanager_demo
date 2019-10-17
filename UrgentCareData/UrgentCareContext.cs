@@ -21,6 +21,7 @@ namespace UrgentCareData
         public virtual DbSet<AdvancedMdcolumnHeader> AdvancedMdcolumnHeader { get; set; }
         public virtual DbSet<AdvanceMdimportLog> AdvanceMdimportLog { get; set; }
         public virtual DbSet<Audit> Audit { get; set; }
+        public virtual DbSet<AmdLoginSession> AmdLoginSessions { get; set; }
         public virtual DbSet<BatchJob> BatchJob { get; set; }
         public virtual DbSet<Chart> Chart { get; set; }
         public virtual DbSet<ChartDocument> ChartDocument { get; set; }
@@ -104,6 +105,28 @@ namespace UrgentCareData
                 entity.Property(e => e.TableName)
                     .IsRequired()
                     .HasMaxLength(100);
+            });
+
+            modelBuilder.Entity<AmdLoginSession>(entity =>
+            {
+
+                entity.HasKey(t => t.Id);
+
+                // Properties
+                entity.Property(t => t.Context)
+                    .IsRequired()
+                    .HasMaxLength(500);
+
+                entity.Property(t => t.ApiUrl)
+                    .IsRequired()
+                    .HasMaxLength(500);
+
+                // Table & Column Mappings
+                entity.ToTable("AmdLoginSession");
+                entity.Property(t => t.Context).HasColumnName("Context");
+                entity.Property(t => t.ApiUrl).HasColumnName("ApiUrl");
+                entity.Property(t => t.Born).HasColumnName("Born");
+                entity.Property(t => t.Id).HasColumnName("Id");
             });
 
             modelBuilder.Entity<BatchJob>(entity =>

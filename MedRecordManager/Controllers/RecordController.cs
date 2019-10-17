@@ -12,7 +12,6 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using Newtonsoft.Json;
 using PVAMCommon;
 using UrgentCareData;
 using UrgentCareData.Models;
@@ -108,7 +107,23 @@ namespace MedRecordManager.Controllers
         [HttpGet]
         public IActionResult loadCode()
         {
-            return View("CodeView");
+            var vm = new CodeChartVm(); 
+            if(_urgentCareContext.Visit.Any(x => x.Flagged))
+            {
+                var visit = _urgentCareContext.Visit.Include(x=>x.VisitProcCode).Include(x => x.Chart).ThenInclude(c=> c.ChartDocument).FirstOrDefault(x => x.Flagged);
+                if(visit.Chart.ChartDocument.Any())
+                {
+                    vm.VisitId = visit.VisitId;
+                    vm.Chart = new ChartVm
+                    {
+                        
+                        ChartName = visit.Chart.ChartDocument.FirstOrDefault().FileName,
+                        fileBinary = visit.Chart.ChartDocument.FirstOrDefault().DocumentImage
+                    };
+                }
+
+            }
+            return View("CodeView", vm);
         }
 
         public IActionResult Payer(int? page, int? limit, string sortBy, string direction, int visitId)
@@ -467,6 +482,31 @@ namespace MedRecordManager.Controllers
 
         }
 
+        [HttpGet]
+        public IActionResult GetProcCode(int? page, int? limit, int visitId)
+        {
+            var total = 0;
+            var records = _urgentCareContext.Visit.Include(x => x.VisitProcCode).FirstOrDefault(x => x.VisitId == visitId).VisitProcCode.Select(x => new
+            {
+                code = x.ProcCode,
+                
+                quantity = x.Quantity
+            }).ToList();
+            total = records.Count();
+            return Json(new { records, total });
+        }
+
+        [HttpGet]
+        public IActionResult GetIcdCode(int? page, int? limit, int visitId)
+        {
+            var total = 0;
+            var records = _urgentCareContext.Visit.Include(x => x.VisitProcCode).FirstOrDefault(x => x.VisitId == visitId).Icdcodes.ParseToList('|').Select(x => new
+            {
+                code = x            
+            }).ToList();
+            total = records.Count();
+            return Json(new { records, total });
+        }
 
         private IEnumerable<SelectListItem> GetAvaliableOfficeKeys()
         {
