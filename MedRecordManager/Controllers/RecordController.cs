@@ -105,6 +105,12 @@ namespace MedRecordManager.Controllers
             return Json(new { records, total });                          
         }
 
+        [HttpGet]
+        public IActionResult loadCode()
+        {
+            return View("CodeView");
+        }
+
         public IActionResult Payer(int? page, int? limit, string sortBy, string direction, int visitId)
         {
 
