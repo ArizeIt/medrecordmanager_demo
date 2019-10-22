@@ -10,7 +10,9 @@
     "moment": "2.22.2",
     "gijgo": "v1.9.10",
     "chart.js": "~2.7.3",
-    "select2": "4.0.5"
+    "select2": "4.0.5",
+    "Zoomer": "3.0.13",
+    "printThis": "v1.15.0"
   },
   "resolutions": {
     "jquery-validation-unobtrusive": "v3.2.10",

@@ -25,10 +25,15 @@ namespace MedRecordManager.Models
         public string Code { get; set; }
         public string Description { get; set; }
 
+        public int Modifier { get; set; }
+
     }
 
-    public class ProcCode
+   
+
+    public class CPTCode
     {
+        public string CodeType { get; set; }
         public string CodeName { get; set; }
 
         public string ShortDescription { get; set; }
@@ -37,4 +42,5 @@ namespace MedRecordManager.Models
 
         public int Quantity { get; set; }
     }
+
 }

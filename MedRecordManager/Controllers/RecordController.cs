@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -15,6 +16,7 @@ using Microsoft.EntityFrameworkCore;
 using PVAMCommon;
 using UrgentCareData;
 using UrgentCareData.Models;
+
 
 namespace MedRecordManager.Controllers
 {
@@ -115,9 +117,8 @@ namespace MedRecordManager.Controllers
                 {
                     vm.VisitId = visit.VisitId;
                     vm.Chart = new ChartVm
-                    {
-                        
-                        ChartName = visit.Chart.ChartDocument.FirstOrDefault().FileName,
+                    {                     
+                        ChartName = visit.Chart.ChartDocument.FirstOrDefault().FileName,    
                         fileBinary = visit.Chart.ChartDocument.FirstOrDefault().DocumentImage
                     };
                 }
@@ -482,30 +483,66 @@ namespace MedRecordManager.Controllers
 
         }
 
-        [HttpGet]
-        public IActionResult GetProcCode(int? page, int? limit, int visitId)
-        {
-            var total = 0;
-            var records = _urgentCareContext.Visit.Include(x => x.VisitProcCode).FirstOrDefault(x => x.VisitId == visitId).VisitProcCode.Select(x => new
-            {
-                code = x.ProcCode,
-                
-                quantity = x.Quantity
-            }).ToList();
-            total = records.Count();
-            return Json(new { records, total });
-        }
-
+       
         [HttpGet]
         public IActionResult GetIcdCode(int? page, int? limit, int visitId)
         {
             var total = 0;
-            var records = _urgentCareContext.Visit.Include(x => x.VisitProcCode).FirstOrDefault(x => x.VisitId == visitId).Icdcodes.ParseToList('|').Select(x => new
+            var records = new List<IcdCode>();
+            if(_urgentCareContext.Visit.Any(x=> x.VisitId == visitId))
             {
-                code = x            
-            }).ToList();
-            total = records.Count();
+                records = _urgentCareContext.Visit.Include(x => x.VisitProcCode).FirstOrDefault(x => x.VisitId == visitId).Icdcodes.ParseToList('|').Select(x => new IcdCode
+                {
+                    Code= x
+                }).ToList();
+                total = records.Count();
+            }
+            
             return Json(new { records, total });
+        }
+
+        [HttpGet]
+        public IActionResult GetCptCode(int? page, int? limit, int visitId)
+        {
+            var total = 0;
+            var records = new List<CPTCode>();
+           
+            if (_urgentCareContext.Visit.Any(x => x.VisitId == visitId))
+            {
+                records = _urgentCareContext.Visit.Include(x => x.VisitProcCode).FirstOrDefault(x => x.VisitId == visitId).VisitProcCode.Select(x => new CPTCode
+                {
+                    CodeType = "CPTCode",
+                    CodeName = x.ProcCode,
+
+                    Quantity = x.Quantity.GetValueOrDefault()
+                }).ToList();
+
+                records.Add(new CPTCode { CodeType = "EM_CPTCode", CodeName = _urgentCareContext.Visit.Include(x => x.VisitProcCode).FirstOrDefault(x => x.VisitId == visitId).Emcode });
+                total = records.Count();
+            }
+
+            return Json(new { records, total });
+        }
+
+        public IActionResult Getchart(int visitId)
+        {
+            if (_urgentCareContext.Visit.Any(x => x.VisitId == visitId))
+            {
+                var visit = _urgentCareContext.Visit.Include(x => x.VisitProcCode).Include(x => x.Chart).ThenInclude(c => c.ChartDocument).FirstOrDefault(x => x.VisitId == visitId);
+
+                if (visit.Chart.ChartDocument.Any())
+                {
+                    byte[] tiffBytes = visit.Chart.ChartDocument.FirstOrDefault().DocumentImage;
+                    
+
+                    using (MemoryStream inStream = new MemoryStream(tiffBytes))
+                    {
+                        return new FileStreamResult(inStream, "image/jpeg");
+                    }
+                }
+
+            }
+            return null;
         }
 
         private IEnumerable<SelectListItem> GetAvaliableOfficeKeys()

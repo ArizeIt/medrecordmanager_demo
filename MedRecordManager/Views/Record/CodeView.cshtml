@@ -1,77 +1,144 @@
 ﻿@model CodeChartVm
 
 @section scripts{
+    <script src="~/lib/printThis/printThis.js"></script>
     <script type="text/javascript">
         var procCodeGrid;
         var IcdCodeGrid;
+        var CptCodeGrid
         var id = $("#codeVisitId").val()
 
-        $(document).ready(function (){
-            ProcCodeGrid = $('#procCodeTable').grid({
-                primaryKey: 'char',
-                params: { visitId: id},
-                dataSource: '/Record/GetProcCode',
-                autoGenerateColumns: true,
-                pager: { limit: 10, sizes: [2, 5, 10, 20] },
-            });
 
+        $(document).ready(function () {
             ProcCodeGrid = $('#IcdCodeTable').grid({
                 primaryKey: 'char',
-                params: { visitId: id},
+                params: { visitId: id },
                 dataSource: '/Record/GetIcdCode',
-                autoGenerateColumns: true,
+                columns: [
+                    { field: 'code', title: 'Code' },
+                    { field: 'modifier', title: 'Modifier' },
+                    { field: 'description', title: 'Description' },
+                ],
                 pager: { limit: 10, sizes: [2, 5, 10, 20] },
             });
 
-        });
+            CptCodeGrid = $('#CPTCodeTable').grid({
+                primaryKey: 'char',
+                params: { visitId: id },
+                dataSource: '/Record/GetCptCode',
+                toolbarTemplate: '<div class="row"><div class="col-xs-8" style="line-height:34px"><span data-role="title">Grid Title</span></div><div class="col-xs-4 text-right"><button onclick="grid.reload()" class="btn btn-default">click here to refresh</button></div></div>',
+                columns: [
+                    { field: 'quantity', title: 'Quantity', editor: true },
+                    { field: 'codeType', title: 'CPT Type' },
+                    { field: 'codeName', title: 'Code' },
+                    { field: 'shortDescription', title: 'Description' },
+                    { field: 'description', hidden: true },
+
+                ],
+                pager: { limit: 10, sizes: [2, 5, 10, 20] },
+            });
+
+            $(".viewer").zoomer();
+
+            $("#btnPrint").click(function () {
+                $("#chartviewer").printThis();
+                            
+            });
+        });    
+
         
+
     </script>
 }
 
-
     <div class="row">
         @Html.HiddenFor(x => x.VisitId, new { id = "codeVisitId" })
-        <div class="col-sm-12">
-            <ul class="pager">
-                <li class="previous"><a href="#">Previous</a></li>
-                <li class="next"><a href="#">Next</a></li>
-            </ul>
+        <div class="col-sm-4">
+            <button>Message</button>
+        </div>
+        <div class="col-sm-4">
+            <button>Save</button>
+        </div>
+        <div class="col-sm-4">
+            <button>Home</button>
         </div>
     </div>
 <div class="row">
-    <div class="col-sm-6">
+        @Html.HiddenFor(x => x.VisitId, new { id = "codeVisitId" })
+    <div class="col-sm-4">
+          <ul class="pager">
+              <li class="previous"><a href="#">Previous</a></li>
+              <li class="next"><a href="#">Next</a></li>
+          </ul>
+    </div>
+</div>
+<div class="row">
+    <div class="col-lg-4">
         <div class="panel panel-default">
-            <div class="panel-heading"> Patient Chart</div>
+            <div class="panel-heading"><h3>Patient Chart</h3></div>
             <div class="panel-body">
-                <div id="image-gallery-3" class="cf">
-                    <img src="assets/images/image_viewer/1.jpg" data-high-res-src="assets/images/image_viewer/1_big.jpg" alt="" class="pannable-image">
-                    <img src="assets/images/image_viewer/2.jpg" data-high-res-src="assets/images/image_viewer/2_big.jpg" alt="" class="pannable-image">
+                <div class="btn-toolbar" role="toolbar" aria-label="Toolbar with button groups">                 
+                    <div class="btn-group" role="group" aria-label="Second group">
+                        <button type="button" class="btn btn-primary" id="btnPrint">Print</button>                     
+                    </div>
+                    <div class="btn-group" role="group" aria-label="Third group">
+                        <button type="button" class="btn btn-warning">Replace</button>
+                    </div>
+                </div>
+                <div class="viewer" style="height:800px; width:600px" id="chartviewer">
+                    @{ 
+                        var base64 = Convert.ToBase64String(Model.Chart.fileBinary);
+                        var imgsrc = string.Format("data:image/jpeg;base64,{0}", base64);
+                    }
+                  
+                   <img src="@imgsrc" alt="" class="img-thumbnail img-fluid">
+                   
                 </div>
             </div>
         </div>
     </div>
-    <div class="col-sm-6">
+    <div class="col-lg-8">
         <div class="panel panel-default">
-            <div class="panel-heading">Code Records</div>
+            <div class="panel-heading"><h3>Code Records</h3></div>
             <div class="panel-body">
+
                 <div class="box box-danger">
                     <div class="box-header with-border">
-                        <h3 class="box-title">ProcCode Records</h3>
+                        <h3 class="box-title">CPTCode Records</h3>
                     </div>
                     <div class="box-body">
-                        <table id="procCodeTable" class="table table-striped"></table>
+                        <table id="CPTCodeTable" class="table table-striped"></table>
                     </div>
-                </div>
 
-                <div class="box box-warning">
-                    <div class="box-header with-border">
-                        <h3 class="box-title">IcdCode Records</h3>
-                    </div>
-                    <div class="box-body">
-                        <div class="table-responsive">
-                            <table id="IcdCodeTable" class="table table-striped"></table>
+                    <div class="box box-warning">
+                        <div class="box-header with-border">
+                            <h3 class="box-title">IcdCode Records</h3>
+                            <div class="row">
+                                <div class="btn-toolbar" role="toolbar" aria-label="Toolbar with button groups">
+                                    <div class="btn-group mr-2" role="group" aria-label="First group">
+                                        <button type="button" class="btn btn-secondary" onclick="zoomin()">+</button>
+                                        <button type="button" class="btn btn-secondary" onclick="zoomout">-</button>
+
+                                    </div>
+                                    <div class="btn-group mr-2" role="group" aria-label="Second group">
+                                        <button type="button" class="btn btn-primary">Print</button>
+
+                                    </div>
+                                    <div class="btn-group" role="group" aria-label="Third group">
+                                        <button type="button" class="btn btn-warning">Replace</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="box-body">
+                            <div class="table-responsive">
+                                <table id="IcdCodeTable" class="table table-striped"></table>
+                            </div>
                         </div>
                     </div>
+
+
+
                 </div>
 
             </div>
