@@ -9,6 +9,10 @@ namespace MedRecordManager.Models
     {
         public int VisitId { get; set; }
         public ChartVm Chart { get; set; }
+
+        public int Position { get; set; }
+
+        public int Total { get; set; }
        
     }
 

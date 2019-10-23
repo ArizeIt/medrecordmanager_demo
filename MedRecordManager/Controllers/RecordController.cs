@@ -107,20 +107,24 @@ namespace MedRecordManager.Controllers
         }
 
         [HttpGet]
-        public IActionResult loadCode()
+        public IActionResult LoadCode(int position)
         {
             var vm = new CodeChartVm(); 
             if(_urgentCareContext.Visit.Any(x => x.Flagged))
             {
-                var visit = _urgentCareContext.Visit.Include(x=>x.VisitProcCode).Include(x => x.Chart).ThenInclude(c=> c.ChartDocument).FirstOrDefault(x => x.Flagged);
+                var records = _urgentCareContext.Visit.Include(x=>x.VisitProcCode).Include(x => x.Chart).ThenInclude(c=> c.ChartDocument).Where(x => x.Flagged);
+                var visit = records.Skip(position).Take(1).FirstOrDefault();
                 if(visit.Chart.ChartDocument.Any())
                 {
                     vm.VisitId = visit.VisitId;
                     vm.Chart = new ChartVm
                     {                     
                         ChartName = visit.Chart.ChartDocument.FirstOrDefault().FileName,    
-                        fileBinary = visit.Chart.ChartDocument.FirstOrDefault().DocumentImage
+                        fileBinary = visit.Chart.ChartDocument.FirstOrDefault().DocumentImage,
+                       
                     };
+                    vm.Total = records.Count();
+                    vm.Position = position+1;
                 }
 
             }
@@ -524,26 +528,26 @@ namespace MedRecordManager.Controllers
             return Json(new { records, total });
         }
 
-        public IActionResult Getchart(int visitId)
-        {
-            if (_urgentCareContext.Visit.Any(x => x.VisitId == visitId))
-            {
-                var visit = _urgentCareContext.Visit.Include(x => x.VisitProcCode).Include(x => x.Chart).ThenInclude(c => c.ChartDocument).FirstOrDefault(x => x.VisitId == visitId);
+        //public IActionResult Getchart(int visitId, int numRecord)
+        //{
+        //    if (_urgentCareContext.Visit.Any(x => x.VisitId == visitId))
+        //    {
+        //        var visit = _urgentCareContext.Visit.Include(x => x.VisitProcCode).Include(x => x.Chart).ThenInclude(c => c.ChartDocument).Where(x => x.VisitId == visitId).Skip(numRecord).Take(1);
 
-                if (visit.Chart.ChartDocument.Any())
-                {
-                    byte[] tiffBytes = visit.Chart.ChartDocument.FirstOrDefault().DocumentImage;
+        //        if (visit.FirstOrDefault().Chart.ChartDocument.Any())
+        //        {
+        //            byte[] tiffBytes = visit.FirstOrDefault().Chart.ChartDocument.FirstOrDefault().DocumentImage;
                     
 
-                    using (MemoryStream inStream = new MemoryStream(tiffBytes))
-                    {
-                        return new FileStreamResult(inStream, "image/jpeg");
-                    }
-                }
+        //            using (MemoryStream inStream = new MemoryStream(tiffBytes))
+        //            {
+        //                return new FileStreamResult(inStream, "image/jpeg");
+        //            }
+        //        }
 
-            }
-            return null;
-        }
+        //    }
+        //    return null;
+        //}
 
         private IEnumerable<SelectListItem> GetAvaliableOfficeKeys()
         {
