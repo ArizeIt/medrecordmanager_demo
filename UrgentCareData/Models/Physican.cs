@@ -20,8 +20,9 @@ namespace UrgentCareData.Models
         public int OfficeKey { get; set; }
         public string AmdCode { get; set; }
         public bool IsDefault { get; set; }
-
         public bool Active { get; set; }
+        public string Email { get; set; }
+
         public virtual ICollection<Visit> Visit { get; set; }
     }
 }

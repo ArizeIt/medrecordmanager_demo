@@ -29,7 +29,7 @@ namespace MedRecordManager.Models
         public string Code { get; set; }
         public string Description { get; set; }
 
-        public int Modifier { get; set; }
+        public string ShortDescription { get; set; }
 
     }
 
@@ -45,6 +45,8 @@ namespace MedRecordManager.Models
         public string Description { get; set; }
 
         public int Quantity { get; set; }
+
+        public int Modifier { get; set; }
     }
 
 }

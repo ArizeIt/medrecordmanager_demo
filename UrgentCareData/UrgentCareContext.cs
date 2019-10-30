@@ -20,11 +20,12 @@ namespace UrgentCareData
 
         public virtual DbSet<AdvancedMdcolumnHeader> AdvancedMdcolumnHeader { get; set; }
         public virtual DbSet<AdvanceMdimportLog> AdvanceMdimportLog { get; set; }
+        public virtual DbSet<AmdLoginSession> AmdLoginSession { get; set; }
         public virtual DbSet<Audit> Audit { get; set; }
-        public virtual DbSet<AmdLoginSession> AmdLoginSessions { get; set; }
         public virtual DbSet<BatchJob> BatchJob { get; set; }
         public virtual DbSet<Chart> Chart { get; set; }
         public virtual DbSet<ChartDocument> ChartDocument { get; set; }
+        public virtual DbSet<ChartDocumentHistory> ChartDocumentHistory { get; set; }
         public virtual DbSet<ChartImportLog> ChartImportLog { get; set; }
         public virtual DbSet<ClinicProfile> ClinicProfile { get; set; }
         public virtual DbSet<FinClass> FinClass { get; set; }
@@ -41,6 +42,8 @@ namespace UrgentCareData
         public virtual DbSet<Relationship> Relationship { get; set; }
         public virtual DbSet<SourceProcessLog> SourceProcessLog { get; set; }
         public virtual DbSet<Visit> Visit { get; set; }
+        public virtual DbSet<VisitCodeHistory> VisitCodeHistory { get; set; }
+        public virtual DbSet<VisitHistory> VisitHistory { get; set; }
         public virtual DbSet<VisitImpotLog> VisitImpotLog { get; set; }
         public virtual DbSet<VisitProcCode> VisitProcCode { get; set; }
 
@@ -86,6 +89,19 @@ namespace UrgentCareData
                 entity.Property(e => e.Status).HasMaxLength(50);
             });
 
+            modelBuilder.Entity<AmdLoginSession>(entity =>
+            {
+                entity.Property(e => e.ApiUrl)
+                    .IsRequired()
+                    .HasMaxLength(500);
+
+                entity.Property(e => e.Born).HasColumnType("datetime");
+
+                entity.Property(e => e.Context)
+                    .IsRequired()
+                    .HasMaxLength(500);
+            });
+
             modelBuilder.Entity<Audit>(entity =>
             {
                 entity.Property(e => e.KeyValues)
@@ -105,28 +121,6 @@ namespace UrgentCareData
                 entity.Property(e => e.TableName)
                     .IsRequired()
                     .HasMaxLength(100);
-            });
-
-            modelBuilder.Entity<AmdLoginSession>(entity =>
-            {
-
-                entity.HasKey(t => t.Id);
-
-                // Properties
-                entity.Property(t => t.Context)
-                    .IsRequired()
-                    .HasMaxLength(500);
-
-                entity.Property(t => t.ApiUrl)
-                    .IsRequired()
-                    .HasMaxLength(500);
-
-                // Table & Column Mappings
-                entity.ToTable("AmdLoginSession");
-                entity.Property(t => t.Context).HasColumnName("Context");
-                entity.Property(t => t.ApiUrl).HasColumnName("ApiUrl");
-                entity.Property(t => t.Born).HasColumnName("Born");
-                entity.Property(t => t.Id).HasColumnName("Id");
             });
 
             modelBuilder.Entity<BatchJob>(entity =>
@@ -195,6 +189,29 @@ namespace UrgentCareData
                     .HasForeignKey(d => d.ChartId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_ChartDocument_Chart");
+            });
+
+            modelBuilder.Entity<ChartDocumentHistory>(entity =>
+            {
+                entity.Property(e => e.ChartDocumentHistoryId).ValueGeneratedNever();
+
+                entity.Property(e => e.ChartImage)
+                    .IsRequired()
+                    .HasColumnType("image");
+
+                entity.Property(e => e.UploadedBy)
+                    .IsRequired()
+                    .HasMaxLength(100);
+
+                entity.Property(e => e.UploadedTime)
+                    .HasColumnName("uploadedTime")
+                    .HasColumnType("datetime");
+
+                entity.HasOne(d => d.VisitHistory)
+                    .WithMany(p => p.ChartDocumentHistory)
+                    .HasForeignKey(d => d.VisitHistoryId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_ChartDocumentHistory_VisitHistory");
             });
 
             modelBuilder.Entity<ChartImportLog>(entity =>
@@ -412,10 +429,6 @@ namespace UrgentCareData
 
                 entity.Property(e => e.ImportedDate).HasColumnType("datetime");
 
-                entity.Property(e => e.OfficeKey)
-                    .IsRequired();
-                    
-
                 entity.Property(e => e.PvpatientId).HasColumnName("PVPatientId");
 
                 entity.Property(e => e.Status)
@@ -567,13 +580,13 @@ namespace UrgentCareData
 
                 entity.Property(e => e.AmdCode).HasMaxLength(50);
 
-                entity.Property(e => e.Clinic)
-                   
-                    .HasMaxLength(50);
+                entity.Property(e => e.Clinic).HasMaxLength(50);
 
                 entity.Property(e => e.DisplayName)
                     .HasMaxLength(50)
                     .IsUnicode(false);
+
+                entity.Property(e => e.Email).HasMaxLength(200);
 
                 entity.Property(e => e.FirstName)
                     .HasMaxLength(50)
@@ -795,6 +808,56 @@ namespace UrgentCareData
                     .WithMany(p => p.Visit)
                     .HasForeignKey(d => new { d.PhysicanId, d.OfficeKey })
                     .HasConstraintName("FK_Visit_Physician");
+            });
+
+            modelBuilder.Entity<VisitCodeHistory>(entity =>
+            {
+                entity.Property(e => e.Code).HasMaxLength(200);
+
+                entity.Property(e => e.CodeType)
+                    .IsRequired()
+                    .HasMaxLength(200);
+
+                entity.Property(e => e.ModifiedBy)
+                    .IsRequired()
+                    .HasMaxLength(100);
+
+                entity.Property(e => e.ModifiedTime).HasColumnType("datetime");
+
+                entity.Property(e => e.Modifier).HasMaxLength(50);
+
+                entity.HasOne(d => d.VisitHistory)
+                    .WithMany(p => p.VisitCodeHistory)
+                    .HasForeignKey(d => d.VisitHistoryId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_VisitCodeHistory_VisitHistory");
+            });
+
+            modelBuilder.Entity<VisitHistory>(entity =>
+            {
+                entity.Property(e => e.CopayNote).HasMaxLength(500);
+
+                entity.Property(e => e.DiagCodes).HasMaxLength(500);
+
+                entity.Property(e => e.Emcode)
+                    .HasColumnName("EMCode")
+                    .HasMaxLength(10);
+
+                entity.Property(e => e.Icdcodes)
+                    .HasColumnName("ICDCodes")
+                    .HasMaxLength(500);
+
+                entity.Property(e => e.ProcCodes).HasMaxLength(500);
+
+                entity.Property(e => e.ServiceDate).HasColumnType("datetime");
+
+                entity.Property(e => e.VisitId).HasColumnName("visitId");
+
+                entity.HasOne(d => d.Visit)
+                    .WithMany(p => p.VisitHistory)
+                    .HasForeignKey(d => d.VisitId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_VisitHistory_Visit");
             });
 
             modelBuilder.Entity<VisitImpotLog>(entity =>

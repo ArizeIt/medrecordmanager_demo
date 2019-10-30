@@ -25,9 +25,6 @@ namespace UrgentCareData.Models
         public int PvPatientId { get; set; }
 
         public virtual ICollection<GuarantorImportLog> GuarantorImportLog { get; set; }
-
-
-
         public virtual ICollection<Visit> Visit { get; set; }
     }
 }
