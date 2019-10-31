@@ -22,6 +22,8 @@ namespace MedRecordManager.Models
         public string ChartName { get; set; }
 
         public byte[] fileBinary { get; set; }
+
+        public bool IsFlaged { get; set; }
     }
 
     public class IcdCode
@@ -46,7 +48,7 @@ namespace MedRecordManager.Models
 
         public int Quantity { get; set; }
 
-        public int Modifier { get; set; }
+        public string Modifier { get; set; }
     }
 
 }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using MedRecordManager.Extension;
 using MedRecordManager.Models;
@@ -10,6 +11,7 @@ using MedRecordManager.Models.DailyRecord;
 using MedRecordManager.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -121,6 +123,7 @@ namespace MedRecordManager.Controllers
                     {                     
                         ChartName = visit.Chart.ChartDocument.FirstOrDefault().FileName,    
                         fileBinary = visit.Chart.ChartDocument.FirstOrDefault().DocumentImage,
+                        IsFlaged = true
                        
                     };
                     vm.Total = records.Count();
@@ -528,26 +531,91 @@ namespace MedRecordManager.Controllers
             return Json(new { records, total });
         }
 
-        //public IActionResult Getchart(int visitId, int numRecord)
-        //{
-        //    if (_urgentCareContext.Visit.Any(x => x.VisitId == visitId))
-        //    {
-        //        var visit = _urgentCareContext.Visit.Include(x => x.VisitProcCode).Include(x => x.Chart).ThenInclude(c => c.ChartDocument).Where(x => x.VisitId == visitId).Skip(numRecord).Take(1);
+        [HttpGet]
+        public IActionResult GetModifierCode()
+        {
+           
+                var records = _urgentCareContext.Modifier.Select(x=> new { id = x.ModifierCode, text=x.ModifierCode }).ToList();
+                return Json(records);
 
-        //        if (visit.FirstOrDefault().Chart.ChartDocument.Any())
-        //        {
-        //            byte[] tiffBytes = visit.FirstOrDefault().Chart.ChartDocument.FirstOrDefault().DocumentImage;
+        }
+        
+        [HttpPost]
+        public async Task<IActionResult> UploadChart(List<IFormFile> files, int visitId)
+        {
+            long size = files.Sum(f => f.Length);
+            
+            foreach (var formFile in files)
+            {
+                if (formFile.Length > 0)
+                {
+                    //first get the contantType right
+                    if(ValidateContentType(formFile.ContentType))
+                    {
+                        if(size < 5120000)
+                        {
+                            using (var stream = new MemoryStream())
+                            {
+                                var fileName = formFile.FileName;
+                                await formFile.CopyToAsync(stream);
+
+                                var image = stream.ToArray();
+                               
+                                var historyId = InitiatHistory(visitId);
+                                    
+                                try
+                                {
+                                    if (historyId != 0)
+                                        _urgentCareContext.ChartDocumentHistory.Add(new ChartDocumentHistory
+                                        {
+                                            VisitHistoryId = historyId,
+                                            UploadedBy = HttpContext.User.Identity.Name,
+                                            UploadedTime = DateTime.Now,
+                                            ChartImage = image,
+                                            FileName = Path.GetFileName(fileName),
+                                            IsTemp = true
+
+                                        });
+                                    _urgentCareContext.SaveChanges();
+                                    var base64 = Convert.ToBase64String(image);                                    
+                                    return Json(string.Format("data:image/jpeg;base64,{0}", base64));
+                                }
+                                catch(Exception ex)
+                                {
+                                    ex.ToString();
+                                }
+                                
+                            }
+                        }
+                        else
+                        {
+                            return Json(new { error = "file is too large to uplaod. the maximum size of a file is 5 MB." });
+                        }
+                        
+                    }
+                    else
+                    {
+                        return Json(new { error = "Invalid file content type, only gif, jpeg, tiff and png fiels are allowed." });
+                    }
                     
+                }
+            }
+            return Json(new { error="Service side error, can not upload this file right now."});
+        }
 
-        //            using (MemoryStream inStream = new MemoryStream(tiffBytes))
-        //            {
-        //                return new FileStreamResult(inStream, "image/jpeg");
-        //            }
-        //        }
+        [HttpGet]
 
-        //    }
-        //    return null;
-        //}
+        public IActionResult GetChartHistoryImage(int charthisId)
+        {
+            var chart = _urgentCareContext.ChartDocumentHistory.FirstOrDefault(x => x.ChartDocumentHistoryId == charthisId);
+            if(chart != null)
+            {
+                var base64 = Convert.ToBase64String(chart.ChartImage);
+                return Json(string.Format("data:image/jpeg;base64,{0}", base64));
+            }
+
+            return null;
+        }
 
         private IEnumerable<SelectListItem> GetAvaliableOfficeKeys()
         {
@@ -561,5 +629,55 @@ namespace MedRecordManager.Controllers
                       });
 
         }
+
+        private bool ValidateContentType(string type)
+        {
+            var result = false;
+            if(!string.IsNullOrEmpty(type))
+            {
+                if(type == "image/gif" || type == "image/png" || type == "application/pdf" || type == "image/jpeg" || type == "image/tiff")
+                {
+                    result = true;
+                }
+            }
+            return result;
+        }
+
+        private int InitiatHistory(int visitId)
+        {
+            
+                if(_urgentCareContext.Visit.FirstOrDefault(x=>x.VisitId == visitId) != null )
+                {
+                    if(_urgentCareContext.Visit.FirstOrDefault(x => x.VisitId == visitId).VisitHistory.Any())
+                    {
+                        return _urgentCareContext.Visit.FirstOrDefault(x => x.VisitId == visitId).VisitHistory.FirstOrDefault().VisitHistoryId;
+                    }
+                    else
+                    {
+                        var visitrec = _urgentCareContext.Visit.FirstOrDefault(x => x.VisitId == visitId);
+                        _urgentCareContext.Visit.FirstOrDefault(x => x.VisitId == visitId).VisitHistory.Add(new VisitHistory
+                        {
+                            VisitId = visitId,
+                            ServiceDate = visitrec.ServiceDate
+
+                        });
+                        try
+                        {
+                            _urgentCareContext.SaveChanges();
+                        }
+                        catch (Exception ex)
+                        {
+                            ex.ToString();
+                        }
+
+
+                        return _urgentCareContext.Visit.FirstOrDefault(x => x.VisitId == visitId).VisitHistory.FirstOrDefault().VisitHistoryId;
+                    }
+                    
+                }
+                return 0; ;
+            }
+
+        
     }
 }

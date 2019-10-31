@@ -32,6 +32,7 @@ namespace UrgentCareData
         public virtual DbSet<GuarantorImportLog> GuarantorImportLog { get; set; }
         public virtual DbSet<GuarantorInformation> GuarantorInformation { get; set; }
         public virtual DbSet<InsuranceInformation> InsuranceInformation { get; set; }
+        public virtual DbSet<Modifier> Modifier { get; set; }
         public virtual DbSet<PatientDocument> PatientDocument { get; set; }
         public virtual DbSet<PatientImportLog> PatientImportLog { get; set; }
         public virtual DbSet<PatientInformation> PatientInformation { get; set; }
@@ -193,7 +194,15 @@ namespace UrgentCareData
 
             modelBuilder.Entity<ChartDocumentHistory>(entity =>
             {
-                entity.Property(e => e.ChartDocumentHistoryId).ValueGeneratedNever();
+                entity.HasKey(e => e.ChartDocumentHistoryId);
+
+                entity.Property(e => e.FileName)
+                    .IsRequired()
+                    .HasColumnName("Filename");
+
+                entity.Property(e => e.IsTemp)
+                    .IsRequired()
+                    .HasColumnName("IsTemp");
 
                 entity.Property(e => e.ChartImage)
                     .IsRequired()
@@ -387,6 +396,18 @@ namespace UrgentCareData
                     .IsRequired()
                     .HasMaxLength(50)
                     .IsUnicode(false);
+            });
+
+            modelBuilder.Entity<Modifier>(entity =>
+            {
+                entity.HasKey(e => e.ModifierCode);
+
+                entity.Property(e => e.ModifierCode)
+                    .HasColumnName("ModifierCode")
+                    .HasMaxLength(50)
+                    .ValueGeneratedNever();
+
+                entity.Property(e => e.Description).HasMaxLength(200);
             });
 
             modelBuilder.Entity<PatientDocument>(entity =>
