@@ -13,7 +13,7 @@ namespace UrgentCareData.Models
         public int VisitCodeHistoryId { get; set; }
         public string ModifiedBy { get; set; }
         public DateTime ModifiedTime { get; set; }
-
+        public string Action { get; set; }
         public virtual VisitHistory VisitHistory { get; set; }
     }
 }

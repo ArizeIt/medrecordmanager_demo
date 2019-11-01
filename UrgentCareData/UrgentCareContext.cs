@@ -834,6 +834,9 @@ namespace UrgentCareData
             modelBuilder.Entity<VisitCodeHistory>(entity =>
             {
                 entity.Property(e => e.Code).HasMaxLength(200);
+                entity.Property(e => e.Action)
+                    .IsRequired()
+                    .HasMaxLength(50);
 
                 entity.Property(e => e.CodeType)
                     .IsRequired()
@@ -873,6 +876,21 @@ namespace UrgentCareData
                 entity.Property(e => e.ServiceDate).HasColumnType("datetime");
 
                 entity.Property(e => e.VisitId).HasColumnName("visitId");
+
+                entity.Property(e => e.ModifiedBy)
+                .IsRequired()
+                .HasMaxLength(100)
+                .HasColumnName("ModifiedBy");
+
+                entity.Property(e => e.ModifiedTime)
+                .IsRequired()
+                .HasColumnName("ModifiedTime");
+
+                entity.Property(e => e.FinalizedTime).HasColumnName("FinalizedTime");
+
+                entity.Property(e => e.Saved)
+                .IsRequired()
+                .HasColumnName("Saved");
 
                 entity.HasOne(d => d.Visit)
                     .WithMany(p => p.VisitHistory)

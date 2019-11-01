@@ -111,25 +111,84 @@ namespace MedRecordManager.Controllers
         [HttpGet]
         public IActionResult LoadCode(int position)
         {
-            var vm = new CodeChartVm(); 
-            if(_urgentCareContext.Visit.Any(x => x.Flagged))
+            var vm = new CodeChartVm();
+            if (_urgentCareContext.Visit.Any(x => x.Flagged))
             {
-                var records = _urgentCareContext.Visit.Include(x=>x.VisitProcCode).Include(x => x.Chart).ThenInclude(c=> c.ChartDocument).Where(x => x.Flagged);
+                var records = _urgentCareContext.Visit.Include(x => x.VisitProcCode).Include(x => x.Chart).ThenInclude(c => c.ChartDocument).Where(x => x.Flagged);
                 var visit = records.Skip(position).Take(1).FirstOrDefault();
-                if(visit.Chart.ChartDocument.Any())
+
+                if (visit.Chart.ChartDocument.Any())
                 {
                     vm.VisitId = visit.VisitId;
                     vm.Chart = new ChartVm
-                    {                     
-                        ChartName = visit.Chart.ChartDocument.FirstOrDefault().FileName,    
+                    {
+                        ChartName = visit.Chart.ChartDocument.FirstOrDefault().FileName,
                         fileBinary = visit.Chart.ChartDocument.FirstOrDefault().DocumentImage,
                         IsFlaged = true
-                       
+
                     };
                     vm.Total = records.Count();
-                    vm.Position = position+1;
+                    vm.Position = position + 1;
                 }
 
+                InitiatHistory(visit.VisitId);
+                //refresh and get a clone of the icd codes
+                var originalRecs = _urgentCareContext.Visit.FirstOrDefault(x => x.VisitId == visit.VisitId).Icdcodes.ParseToList('|').Select(x => new Code
+                {
+                    CodeName = x
+                }).ToList();
+                var visitHistoryId = _urgentCareContext.Visit.Include(x => x.VisitHistory).FirstOrDefault(x => x.VisitId == visit.VisitId).VisitHistory.FirstOrDefault(x => !x.Saved).VisitHistoryId;
+
+
+                if (visitHistoryId != 0)
+                {
+                    var historyCodes = _urgentCareContext.VisitCodeHistory.Where(x => x.VisitHistoryId == visitHistoryId).ToArray();
+                    _urgentCareContext.VisitCodeHistory.RemoveRange(historyCodes);
+
+                    foreach (var orec in originalRecs)
+                    {
+                     _urgentCareContext.VisitCodeHistory.Add(new VisitCodeHistory
+                        {
+                            VisitHistoryId = visitHistoryId,
+                            CodeType = "IcdCode",
+                            Code = orec.CodeName,
+                            ModifiedBy = HttpContext.User.Identity.Name,
+                            ModifiedTime = DateTime.UtcNow,
+                            Action = "Cloned"
+                        });
+                    }
+
+                    var oriCpt = _urgentCareContext.Visit.Include(x => x.VisitProcCode).FirstOrDefault(x => x.VisitId == visit.VisitId).VisitProcCode.ToList();
+                    foreach (var cpt in oriCpt)
+                    {
+                        _urgentCareContext.VisitCodeHistory.Add(new VisitCodeHistory
+                        {
+                            VisitHistoryId = visitHistoryId,
+                            CodeType = "CPTCode",
+                            Code = cpt.ProcCode,
+                            Modifier = "N/A",
+                            Quantity = cpt.Quantity.GetValueOrDefault(),
+                            ModifiedBy = HttpContext.User.Identity.Name,
+                            ModifiedTime = DateTime.UtcNow,
+                            Action = "Cloned"
+                        });
+                    }
+                        _urgentCareContext.VisitCodeHistory.Add(new VisitCodeHistory
+                        {
+                            VisitHistoryId = visitHistoryId,
+                            CodeType = "EM_CPTCode",
+                            Code = _urgentCareContext.Visit.Include(x => x.VisitProcCode).FirstOrDefault(x => x.VisitId == visit.VisitId).Emcode,
+                            Modifier = "N/A",
+                            Quantity = 0,
+                            ModifiedBy = HttpContext.User.Identity.Name,
+                            ModifiedTime = DateTime.UtcNow,
+                            Action = "Cloned"
+                        });
+                        
+                   
+     
+                    _urgentCareContext.SaveChanges();
+                }
             }
             return View("CodeView", vm);
         }
@@ -495,13 +554,15 @@ namespace MedRecordManager.Controllers
         public IActionResult GetIcdCode(int? page, int? limit, int visitId)
         {
             var total = 0;
-            var records = new List<IcdCode>();
+            var records = new List<Code>();
             if(_urgentCareContext.Visit.Any(x=> x.VisitId == visitId))
             {
-                records = _urgentCareContext.Visit.Include(x => x.VisitProcCode).FirstOrDefault(x => x.VisitId == visitId).Icdcodes.ParseToList('|').Select(x => new IcdCode
-                {
-                    Code= x
-                }).ToList();
+                var visitHistoryId = _urgentCareContext.Visit.Include(x => x.VisitHistory).FirstOrDefault(x => x.VisitId == visitId).VisitHistory.FirstOrDefault(x => !x.Saved).VisitHistoryId;
+                records = _urgentCareContext.VisitCodeHistory.Where(x => x.VisitHistoryId == visitHistoryId && x.CodeType == "IcdCode").Select(x => new Code
+                    {   Id = x.VisitCodeHistoryId,
+                        CodeName = x.Code
+                    }).ToList();
+                               
                 total = records.Count();
             }
             
@@ -509,22 +570,23 @@ namespace MedRecordManager.Controllers
         }
 
         [HttpGet]
-        public IActionResult GetCptCode(int? page, int? limit, int visitId)
+        public IActionResult GetHistoryCode(int? page, int? limit, int visitId, string type)
         {
             var total = 0;
-            var records = new List<CPTCode>();
+            var records = new List<Code>();
            
             if (_urgentCareContext.Visit.Any(x => x.VisitId == visitId))
             {
-                records = _urgentCareContext.Visit.Include(x => x.VisitProcCode).FirstOrDefault(x => x.VisitId == visitId).VisitProcCode.Select(x => new CPTCode
+                var visitHistoryId = _urgentCareContext.Visit.Include(x => x.VisitHistory).FirstOrDefault(x => x.VisitId == visitId).VisitHistory.FirstOrDefault(x => !x.Saved).VisitHistoryId;
+                records = _urgentCareContext.VisitCodeHistory.Where(x => x.VisitHistoryId == visitHistoryId && x.CodeType.Contains(type)).Select(x => new Code
                 {
-                    CodeType = "CPTCode",
-                    CodeName = x.ProcCode,
+                    Id = x.VisitCodeHistoryId,
+                    CodeName = x.Code,
+                    Modifier = x.Modifier,
+                    CodeType = x.CodeType,
+                    Quantity = x.Quantity.GetValueOrDefault(0)
 
-                    Quantity = x.Quantity.GetValueOrDefault()
                 }).ToList();
-
-                records.Add(new CPTCode { CodeType = "EM_CPTCode", CodeName = _urgentCareContext.Visit.Include(x => x.VisitProcCode).FirstOrDefault(x => x.VisitId == visitId).Emcode });
                 total = records.Count();
             }
 
@@ -604,7 +666,6 @@ namespace MedRecordManager.Controllers
         }
 
         [HttpGet]
-
         public IActionResult GetChartHistoryImage(int charthisId)
         {
             var chart = _urgentCareContext.ChartDocumentHistory.FirstOrDefault(x => x.ChartDocumentHistoryId == charthisId);
@@ -617,6 +678,134 @@ namespace MedRecordManager.Controllers
             return null;
         }
 
+        [HttpPost]
+        public IActionResult AddIcdCode(int visitId, string icdCode, string action)
+        { var visitHistoryId = InitiatHistory(visitId);
+
+            if (visitHistoryId > 0)
+            {
+                _urgentCareContext.VisitCodeHistory.Add(new VisitCodeHistory {
+                    VisitHistoryId = visitHistoryId,
+                    Code = icdCode,
+                    CodeType = "IcdCode",
+                    ModifiedBy = HttpContext.User.Identity.Name,
+                    ModifiedTime = DateTime.UtcNow,
+                    Action = action
+                });
+
+                try
+                {
+                    _urgentCareContext.SaveChanges();
+                }
+                catch(Exception ex)
+                {
+                    return Json(new { success = false, responseText = "The Icd code was not added successfully!" });
+                }
+            }
+            return Json(new { success = false, responseText = "The Icd code was not added." });
+        }
+
+        [HttpDelete]
+        public IActionResult DeleteHistoryCode(int visitCodeHistoryId)
+        {
+            var code = new VisitCodeHistory { VisitCodeHistoryId = visitCodeHistoryId };
+            _urgentCareContext.VisitCodeHistory.Attach(code);
+            _urgentCareContext.VisitCodeHistory.Remove(code);
+            try
+            {
+                _urgentCareContext.SaveChanges();
+
+                return Json(new { success = true });
+            }
+            catch(Exception ex)
+            {
+                return Json(new { success = false });
+            }
+
+        }
+
+        [HttpPost]
+        public IActionResult UpdateHistoryCode(Code record)
+        {
+            VisitCodeHistory historyCode;
+            if(record.Id > 0 )
+            {
+                historyCode = _urgentCareContext.VisitCodeHistory.First(x => x.VisitCodeHistoryId == record.Id);
+                historyCode.Code = record.CodeName;
+                historyCode.ModifiedBy = HttpContext.User.Identity.Name;
+                historyCode.ModifiedTime = DateTime.UtcNow;
+                historyCode.Modifier = record.Modifier;
+                historyCode.Quantity = record.Quantity;
+            }
+            
+            _urgentCareContext.SaveChanges();
+
+            return Json(new { result = true });
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> SaveChartCode(int visitId)
+        {
+            if (visitId > 0)
+            {
+                var visit = _urgentCareContext.Visit.Include(x => x.VisitHistory).Include(x => x.Chart).ThenInclude(y => y.ChartDocument).First(x => x.VisitId == visitId);
+                var visitHistory = visit.VisitHistory.First(x => !x.Saved);
+                var visitHistoryCode = _urgentCareContext.VisitCodeHistory.Where(x => x.VisitHistoryId == visitHistory.VisitHistoryId && x.Action != "Saved");
+                var document = visit.Chart.ChartDocument.FirstOrDefault();
+                var visitHistoryDocument = _urgentCareContext.ChartDocumentHistory.FirstOrDefault(x => x.VisitHistoryId == visitHistory.VisitHistoryId);
+
+                var updatedDocName = visitHistoryDocument.FileName;
+                var UpdatedDocImage = visitHistoryDocument.ChartImage;
+
+                visitHistory.FinalizedTime = DateTime.UtcNow;
+                visitHistory.Saved = true;
+                visitHistory.Icdcodes = visit.Icdcodes;
+                visitHistory.Emcode = visit.Emcode;
+                visitHistory.ProcCodes = visit.ProcCodes;
+                visitHistory.ProcQty = visit.ProcQty;
+
+
+                visitHistoryDocument.FileName = document.FileName;
+                visitHistoryDocument.ChartImage = document.DocumentImage;
+
+                //try
+                //{
+                //    await _urgentCareContext.SaveChangesAsync();
+                //}
+                //catch (Exception ex)
+                //{
+                //    //email
+                //}
+                visit.IsModified = true;
+                visit.Icdcodes = null;
+                visit.Emcode = null;
+                visit.ProcCodes = null;
+                visit.ProcQty = null;
+
+                document.FileName = updatedDocName;
+                document.DocumentImage = UpdatedDocImage;
+
+                //try
+                //{
+                //    await _urgentCareContext.SaveChangesAsyncWithAudit(HttpContext.User.Identity.Name);
+                //}
+                //catch (Exception ex)
+                //{
+                //    //email
+                //}
+            }
+            return Json(new { result = false });
+        }
+
+        [HttpPost]
+        public IActionResult SendMessage()
+        {
+            var config = _urgentCareContext.ProgramConfig.First();
+
+          //  var mailer = new Email(config.Smtpserver, int.Parse(config.Smtpport), config.Smtpusername, config.Smtppassword);
+            return Json(new { sucess = true });
+        }
+    
         private IEnumerable<SelectListItem> GetAvaliableOfficeKeys()
         {
             return _urgentCareContext.ProgramConfig.Where(x=>! x.AmdSync).DistinctBy(x => x.AmdofficeKey)
@@ -643,39 +832,40 @@ namespace MedRecordManager.Controllers
             return result;
         }
 
-        private int InitiatHistory(int visitId)
-        {
             
-                if(_urgentCareContext.Visit.FirstOrDefault(x=>x.VisitId == visitId) != null )
+        private int InitiatHistory(int visitId)
+        {       
+            if(_urgentCareContext.Visit.FirstOrDefault(x=>x.VisitId == visitId) != null )
+            {
+                if(_urgentCareContext.Visit.Include(x => x.VisitHistory).FirstOrDefault(x => x.VisitId == visitId).VisitHistory.Any(x => !x.Saved))
                 {
-                    if(_urgentCareContext.Visit.FirstOrDefault(x => x.VisitId == visitId).VisitHistory.Any())
-                    {
-                        return _urgentCareContext.Visit.FirstOrDefault(x => x.VisitId == visitId).VisitHistory.FirstOrDefault().VisitHistoryId;
-                    }
-                    else
-                    {
-                        var visitrec = _urgentCareContext.Visit.FirstOrDefault(x => x.VisitId == visitId);
-                        _urgentCareContext.Visit.FirstOrDefault(x => x.VisitId == visitId).VisitHistory.Add(new VisitHistory
-                        {
-                            VisitId = visitId,
-                            ServiceDate = visitrec.ServiceDate
-
-                        });
-                        try
-                        {
-                            _urgentCareContext.SaveChanges();
-                        }
-                        catch (Exception ex)
-                        {
-                            ex.ToString();
-                        }
-
-
-                        return _urgentCareContext.Visit.FirstOrDefault(x => x.VisitId == visitId).VisitHistory.FirstOrDefault().VisitHistoryId;
-                    }
-                    
+                    return _urgentCareContext.Visit.FirstOrDefault(x => x.VisitId == visitId).VisitHistory.FirstOrDefault(x=> !x.Saved).VisitHistoryId;
                 }
-                return 0; ;
+                else
+                {
+                    var visitrec = _urgentCareContext.Visit.FirstOrDefault(x => x.VisitId == visitId);
+                    _urgentCareContext.Visit.FirstOrDefault(x => x.VisitId == visitId).VisitHistory.Add(new VisitHistory
+                    {
+                        VisitId = visitId,
+                        ServiceDate = visitrec.ServiceDate,
+                        ModifiedBy = HttpContext.User.Identity.Name,
+                        ModifiedTime = DateTime.UtcNow, 
+                        Saved = false
+                    });
+                    try
+                    {
+                        _urgentCareContext.SaveChanges();
+                    }
+                    catch(Exception ex)
+                    {
+                        ex.ToString();
+                        return 0;
+                    }
+                    return _urgentCareContext.Visit.FirstOrDefault(x => x.VisitId == visitId).VisitHistory.FirstOrDefault().VisitHistoryId;
+                }
+                  
+            }
+            return 0; ;
             }
 
         

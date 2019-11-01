@@ -20,6 +20,10 @@ namespace UrgentCareData.Models
         public string CopayNote { get; set; }
         public string ProcCodes { get; set; }
         public int? ProcQty { get; set; }
+        public string ModifiedBy { get; set; }
+        public DateTime ModifiedTime { get; set; }
+        public DateTime? FinalizedTime { get; set; }
+        public bool Saved { get; set; }
 
         public virtual Visit Visit { get; set; }
         public virtual ICollection<ChartDocumentHistory> ChartDocumentHistory { get; set; }

@@ -63,15 +63,21 @@ namespace UrgentCareData
                     switch (entry.State)
                     {
                         case EntityState.Added:
-                            auditEntry.NewValues[propertyName] = property.CurrentValue;
+                            if (auditEntry.NewValues.GetType() != typeof(byte[]))
+                            {
+                                auditEntry.NewValues[propertyName] = property.CurrentValue;
+                            }
+                            
                             break;
-
                         case EntityState.Deleted:
-                            auditEntry.OldValues[propertyName] = property.OriginalValue;
+                            if (auditEntry.NewValues.GetType() != typeof(byte[]))
+                            {
+                                auditEntry.OldValues[propertyName] = property.OriginalValue;
+                            }
                             break;
 
                         case EntityState.Modified:
-                            if (property.IsModified)
+                            if (property.IsModified && auditEntry.NewValues.GetType() != typeof(byte[]))
                             {
                                 auditEntry.OldValues[propertyName] = property.OriginalValue;
                                 auditEntry.NewValues[propertyName] = property.CurrentValue;

@@ -26,19 +26,11 @@ namespace MedRecordManager.Models
         public bool IsFlaged { get; set; }
     }
 
-    public class IcdCode
+       
+
+    public class Code
     {
-        public string Code { get; set; }
-        public string Description { get; set; }
-
-        public string ShortDescription { get; set; }
-
-    }
-
-   
-
-    public class CPTCode
-    {
+        public int Id { get; set; }
         public string CodeType { get; set; }
         public string CodeName { get; set; }
 
