@@ -18,6 +18,8 @@
         var idcRenderer;
         var cptRenderer;
         var verbage = 'I attest that I am not changing the material in the medical chart, but updating the codes to accurately represent the procedures, diagnosis, and documentation provided in the medical record.” and clicking accept logs this attestation and who was the logged in user for those changes to the code list.'        
+        var visitId = $("#codeVisitId").val();
+
         $(document).ready(function () {
 
             $(":input").change(function () { //triggers change in all input fields including text type
@@ -27,21 +29,20 @@
 
             IcdCodeGrid = $('#IcdCodeTable').grid({
                 primaryKey: 'id',
-                params: { visitId: $("#codeVisitId").val(), type: "Icd"},
+                params: { visitId: visitId, type: "Icd"},
                 inlineEditing: { mode: 'command'},
                 dataSource: '/Record/GetHistoryCode',
                 columns: [
                     { field: 'codeName', title: 'Code', editor: true },
-                    { field: 'description', title: 'Description' },
-                    { field: 'modifierCode', width: 200, title: 'Modifier', priority: 2, type: 'dropdown', editor: { dataSource: '/Record/GetModifierCode', valueField: 'id'  }, editField:'modifierCode'},
+                    { field: 'description', title: 'Description' },                 
                     //{ width: 56, renderer: idcRenderer },
                     //{ width: 100, tmpl: '<u class="gj-cursor-pointer"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></u>', events: { 'click': icdDelete } }
                 ],
                 pager: { limit: 10, sizes: [2, 5, 10, 20] },
             });
 
-            IcdCodeGrid.on('rowDataChanged', function (e, id, record) {
-                UpdateHistoryCode(record)
+            IcdCodeGrid.on('rowDataChanged', function (e, id, record) {     
+                UpdateHistoryCode(record)                          
             });
 
             IcdCodeGrid.on('rowRemoving', function (e, $row, id, record) {
@@ -51,15 +52,15 @@
             });
 
             CptCodeGrid = $('#CPTCodeTable').grid({
-                primaryKey: 'codeName',
-                params: { visitId: $("#codeVisitId").val(), type:"CPT"},
+                primaryKey: 'id',
+                params: { visitId: visitId, type:"CPT"},
                 inlineEditing: { mode: 'command'},
                 dataSource: '/Record/GetHistoryCode',
                 columns: [
                     { field: 'quantity', title: 'Quantity', editor: true },
                     { field: 'codeType', width: 150, title: 'CPT Type' },
                     { field: 'codeName', title: 'Code', editor: true },
-                    { field: 'modifierCode', width: 200, title: 'Modifier', priority: 2, type: 'dropdown', editor: { dataSource: '/Record/GetModifiers', valueField: 'id'  }, editField:'modifierCode'},
+                    { field: 'modifierCode', width: 100, title: 'Modifier', priority: 2, type: 'dropdown', editor: { dataSource: '/Record/GetModifiers', valueField: 'id'  }, editField:'modifierCode'},
                     { field: 'shortDescription', title: 'Description' },
                     { field: 'description', hidden: true },
                     //{ width: 56, renderer: cptRenderer },
@@ -87,18 +88,21 @@
             });
 
             $("#savePage").click(function () {
-                alert("The final save is not wired up yet. nothing will get saved.")
                 var id = $("#codeVisitId").val();
                 $.ajax({ url: '/Record/SaveChartCode', data: { visitId: id }, method: 'POST' })
                     .done(function () {
-                       alert('changes are saved successfully.')
+                        alert('changes are saved successfully.')
+                        unsaved = false;
+                        hideSave();
                     })
                     .fail(function () {
                         alert('Failed to save changes.');
                     });
             });
 
-            $('#upload').click(function(){
+            $('#upload').click(function () {
+                $('#fileuploadMsg').empty();
+                $('#preview').empty();
                 var input = $('#file')[0];
                 var files = input.files;
                 var formData = new FormData();
@@ -107,7 +111,7 @@
                     formData.append("files", files[i]);
                 }
 
-                formData.append("visitId", id);
+                formData.append("visitId", visitId);
 
                 // AJAX request
                 $.ajax({
@@ -124,7 +128,7 @@
                             else {
                                 // Show image preview
                                 $('#fileuploadMsg').empty().append("<div class='alert alert-success' role='alert'>File uploaded successfully see the preview. If it is ok, please close the dialog.</div >")
-                                $('#preview').empty().append("<img src='" + response + "' width='100' height='100' style='display: inline-block;'>");
+                                $('#preview').empty().append("<img src='" + response + "' width='100' height='100' style='display: inline-block;'><button type='button' class='btn btn - secondary' data-dismiss='modal'>Close</button>");
                                 $('.zoomer-image').attr('src', response);
                             }
                             unsaved = true;
@@ -141,11 +145,12 @@
                 var id = $("#codeVisitId").val();
                 var code = $('#icdCodeName').val();
                 $.ajax({
-                    url: '/Record/AddIcdCode',
+                    url: '/Record/AddHistoryCode',
                     type: 'post',
                     data: {
                         visitId: id,
-                        icdCode: code,
+                        code: code,
+                        codeType: "IcdCode",
                         action:"Add"
                     },
                     dataType: "json",
@@ -163,6 +168,38 @@
                 });
             })
 
+            $('#cptAddCode').on('click', function () {
+                var id = $("#codeVisitId").val();
+                var code = $('#cptCodeName').val();
+                var quan = $('#codeQuantity').val();
+                var mod = $('#modifierCode').val();
+                var type = $('#codeType').val();
+                $.ajax({
+                    url: '/Record/AddHistoryCode',
+                    type: 'post',
+                    data: {
+                        visitId: id,
+                        codeType: type,
+                        code: code,
+                        quantity: quan,
+                        modifier: mod,
+                        action: "Add"
+                        
+                    },
+                    dataType: "json",
+                    success: function () {
+                        $('#modalcptCode').modal('hide');
+                        $('body').removeClass('modal-open');
+                        $('.modal-backdrop').remove();
+                        CptCodeGrid.reload();
+                    },
+                    error: function (response) {
+                        $('#addcptMsg').empty().append("<div class='alert alert-danger' role='alert'>" + response.responseText + "</div>");
+                    }
+
+                });
+            })
+
             function DeleteHistoryCode(id) {
                 $.ajax({ url: '/Record/DeleteHistoryCode', data: { visitCodeHistoryId: id }, method: 'DELETE' })
                     .done(function () {
@@ -175,7 +212,8 @@
                     });
             }
 
-            function UpdateHistoryCode(record) {               
+            function UpdateHistoryCode(record) {  
+                alert(verbage);
                 // Clone the record in new object where you can format the data to format that is supported by the backend.
                 var data = $.extend(true, {}, record);
 
@@ -201,6 +239,14 @@
                     $('#savePage').prop('disabled', false);
                 }
                 
+            }
+
+            function hideSave() {
+                if (unsaved) {
+                    $('#globalmsg').hide();
+                    $('#savePage').prop('disabled', true);
+                }
+
             }
 
             if ($('#position').val() == 1) {
@@ -388,21 +434,19 @@
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
-            <div class="modal-body mx-3">
-              
+            <div class="modal-body mx-3">    
                     <div id="addIcdMsg"></div>
-          
-              
                 <div class="md-form mb-5">
-                    <i class="fas fa-user prefix grey-text"></i>
-                    <input type="text" id="icdCodeName" class="form-control validate">
-                    <label data-error="wrong" data-success="right" for="form34">Code name</label>
+                    <div class="form-group">
+                        <label data-error="wrong" data-success="right" for="icdCodeName">Code name</label>
+                        <input type="text" id="icdCodeName" class="form-control validate" name="icdCodeName">
+                    </div>
                 </div>
 
             </div>
             <div class="modal-footer d-flex justify-content-center">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                <button class="btn btn-primary" id="IcdAddCode">Add<i class="fas fa-paper-plane-o ml-1"></i></button>
+                <button class="btn btn-primary" id="IcdAddCode">Add</button>
             </div>
         </div>
     </div>
@@ -418,29 +462,44 @@
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
+
             <div class="modal-body mx-3">
-                <div class="md-form mb-5">
-                    <i class="fas fa-user prefix grey-text"></i>
-                    <input type="text" id="form34" class="form-control validate">
-                    <label data-error="wrong" data-success="right" for="form34">Code name</label>
+                <div id="addcptMsg"></div>
+                <div class="input-group mb-3">
+                    <div class="input-group-prepend">
+                        <label class="input-group-text" for="inputGroupSelect01">Code Type</label>
+                    </div>
+                    <select class="custom-select" id="codeType">
+                        <option selected>Choose...</option>
+                        <option value="CptCode">CPT</option>
+                        <option value="EM_CPTCode">EM</option>
+                    </select>
                 </div>
 
                 <div class="md-form mb-5">
-                    <i class="fas fa-envelope prefix grey-text"></i>
-                    <input type="email" id="form29" class="form-control validate">
-                    <label data-error="wrong" data-success="right" for="form29">Modifier Code</label>
+                    <div class="form-group">
+                        <label data-error="wrong" data-success="right" for="cptCodeName">Code name</label>
+                        <input type="text" id="cptCodeName" class="form-control validate" name="cptCodeName">
+                    </div>
                 </div>
 
                 <div class="md-form mb-5">
-                    <i class="fas fa-tag prefix grey-text"></i>
-                    <input type="text" id="form32" class="form-control validate">
-                    <label data-error="wrong" data-success="right" for="form32">Quantity</label>
+                    <div class="form-group">
+                        <label data-error="wrong" data-success="right" for="codeQuantity">Quantity</label>
+                        <input type="text" id="codeQuantity" class="form-control validate" name="codeQuantity">
+                    </div>
                 </div>
 
+                <div class="md-form mb-5">
+                    <div class="form-group">
+                        <label data-error="wrong" data-success="right" for="form29">Modifier Code</label>
+                        <input type="text" id="modifierCode" class="form-control validate" name="modifierCode">
+                    </div>
+                </div>
             </div>
             <div class="modal-footer d-flex justify-content-center">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                <button class="btn btn-primary">Add<i class="fas fa-paper-plane-o ml-1"></i></button>
+                <button class="btn btn-primary" id="cptAddCode">Add</button>
             </div>
         </div>
     </div>
