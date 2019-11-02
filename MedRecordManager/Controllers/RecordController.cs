@@ -178,7 +178,7 @@ namespace MedRecordManager.Controllers
                             VisitHistoryId = visitHistoryId,
                             CodeType = "EM_CPTCode",
                             Code = _urgentCareContext.Visit.Include(x => x.VisitProcCode).FirstOrDefault(x => x.VisitId == visit.VisitId).Emcode,
-                            Modifier = "N/A",
+                            Modifier = "20",
                             Quantity = 0,
                             ModifiedBy = HttpContext.User.Identity.Name,
                             ModifiedTime = DateTime.UtcNow,
@@ -356,8 +356,14 @@ namespace MedRecordManager.Controllers
 
         public async Task<IActionResult> GetClinics()
         {
-            var clinics = await  _urgentCareContext.ClinicProfile.Select(x => new { id = x.ClinicId, text = x.ClinicId }).ToListAsync();
-            return Json(clinics);
+            var records = await  _urgentCareContext.ClinicProfile.Select(x => new { id = x.ClinicId, text = x.ClinicId }).ToListAsync();
+            return Json(records);
+        }
+
+        public async Task<IActionResult> GetModifiers()
+        {
+            var records = await _urgentCareContext.Modifier.Select(x => new { id = x.ModifierCode, text = x.ModifierCode }).ToListAsync();
+            return Json(records);
         }
 
 
@@ -550,24 +556,24 @@ namespace MedRecordManager.Controllers
         }
 
        
-        [HttpGet]
-        public IActionResult GetIcdCode(int? page, int? limit, int visitId)
-        {
-            var total = 0;
-            var records = new List<Code>();
-            if(_urgentCareContext.Visit.Any(x=> x.VisitId == visitId))
-            {
-                var visitHistoryId = _urgentCareContext.Visit.Include(x => x.VisitHistory).FirstOrDefault(x => x.VisitId == visitId).VisitHistory.FirstOrDefault(x => !x.Saved).VisitHistoryId;
-                records = _urgentCareContext.VisitCodeHistory.Where(x => x.VisitHistoryId == visitHistoryId && x.CodeType == "IcdCode").Select(x => new Code
-                    {   Id = x.VisitCodeHistoryId,
-                        CodeName = x.Code
-                    }).ToList();
+        //[HttpGet]
+        //public IActionResult GetIcdCode(int? page, int? limit, int visitId)
+        //{
+        //    var total = 0;
+        //    var records = new List<Code>();
+        //    if(_urgentCareContext.Visit.Any(x=> x.VisitId == visitId))
+        //    {
+        //        var visitHistoryId = _urgentCareContext.Visit.Include(x => x.VisitHistory).FirstOrDefault(x => x.VisitId == visitId).VisitHistory.FirstOrDefault(x => !x.Saved).VisitHistoryId;
+        //        records = _urgentCareContext.VisitCodeHistory.Where(x => x.VisitHistoryId == visitHistoryId && x.CodeType == "IcdCode").Select(x => new Code
+        //            {   Id = x.VisitCodeHistoryId,
+        //                CodeName = x.Code
+        //            }).ToList();
                                
-                total = records.Count();
-            }
+        //        total = records.Count();
+        //    }
             
-            return Json(new { records, total });
-        }
+        //    return Json(new { records, total });
+        //}
 
         [HttpGet]
         public IActionResult GetHistoryCode(int? page, int? limit, int visitId, string type)
@@ -582,7 +588,7 @@ namespace MedRecordManager.Controllers
                 {
                     Id = x.VisitCodeHistoryId,
                     CodeName = x.Code,
-                    Modifier = x.Modifier,
+                    ModifierCode = x.Modifier,
                     CodeType = x.CodeType,
                     Quantity = x.Quantity.GetValueOrDefault(0)
 
@@ -593,13 +599,11 @@ namespace MedRecordManager.Controllers
             return Json(new { records, total });
         }
 
-        [HttpGet]
-        public IActionResult GetModifierCode()
+  
+        public async Task<IActionResult> GetModifierCode()
         {
-           
-                var records = _urgentCareContext.Modifier.Select(x=> new { id = x.ModifierCode, text=x.ModifierCode }).ToList();
-                return Json(records);
-
+            var records = await _urgentCareContext.Modifier.Select(x=> new { id = x.ModifierCode, text = x.ModifierCode }).ToListAsync();
+            return Json(records);
         }
         
         [HttpPost]
@@ -734,7 +738,7 @@ namespace MedRecordManager.Controllers
                 historyCode.Code = record.CodeName;
                 historyCode.ModifiedBy = HttpContext.User.Identity.Name;
                 historyCode.ModifiedTime = DateTime.UtcNow;
-                historyCode.Modifier = record.Modifier;
+                historyCode.Modifier = record.ModifierCode;
                 historyCode.Quantity = record.Quantity;
             }
             
