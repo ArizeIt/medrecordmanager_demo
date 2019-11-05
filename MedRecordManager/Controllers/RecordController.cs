@@ -1,10 +1,10 @@
 using System;
 using System.Collections.Generic;
+using System.Drawing;
+using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
-using System.Net.Http.Headers;
-using System.Text;
 using System.Threading.Tasks;
 using MedRecordManager.Extension;
 using MedRecordManager.Models;
@@ -19,7 +19,6 @@ using Microsoft.EntityFrameworkCore;
 using PVAMCommon;
 using UrgentCareData;
 using UrgentCareData.Models;
-
 
 namespace MedRecordManager.Controllers
 {
@@ -611,20 +610,33 @@ namespace MedRecordManager.Controllers
         public IActionResult GetHistoryCode(int? page, int? limit, int visitId, string type)
         {
             var total = 0;
-            var records = new List<Code>();
-           
+            IEnumerable<Code> records = new List<Code>();        
             if (_urgentCareContext.Visit.Any(x => x.VisitId == visitId))
             {
                 var visitHistoryId = _urgentCareContext.Visit.Include(x => x.VisitHistory).FirstOrDefault(x => x.VisitId == visitId).VisitHistory.FirstOrDefault(x => !x.Saved).VisitHistoryId;
-                records = _urgentCareContext.VisitCodeHistory.Where(x => x.VisitHistoryId == visitHistoryId && x.CodeType.Contains(type)).Select(x => new Code
-                {
-                    Id = x.VisitCodeHistoryId,
-                    CodeName = x.Code,
-                    ModifierCode = x.Modifier,
-                    CodeType = x.CodeType,
-                    Quantity = x.Quantity.GetValueOrDefault(0)
-
+                var history = _urgentCareContext.VisitCodeHistory
+                    .Where(x => x.VisitHistoryId == visitHistoryId && x.CodeType.Contains(type)).Select(x => new Code
+                    {
+                        Id = x.VisitCodeHistoryId,
+                        CodeName = x.Code,
+                        ModifierCode = x.Modifier,
+                        CodeType = x.CodeType,
+                        Quantity = x.Quantity.GetValueOrDefault(0),
+                        ShortDescription = ""
                 }).ToList();
+
+                records = from record in history
+                            join lookupCode in _urgentCareContext.CptCodeLookup on record.CodeName equals lookupCode.Code into gj
+                            from subCode in gj.DefaultIfEmpty()
+                            select new Code
+                            {
+                                Id = record.Id,
+                                CodeName = record.CodeName,
+                                ModifierCode = record.ModifierCode,
+                                CodeType = record.CodeType,
+                                Quantity = record.Quantity,
+                                ShortDescription = subCode?.ShortDescription ?? string.Empty
+                            };
                 total = records.Count();
             }
 
@@ -999,8 +1011,42 @@ namespace MedRecordManager.Controllers
                   
             }
             return 0; ;
-            }
+        }
 
-        
+        //private void ConvertTiff2Jpeg(byte[] source, string jpegFileName)
+        //{
+        //    var stream = new MemoryStream(source);           
+        //    var img = Image.FromStream(stream);
+        //    var outputbyte = new byte[0];
+        //    var count = img.GetFrameCount(FrameDimension.Page);
+        //    for (int i = 0; i < count; i++)
+        //    {
+        //        using (var partialStream = new MemoryStream())
+        //        {
+        //            img.SelectActiveFrame(FrameDimension.Page, i);
+        //            img.Save(partialStream, ImageFormat.Jpeg);
+        //            partialStream.ToArray();
+        //        }
+        //    }
+            
+               
+        //    int imageWidth = img.Width;
+        //    int imageHeight = img.Height * count;
+        //    Bitmap joinedBitmap = new Bitmap(imageWidth, imageHeight);
+        //    Graphics graphics = Graphics.FromImage(joinedBitmap);
+        //    for (int i = 0; i < count; i++)
+        //    {
+        //        var partImageFileName = jpegFileName + ".part" + i + ".jpg";
+        //        Image partImage = Image.FromFile(partImageFileName);
+        //        graphics.DrawImage(partImage, 0, partImage.Height * i, partImage.Width, partImage.Height);
+        //        partImage.Dispose();
+        //    }
+
+        //    joinedBitmap.Save(jpegFileName);
+        //    graphics.Dispose();
+        //    joinedBitmap.Dispose();
+        //    img.Dispose();
+        //}
+            //return jpegFileName;
     }
 }

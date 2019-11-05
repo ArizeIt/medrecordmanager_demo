@@ -28,6 +28,7 @@ namespace UrgentCareData
         public virtual DbSet<ChartDocumentHistory> ChartDocumentHistory { get; set; }
         public virtual DbSet<ChartImportLog> ChartImportLog { get; set; }
         public virtual DbSet<ClinicProfile> ClinicProfile { get; set; }
+        public virtual DbSet<CptCodeLookup> CptCodeLookup { get; set; }
         public virtual DbSet<FinClass> FinClass { get; set; }
         public virtual DbSet<GuarantorImportLog> GuarantorImportLog { get; set; }
         public virtual DbSet<GuarantorInformation> GuarantorInformation { get; set; }
@@ -264,6 +265,25 @@ namespace UrgentCareData
                     .HasMaxLength(150)
                     .IsUnicode(false);
             });
+
+            modelBuilder.Entity<CptCodeLookup>(entity =>
+            {
+                entity.HasKey(e => e.Code);
+
+                entity.Property(e => e.Code)
+                    .HasMaxLength(255)
+                    .ValueGeneratedNever();
+
+                entity.Property(e => e.ShortDescription)
+                    .HasColumnName("ShortDescription")
+                    .HasMaxLength(255);
+
+                entity.Property(e => e.LongDescription)
+                    .HasColumnName("LongDescription")
+                    .HasMaxLength(500);
+
+            });
+
 
             modelBuilder.Entity<FinClass>(entity =>
             {
