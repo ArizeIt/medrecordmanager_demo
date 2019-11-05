@@ -21,7 +21,7 @@ namespace MedRecordManager.Models.DailyRecord
 
         public Patient PaitentInfo{ get; set; }
 
-        public IEnumerable<Document> PatientDoc { get; set; }
+        public IEnumerable<FileDocument> PatientDoc { get; set; }
         public IList<SelectListItem> Relationship { get; set; }
 
     }
@@ -116,7 +116,7 @@ namespace MedRecordManager.Models.DailyRecord
        
     }
 
-    public class Document
+    public class FileDocument
     {
         public string FileName { get; set; }
 

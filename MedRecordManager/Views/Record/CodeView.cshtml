@@ -304,24 +304,37 @@
             <div class="panel-heading"><h3>Patient Chart</h3></div>
             <div class="panel-body">
                 <div class="btn-toolbar" role="toolbar" aria-label="Toolbar with button groups">
-                    <div class="btn-group" role="group" aria-label="navigation group">
-                        <button type="button" class="btn btn-primary" id="btnPrint">Print</button>
-                    </div>
+                    @if (!Model.Chart.ChartType.Contains("tif"))
+                    {
+                        <div class="btn-group" role="group" aria-label="navigation group">
+                            <button type="button" class="btn btn-primary" id="btnPrint">Print</button>
+                        </div>
+                    }
+
                     <div class="btn-group" role="group" aria-label="fucntion group">
                         <button type="button" class="btn btn-info" data-toggle="modal" data-target="#uploadModal">Replace</button>
                     </div>
                 </div>
-                <div class="viewer text-center" style="height:800px; width:600px;" id="chartviewer">
-                    @{ 
-                            
-                        var base64 = Convert.ToBase64String(Model.Chart != null? Model.Chart.fileBinary: new byte[64]);
-                       
-                        var imgsrc = string.Format("data:image/jpeg;base64,{0}", base64);
+
+                @{
+
+                    var base64 = Convert.ToBase64String(Model.Chart != null ? Model.Chart.FileBinary : new byte[64]);
+
+                    @if (Model.Chart.ChartType.Contains("tif"))
+                    {
+                        var docSrc = string.Format("data:application/pdf;base64,{0}", base64);
+
+                        <object id="pdf" height="800" width="600" type="application/pdf" data="@docSrc"></object>
                     }
+                    else
+                    {
+                        var imgsrc = string.Format("data:image/jpeg;base64,{0}", base64);
+                        <div class="viewer text-center" style="height:800px; width:600px;" id="chartviewer">
+                            <img src="@imgsrc" alt="" class="img-thumbnail img-fluid" id="chartimage">
+                        </div>
+                    }
+                }
 
-                    <img src="@imgsrc" alt="" class="img-thumbnail img-fluid" id="chartimage">
-
-                </div>
             </div>
         </div>
     </div>

@@ -20,8 +20,8 @@ namespace MedRecordManager.Models
     {
        
         public string ChartName { get; set; }
-
-        public byte[] fileBinary { get; set; }
+        public string ChartType { get; set; }
+        public byte[] FileBinary { get; set; }
 
         public bool IsFlaged { get; set; }
     }
