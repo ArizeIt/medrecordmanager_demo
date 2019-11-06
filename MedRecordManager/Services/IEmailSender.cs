@@ -8,5 +8,7 @@ namespace MedRecordManager.Services
     public interface IEmailSender
     {
         Task SendEmailAsync(string email, string subject, string message);
+
+        Task SendEmailAsync(string fromEmail, string email, string subject, string message);
     }
 }

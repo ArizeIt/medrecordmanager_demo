@@ -13,7 +13,10 @@ namespace MedRecordManager.Models
         public int Position { get; set; }
 
         public int Total { get; set; }
-       
+        
+        public string PhysicianName { get; set; }
+
+        public string PhysicanEmail { get; set; }
     }
 
     public class ChartVm

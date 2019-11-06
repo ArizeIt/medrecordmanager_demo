@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <title>
-          @ViewData["Title"] - MedRecordManager""
+        @ViewData["Title"] - MedRecordManager""
     </title>
     <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
     <!--[if lt IE 9]>
@@ -34,7 +34,10 @@
         <link rel="stylesheet" href="~/lib/select2/dist/css/select2.min.css" />
         <link rel="stylesheet" href="~/lib/Zoomer/jquery.fs.zoomer.css" />
     </environment>
-
+    @if (IsSectionDefined("AddToHead"))
+    {
+        @RenderSection("AddToHead", required: false)
+    }
 </head>
 <body class="hold-transition skin-blue sidebar-mini">
     <div class="wrapper">

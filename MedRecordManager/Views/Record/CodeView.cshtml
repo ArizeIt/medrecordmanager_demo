@@ -1,7 +1,12 @@
 ﻿@model CodeChartVm
 
+@section AddtoHead{ 
+    <link href="~/lib/bootstrap-toggle/css/bootstrap-toggle.min.css" rel="stylesheet"  type="text/css"/>
+}
+
 @section scripts{
     <script src="~/lib/printThis/printThis.js"></script>
+    <script src="~/lib/bootstrap-toggle/js/bootstrap-toggle.min.js"></script>
     <script type="text/javascript">
         var unsaved = false;
 
@@ -54,14 +59,15 @@
             CptCodeGrid = $('#CPTCodeTable').grid({
                 primaryKey: 'id',
                 params: { visitId: visitId, type:"CPT"},
-                inlineEditing: { mode: 'command'},
+                inlineEditing: { mode: 'command' },
+                resizableColumns: true,
                 dataSource: '/Record/GetHistoryCode',
                 columns: [
-                    { field: 'quantity', title: 'Quantity', editor: true },
-                    { field: 'codeType', width: 150, title: 'CPT Type' },
-                    { field: 'codeName', title: 'Code', editor: true },
-                    { field: 'modifierCode', width: 100, title: 'Modifier', priority: 2, type: 'dropdown', editor: { dataSource: '/Record/GetModifiers', valueField: 'id'  }, editField:'modifierCode'},
-                    { field: 'shortDescription', title: 'Description' },
+                    { field: 'quantity', title: 'Quantity', width: 75, minWidth: 75, priority: 1, editor: true },
+                    { field: 'codeType', width: 105, minWidth: 105, priority: 2, title: 'CPT Type' },
+                    { field: 'codeName', title: 'Code', width: 85, minWidth: 85, priority: 3, editor: true },
+                    { field: 'modifierCode', width:100, minWidth: 100, priority:4, title: 'Modifier', priority: 2, type: 'dropdown', editor: { dataSource: '/Record/GetModifiers', valueField: 'id' }, editField: 'modifierCode' },
+                    { field: 'shortDescription', minWidth: 100, priority: 5, title: 'Description' },
                     { field: 'description', hidden: true },
                     //{ width: 56, renderer: cptRenderer },
                     //{ width: 100, tmpl: '<u class="gj-cursor-pointer"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></u>', events: { 'click': icdDelete } }
@@ -89,11 +95,22 @@
 
             $("#savePage").click(function () {
                 var id = $("#codeVisitId").val();
-                $.ajax({ url: '/Record/SaveChartCode', data: { visitId: id }, method: 'POST' })
+                var pos = $('#position').val();
+                var flag = $('#chkFlag').is(':checked');
+                $.ajax(
+                    {
+                        url: '/Record/SaveChartCode',
+                        data: {
+                            visitId: id,
+                            flaged: flag
+                        },
+                        method: 'POST'
+                    })
                     .done(function () {
                         alert('changes are saved successfully.')
                         unsaved = false;
                         hideSave();
+                        window.location.replace('@Url.Action("loadcode","Record")?position=' + pos);
                     })
                     .fail(function () {
                         alert('Failed to save changes.');
@@ -200,6 +217,41 @@
                 });
             })
 
+            $('#modalContactForm').on('shown.bs.modal', function (e) {
+                $.ajax({ url: '/Record/GetCodeChange', data: { visitCodeHistoryId: id }, method: 'POST' })
+                    .done(function () {
+                        
+                    })
+            });
+
+            $('#send').on('click', function () {
+                if (confirm("By pressing send button an email contains changes will be sent to the physican, are you sure to do this?")) {
+                    var from = $('#fromemail').val();
+                    var to = $('#toemail').val();
+                    var subject = $('#subject').val();
+                    var message = $('#message').val();
+                    $.ajax(
+                        {
+                            url: '/Record/SendNotification',
+                            data:
+                            {
+                                fromEmail: from,
+                                toEmail: to,
+                                subject: subject,
+                                body: message
+                            },
+                            method: 'POST'
+                        })
+                        .done(function () {
+                            
+                        })
+                        .fail(function () {
+                            alert('Failed to send.');
+                        });
+                    
+                }
+            });
+
             function DeleteHistoryCode(id) {
                 $.ajax({ url: '/Record/DeleteHistoryCode', data: { visitCodeHistoryId: id }, method: 'DELETE' })
                     .done(function () {
@@ -284,6 +336,7 @@
 
                 @Html.ActionLink("Home", "review", "record", null, new { @class = "btn btn-primary" })
 
+                
             </div>
         </div>
     </div>
@@ -293,7 +346,9 @@
         <input type="hidden" id="position" value=@Model.Position>
         <div class="col-lg-4">
             You are viewing @Model.Position of @Model.Total Records. VisitId : @Model.VisitId &nbsp;
-            <label class="checkbox-inline"><input type="checkbox" checked="@Model.Chart.IsFlaged" />Flaged</label>
+            <label class="checkbox-inline">
+                <input type="checkbox" checked="@Model.Chart.IsFlaged" data-toggle="toggle" id="chkFlag" />Flaged
+            </label>
         </div>
 
     </div>
@@ -320,23 +375,24 @@
 
                     var base64 = Convert.ToBase64String(Model.Chart != null ? Model.Chart.FileBinary : new byte[64]);
 
-                    @if (Model.Chart.ChartType.Contains("tif"))
+                    @if (Model.Chart.ChartType.Contains("tif") || Model.Chart.ChartType.Contains("pdf"))
                     {
                         var docSrc = string.Format("data:application/pdf;base64,{0}", base64);
-
-                        <object id="pdf" height="800" width="600" type="application/pdf" data="@docSrc"></object>
-                    }
-                    else
-                    {
+                        <div class='embed-responsive' style='padding-bottom:150%'>
+                            <object id="pdf"  height='800' type="application/pdf" data="@docSrc"></object>
+                        </div>
+                     }
+                     else
+                     {
                         var imgsrc = string.Format("data:image/jpeg;base64,{0}", base64);
                         <div class="viewer text-center" style="height:800px; width:600px;" id="chartviewer">
                             <img src="@imgsrc" alt="" class="img-thumbnail img-fluid" id="chartimage">
                         </div>
-                    }
+                     }
                 }
 
-            </div>
-        </div>
+                        </div>
+                    </div>
     </div>
     <div class="col-lg-7">
         <div class="panel panel-default">
@@ -406,32 +462,36 @@
             </div>
             <div class="modal-body mx-3">
                 <div class="md-form mb-5">
-                    <i class="fas fa-user prefix grey-text"></i>
-                    <input type="text" id="form34" class="form-control validate">
-                    <label data-error="wrong" data-success="right" for="form34">Your name</label>
+                    <div class="form-group">
+                        <label data-error="wrong" data-success="right" for="fromemail">Your name</label>
+                        <input type="text" id="fromemail" class="form-control validate" value="@User.Identity.Name">
+                    </div>
                 </div>
 
                 <div class="md-form mb-5">
-                    <i class="fas fa-envelope prefix grey-text"></i>
-                    <input type="email" id="form29" class="form-control validate">
-                    <label data-error="wrong" data-success="right" for="form29">Your email</label>
+                    <div class="form-group">
+                        <label data-error="wrong" data-success="right" for="form29">Physician email</label>
+                        <input type="email" id="toemail" class="form-control validate" value="@Model.PhysicanEmail">
+                    </div>
                 </div>
-
                 <div class="md-form mb-5">
-                    <i class="fas fa-tag prefix grey-text"></i>
-                    <input type="text" id="form32" class="form-control validate">
-                    <label data-error="wrong" data-success="right" for="form32">Subject</label>
+                    <div class="form-group">
+                        <label data-error="wrong" data-success="right" for="subject">Subject</label>
+                        <input type="text" id="subject" class="form-control validate">
+                    </div>
                 </div>
 
                 <div class="md-form">
-                    <i class="fas fa-pencil prefix grey-text"></i>
-                    <textarea type="text" id="form8" class="md-textarea form-control" rows="4"></textarea>
-                    <label data-error="wrong" data-success="right" for="form8">Your message</label>
-                </div>
+                    <div class="form-group">
+                        <label data-error="wrong" data-success="right" for="message">Your message</label>
+                        <textarea type="text" id="message" class="md-textarea form-control" rows="4"></textarea>
+                    </div>
+                 </div>
 
             </div>
             <div class="modal-footer d-flex justify-content-center">
-                <button class="btn btn-unique">Send <i class="fas fa-paper-plane-o ml-1"></i></button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button class="btn btn-primary" id="send">Send</button>
             </div>
         </div>
     </div>

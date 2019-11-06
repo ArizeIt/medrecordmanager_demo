@@ -34,10 +34,12 @@ namespace MedRecordManager.Controllers
     {
         private readonly UrgentCareContext _urgentCareContext;
         private readonly IViewRenderService _viewRenderService;
-        public RecordController(UrgentCareContext urgentData, IViewRenderService viewRenderService)
+        private readonly IEmailSender _emailSrv;
+        public RecordController(UrgentCareContext urgentData, IViewRenderService viewRenderService, IEmailSender mailerSrv)
         {
             _urgentCareContext = urgentData;
             _viewRenderService = viewRenderService;
+            _emailSrv = mailerSrv;
         }
         public IActionResult Review()
         {
@@ -120,19 +122,22 @@ namespace MedRecordManager.Controllers
             var vm = new CodeChartVm();
             if (_urgentCareContext.Visit.Any(x => x.Flagged))
             {
-                var records = _urgentCareContext.Visit.Include(x => x.VisitProcCode).Include(x => x.Chart).ThenInclude(c => c.ChartDocument).Where(x => x.Flagged);
-                var visit = records.Skip(position).Take(1).FirstOrDefault();
+                var records = _urgentCareContext.Visit.Include(x => x.VisitProcCode).Include(x => x.Physican).Include(x => x.Chart).ThenInclude(c => c.ChartDocument).Where(x => x.Flagged);
+                var visit = (Visit)records.Skip(position).Take(1).FirstOrDefault();
 
                 if (visit.Chart.ChartDocument.Any())
                 {
                     vm.VisitId = visit.VisitId;
+                    vm.PhysicanEmail = visit.Physican.Email;
+                    vm.PhysicianName = visit.Physican.DisplayName; 
                     vm.Chart = new ChartVm
                     {
                         ChartName = visit.Chart.ChartDocument.FirstOrDefault().FileName,
                         FileBinary = visit.Chart.ChartDocument.FirstOrDefault().DocumentImage,
                         IsFlaged = true,
                         ChartType = System.IO.Path.GetExtension(visit.Chart.ChartDocument.FirstOrDefault().FileName)
-                };
+                        
+                    };
 
                     
                     if (vm.Chart.ChartType.Contains("tif"))
@@ -204,8 +209,16 @@ namespace MedRecordManager.Controllers
 
                             if (result.Count() == 2)
                             {
-                                emQuantity = short.Parse(result[0]);
-                                em = result[1];
+                                if(result[0].Length == 5)
+                                {
+                                    emModifier = result[1];
+                                    em = result[0];
+                                }
+                                if(result[1].Length == 5)
+                                {
+                                    emQuantity = short.Parse(result[0]);
+                                    em = result[1];
+                                }
                             }
 
                             if (result.Count() == 3)
@@ -815,7 +828,7 @@ namespace MedRecordManager.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> SaveChartCode(int visitId)
+        public async Task<IActionResult> SaveChartCode(int visitId, bool flaged)
         {
             if (visitId > 0)
             {
@@ -823,9 +836,10 @@ namespace MedRecordManager.Controllers
                 var visitHistory = visit.VisitHistory.First(x => !x.Saved);
                 var visitHistoryCode = _urgentCareContext.VisitCodeHistory.Where(x => x.VisitHistoryId == visitHistory.VisitHistoryId && x.Action != "Saved");
                 var document = visit.Chart.ChartDocument.FirstOrDefault();
-                var visitHistoryDocument = _urgentCareContext.ChartDocumentHistory.FirstOrDefault(x => x.VisitHistoryId == visitHistory.VisitHistoryId);
+                var visitHistoryDocument = _urgentCareContext.ChartDocumentHistory.FirstOrDefault(x => x.VisitHistoryId == visitHistory.VisitHistoryId && x.IsTemp);
                 var oldProcCodes = _urgentCareContext.VisitProcCode.Where(x => x.VisitId == visitId).ToArray();
-
+                var updatedDocName = string.Empty;
+                var UpdatedDocImage = new byte[0];
 
                 var newIcdCodes = _urgentCareContext.VisitCodeHistory.Where(x => x.VisitHistoryId == visitHistory.VisitHistoryId && x.CodeType == "IcdCode" && x.Action != "Modified").Select(x => x.Code).ToList();
                 var newProcCodes = _urgentCareContext.VisitCodeHistory.Where(x => x.VisitHistoryId == visitHistory.VisitHistoryId && x.CodeType == "CPTCode" && x.Action != "Modified").ToList();
@@ -841,8 +855,8 @@ namespace MedRecordManager.Controllers
 
                 if (visitHistoryDocument != null)
                 {
-                    var updatedDocName = visitHistoryDocument.FileName;
-                    var UpdatedDocImage = visitHistoryDocument.ChartImage;
+                    updatedDocName = visitHistoryDocument.FileName;
+                    UpdatedDocImage = visitHistoryDocument.ChartImage;
                     visitHistoryDocument.FileName = document.FileName;
                     visitHistoryDocument.ChartImage = document.DocumentImage;
                     visitHistoryDocument.IsTemp = false;
@@ -929,14 +943,12 @@ namespace MedRecordManager.Controllers
                 visit.Emcode = fullEmcode;
                 visit.ProcCodes = fullProcCode;
                 visit.ProcQty = newProcCodes.Count();
+                visit.Flagged = flaged;
 
                 if (visitHistoryDocument != null)
                 {
-                    var updatedDocName = visitHistoryDocument.FileName;
-                    var UpdatedDocImage = visitHistoryDocument.ChartImage;
                     document.FileName = updatedDocName;
                     document.DocumentImage = UpdatedDocImage;
-
                 }
 
 
@@ -952,17 +964,26 @@ namespace MedRecordManager.Controllers
 
                 return Json(new { sucess = true });
             }
+
             return Json(new { result = false });
         }
 
         [HttpPost]
-        public IActionResult SendMessage()
+        public async Task<IActionResult> SendNotification(string fromEmail, string toEmail, string subject, string body)
         {
-            var config = _urgentCareContext.ProgramConfig.First();
+            try
+            {
+                await _emailSrv.SendEmailAsync(fromEmail, toEmail, subject, body);
+                return Json(new { sucess = true });
+            }
+            catch(Exception ex)
+            {
+                ex.ToString();
+            }
 
-            //  var mailer = new Email(config.Smtpserver, int.Parse(config.Smtpport), config.Smtpusername, config.Smtppassword);
-            return Json(new { sucess = true });
+            return Json(new { sucess = false });
         }
+
 
         private IEnumerable<SelectListItem> GetAvaliableOfficeKeys()
         {
@@ -989,7 +1010,6 @@ namespace MedRecordManager.Controllers
             }
             return result;
         }
-
 
         private int InitiatHistory(int visitId)
         {
@@ -1026,6 +1046,7 @@ namespace MedRecordManager.Controllers
             return 0; ;
         }
 
+        
         private void ConvertTiff2Jpeg(byte[] source, string jpegFileName)
         {
             var stream = new MemoryStream(source);
@@ -1061,7 +1082,8 @@ namespace MedRecordManager.Controllers
             img.Dispose();
         }
 
-        public byte[] CreatePDF(byte[] source)
+
+        private byte[] CreatePDF(byte[] source)
         {
             var baos = new ByteArrayOutputStream();
             var pdfDoc = new PdfDocument(new PdfWriter(baos));
