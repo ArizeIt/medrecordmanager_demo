@@ -95,7 +95,7 @@
 
             $("#savePage").click(function () {
                 var id = $("#codeVisitId").val();
-                var pos = $('#position').val();
+                var pos = parseInt($('#position').val(), 10) - 1 ;
                 var flag = $('#chkFlag').is(':checked');
                 $.ajax(
                     {
@@ -107,7 +107,7 @@
                         method: 'POST'
                     })
                     .done(function () {
-                        alert('changes are saved successfully.')
+                        alert('changes are saved successfully. Click ok to refresh the record.')
                         unsaved = false;
                         hideSave();
                         window.location.replace('@Url.Action("loadcode","Record")?position=' + pos);

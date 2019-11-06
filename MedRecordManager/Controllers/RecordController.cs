@@ -22,6 +22,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json.Linq;
 using PVAMCommon;
 using UrgentCareData;
 using UrgentCareData.Models;
@@ -123,7 +124,7 @@ namespace MedRecordManager.Controllers
             if (_urgentCareContext.Visit.Any(x => x.Flagged))
             {
                 var records = _urgentCareContext.Visit.Include(x => x.VisitProcCode).Include(x => x.Physican).Include(x => x.Chart).ThenInclude(c => c.ChartDocument).Where(x => x.Flagged);
-                var visit = (Visit)records.Skip(position).Take(1).FirstOrDefault();
+                var visit = records.Skip(position).Take(1).FirstOrDefault();
 
                 if (visit.Chart.ChartDocument.Any())
                 {
@@ -176,16 +177,19 @@ namespace MedRecordManager.Controllers
                         });
                     }
 
+                    
                     var oriCpt = _urgentCareContext.Visit.Include(x => x.VisitProcCode).FirstOrDefault(x => x.VisitId == visit.VisitId).VisitProcCode.ToList();
+
                     foreach (var cpt in oriCpt)
                     {
+                        Utility.ParseCptCode(cpt.ProcCode, out string cptCode, out int cptQuantity, out string cptModifier);
                         var codeModifier = cpt.ProcCode.Split().ToList();
                         _urgentCareContext.VisitCodeHistory.Add(new VisitCodeHistory
                         {
                             VisitHistoryId = visitHistoryId,
                             CodeType = "CPTCode",
-                            Code = codeModifier[0],
-                            Modifier = codeModifier.Count() > 1 ? codeModifier[1] : "N/A",
+                            Code = cptCode,
+                            Modifier = cptModifier,
                             Quantity = cpt.Quantity.GetValueOrDefault(),
                             ModifiedBy = HttpContext.User.Identity.Name,
                             ModifiedTime = DateTime.UtcNow,
@@ -193,43 +197,10 @@ namespace MedRecordManager.Controllers
                         });
                     }
 
-                    var emQuantity = 0;
-                    var em = string.Empty;
-                    var emModifier = "N/A";
                     var emcode = _urgentCareContext.Visit.Include(x => x.VisitProcCode).FirstOrDefault(x => x.VisitId == visit.VisitId).Emcode;
-                    if (!string.IsNullOrEmpty(emcode))
-                    {
-                        if (!emcode.Contains(','))
-                        {
-                            em = emcode;
-                        }
-                        else
-                        {
-                            var result = emcode.Split(',');
 
-                            if (result.Count() == 2)
-                            {
-                                if(result[0].Length == 5)
-                                {
-                                    emModifier = result[1];
-                                    em = result[0];
-                                }
-                                if(result[1].Length == 5)
-                                {
-                                    emQuantity = short.Parse(result[0]);
-                                    em = result[1];
-                                }
-                            }
-
-                            if (result.Count() == 3)
-                            {
-                                emQuantity = short.Parse(result[0]);
-                                em = result[1];
-                                emModifier = result[2];
-                            }
-                        }
-                    }
-
+                    Utility.ParseCptCode(emcode,  out string em, out int emQuantity, out string emModifier);
+                    
                     _urgentCareContext.VisitCodeHistory.Add(new VisitCodeHistory
                     {
                         VisitHistoryId = visitHistoryId,
@@ -612,28 +583,10 @@ namespace MedRecordManager.Controllers
 
         }
 
-
-        //[HttpGet]
-        //public IActionResult GetIcdCode(int? page, int? limit, int visitId)
-        //{
-        //    var total = 0;
-        //    var records = new List<Code>();
-        //    if(_urgentCareContext.Visit.Any(x=> x.VisitId == visitId))
-        //    {
-        //        var visitHistoryId = _urgentCareContext.Visit.Include(x => x.VisitHistory).FirstOrDefault(x => x.VisitId == visitId).VisitHistory.FirstOrDefault(x => !x.Saved).VisitHistoryId;
-        //        records = _urgentCareContext.VisitCodeHistory.Where(x => x.VisitHistoryId == visitHistoryId && x.CodeType == "IcdCode").Select(x => new Code
-        //            {   Id = x.VisitCodeHistoryId,
-        //                CodeName = x.Code
-        //            }).ToList();
-
-        //        total = records.Count();
-        //    }
-
-        //    return Json(new { records, total });
-        //}
+               
 
         [HttpGet]
-        public IActionResult GetHistoryCode(int? page, int? limit, int visitId, string type)
+        public async Task<IActionResult> GetHistoryCode(int? page, int? limit, int visitId, string type)
         {
             var total = 0;
             IEnumerable<Code> records = new List<Code>();
@@ -663,7 +616,34 @@ namespace MedRecordManager.Controllers
                               Quantity = record.Quantity,
                               ShortDescription = subCode?.ShortDescription ?? string.Empty
                           };
+                records = records.ToList();
                 total = records.Count();
+            }
+
+            if(type =="Icd")
+            {
+                using (var webClient = new HttpClient())
+                {
+                    var requestUri = new Uri("https://clinicaltables.nlm.nih.gov/api/icd10cm/v3/search?");
+                    //webClient.BaseAddress = new Uri("https://clinicaltables.nlm.nih.gov/api/icd10cm/v3/search?");
+                    
+                    webClient.DefaultRequestHeaders.Accept.Clear();
+
+                    foreach(var icd in records)
+                    {
+                        var querystring = $"terms={icd.CodeName}";
+
+                        var response = await webClient.PostAsync(requestUri + querystring, null);
+
+                        var returnjson = await response.Content.ReadAsStringAsync();
+                        var obj = JArray.Parse(returnjson);
+                        var output= obj[3][0][1].ToString();
+                        records.FirstOrDefault(x=>x.Id == icd.Id).Description = output;
+                    }
+   
+
+                }
+
             }
 
             return Json(new { records, total });
@@ -984,7 +964,7 @@ namespace MedRecordManager.Controllers
             return Json(new { sucess = false });
         }
 
-
+        
         private IEnumerable<SelectListItem> GetAvaliableOfficeKeys()
         {
             return _urgentCareContext.ProgramConfig.Where(x => !x.AmdSync).DistinctBy(x => x.AmdofficeKey)
