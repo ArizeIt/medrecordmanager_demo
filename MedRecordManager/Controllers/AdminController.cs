@@ -324,6 +324,26 @@ namespace MedRecordManager.Controllers
             return getMapedPh(officeKey);
         }
 
+        [HttpGet]
+
+        public IActionResult CodeReviewRule()
+        {
+            var ruleModel = new CodeReviewRule
+            {
+                RuleList = new List<RuleItem>
+                {
+                    new RuleItem
+                    {
+                        RuleName ="Test Rule Item",
+                        Enabled = true,
+                        Description = "there is nothing yet"
+                        
+                    }
+                }
+            };
+            return View("CodeReviewRule", ruleModel);
+        }
+
         private async Task<IList<SelectListItem>> GetAmdProviderList(string officeKey)
         {
             int.TryParse(officeKey, out int numOfficeKey);

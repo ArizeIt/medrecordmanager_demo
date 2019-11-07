@@ -3,8 +3,15 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace MedRecordManager.Models.RuleDefs
+namespace MedRecordManager.Models
 {
+    public class CodeReviewRule
+    {
+        public IEnumerable<RuleItem> RuleList { get; set; }
+
+        public RuleDefination RuleQuery { get; set; }
+    }
+
     public class RuleItem
     {
         public int Id { get; set; }
@@ -16,5 +23,10 @@ namespace MedRecordManager.Models.RuleDefs
         public bool Enabled { get; set; }
 
         public string Defination { get; set; }
+    }
+
+    public class RuleDefination
+    {
+
     }
 }

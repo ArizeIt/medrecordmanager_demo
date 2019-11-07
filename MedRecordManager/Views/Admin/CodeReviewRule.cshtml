@@ -1,0 +1,197 @@
+﻿@model CodeReviewRule
+
+@section AddtoHead{
+    <link href="~/lib/bootstrap-toggle/css/bootstrap-toggle.min.css" rel="stylesheet" type="text/css" />
+}
+
+@section scripts{
+    <script src="~/lib/bootstrap-toggle/js/bootstrap-toggle.min.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $('.btnDeleteRule').on('click', function () {
+                var ruleId = $(this).attr('name');
+                alert(ruleId);
+            });
+
+            var regex = /^(.*)(\d)+$/i;
+            var cindex = 1;
+
+            $("span.tr_clone_add").on('click', function () {
+                var $tr = $(this).closest('.tr_clone');
+                var $clone = $tr.clone(true);
+                cindex++;
+                $clone.find(':text').val('');
+                $clone.attr('id', 'id' + (cindex)); //update row id if required
+                //update ids of elements in row
+                $clone.find("*").each(function () {
+                    var id = this.id || "";
+                    var match = id.match(regex) || [];
+                    if (match.length == 3) {
+                        this.id = match[1] + (cindex);
+                    }
+                });
+                $tr.after($clone);
+            });
+
+            $('span.tr_clone_remove').on('click', function () {
+                var clone = $(this).closest('.tr_clone');
+                var rowCount =  $('#ruleDetail tr').length;
+                if (rowCount > 2) {
+                    clone.remove();
+                }
+                else {
+                    alert('this is the last row, can not remove it. It will clear the entries. To remove the entire rule please use the rule list removal.')
+                    clone.find(':text').val('');
+                    clone.find('.dpl').prop('selectedIndex', 0)
+                }
+                
+            });
+
+            $('span.tr_clone_clear').on('click', function () {
+                var clone = $(this).closest('.tr_clone');               
+                    clone.find(':text').val('');
+                clone.find('.dpl').prop('selectedIndex', 0)
+                clone.find(':checkbox').prop('checked', false)
+            });
+
+            $('#btnUndo').on('click', function () {
+                $('#ruleDetail').find("tr:gt(1)").remove();
+                $('.tr_clone').find(':text').val('')
+                $('.tr_clone').find('.dpl').prop('selectedIndex', 0)
+                $('.tr_clone').find(':checkbox').prop('checked', false)
+            })
+
+            $('#btnAdd').on('click', function () {
+                $('#ruleContent').show();
+            });
+        });
+    </script>
+}
+<div class="alert alert-warning" id="globalmsg" hidden>
+    <strong>Warning!</strong> You have unsaved Rules.
+</div>
+
+<div class="row top-buffer">
+    <div class="col-lg-3">
+        <div class="panel panel-default">
+            <div class="panel-heading"><h3>Rule List</h3></div>
+            <div class="panel-body">
+                <div class="box box-danger">
+                    <div class="box-header with-border">
+                       
+                    </div>
+                    <div class="box-body">
+                        
+                        @foreach(var rule in Model.RuleList)
+                        {
+                            <div class="form-inline">                             
+                                <button type="button" class="btn btn-default btnDeleteRule" arial-label="left Align" name="ruleId@(rule.Id)">
+                                    <span class="glyphicon glyphicon-remove" arial-hidden="true" data-></span>
+                                </button>
+                                <button type="button" class="btn btn-default" arial-label="left Align">
+                                    <span class="glyphicon glyphicon-pencil" arial-hidden="true"></span>
+                                </button>                                                       
+                                <input type="checkbox" checked="@rule.Enabled" , id="@rule.Id" data-toggle="toggle" />
+                                <lable>@rule.RuleName</lable>
+                            </div>
+                        
+                        }
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-9">
+        <div class="panel panel-default">
+            <div class="panel-heading"><h3>Rule Details</h3></div>
+            <div class="panel-body">
+                <div class="box box-warning">
+                    <div class="box-header with-border">
+                        <div class="col-lg-9 align-self-end">
+                            <div class="row">                                                           
+                                    <button type="button" class="btn btn-success" id="btnAdd" >Add New Rule</button>
+                                    <button type="button" class="btn btn-primary" id="btnSave" >Save</button>
+                                    <button type="button" class="btn btn-info" id="btnUndo">Undo</button>
+                                                        
+                            </div>
+                        </div>
+                    </div>
+                    <div id="ruleContent" hidden>
+                        <div class="box-body">
+                        
+                                <div class="form-inline" >
+                                    <label data-error="wrong" data-success="right" for="ruleName">Rule Name</label>
+                                    <input type="email" id="ruleName" class="form-control validate">
+                                </div>
+                        
+                        </div>
+                        <hr />      
+                        <table class="table table-borderless" id="ruleDetail">
+                            <thead>
+                                <tr>
+                                    <th scope="col"></th>
+                                    <th scope="col">And/Or</th>
+                                    <th scope="col">(</th>
+                                    <th scope="col">Field</th>
+                                    <th scope="col">Operator</th>
+                                    <th scope="col">Value</th>
+                                    <th scope="col">)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr class="tr_clone" id="id1">
+                                    <th scope="row">
+                                        <span class="glyphicon glyphicon-plus text-green tr_clone_add" arial-hidden="true" style="padding-top: 15%" data-toggle="tooltip" title="Add row entries"></span>
+                                        <span class="glyphicon glyphicon-remove text-red tr_clone_remove" arial-hidden="true" style="padding-top: 15%" data-toggle="tooltip" title="Delete row entires"></span>
+                                        <span class="glyphicon glyphicon-repeat text-blue tr_clone_clear" arial-hidden="true" style="padding-top: 15%" data-toggle="tooltip" title="Clear row entries"></span>
+                                    </th>
+                                    <td>
+                                        <select class="form-control dpl">
+                                            <option value="0">Select</option>
+                                            <option value="And">And</option>
+                                            <option value="Or">Or</option>
+                                        </select>
+                                    </td>
+                                    <td>
+                                        <input type="checkbox" class="form-check-input">
+                                    </td>
+                                    <td>
+                                        <select class="form-control dpl">
+                                            <option value="And">Select</option>
+                                            <option value="CPT">A CPT</option>
+                                            <option value="EM">An E&M</option>
+                                            <option value="ICD">An ICD</option>
+                                            <option value="Modifier">A Modifier</option>
+                                            <option value="ChartText">Chart Text</option>
+
+                                        </select>
+                                    </td>
+                                    <td>
+                                        <select class="form-control dpl">
+                                            <option value="And">Select</option>
+                                            <option value="And">Equals</option>
+                                            <option value="Or">Not Equals</option>
+                                            <option value="Or">Contains</option>
+                                            <option value="Or">NotContains</option>
+                                            <option value="Or">Greater Than</option>
+                                            <option value="Or">Less Than</option>
+                                            <option value="Or">Start With</option>
+                                            <option value="Or">End With<</option>
+                                        </select>
+                                    </td>
+                                    <td>
+                                        <input type="text" class="form-control" />
+                                    </td>
+                                    <td>
+                                        <input type="checkbox" class="form-check-input">
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

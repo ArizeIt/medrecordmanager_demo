@@ -1,7 +1,7 @@
 ﻿@model CodeChartVm
 
-@section AddtoHead{ 
-    <link href="~/lib/bootstrap-toggle/css/bootstrap-toggle.min.css" rel="stylesheet"  type="text/css"/>
+@section AddtoHead{
+    <link href="~/lib/bootstrap-toggle/css/bootstrap-toggle.min.css" rel="stylesheet" type="text/css" />
 }
 
 @section scripts{
@@ -17,12 +17,12 @@
         }
 
         window.onbeforeunload = unloadPage;
-        
+
         var IcdCodeGrid;
         var CptCodeGrid;
         var idcRenderer;
         var cptRenderer;
-        var verbage = 'I attest that I am not changing the material in the medical chart, but updating the codes to accurately represent the procedures, diagnosis, and documentation provided in the medical record.” and clicking accept logs this attestation and who was the logged in user for those changes to the code list.'        
+        var verbage = 'I attest that I am not changing the material in the medical chart, but updating the codes to accurately represent the procedures, diagnosis, and documentation provided in the medical record.” and clicking accept logs this attestation and who was the logged in user for those changes to the code list.'
         var visitId = $("#codeVisitId").val();
 
         $(document).ready(function () {
@@ -39,15 +39,15 @@
                 dataSource: '/Record/GetHistoryCode',
                 columns: [
                     { field: 'codeName', title: 'Code', editor: true },
-                    { field: 'description', title: 'Description' },                 
+                    { field: 'description', title: 'Description' },
                     //{ width: 56, renderer: idcRenderer },
                     //{ width: 100, tmpl: '<u class="gj-cursor-pointer"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></u>', events: { 'click': icdDelete } }
                 ],
                 pager: { limit: 10, sizes: [2, 5, 10, 20] },
             });
 
-            IcdCodeGrid.on('rowDataChanged', function (e, id, record) {     
-                UpdateHistoryCode(record)                          
+            IcdCodeGrid.on('rowDataChanged', function (e, id, record) {
+                UpdateHistoryCode(record)
             });
 
             IcdCodeGrid.on('rowRemoving', function (e, $row, id, record) {
@@ -172,7 +172,7 @@
                     },
                     dataType: "json",
                     success: function () {
-                        
+
                         $('#modalIcdCode').modal('hide');
                         $('body').removeClass('modal-open');
                         $('.modal-backdrop').remove();
@@ -201,7 +201,7 @@
                         quantity: quan,
                         modifier: mod,
                         action: "Add"
-                        
+
                     },
                     dataType: "json",
                     success: function () {
@@ -220,7 +220,7 @@
             $('#modalContactForm').on('shown.bs.modal', function (e) {
                 $.ajax({ url: '/Record/GetCodeChange', data: { visitCodeHistoryId: id }, method: 'POST' })
                     .done(function () {
-                        
+
                     })
             });
 
@@ -243,12 +243,12 @@
                             method: 'POST'
                         })
                         .done(function () {
-                            
+
                         })
                         .fail(function () {
                             alert('Failed to send.');
                         });
-                    
+
                 }
             });
 
@@ -264,7 +264,7 @@
                     });
             }
 
-            function UpdateHistoryCode(record) {  
+            function UpdateHistoryCode(record) {
                 alert(verbage);
                 // Clone the record in new object where you can format the data to format that is supported by the backend.
                 var data = $.extend(true, {}, record);
@@ -290,7 +290,7 @@
                     $('#globalmsg').removeAttr('hidden');
                     $('#savePage').prop('disabled', false);
                 }
-                
+
             }
 
             function hideSave() {
@@ -319,39 +319,39 @@
 
     </script>
 }
-    <div class="alert alert-warning" id="globalmsg" hidden>
-        <strong>Warning!</strong> You have unsaved changes.
-    </div>
-    <div class="row">     
-        <div class="col-lg-6">
-            <div class="btn-toolbar" role="toolbar" aria-label="Toolbar with button groups">
-                <div class="btn-group" role="group" aria-label="first group">
+<div class="alert alert-warning" id="globalmsg" hidden>
+    <strong>Warning!</strong> You have unsaved changes.
+</div>
+<div class="row">
+    <div class="col-lg-6">
+        <div class="btn-toolbar" role="toolbar" aria-label="Toolbar with button groups">
+            <div class="btn-group" role="group" aria-label="first group">
 
-                    @Html.ActionLink("Previous", "LoadCode", "Record", new { position = (Model.Position - 2) }, new { @class = "btn btn-default", id = "btnprevious" })
-                    @Html.ActionLink("Next", "LoadCode", "Record", new { position = Model.Position }, new { @class = "btn btn-default", id = "btnnext" })
-                </div>
-
-                <a href="" class="btn btn-success" data-toggle="modal" data-target="#modalContactForm">Message</a>
-                <button type="button" class="btn btn-info" disabled="disabled" id="savePage">Save</button>
-
-                @Html.ActionLink("Home", "review", "record", null, new { @class = "btn btn-primary" })
-
-                
+                @Html.ActionLink("Previous", "LoadCode", "Record", new { position = (Model.Position - 2) }, new { @class = "btn btn-default", id = "btnprevious" })
+                @Html.ActionLink("Next", "LoadCode", "Record", new { position = Model.Position }, new { @class = "btn btn-default", id = "btnnext" })
             </div>
+
+            <a href="" class="btn btn-success" data-toggle="modal" data-target="#modalContactForm">Message</a>
+            <button type="button" class="btn btn-info" disabled="disabled" id="savePage">Save</button>
+
+            @Html.ActionLink("Home", "review", "record", null, new { @class = "btn btn-primary" })
+
+
         </div>
     </div>
+</div>
 
-    <div class="row top-buffer">
-        @Html.HiddenFor(x => x.VisitId, new { id = "codeVisitId" })
-        <input type="hidden" id="position" value=@Model.Position>
-        <div class="col-lg-4">
-            You are viewing @Model.Position of @Model.Total Records. VisitId : @Model.VisitId &nbsp;
-            <label class="checkbox-inline">
-                <input type="checkbox" checked="@Model.Chart.IsFlaged" data-toggle="toggle" id="chkFlag" />Flaged
-            </label>
-        </div>
-
+<div class="row top-buffer">
+    @Html.HiddenFor(x => x.VisitId, new { id = "codeVisitId" })
+    <input type="hidden" id="position" value=@Model.Position>
+    <div class="col-lg-4">
+        You are viewing @Model.Position of @Model.Total Records. VisitId : @Model.VisitId &nbsp;
+        <label class="checkbox-inline">
+            <input type="checkbox" checked="@Model.Chart.IsFlaged" data-toggle="toggle" id="chkFlag" />Flaged
+        </label>
     </div>
+
+</div>
 
 <div class="row top-buffer">
     <div class="col-lg-5">
@@ -379,20 +379,20 @@
                     {
                         var docSrc = string.Format("data:application/pdf;base64,{0}", base64);
                         <div class='embed-responsive' style='padding-bottom:150%'>
-                            <object id="pdf"  height='800' type="application/pdf" data="@docSrc"></object>
+                            <object id="pdf" height='800' type="application/pdf" data="@docSrc"></object>
                         </div>
-                     }
-                     else
-                     {
+                    }
+                    else
+                    {
                         var imgsrc = string.Format("data:image/jpeg;base64,{0}", base64);
                         <div class="viewer text-center" style="height:800px; width:600px;" id="chartviewer">
                             <img src="@imgsrc" alt="" class="img-thumbnail img-fluid" id="chartimage">
                         </div>
-                     }
+                    }
                 }
 
-                        </div>
-                    </div>
+            </div>
+        </div>
     </div>
     <div class="col-lg-7">
         <div class="panel panel-default">
@@ -431,14 +431,14 @@
                                         <div class="btn-group" role="group" aria-label="Third group">
                                             <button type="button" class="btn btn-info" id="btnAdd" data-toggle="modal" data-target="#modalIcdCode">Add Row</button>
                                         </div>
-                                        
+
                                     </div>
                                 </div>
                             </div>
                         </div>
-                        <div class="box-body">      
+                        <div class="box-body">
                             <table id="IcdCodeTable" class="table table-striped"></table>
-                      </div>
+                        </div>
                     </div>
 
 
@@ -450,6 +450,7 @@
     </div>
 </div>
 
+<!-- Modal -->
 <div class="modal fade" id="modalContactForm" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
      aria-hidden="true">
     <div class="modal-dialog" role="document">
@@ -486,7 +487,7 @@
                         <label data-error="wrong" data-success="right" for="message">Your message</label>
                         <textarea type="text" id="message" class="md-textarea form-control" rows="4"></textarea>
                     </div>
-                 </div>
+                </div>
 
             </div>
             <div class="modal-footer d-flex justify-content-center">
@@ -507,8 +508,8 @@
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
-            <div class="modal-body mx-3">    
-                    <div id="addIcdMsg"></div>
+            <div class="modal-body mx-3">
+                <div id="addIcdMsg"></div>
                 <div class="md-form mb-5">
                     <div class="form-group">
                         <label data-error="wrong" data-success="right" for="icdCodeName">Code name</label>
@@ -578,7 +579,7 @@
     </div>
 </div>
 
-<!-- Modal -->
+
 <div id="uploadModal" class="modal fade" role="dialog">
     <div class="modal-dialog">
 
@@ -604,8 +605,8 @@
                 </form>
 
                 <!-- Preview-->
-                <div class="row">                
-                        <div id='preview'></div>
+                <div class="row">
+                    <div id='preview'></div>
                 </div>
             </div>
 
