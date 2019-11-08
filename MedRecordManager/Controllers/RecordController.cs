@@ -1068,12 +1068,17 @@ namespace MedRecordManager.Controllers
             var baos = new ByteArrayOutputStream();
             var pdfDoc = new PdfDocument(new PdfWriter(baos));
             var document = new Document(pdfDoc);
+            var pageCount = TiffImageData.GetNumberOfPages(source);
 
-            var tiffImage = ImageDataFactory.CreateTiff(source, true, 1, true);
-            var tiffPageSize = new iText.Kernel.Geom.Rectangle(tiffImage.GetWidth(), tiffImage.GetHeight());
-            var newPage = pdfDoc.AddNewPage(new PageSize(tiffPageSize));
-            var canvas = new PdfCanvas(newPage);
-            canvas.AddImage(tiffImage, tiffPageSize, false);
+            for(int i = 1; i<= pageCount; i++ )
+            {
+                var tiffImage = ImageDataFactory.CreateTiff(source, true, i, true);
+                var tiffPageSize = new iText.Kernel.Geom.Rectangle(tiffImage.GetWidth(), tiffImage.GetHeight());
+                var newPage = pdfDoc.AddNewPage(new PageSize(tiffPageSize));
+                var canvas = new PdfCanvas(newPage);
+                canvas.AddImage(tiffImage, tiffPageSize, false);
+            }
+           
             document.Close();
             return baos.ToArray();
         }
