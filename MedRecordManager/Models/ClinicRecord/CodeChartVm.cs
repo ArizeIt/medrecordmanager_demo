@@ -7,6 +7,10 @@ namespace MedRecordManager.Models
 {
     public class CodeChartVm
     {
+        public CodeChartVm()
+        {
+            Chart = new ChartVm();
+        }
         public int VisitId { get; set; }
         public ChartVm Chart { get; set; }
 
@@ -21,7 +25,13 @@ namespace MedRecordManager.Models
 
     public class ChartVm
     {
-       
+       public ChartVm()
+        {
+            ChartType = string.Empty;
+            ChartName = string.Empty;
+            FileBinary = new byte[0];
+            IsFlaged = false;
+        }
         public string ChartName { get; set; }
         public string ChartType { get; set; }
         public byte[] FileBinary { get; set; }
