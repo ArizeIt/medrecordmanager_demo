@@ -26,7 +26,7 @@
         var visitId = $("#codeVisitId").val();
 
         $(document).ready(function () {
-
+            $('#codeType').val('');
             $(":input").change(function () { //triggers change in all input fields including text type
                 unsaved = true;
                 tipnSave();
@@ -66,7 +66,8 @@
                     { field: 'quantity', title: 'Quantity', width: 75, minWidth: 75, priority: 1, editor: true },
                     { field: 'codeType', width: 105, minWidth: 105, priority: 2, title: 'CPT Type' },
                     { field: 'codeName', title: 'Code', width: 85, minWidth: 85, priority: 3, editor: true },
-                    { field: 'modifierCode', width:100, minWidth: 100, priority:4, title: 'Modifier', priority: 2, type: 'dropdown', editor: { dataSource: '/Record/GetModifiers', valueField: 'id' }, editField: 'modifierCode' },
+                    { field: 'modifierCode', width:100, minWidth: 100, priority:3, title: 'Modifier',  type: 'dropdown', editor: { dataSource: '/Record/GetModifiers', valueField: 'id' }, editField: 'modifierCode' },
+                    { field: 'modifierCode2', width:100, minWidth: 100, priority:4, title: 'Modifier 2', type: 'dropdown', editor: { dataSource: '/Record/GetModifiers', valueField: 'id' }, editField: 'modifierCode2' },
                     { field: 'shortDescription', minWidth: 100, priority: 5, title: 'Description' },
                     { field: 'description', hidden: true },
                     //{ width: 56, renderer: cptRenderer },
@@ -161,7 +162,8 @@
             $('#IcdAddCode').on('click', function () {
                 var id = $("#codeVisitId").val();
                 var code = $('#icdCodeName').val();
-                $.ajax({
+                if(code.length != 0){
+                    $.ajax({
                     url: '/Record/AddHistoryCode',
                     type: 'post',
                     data: {
@@ -169,7 +171,7 @@
                         code: code,
                         codeType: "IcdCode",
                         action:"Add"
-                    },
+                        },
                     dataType: "json",
                     success: function () {
 
@@ -177,12 +179,16 @@
                         $('body').removeClass('modal-open');
                         $('.modal-backdrop').remove();
                         IcdCodeGrid.reload();
-                    },
+                        },
                     error: function (response) {
                         $('#addIcdMsg').empty().append("<div class='alert alert-danger' role='alert'>" + response.responseText+"</div>");
-                    }
+                        }
 
-                });
+                    })
+                }
+                else {
+                    $('#addIcdMsg').empty().append("<div class='alert alert-danger' role='alert'>Code name field can not be empty.</div>");
+                }
             })
 
             $('#cptAddCode').on('click', function () {
@@ -190,8 +196,10 @@
                 var code = $('#cptCodeName').val();
                 var quan = $('#codeQuantity').val();
                 var mod = $('#modifierCode').val();
+                var mod2 = $('#modifierCode2').val();
                 var type = $('#codeType').val();
-                $.ajax({
+                if(code.length != 0 ){
+                     $.ajax({
                     url: '/Record/AddHistoryCode',
                     type: 'post',
                     data: {
@@ -200,28 +208,42 @@
                         code: code,
                         quantity: quan,
                         modifier: mod,
+                        modifier2: mod2,
                         action: "Add"
 
-                    },
+                        },
                     dataType: "json",
-                    success: function () {
-                        $('#modalcptCode').modal('hide');
-                        $('body').removeClass('modal-open');
-                        $('.modal-backdrop').remove();
-                        CptCodeGrid.reload();
-                    },
-                    error: function (response) {
-                        $('#addcptMsg').empty().append("<div class='alert alert-danger' role='alert'>" + response.responseText + "</div>");
-                    }
+                    success: function (response) {
+                        if(response.success){
+                            $('#modalcptCode').modal('hide');
+                            $('body').removeClass('modal-open');
+                            $('.modal-backdrop').remove();
+                            CptCodeGrid.reload();
+                        } else {
+                            $('#addcptMsg').empty().append("<div class='alert alert-danger' role='alert'>" + response.responseText + "</div>");
+                        }
 
-                });
+
+                        },
+                    error: function (response) {
+                        $('#addcptMsg').empty().append("<div class='alert alert-danger' role='alert'>Server error, record is not saved.</div>");
+                        }
+                    });
+                }
+                else if(type == null){
+                    $('#addcptMsg').empty().append("<div class='alert alert-danger' role='alert'>CPT code type must be selected.</div>");
+                }
+
+                else {
+                    $('#addcptMsg').empty().append("<div class='alert alert-danger' role='alert'>Code name field can not be empty.</div>");
+                }
             })
 
             $('#modalContactForm').on('shown.bs.modal', function (e) {
-                $.ajax({ url: '/Record/GetCodeChange', data: { visitCodeHistoryId: id }, method: 'POST' })
-                    .done(function () {
+                //$.ajax({ url: '/Record/GetCodeChange', data: { visitCodeHistoryId: id }, method: 'POST' })
+                //    .done(function () {
 
-                    })
+                //    })
             });
 
             $('#send').on('click', function () {
@@ -230,26 +252,61 @@
                     var to = $('#toemail').val();
                     var subject = $('#subject').val();
                     var message = $('#message').val();
+                    var input = $('#emailChart')[0];
+                    var files = input.files;
+                    var formData = new FormData();
+
+                    for (var i = 0; i != files.length; i++) {
+                        formData.append("files", files[i]);
+                    }
+
+                    formData.append('fromEmail', from);
+                    formData.append('toEmail', to);
+                    formData.append('subject',subject);
+                    formData.append('body', message);
+
                     $.ajax(
                         {
                             url: '/Record/SendNotification',
-                            data:
-                            {
-                                fromEmail: from,
-                                toEmail: to,
-                                subject: subject,
-                                body: message
-                            },
-                            method: 'POST'
-                        })
-                        .done(function () {
-
-                        })
-                        .fail(function () {
-                            alert('Failed to send.');
-                        });
-
+                            contentType: false,
+                            processData: false,
+                            data: formData,
+                            method: 'POST',
+                            succes: function (response) {
+                                if (response.sucess) {
+                                    $('#modalContactForm').modal('hide');
+                                    $('body').removeClass('modal-open');
+                                    $('.modal-backdrop').remove();
+                                }
+                            }
+                        });                     
                 }
+            });
+
+
+            $.ajax({
+                   method:'GET',
+                   url: '/Record/GetModifiers',
+                   success: function(data) {
+                    var len = data.length;
+                    for(var i = 0; i< len; i++){
+                       var id= data[i].id;
+                       var name = data[i].text;
+                         $('#modifierCode').append('<option value="'+ id +'">'+ name +'</option>')
+                         $('#modifierCode2').append('<option value="'+ id +'">'+ name +'</option>');
+                       }
+                    $('#modifierCode').val('');
+                    $('#modifierCode2').val('');
+                  }
+            });
+
+
+            $('body').on('hidden.bs.modal', '.modal', function () {
+                clearInput($(this));
+            });
+
+            $('input').keypress(function(){
+                $('.modalmsg').empty();
             });
 
             function DeleteHistoryCode(id) {
@@ -274,15 +331,16 @@
                     url: '/Record/UpdateHistoryCode',
                     data: { record: data },
                     cache: false,
-                    method: 'POST'
-                })
-                    .done(function () {
-                        unsaved = true;
-                        tipnSave()
-                    })
-                    .fail(function () {
-                        alert('Failed to Update.');
-                    });
+                    method: 'POST',
+                    success: function (response) {
+                        if (response.success) {
+                            unsaved = true;
+                            tipnSave()
+                        } else {
+                            alert('Failed to Update.');
+                        }
+                    }
+                });
             }
 
             function tipnSave() {
@@ -299,6 +357,15 @@
                     $('#savePage').prop('disabled', true);
                 }
 
+            }
+
+            function clearInput(element){
+                element
+                .find("input,textarea, select").val('').end()
+                .find('.modalmsg').empty().end()
+                .find("input[type=checkbox], input[type=radio]")
+                .prop("checked", "")
+                .end();
             }
 
             if ($('#position').val() == 1) {
@@ -375,7 +442,7 @@
 
                     var base64 = Convert.ToBase64String(Model.Chart != null ? Model.Chart.FileBinary : new byte[64]);
 
-                    @if (Model.Chart!= null &&(Model.Chart.ChartType.Contains("tif") || Model.Chart.ChartType.Contains("pdf")))
+                    @if (Model.Chart != null && (Model.Chart.ChartType.Contains("tif") || Model.Chart.ChartType.Contains("pdf")))
                     {
                         var docSrc = string.Format("data:application/pdf;base64,{0}", base64);
                         <div class='embed-responsive' style='padding-bottom:150%'>
@@ -451,8 +518,7 @@
 </div>
 
 <!-- Modal -->
-<div class="modal fade" id="modalContactForm" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
-     aria-hidden="true">
+<div class="modal fade" id="modalContactForm" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header text-center">
@@ -462,40 +528,49 @@
                 </button>
             </div>
             <div class="modal-body mx-3">
-                <div class="md-form mb-5">
-                    <div class="form-group">
-                        <label data-error="wrong" data-success="right" for="fromemail">Your name</label>
-                        <input type="text" id="fromemail" class="form-control validate" value="@User.Identity.Name">
+                <form method='post' action='' enctype="multipart/form-data">
+                    <div class="md-form mb-5">
+                        <div class="form-group">
+                            <label data-error="wrong" data-success="right" for="fromemail">Your name</label>
+                            <input type="text" id="fromemail" class="form-control validate" value="@User.Identity.Name">
+                        </div>
                     </div>
-                </div>
 
-                <div class="md-form mb-5">
-                    <div class="form-group">
-                        <label data-error="wrong" data-success="right" for="form29">Physician email</label>
-                        <input type="email" id="toemail" class="form-control validate" value="@Model.PhysicanEmail">
+                    <div class="md-form mb-5">
+                        <div class="form-group">
+                            <label data-error="wrong" data-success="right" for="form29">Physician email</label>
+                            <input type="email" id="toemail" class="form-control" value="@Model.PhysicanEmail" required>
+                        </div>
                     </div>
-                </div>
-                <div class="md-form mb-5">
-                    <div class="form-group">
-                        <label data-error="wrong" data-success="right" for="subject">Subject</label>
-                        <input type="text" id="subject" class="form-control validate">
+                    <div class="md-form mb-5">
+                        <div class="form-group">
+                            <label data-error="wrong" data-success="right" for="subject">Subject</label>
+                            <input type="text" id="subject" class="form-control" required>
+                        </div>
                     </div>
-                </div>
 
-                <div class="md-form">
-                    <div class="form-group">
-                        <label data-error="wrong" data-success="right" for="message">Your message</label>
-                        <textarea type="text" id="message" class="md-textarea form-control" rows="4"></textarea>
+                    <div class="md-form">
+                        <div class="form-group">
+                            <label data-error="wrong" data-success="right" for="message">Your message</label>
+                            <textarea type="text" id="message" class="md-textarea form-control" rows="4" required></textarea>
+                        </div>
                     </div>
-                </div>
-
+                    <div class="md-form mb-5">
+                        <div class="form-group">
+                            <label for="name">
+                                Chart Upload:
+                            </label>
+                            <input type="file" class="form-control" id="emailChart" name="emailChart">
+                        </div>
+                    </div>
+                    <div class="modal-footer d-flex justify-content-center">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button class="btn btn-primary" id="send">Send</button>
+                    </div>
+                </form>
             </div>
-            <div class="modal-footer d-flex justify-content-center">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                <button class="btn btn-primary" id="send">Send</button>
-            </div>
-        </div>
     </div>
+</div>
 </div>
 
 <div class="modal fade" id="modalIcdCode" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
@@ -509,11 +584,11 @@
                 </button>
             </div>
             <div class="modal-body mx-3">
-                <div id="addIcdMsg"></div>
+                <div id="addIcdMsg" class="modalmsg"></div>
                 <div class="md-form mb-5">
                     <div class="form-group">
                         <label data-error="wrong" data-success="right" for="icdCodeName">Code name</label>
-                        <input type="text" id="icdCodeName" class="form-control validate" name="icdCodeName">
+                        <input type="text" id="icdCodeName" class="form-control" name="icdCodeName" required>
                     </div>
                 </div>
 
@@ -538,14 +613,13 @@
             </div>
 
             <div class="modal-body mx-3">
-                <div id="addcptMsg"></div>
+                <div id="addcptMsg" class="modalmsg"></div>
                 <div class="input-group mb-3">
                     <div class="input-group-prepend">
                         <label class="input-group-text" for="inputGroupSelect01">Code Type</label>
                     </div>
-                    <select class="custom-select" id="codeType">
-                        <option selected>Choose...</option>
-                        <option value="CptCode">CPT</option>
+                    <select class="form-control" id="codeType">
+                        <option value="CPTCode">CPT</option>
                         <option value="EM_CPTCode">EM</option>
                     </select>
                 </div>
@@ -553,23 +627,31 @@
                 <div class="md-form mb-5">
                     <div class="form-group">
                         <label data-error="wrong" data-success="right" for="cptCodeName">Code name</label>
-                        <input type="text" id="cptCodeName" class="form-control validate" name="cptCodeName">
+                        <input type="text" id="cptCodeName" class="form-control validate" name="cptCodeName" required>
                     </div>
                 </div>
 
                 <div class="md-form mb-5">
                     <div class="form-group">
                         <label data-error="wrong" data-success="right" for="codeQuantity">Quantity</label>
-                        <input type="text" id="codeQuantity" class="form-control validate" name="codeQuantity">
+                        <input type="number" id="codeQuantity" class="form-control validate" name="codeQuantity">
                     </div>
                 </div>
 
-                <div class="md-form mb-5">
+                <div class="md-form mb-3">
                     <div class="form-group">
-                        <label data-error="wrong" data-success="right" for="form29">Modifier Code</label>
-                        <input type="text" id="modifierCode" class="form-control validate" name="modifierCode">
+                        <label data-error="wrong" data-success="right" for="modifierCode">Modifier Code</label>
+                        <select id="modifierCode" class="form-control"></select>
                     </div>
                 </div>
+
+                <div class="md-form mb-3">
+                    <div class="form-group">
+                        <label data-error="wrong" data-success="right" for="modifierCode2">Modifier Code</label>
+                        <select id="modifierCode2" class="form-control"></select>
+                    </div>
+                </div>
+
             </div>
             <div class="modal-footer d-flex justify-content-center">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
@@ -580,9 +662,8 @@
 </div>
 
 
-<div id="uploadModal" class="modal fade" role="dialog">
+<div id="uploadModal" class="modal fade" role="dialog" tabindex="-1">
     <div class="modal-dialog">
-
         <!-- Modal content-->
         <div class="modal-content">
             <div class="modal-header">
@@ -603,7 +684,6 @@
                         <input type='button' class='btn btn-default' value='Upload' id='upload'>
                     </div>
                 </form>
-
                 <!-- Preview-->
                 <div class="row">
                     <div id='preview'></div>
@@ -611,6 +691,5 @@
             </div>
 
         </div>
-
     </div>
 </div>

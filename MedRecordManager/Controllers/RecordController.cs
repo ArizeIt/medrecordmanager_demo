@@ -130,17 +130,17 @@ namespace MedRecordManager.Controllers
                 {
                     vm.VisitId = visit.VisitId;
                     vm.PhysicanEmail = visit.Physican.Email;
-                    vm.PhysicianName = visit.Physican.DisplayName; 
+                    vm.PhysicianName = visit.Physican.DisplayName;
                     vm.Chart = new ChartVm
                     {
                         ChartName = visit.Chart.ChartDocument.FirstOrDefault().FileName,
                         FileBinary = visit.Chart.ChartDocument.FirstOrDefault().DocumentImage,
                         IsFlaged = true,
                         ChartType = System.IO.Path.GetExtension(visit.Chart.ChartDocument.FirstOrDefault().FileName)
-                        
+
                     };
 
-                    
+
                     if (vm.Chart.ChartType.Contains("tif"))
                     {
                         vm.Chart.FileBinary = CreatePDF(vm.Chart.FileBinary);
@@ -177,19 +177,19 @@ namespace MedRecordManager.Controllers
                         });
                     }
 
-                    
+
                     var oriCpt = _urgentCareContext.Visit.Include(x => x.VisitProcCode).FirstOrDefault(x => x.VisitId == visit.VisitId).VisitProcCode.ToList();
 
                     foreach (var cpt in oriCpt)
                     {
-                        Utility.ParseCptCode(cpt.ProcCode, out string cptCode, out int cptQuantity, out string cptModifier);
-                        var codeModifier = cpt.ProcCode.Split().ToList();
+                        Utility.ParseModifierCode(cpt.Modifier, out string modifier1, out string modifier2);
                         _urgentCareContext.VisitCodeHistory.Add(new VisitCodeHistory
                         {
                             VisitHistoryId = visitHistoryId,
                             CodeType = "CPTCode",
-                            Code = cptCode,
-                            Modifier = cptModifier,
+                            Code = cpt.ProcCode,
+                            Modifier = modifier1,
+                            Modifier2 = modifier2,
                             Quantity = cpt.Quantity.GetValueOrDefault(),
                             ModifiedBy = HttpContext.User.Identity.Name,
                             ModifiedTime = DateTime.UtcNow,
@@ -199,14 +199,15 @@ namespace MedRecordManager.Controllers
 
                     var emcode = _urgentCareContext.Visit.Include(x => x.VisitProcCode).FirstOrDefault(x => x.VisitId == visit.VisitId).Emcode;
 
-                    Utility.ParseCptCode(emcode,  out string em, out int emQuantity, out string emModifier);
+                    Utility.ParseCptCode(emcode, out string em, out int emQuantity, out string emModifier1, out string emModifier2);
                     
                     _urgentCareContext.VisitCodeHistory.Add(new VisitCodeHistory
                     {
                         VisitHistoryId = visitHistoryId,
                         CodeType = "EM_CPTCode",
                         Code = em,
-                        Modifier = emModifier,
+                        Modifier = emModifier1,
+                        Modifier2 = emModifier2,
                         Quantity = emQuantity,
                         ModifiedBy = HttpContext.User.Identity.Name,
                         ModifiedTime = DateTime.UtcNow,
@@ -391,6 +392,7 @@ namespace MedRecordManager.Controllers
         public async Task<IActionResult> GetModifiers()
         {
             var records = await _urgentCareContext.Modifier.Select(x => new { id = x.ModifierCode, text = x.ModifierCode }).ToListAsync();
+            records.Insert(0, new { id = "", text = "" });
             return Json(records);
         }
 
@@ -583,7 +585,7 @@ namespace MedRecordManager.Controllers
 
         }
 
-               
+
 
         [HttpGet]
         public async Task<IActionResult> GetHistoryCode(int? page, int? limit, int visitId, string type)
@@ -599,6 +601,7 @@ namespace MedRecordManager.Controllers
                         Id = x.VisitCodeHistoryId,
                         CodeName = x.Code,
                         ModifierCode = x.Modifier,
+                        ModifierCode2 = x.Modifier2,
                         CodeType = x.CodeType,
                         Quantity = x.Quantity.GetValueOrDefault(0),
                         ShortDescription = ""
@@ -612,6 +615,7 @@ namespace MedRecordManager.Controllers
                               Id = record.Id,
                               CodeName = record.CodeName,
                               ModifierCode = record.ModifierCode,
+                              ModifierCode2 = record.ModifierCode2,
                               CodeType = record.CodeType,
                               Quantity = record.Quantity,
                               ShortDescription = subCode?.ShortDescription ?? string.Empty
@@ -620,16 +624,16 @@ namespace MedRecordManager.Controllers
                 total = records.Count();
             }
 
-            if(type =="Icd")
+            if (type == "Icd")
             {
                 using (var webClient = new HttpClient())
                 {
                     var requestUri = new Uri("https://clinicaltables.nlm.nih.gov/api/icd10cm/v3/search?");
                     //webClient.BaseAddress = new Uri("https://clinicaltables.nlm.nih.gov/api/icd10cm/v3/search?");
-                    
+
                     webClient.DefaultRequestHeaders.Accept.Clear();
 
-                    foreach(var icd in records)
+                    foreach (var icd in records)
                     {
                         var querystring = $"terms={icd.CodeName}";
 
@@ -637,10 +641,10 @@ namespace MedRecordManager.Controllers
 
                         var returnjson = await response.Content.ReadAsStringAsync();
                         var obj = JArray.Parse(returnjson);
-                        var output= obj[3][0][1].ToString();
-                        records.FirstOrDefault(x=>x.Id == icd.Id).Description = output;
+                        var output = obj[3][0][1].ToString();
+                        records.FirstOrDefault(x => x.Id == icd.Id).Description = output;
                     }
-   
+
 
                 }
 
@@ -650,11 +654,12 @@ namespace MedRecordManager.Controllers
         }
 
 
-        public async Task<IActionResult> GetModifierCode()
-        {
-            var records = await _urgentCareContext.Modifier.Select(x => new { id = x.ModifierCode, text = x.ModifierCode }).ToListAsync();
-            return Json(records);
-        }
+        //public async Task<IActionResult> GetModifierCode()
+        //{
+        //    var records = await _urgentCareContext.Modifier.Select(x => new { id = x.ModifierCode, text = x.ModifierCode }).ToListAsync();
+        //    records.Insert(0, new { id = "", text = "" });
+        //    return Json(records);
+        //}
 
         [HttpPost]
         public async Task<IActionResult> UploadChart(List<IFormFile> files, int visitId)
@@ -740,17 +745,22 @@ namespace MedRecordManager.Controllers
         }
 
         [HttpPost]
-        public IActionResult AddHistoryCode(int visitId, string codeType, string code, int quantity, string modifier, string action)
+        public IActionResult AddHistoryCode(int visitId, string codeType, string code, int quantity, string modifier, string modifier2, string action)
         { var visitHistoryId = InitiatHistory(visitId);
 
             if (visitHistoryId > 0)
             {
+                if (_urgentCareContext.VisitCodeHistory.Any(x => x.VisitHistoryId == visitHistoryId && x.CodeType == "EM_CPTCode"))
+                {
+                    return Json(new { success = false, responseText = "EM_CPTCode already exists, the code was not added. " });
+                }
                 _urgentCareContext.VisitCodeHistory.Add(new VisitCodeHistory {
                     VisitHistoryId = visitHistoryId,
                     Code = code,
                     CodeType = codeType,
                     Quantity = quantity,
                     Modifier = modifier,
+                    Modifier2 = modifier2,
                     ModifiedBy = HttpContext.User.Identity.Name,
                     ModifiedTime = DateTime.UtcNow,
                     Action = action
@@ -799,12 +809,20 @@ namespace MedRecordManager.Controllers
                 historyCode.ModifiedBy = HttpContext.User.Identity.Name;
                 historyCode.ModifiedTime = DateTime.UtcNow;
                 historyCode.Modifier = record.ModifierCode;
+                historyCode.Modifier2 = record.ModifierCode2;
                 historyCode.Quantity = record.Quantity;
             }
 
-            _urgentCareContext.SaveChanges();
+            try
+            {
+                _urgentCareContext.SaveChanges();
 
-            return Json(new { result = true });
+                return Json(new { success = true });
+            }
+            catch
+            {
+                return Json(new { success = false });
+            }
         }
 
         [HttpPost]
@@ -847,16 +865,24 @@ namespace MedRecordManager.Controllers
 
                 foreach (var proc in newProcCodes)
                 {
+                    var modifiercodes = string.Empty;
                     var procCode = proc.Code.Trim();
-                    if (string.IsNullOrEmpty(proc.Modifier) || proc.Modifier != "N/A")
+                    if (!string.IsNullOrEmpty(proc.Modifier) )
                     {
-                        procCode = procCode + "," + proc.Modifier;
+                        modifiercodes += proc.Modifier;
                     }
+
+                    if (!string.IsNullOrEmpty(proc.Modifier2))
+                    {
+                        modifiercodes += "," + proc.Modifier2;
+                    }
+
                     _urgentCareContext.VisitProcCode.Add(new VisitProcCode
                     {
                         VisitId = visitId,
                         Quantity = proc.Quantity,
-                        ProcCode = procCode
+                        ProcCode = procCode,
+                        Modifier = modifiercodes
                     });
                 }
 
@@ -882,9 +908,13 @@ namespace MedRecordManager.Controllers
                     {
                         fullCode = string.Format("{0},{1}", newEm.Quantity, fullCode);
                     }
-                    if (string.IsNullOrEmpty(newEm.Modifier) || newEm.Modifier != "N/A")
+                    if (!string.IsNullOrEmpty(newEm.Modifier))
                     {
                         fullCode = string.Format("{0},{1}", fullCode, newEm.Modifier);
+                    }
+                    if (!string.IsNullOrEmpty(newEm.Modifier2))
+                    {
+                        fullCode = string.Format("{0},{1}", fullCode, newEm.Modifier2);
                     }
                     if (newEm != newEMCodes.Last())
                     {
@@ -903,9 +933,13 @@ namespace MedRecordManager.Controllers
                     {
                         fullCode = string.Format("{0},{1}", newProc.Quantity, fullCode);
                     }
-                    if (string.IsNullOrEmpty(newProc.Modifier) || newProc.Modifier != "N/A")
+                    if (!string.IsNullOrEmpty(newProc.Modifier))
                     {
                         fullCode = string.Format("{0},{1}", fullCode, newProc.Modifier);
+                    }
+                    if (!string.IsNullOrEmpty(newProc.Modifier2))
+                    {
+                        fullCode = string.Format("{0},{1}", fullCode, newProc.Modifier2);
                     }
                     if (newProc != newProcCodes.Last())
                     {
@@ -949,22 +983,48 @@ namespace MedRecordManager.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> SendNotification(string fromEmail, string toEmail, string subject, string body)
+        public async Task<IActionResult> SendNotification(string fromEmail, string toEmail, string subject, string body, List<IFormFile> files)
         {
-            try
-            {
-                await _emailSrv.SendEmailAsync(fromEmail, toEmail, subject, body);
-                return Json(new { sucess = true });
-            }
-            catch(Exception ex)
-            {
-                ex.ToString();
-            }
+            long size = files.Sum(f => f.Length);
 
-            return Json(new { sucess = false });
+            foreach (var formFile in files)
+            {
+                if (formFile.Length > 0)
+                {
+                    //first get the contantType right
+                    if (ValidateContentType(formFile.ContentType)) {
+                        if (size < 5120000)
+                        {
+                            using (var stream = new MemoryStream())
+                            {
+                                var fileName = formFile.FileName;
+                                await formFile.CopyToAsync(stream);
+
+                                var image = stream.ToArray();
+
+                                await _emailSrv.SendEmailAsync(fromEmail, toEmail, subject, body, image, fileName);
+                                return Json(new { sucess = true });
+
+                            }
+
+                        }
+                    }
+                    else
+                    {
+                        return Json(new { error = "file is too large to uplaod. the maximum size of a file is 5 MB." });
+                    }
+
+                }
+                else
+                {
+                    return Json(new { error = "Invalid file content type, only gif, jpeg, tiff and png fiels are allowed." });
+                }
+
+            }
+            return Json(new { error = "email did not send" });
         }
-
-        
+               
+               
         private IEnumerable<SelectListItem> GetAvaliableOfficeKeys()
         {
             return _urgentCareContext.ProgramConfig.Where(x => !x.AmdSync).DistinctBy(x => x.AmdofficeKey)

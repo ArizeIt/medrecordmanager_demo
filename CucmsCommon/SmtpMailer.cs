@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net.Mail;
 using System.Threading.Tasks;
@@ -87,6 +88,60 @@ namespace PVAMCommon
             await smtpClient.SendMailAsync(mail);
         }
 
+
+        public async Task SendMailAsync(string fromAddress, List<string> toAddresses, List<string> ccAddresses, string subject, string body, byte[] fileContent, string fileName)
+        {
+            var mail = new MailMessage()
+            {
+                To = { },
+                CC = { }
+            };
+
+            var smtpClient = new SmtpClient(Server)
+            {
+                Port = Port,
+                Credentials = new System.Net.NetworkCredential(ClientUser, ClientPassword),
+                EnableSsl = true
+            };
+
+            mail.From = new MailAddress(fromAddress);
+            mail.Sender = new MailAddress(fromAddress);
+
+            if (toAddresses != null && toAddresses.Any())
+            {
+                foreach (var ad in toAddresses)
+                {
+                    mail.To.Add(ad);
+                }
+            }
+
+            if (ccAddresses != null && ccAddresses.Any())
+            {
+                foreach (var ad in ccAddresses)
+                {
+                    mail.CC.Add(ad);
+                }
+            }
+
+            mail.Subject = subject;
+            mail.Body = body;
+
+            if (fileContent.Length> 0)
+            {
+                var attachment = new Attachment(new MemoryStream(fileContent), fileName);
+
+                mail.Attachments.Add(attachment);
+
+            }
+
+            smtpClient.SendCompleted += (s, e) =>
+            {
+                smtpClient.Dispose();
+                mail.Dispose();
+            };
+
+            await smtpClient.SendMailAsync(mail);
+        }
         #region IDisposable Support
         private bool disposedValue = false; // To detect redundant calls
 

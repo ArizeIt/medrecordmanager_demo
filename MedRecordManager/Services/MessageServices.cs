@@ -33,6 +33,18 @@ namespace MedRecordManager.Services
             return smtpClient.SendMailAsync("admin", new List<string>() { email }, null, subject, message, null);
         }
 
+        public Task SendEmailAsync(string fromEmail, string email, string subject, string message, string filename)
+        {
+            var smtpClient = new SmtpMailer("smtp.gmail.com", 587, "webadmin@cmucs.com", "Zsxdcf12!");
+            return smtpClient.SendMailAsync(fromEmail, new List<string>() { email }, null, subject, message, filename);
+        }
+
+        public Task SendEmailAsync(string fromEmail, string email, string subject, string message, byte[] fileContent, string filename)
+        {
+            var smtpClient = new SmtpMailer("smtp.gmail.com", 587, "webadmin@cmucs.com", "Zsxdcf12!");
+            return smtpClient.SendMailAsync(fromEmail, new List<string>() { email }, null, subject, message, fileContent, filename);
+        }
+
         public Task SendSmsAsync(string number, string message)
         {
             // Plug in your SMS service here to send a text message.

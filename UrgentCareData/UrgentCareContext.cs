@@ -869,6 +869,7 @@ namespace UrgentCareData
                 entity.Property(e => e.ModifiedTime).HasColumnType("datetime");
 
                 entity.Property(e => e.Modifier).HasMaxLength(50);
+                entity.Property(e => e.Modifier2).HasMaxLength(50);
 
                 entity.HasOne(d => d.VisitHistory)
                     .WithMany(p => p.VisitCodeHistory)
@@ -955,7 +956,7 @@ namespace UrgentCareData
             modelBuilder.Entity<VisitProcCode>(entity =>
             {
                 entity.Property(e => e.ProcCode).HasMaxLength(200);
-
+                entity.Property(e => e.Modifier).HasMaxLength(50);
                 entity.HasOne(d => d.Visit)
                     .WithMany(p => p.VisitProcCode)
                     .HasForeignKey(d => d.VisitId)
