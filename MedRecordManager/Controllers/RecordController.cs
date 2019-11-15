@@ -641,11 +641,12 @@ namespace MedRecordManager.Controllers
 
                         var returnjson = await response.Content.ReadAsStringAsync();
                         var obj = JArray.Parse(returnjson);
-                        var output = obj[3][0][1].ToString();
-                        records.FirstOrDefault(x => x.Id == icd.Id).Description = output;
+                        if (obj!=null && obj[0].ToString() != "0" &&  obj[3][0][1] != null )
+                        {
+                            var output = obj[3][0][1].ToString();
+                            records.FirstOrDefault(x => x.Id == icd.Id).Description = output;
+                        }      
                     }
-
-
                 }
 
             }
@@ -698,7 +699,7 @@ namespace MedRecordManager.Controllers
                                             UploadedBy = HttpContext.User.Identity.Name,
                                             UploadedTime = DateTime.Now,
                                             ChartImage = image,
-                                            FileName = System.IO.Path.GetFileName(fileName),
+                                            Filename = System.IO.Path.GetFileName(fileName),
                                             IsTemp = true
 
                                         });
@@ -750,7 +751,7 @@ namespace MedRecordManager.Controllers
 
             if (visitHistoryId > 0)
             {
-                if (_urgentCareContext.VisitCodeHistory.Any(x => x.VisitHistoryId == visitHistoryId && x.CodeType == "EM_CPTCode"))
+                if (_urgentCareContext.VisitCodeHistory.Any(x => x.VisitHistoryId == visitHistoryId && x.CodeType == "EM_CPTCode") && codeType == "EM_CPTCode")
                 {
                     return Json(new { success = false, responseText = "EM_CPTCode already exists, the code was not added. " });
                 }
@@ -853,9 +854,9 @@ namespace MedRecordManager.Controllers
 
                 if (visitHistoryDocument != null)
                 {
-                    updatedDocName = visitHistoryDocument.FileName;
+                    updatedDocName = visitHistoryDocument.Filename;
                     UpdatedDocImage = visitHistoryDocument.ChartImage;
-                    visitHistoryDocument.FileName = document.FileName;
+                    visitHistoryDocument.Filename = document.FileName;
                     visitHistoryDocument.ChartImage = document.DocumentImage;
                     visitHistoryDocument.IsTemp = false;
                 }
@@ -983,44 +984,68 @@ namespace MedRecordManager.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> SendNotification(string fromEmail, string toEmail, string subject, string body, List<IFormFile> files)
+        public async Task<IActionResult> SendNotification(string fromEmail, string toEmail, string subject, string body, List<IFormFile> files, int visitId, bool defaultChart)
         {
-            long size = files.Sum(f => f.Length);
-
-            foreach (var formFile in files)
+            if(visitId != 0 && defaultChart)
             {
-                if (formFile.Length > 0)
+                var image = new byte[0];
+                var fileName = string.Empty;
+                var visitHistory= _urgentCareContext.VisitHistory.First(x => x.VisitId == visitId);
+                var visitChartHistory = _urgentCareContext.ChartDocumentHistory.FirstOrDefault(x => x.VisitHistoryId == visitHistory.VisitHistoryId);
+                if(visitChartHistory!= null && visitChartHistory.IsTemp)
                 {
-                    //first get the contantType right
-                    if (ValidateContentType(formFile.ContentType)) {
-                        if (size < 5120000)
-                        {
-                            using (var stream = new MemoryStream())
-                            {
-                                var fileName = formFile.FileName;
-                                await formFile.CopyToAsync(stream);
-
-                                var image = stream.ToArray();
-
-                                await _emailSrv.SendEmailAsync(fromEmail, toEmail, subject, body, image, fileName);
-                                return Json(new { sucess = true });
-
-                            }
-
-                        }
-                    }
-                    else
-                    {
-                        return Json(new { error = "file is too large to uplaod. the maximum size of a file is 5 MB." });
-                    }
-
+                    image = visitChartHistory.ChartImage;
+                    fileName = visitChartHistory.Filename;
                 }
                 else
                 {
-                    return Json(new { error = "Invalid file content type, only gif, jpeg, tiff and png fiels are allowed." });
+                    var currentVisit = _urgentCareContext.Visit.Include(x => x.Chart).ThenInclude(x => x.ChartDocument).First(x => x.VisitId == visitId);
+                    image = currentVisit.Chart.ChartDocument.First().DocumentImage;
+                    fileName = currentVisit.Chart.ChartDocument.First().FileName;
                 }
-
+                await _emailSrv.SendEmailAsync(fromEmail, toEmail, subject, body, image, fileName);
             }
+            else
+            {
+                long size = files.Sum(f => f.Length);
+
+                foreach (var formFile in files)
+                {
+                    if (formFile.Length > 0)
+                    {
+                        //first get the contantType right
+                        if (ValidateContentType(formFile.ContentType))
+                        {
+                            if (size < 5120000)
+                            {
+                                using (var stream = new MemoryStream())
+                                {
+                                    var fileName = formFile.FileName;
+                                    await formFile.CopyToAsync(stream);
+
+                                    var image = stream.ToArray();
+
+                                    await _emailSrv.SendEmailAsync(fromEmail, toEmail, subject, body, image, fileName);
+                                    return Json(new { sucess = true });
+
+                                }
+
+                            }
+                        }
+                        else
+                        {
+                            return Json(new { error = "file is too large to uplaod. the maximum size of a file is 5 MB." });
+                        }
+
+                    }
+                    else
+                    {
+                        return Json(new { error = "Invalid file content type, only gif, jpeg, tiff and png fiels are allowed." });
+                    }
+
+                }
+            }
+           
             return Json(new { error = "email did not send" });
         }
                

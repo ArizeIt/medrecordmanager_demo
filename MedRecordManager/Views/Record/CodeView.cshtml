@@ -27,9 +27,12 @@
 
         $(document).ready(function () {
             $('#codeType').val('');
-            $(":input").change(function () { //triggers change in all input fields including text type
+            $(":input").change(function (e) {
+                if($(this).closest('.modal').attr('id') != 'modalContactForm'){
                 unsaved = true;
                 tipnSave();
+                }
+                
             });
 
             IcdCodeGrid = $('#IcdCodeTable').grid({
@@ -86,8 +89,7 @@
                     DeleteHistoryCode(id);
                 }
             });
-
-
+            
             $(".viewer").zoomer();
 
             $("#btnPrint").click(function () {
@@ -173,12 +175,16 @@
                         action:"Add"
                         },
                     dataType: "json",
-                    success: function () {
-
-                        $('#modalIcdCode').modal('hide');
-                        $('body').removeClass('modal-open');
-                        $('.modal-backdrop').remove();
-                        IcdCodeGrid.reload();
+                    success: function (response) {
+                        if(response.success){
+                            $('#modalIcdCode').modal('hide');
+                            $('body').removeClass('modal-open');
+                            $('.modal-backdrop').remove();
+                            IcdCodeGrid.reload();
+                        } else {
+                            $('#addIcdMsg').empty().append("<div class='alert alert-danger' role='alert'>" + response.responseText + "</div>");
+                        }
+                        
                         },
                     error: function (response) {
                         $('#addIcdMsg').empty().append("<div class='alert alert-danger' role='alert'>" + response.responseText+"</div>");
@@ -210,7 +216,6 @@
                         modifier: mod,
                         modifier2: mod2,
                         action: "Add"
-
                         },
                     dataType: "json",
                     success: function (response) {
@@ -221,9 +226,7 @@
                             CptCodeGrid.reload();
                         } else {
                             $('#addcptMsg').empty().append("<div class='alert alert-danger' role='alert'>" + response.responseText + "</div>");
-                        }
-
-
+                            }
                         },
                     error: function (response) {
                         $('#addcptMsg').empty().append("<div class='alert alert-danger' role='alert'>Server error, record is not saved.</div>");
@@ -245,15 +248,24 @@
 
                 //    })
             });
-
+            
+            $('#attachChart').change(function(){
+                var ischecked= $(this).is(':checked')            
+                $('#emailChart').prop('disabled', ischecked)
+                
+            });
+            
+            
             $('#send').on('click', function () {
                 if (confirm("By pressing send button an email contains changes will be sent to the physican, are you sure to do this?")) {
                     var from = $('#fromemail').val();
                     var to = $('#toemail').val();
+                    var visitId =$("#codeVisitId").val();
                     var subject = $('#subject').val();
                     var message = $('#message').val();
                     var input = $('#emailChart')[0];
                     var files = input.files;
+                    var attchChart = $('#attachChart').is(':checked');
                     var formData = new FormData();
 
                     for (var i = 0; i != files.length; i++) {
@@ -264,7 +276,8 @@
                     formData.append('toEmail', to);
                     formData.append('subject',subject);
                     formData.append('body', message);
-
+                    formData.append('defaultChart', attchChart);
+                    formData.append('visitId', visitId)
                     $.ajax(
                         {
                             url: '/Record/SendNotification',
@@ -361,8 +374,9 @@
 
             function clearInput(element){
                 element
-                .find("input,textarea, select").val('').end()
+                .find("input:not([readonly]),textarea, select").val('').end()
                 .find('.modalmsg').empty().end()
+                .find('input[type=file]').prop('disabled', false).end()
                 .find("input[type=checkbox], input[type=radio]")
                 .prop("checked", "")
                 .end();
@@ -522,7 +536,7 @@
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header text-center">
-                <h4 class="modal-title w-100 font-weight-bold">Message Pysican</h4>
+                <h4 class="modal-title w-100 font-weight-bold">Message Physician</h4>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
@@ -531,8 +545,8 @@
                 <form method='post' action='' enctype="multipart/form-data">
                     <div class="md-form mb-5">
                         <div class="form-group">
-                            <label data-error="wrong" data-success="right" for="fromemail">Your name</label>
-                            <input type="text" id="fromemail" class="form-control validate" value="@User.Identity.Name">
+                            <label data-error="wrong" data-success="right" for="fromemail">Your Email</label>
+                            <input type="text" id="fromemail" class="form-control validate" value="@User.Identity.Name" readonly>
                         </div>
                     </div>
 
@@ -561,6 +575,7 @@
                                 Chart Upload:
                             </label>
                             <input type="file" class="form-control" id="emailChart" name="emailChart">
+                            <input type="checkbox" class="form-check-input" id="attachChart" /> Attach Current patiet Chart
                         </div>
                     </div>
                     <div class="modal-footer d-flex justify-content-center">

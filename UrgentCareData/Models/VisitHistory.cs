@@ -7,7 +7,6 @@ namespace UrgentCareData.Models
     {
         public VisitHistory()
         {
-            ChartDocumentHistory = new HashSet<ChartDocumentHistory>();
             VisitCodeHistory = new HashSet<VisitCodeHistory>();
         }
 
@@ -20,13 +19,12 @@ namespace UrgentCareData.Models
         public string CopayNote { get; set; }
         public string ProcCodes { get; set; }
         public int? ProcQty { get; set; }
-        public string ModifiedBy { get; set; }
+        public bool Saved { get; set; }
         public DateTime ModifiedTime { get; set; }
         public DateTime? FinalizedTime { get; set; }
-        public bool Saved { get; set; }
+        public string ModifiedBy { get; set; }
 
         public virtual Visit Visit { get; set; }
-        public virtual ICollection<ChartDocumentHistory> ChartDocumentHistory { get; set; }
         public virtual ICollection<VisitCodeHistory> VisitCodeHistory { get; set; }
     }
 }

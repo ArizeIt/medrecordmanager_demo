@@ -1,4 +1,4 @@
-﻿@model CodeReviewRule
+﻿@model IEnumerable<RuleModel>
 
 @section AddtoHead{
     <link href="~/lib/bootstrap-toggle/css/bootstrap-toggle.min.css" rel="stylesheet" type="text/css" />
@@ -16,7 +16,7 @@
             var regex = /^(.*)(\d)+$/i;
             var cindex = 1;
 
-            $("span.tr_clone_add").on('click', function () {
+            $("button.tr_clone_add").on('click', function () {
                 var $tr = $(this).closest('.tr_clone');
                 var $clone = $tr.clone(true);
                 cindex++;
@@ -30,12 +30,15 @@
                         this.id = match[1] + (cindex);
                     }
                 });
+                if (cindex > 1) {
+                    $clone.find('.dpl').removeAttr('disabled');
+                }
                 $tr.after($clone);
             });
 
-            $('span.tr_clone_remove').on('click', function () {
+            $('button.tr_clone_remove').on('click', function () {
                 var clone = $(this).closest('.tr_clone');
-                var rowCount =  $('#ruleDetail tr').length;
+                var rowCount = $('#ruleDetail tr').length;
                 if (rowCount > 2) {
                     clone.remove();
                 }
@@ -44,12 +47,12 @@
                     clone.find(':text').val('');
                     clone.find('.dpl').prop('selectedIndex', 0)
                 }
-                
+
             });
 
-            $('span.tr_clone_clear').on('click', function () {
-                var clone = $(this).closest('.tr_clone');               
-                    clone.find(':text').val('');
+            $('button.tr_clone_clear').on('click', function () {
+                var clone = $(this).closest('.tr_clone');
+                clone.find(':text').val('');
                 clone.find('.dpl').prop('selectedIndex', 0)
                 clone.find(':checkbox').prop('checked', false)
             });
@@ -64,6 +67,54 @@
             $('#btnAdd').on('click', function () {
                 $('#ruleContent').show();
             });
+
+            $('#btnSave').on('click', function () {
+                var name = $('#ruleName').val();
+
+                $ajax({
+                    url: '/Admin/SaveCodeReviewRule',
+                    data: '',
+                    method: 'POST',
+                    success: function (response) {
+                        if (response.success) {
+
+                        } else {
+                            alert('failed to save the current rule.')
+                        }
+                    }
+
+                });
+            });
+
+            $('button.parenAdd').on('click', function () {
+                var direction = $(this).val();
+                if (direction == 'left') {
+                    var paren = $(this).closest('tr').children('.parentheseleft')
+                    paren.append('(')
+                }
+                if (direction == 'right') {
+                    var paren = $(this).closest('tr').children('.parentheseRight')
+                    paren.append(')')
+                }
+
+            });
+
+            $('button.parenRemove').on('click', function () {
+                var direction = $(this).val();
+                var paren;
+                if (direction == 'left') {
+                    paren = $(this).closest('tr').children('.parentheseleft');
+
+                }
+                if (direction == 'right') {
+                    paren = $(this).closest('tr').children('.parentheseRight');
+                }
+                var newVal = paren.html().slice(0, -1);
+                paren.empty().append(newVal);
+            })
+
+
+
         });
     </script>
 }
@@ -78,23 +129,29 @@
             <div class="panel-body">
                 <div class="box box-danger">
                     <div class="box-header with-border">
-                       
+
                     </div>
                     <div class="box-body">
-                        
-                        @foreach(var rule in Model.RuleList)
+                        @if (Model!= null && Model.Any())
                         {
-                            <div class="form-inline">                             
-                                <button type="button" class="btn btn-default btnDeleteRule" arial-label="left Align" name="ruleId@(rule.Id)">
-                                    <span class="glyphicon glyphicon-remove" arial-hidden="true" data-></span>
-                                </button>
-                                <button type="button" class="btn btn-default" arial-label="left Align">
-                                    <span class="glyphicon glyphicon-pencil" arial-hidden="true"></span>
-                                </button>                                                       
-                                <input type="checkbox" checked="@rule.Enabled" , id="@rule.Id" data-toggle="toggle" />
-                                <lable>@rule.RuleName</lable>
-                            </div>
-                        
+                            foreach (var rule in Model)
+                            {
+                                <div class="form-inline">
+                                    <button type="button" class="btn btn-default btnDeleteRule" arial-label="left Align" name="ruleId@(rule.Id)">
+                                        <span class="glyphicon glyphicon-remove" arial-hidden="true" data-></span>
+                                    </button>
+                                    <button type="button" class="btn btn-default" arial-label="left Align">
+                                        <span class="glyphicon glyphicon-pencil" arial-hidden="true"></span>
+                                    </button>
+                                    <input type="checkbox" checked="@rule.Enabled" , id="@rule.Id" data-toggle="toggle" />
+                                    <lable>@rule.RuleName</lable>
+                                </div>
+
+                            }
+                        }
+                        else
+                        {
+                            <div class="alert alert-info">There is no rule defined yet. You can save a new rule.</div>
                         }
                     </div>
 
@@ -109,53 +166,71 @@
                 <div class="box box-warning">
                     <div class="box-header with-border">
                         <div class="col-lg-9 align-self-end">
-                            <div class="row">                                                           
-                                    <button type="button" class="btn btn-success" id="btnAdd" >Add New Rule</button>
-                                    <button type="button" class="btn btn-primary" id="btnSave" >Save</button>
-                                    <button type="button" class="btn btn-info" id="btnUndo">Undo</button>
-                                                        
+                            <div class="row">
+                                <button type="button" class="btn btn-success" id="btnAdd">Add New Rule</button>
+                                <button type="button" class="btn btn-primary" id="btnSave">Save</button>
+                                <button type="button" class="btn btn-info" id="btnUndo">Undo</button>
+
                             </div>
                         </div>
                     </div>
                     <div id="ruleContent" hidden>
                         <div class="box-body">
-                        
-                                <div class="form-inline" >
-                                    <label data-error="wrong" data-success="right" for="ruleName">Rule Name</label>
-                                    <input type="email" id="ruleName" class="form-control validate">
-                                </div>
-                        
+                            <div class="form-inline">
+                                <label data-error="wrong" data-success="right" for="ruleName">Rule Name:</label>
+                                <input type="email" id="ruleName" class="form-control validate">
+                            </div>
                         </div>
-                        <hr />      
+                        <hr />
                         <table class="table table-borderless" id="ruleDetail">
                             <thead>
                                 <tr>
                                     <th scope="col"></th>
                                     <th scope="col">And/Or</th>
                                     <th scope="col">(</th>
+                                    <th scope="col"></th>
                                     <th scope="col">Field</th>
                                     <th scope="col">Operator</th>
                                     <th scope="col">Value</th>
+                                    <th scope="col"></th>
                                     <th scope="col">)</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr class="tr_clone" id="id1">
                                     <th scope="row">
-                                        <span class="glyphicon glyphicon-plus text-green tr_clone_add" arial-hidden="true" style="padding-top: 15%" data-toggle="tooltip" title="Add row entries"></span>
-                                        <span class="glyphicon glyphicon-remove text-red tr_clone_remove" arial-hidden="true" style="padding-top: 15%" data-toggle="tooltip" title="Delete row entires"></span>
-                                        <span class="glyphicon glyphicon-repeat text-blue tr_clone_clear" arial-hidden="true" style="padding-top: 15%" data-toggle="tooltip" title="Clear row entries"></span>
+                                        <button class="btn btn-outline tr_clone_add">
+                                            <span class="glyphicon glyphicon-plus text-green" arial-hidden="true" style="padding-top: 15%" data-toggle="tooltip" title="Add row entries"></span>
+                                        </button>
+                                        <button class="btn btn-outline tr_clone_remove">
+                                            <span class="glyphicon glyphicon-remove text-red" arial-hidden="true" style="padding-top: 15%" data-toggle="tooltip" title="Delete row entires"></span>
+                                        </button>
+                                        <button class="btn btn-outline tr_clone_clear">
+                                            <span class="glyphicon glyphicon-repeat text-blue" arial-hidden="true" style="padding-top: 15%" data-toggle="tooltip" title="Clear row entries"></span>
+                                        </button>
                                     </th>
                                     <td>
-                                        <select class="form-control dpl">
+                                        <select class="form-control dpl" disabled="disabled">
                                             <option value="0">Select</option>
                                             <option value="And">And</option>
                                             <option value="Or">Or</option>
                                         </select>
                                     </td>
                                     <td>
-                                        <input type="checkbox" class="form-check-input">
+                                        <div class="col">
+                                            <div class="btn-toolbar" role="toolbar">
+                                                <div class="btn-group-vertical" role="group">
+                                                    <button class="btn btn-outline btn-xs parenAdd" value="left">
+                                                        <span class="glyphicon glyphicon-plus-sign text-green" arial-hidden="true" data-toggle="tooltip" title="Add parentheses"></span>
+                                                    </button>
+                                                    <button class="btn btn-outline btn-xs parenRemove" value="left">
+                                                        <span class="glyphicon glyphicon-remove-sign text-red" arial-hidden="true" data-toggle="tooltip" title="Delete parentheses "></span>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </td>
+                                    <td class="parentheseleft"></td>
                                     <td>
                                         <select class="form-control dpl">
                                             <option value="And">Select</option>
@@ -183,8 +258,18 @@
                                     <td>
                                         <input type="text" class="form-control" />
                                     </td>
+                                    <td class="parentheseRight"></td>
                                     <td>
-                                        <input type="checkbox" class="form-check-input">
+                                        <div class="btn-toolbar" role="toolbar">
+                                            <div class="btn-group-vertical" role="group">
+                                                <button class="btn btn-outline btn-xs parenAdd" value="right">
+                                                    <span class="glyphicon glyphicon-plus-sign text-green" arial-hidden="true" data-toggle="tooltip" title="Add parentheses"></span>
+                                                </button>
+                                                <button class="btn btn-outline btn-xs parenRemove" value="right">
+                                                    <span class="glyphicon glyphicon-remove-sign text-red" arial-hidden="true" data-toggle="tooltip" title="Delete parentheses "></span>
+                                                </button>
+                                            </div>
+                                        </div>
                                     </td>
                                 </tr>
                             </tbody>

@@ -28,6 +28,7 @@ namespace UrgentCareData
         public virtual DbSet<ChartDocumentHistory> ChartDocumentHistory { get; set; }
         public virtual DbSet<ChartImportLog> ChartImportLog { get; set; }
         public virtual DbSet<ClinicProfile> ClinicProfile { get; set; }
+        public virtual DbSet<CodeReviewRule> CodeReviewRule { get; set; }
         public virtual DbSet<CptCodeLookup> CptCodeLookup { get; set; }
         public virtual DbSet<FinClass> FinClass { get; set; }
         public virtual DbSet<GuarantorImportLog> GuarantorImportLog { get; set; }
@@ -49,14 +50,12 @@ namespace UrgentCareData
         public virtual DbSet<VisitImpotLog> VisitImpotLog { get; set; }
         public virtual DbSet<VisitProcCode> VisitProcCode { get; set; }
 
-        // Unable to generate entity type for table 'dbo.InsurancecarriersMapping'. Please see the warning messages.
-
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             if (!optionsBuilder.IsConfigured)
             {
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. See http://go.microsoft.com/fwlink/?LinkId=723263 for guidance on storing connection strings.
-                optionsBuilder.UseSqlServer("Server=(local);Database=UrgentCare;Integrated Security=True;Trusted_Connection=True;");
+                optionsBuilder.UseSqlServer("Server=localhost;Database=UrgentCare;Trusted_Connection=True;");
             }
         }
 
@@ -195,19 +194,13 @@ namespace UrgentCareData
 
             modelBuilder.Entity<ChartDocumentHistory>(entity =>
             {
-                entity.HasKey(e => e.ChartDocumentHistoryId);
-
-                entity.Property(e => e.FileName)
-                    .IsRequired()
-                    .HasColumnName("Filename");
-
-                entity.Property(e => e.IsTemp)
-                    .IsRequired()
-                    .HasColumnName("IsTemp");
-
                 entity.Property(e => e.ChartImage)
                     .IsRequired()
                     .HasColumnType("image");
+
+                entity.Property(e => e.Filename)
+                    .IsRequired()
+                    .HasMaxLength(500);
 
                 entity.Property(e => e.UploadedBy)
                     .IsRequired()
@@ -216,12 +209,6 @@ namespace UrgentCareData
                 entity.Property(e => e.UploadedTime)
                     .HasColumnName("uploadedTime")
                     .HasColumnType("datetime");
-
-                entity.HasOne(d => d.VisitHistory)
-                    .WithMany(p => p.ChartDocumentHistory)
-                    .HasForeignKey(d => d.VisitHistoryId)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK_ChartDocumentHistory_VisitHistory");
             });
 
             modelBuilder.Entity<ChartImportLog>(entity =>
@@ -266,6 +253,21 @@ namespace UrgentCareData
                     .IsUnicode(false);
             });
 
+            modelBuilder.Entity<CodeReviewRule>(entity =>
+            {
+                entity.Property(e => e.CreatedBy)
+                    .IsRequired()
+                    .HasMaxLength(200);
+
+                entity.Property(e => e.CreatedTime).HasColumnType("datetime");
+
+                entity.Property(e => e.Active).IsRequired();
+                
+                entity.Property(e => e.RuleName)
+                    .IsRequired()
+                    .HasMaxLength(255);
+            });
+
             modelBuilder.Entity<CptCodeLookup>(entity =>
             {
                 entity.HasKey(e => e.Code);
@@ -274,16 +276,10 @@ namespace UrgentCareData
                     .HasMaxLength(255)
                     .ValueGeneratedNever();
 
-                entity.Property(e => e.ShortDescription)
-                    .HasColumnName("ShortDescription")
-                    .HasMaxLength(255);
+                entity.Property(e => e.LongDescription).HasMaxLength(500);
 
-                entity.Property(e => e.LongDescription)
-                    .HasColumnName("LongDescription")
-                    .HasMaxLength(500);
-
+                entity.Property(e => e.ShortDescription).HasMaxLength(255);
             });
-
 
             modelBuilder.Entity<FinClass>(entity =>
             {
@@ -420,10 +416,10 @@ namespace UrgentCareData
 
             modelBuilder.Entity<Modifier>(entity =>
             {
-                entity.HasKey(e => e.ModifierCode);
+                entity.HasKey(e => e.ModifierCode)
+                    .HasName("PK_ModifierCode");
 
                 entity.Property(e => e.ModifierCode)
-                    .HasColumnName("ModifierCode")
                     .HasMaxLength(50)
                     .ValueGeneratedNever();
 
@@ -789,7 +785,7 @@ namespace UrgentCareData
 
                 entity.Property(e => e.Emcode)
                     .HasColumnName("EMCode")
-                    .HasMaxLength(10);
+                    .HasMaxLength(50);
 
                 entity.Property(e => e.Icdcodes)
                     .HasColumnName("ICDCodes")
@@ -853,10 +849,11 @@ namespace UrgentCareData
 
             modelBuilder.Entity<VisitCodeHistory>(entity =>
             {
-                entity.Property(e => e.Code).HasMaxLength(200);
                 entity.Property(e => e.Action)
                     .IsRequired()
                     .HasMaxLength(50);
+
+                entity.Property(e => e.Code).HasMaxLength(200);
 
                 entity.Property(e => e.CodeType)
                     .IsRequired()
@@ -869,6 +866,7 @@ namespace UrgentCareData
                 entity.Property(e => e.ModifiedTime).HasColumnType("datetime");
 
                 entity.Property(e => e.Modifier).HasMaxLength(50);
+
                 entity.Property(e => e.Modifier2).HasMaxLength(50);
 
                 entity.HasOne(d => d.VisitHistory)
@@ -886,32 +884,25 @@ namespace UrgentCareData
 
                 entity.Property(e => e.Emcode)
                     .HasColumnName("EMCode")
-                    .HasMaxLength(10);
+                    .HasMaxLength(50);
+
+                entity.Property(e => e.FinalizedTime).HasColumnType("datetime");
 
                 entity.Property(e => e.Icdcodes)
                     .HasColumnName("ICDCodes")
                     .HasMaxLength(500);
+
+                entity.Property(e => e.ModifiedBy)
+                    .IsRequired()
+                    .HasMaxLength(100);
+
+                entity.Property(e => e.ModifiedTime).HasColumnType("datetime");
 
                 entity.Property(e => e.ProcCodes).HasMaxLength(500);
 
                 entity.Property(e => e.ServiceDate).HasColumnType("datetime");
 
                 entity.Property(e => e.VisitId).HasColumnName("visitId");
-
-                entity.Property(e => e.ModifiedBy)
-                .IsRequired()
-                .HasMaxLength(100)
-                .HasColumnName("ModifiedBy");
-
-                entity.Property(e => e.ModifiedTime)
-                .IsRequired()
-                .HasColumnName("ModifiedTime");
-
-                entity.Property(e => e.FinalizedTime).HasColumnName("FinalizedTime");
-
-                entity.Property(e => e.Saved)
-                .IsRequired()
-                .HasColumnName("Saved");
 
                 entity.HasOne(d => d.Visit)
                     .WithMany(p => p.VisitHistory)
@@ -955,8 +946,10 @@ namespace UrgentCareData
 
             modelBuilder.Entity<VisitProcCode>(entity =>
             {
-                entity.Property(e => e.ProcCode).HasMaxLength(200);
                 entity.Property(e => e.Modifier).HasMaxLength(50);
+
+                entity.Property(e => e.ProcCode).HasMaxLength(200);
+
                 entity.HasOne(d => d.Visit)
                     .WithMany(p => p.VisitProcCode)
                     .HasForeignKey(d => d.VisitId)
