@@ -183,6 +183,12 @@ namespace MedRecordManager.Controllers
                     foreach (var cpt in oriCpt)
                     {
                         Utility.ParseModifierCode(cpt.Modifier, out string modifier1, out string modifier2);
+                        if (cpt.ProcCode.Contains(","))
+                        {
+                            var result = cpt.ProcCode.Split(',');
+                            cpt.ProcCode = result[0];
+                            modifier1 = result[1];
+                        }
                         _urgentCareContext.VisitCodeHistory.Add(new VisitCodeHistory
                         {
                             VisitHistoryId = visitHistoryId,
