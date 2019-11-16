@@ -57,6 +57,7 @@ namespace MedRecordManager
             });
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
+            services.AddSignalR();
 
             services.AddDistributedMemoryCache();
             services.AddSession(opts =>
@@ -71,6 +72,7 @@ namespace MedRecordManager
             services.AddScoped<IViewRenderService, ViewRenderService>();
             services.AddScoped<ILookupService, LookupService>();
             services.AddScoped<ILoginService, LoginService>();
+            
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
