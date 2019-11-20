@@ -8,10 +8,52 @@
     <script src="~/lib/bootstrap-toggle/js/bootstrap-toggle.min.js"></script>
     <script type="text/javascript">
         $(document).ready(function () {
+           
             $('.btnDeleteRule').on('click', function () {
-                var ruleId = $(this).attr('name');
-                alert(ruleId);
+                var id = $(this).attr('value');
+                var boxDiv = $(this).closest('.box-body');
+                if(confirm('You are about to delete a rule, are you sure?')){
+                    $.ajax({
+                    url:'/Admin/DeleteRule',
+                    data : {ruleId : id},
+                    method : 'DELETE', 
+                    success : function(response){
+                        if(response.success){
+                            $('#ruleId'+id).remove();
+                            if(response.last)
+                            {
+                              boxDiv.empty().html('<div class="alert alert-info">There is no rule defined yet. You can save a new rule.</div>');
+                            }
+                        }
+                        else{
+                            alert('Failed to delete this rule.');
+                            }
+                        }
+                    });
+                }
+                
             });
+
+
+            $('.btnEditRule').on('click', function () {
+                var id = $(this).attr('value');
+                $.ajax({
+                url:'/Admin/LoadRule',
+                data : {ruleId : id},
+                method : 'GET', 
+                success : function(response){
+                    if(response.success){
+                        $('#ruleContent').show();
+                        $('#ruleName').val(response.data.ruleName);
+                        $('#ruleId').val(response.data.id);
+                    }
+                    else{
+                        alert('Failed to load this rule.');
+                        }
+                    }
+                });    
+            });
+
 
             var regex = /^(.*)(\d)+$/i;
             var cindex = 1;
@@ -69,17 +111,73 @@
             });
 
             $('#btnSave').on('click', function () {
-                var name = $('#ruleName').val();
+                var id = $('#ruleId').val();
+                var rulename = $('#ruleName').val();
+                var rowCount = $('#ruleDetail tr').length;
+                var ruleData = []; 
+        
+                for(var i = 1; i< rowCount; i++)
+                {
+                    var ruletr = $('#id'+i);
+                    var ruleitem = {
+                        logicOperator: '',                
+                        operator : '',
+                        openparenthese : '',
+                        closeparenthese : '',
+                        field : '',
+                        fieldValue :'',
+                    };
+                    if(!ruletr.find('.ruleLogic').is('[disabled=disabled]')){
+                        if(ruletr.find('.ruleLogic').val() != 0)
+                        {
+                            ruleitem.logicOperator= ruletr.find('.ruleLogic').val();
+                        }
+                    }
+                    
+                    if(ruletr.find('.parentheseleft').html() != ""){
+                        ruleitem.openparenthese= ruletr.find('.parentheseleft').html();
+                    }
+                    
+                    if(ruletr.find('.parentheseRight').html() != ""){
+                        ruleitem.closeparenthese= ruletr.find('.parentheseRight').html()
+                    }
+                    
+                    if(!ruletr.find('.ruleField').is('[disabled=disabled]')){
+                        if(ruletr.find('.ruleField').val() != 0)
+                        {
+                            ruleitem.field = ruletr.find('.ruleField').val();
+                        }
+                    }
+                    
+                    if(!ruletr.find('.ruleOperator').is('[disabled=disabled]')){
+                        if(ruletr.find('.ruleOperator').val() != 0)
+                        {
+                            ruleitem.operator = ruletr.find('.ruleOperator').val();
+                        }
+                    }
+                    
+                    if (ruletr.find('.ruleVal').val() !=""){
 
-                $ajax({
-                    url: '/Admin/SaveCodeReviewRule',
-                    data: '',
+                        ruleitem.fieldValue = ruletr.find('.ruleVal').val();
+                    }
+
+                    ruleData.push(ruleitem);
+                };
+                                      
+                
+                $.ajax({
+                    url: '/Admin/SaveReviewRule',
+                    data: {
+                            ruleName : rulename,
+                            ruleId : id,
+                            ruleSets: ruleData
+                        },
                     method: 'POST',
                     success: function (response) {
                         if (response.success) {
-
+                            window.location.replace('@Url.Action("CodeReviewRule", "Admin")');
                         } else {
-                            alert('failed to save the current rule.')
+                            $('#ruleMsg').show();
                         }
                     }
 
@@ -111,10 +209,26 @@
                 }
                 var newVal = paren.html().slice(0, -1);
                 paren.empty().append(newVal);
-            })
+            });
+            
+            $('.chkRule').on('change', function(){
+                var id= $(this).attr('value');
+                var active = $(this).is(':checked');
+                $.ajax({
+                    url:'/Admin/SetRuleActive',
+                    data:{ruleId:id, isOn: active},
+                    method: 'POST',
+                    success : function(response){
+                        if(response.success){
+                            alert('this rule is active');
+                        }
+                    }
+                });
+            });
 
-
-
+            $('#ruleName').change(function(){
+                $('#ruleMsg').hide();
+            }); 
         });
     </script>
 }
@@ -136,14 +250,14 @@
                         {
                             foreach (var rule in Model)
                             {
-                                <div class="form-inline">
-                                    <button type="button" class="btn btn-default btnDeleteRule" arial-label="left Align" name="ruleId@(rule.Id)">
+                                <div class="form-inline top-buffer" id="ruleId@(rule.Id)">
+                                    <button type="button" class="btn btn-default btnDeleteRule" arial-label="left Align" value="@rule.Id">
                                         <span class="glyphicon glyphicon-remove" arial-hidden="true" data-></span>
                                     </button>
-                                    <button type="button" class="btn btn-default" arial-label="left Align">
+                                    <button type="button" class="btn btn-default btnEditRule" arial-label="left Align" value="@(rule.Id)">
                                         <span class="glyphicon glyphicon-pencil" arial-hidden="true"></span>
-                                    </button>
-                                    <input type="checkbox" checked="@rule.Enabled" , id="@rule.Id" data-toggle="toggle" />
+                                    </button>         
+                                        <input type="checkbox" checked="@rule.Enabled" data-toggle="toggle" class="chkRule" value="@rule.Id">                          
                                     <lable>@rule.RuleName</lable>
                                 </div>
 
@@ -161,7 +275,11 @@
     </div>
     <div class="col-lg-9">
         <div class="panel panel-default">
-            <div class="panel-heading"><h3>Rule Details</h3></div>
+            <div class="panel-heading">
+                <h3>
+                    Rule Detail
+                </h3>
+            </div>
             <div class="panel-body">
                 <div class="box box-warning">
                     <div class="box-header with-border">
@@ -176,12 +294,18 @@
                     </div>
                     <div id="ruleContent" hidden>
                         <div class="box-body">
+                            <div class="alert alert-danger alert-dismissible" role="alert" id='ruleMsg' hidden>
+                                <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                                <strong>Attention!</strong> The rule with the same name already exists.
+                            </div>
                             <div class="form-inline">
                                 <label data-error="wrong" data-success="right" for="ruleName">Rule Name:</label>
-                                <input type="email" id="ruleName" class="form-control validate">
+                                <input type="text" id="ruleName" class="form-control validate" required>
                             </div>
+                            <input type="hidden" id="ruleId" value="0" />
                         </div>
                         <hr />
+                
                         <table class="table table-borderless" id="ruleDetail">
                             <thead>
                                 <tr>
@@ -210,7 +334,7 @@
                                         </button>
                                     </th>
                                     <td>
-                                        <select class="form-control dpl" disabled="disabled">
+                                        <select class="form-control dpl ruleLogic" disabled="disabled">
                                             <option value="0">Select</option>
                                             <option value="And">And</option>
                                             <option value="Or">Or</option>
@@ -232,8 +356,8 @@
                                     </td>
                                     <td class="parentheseleft"></td>
                                     <td>
-                                        <select class="form-control dpl">
-                                            <option value="And">Select</option>
+                                        <select class="form-control dpl ruleField">
+                                            <option value="0">Select</option>
                                             <option value="CPT">A CPT</option>
                                             <option value="EM">An E&M</option>
                                             <option value="ICD">An ICD</option>
@@ -243,20 +367,20 @@
                                         </select>
                                     </td>
                                     <td>
-                                        <select class="form-control dpl">
-                                            <option value="And">Select</option>
-                                            <option value="And">Equals</option>
-                                            <option value="Or">Not Equals</option>
-                                            <option value="Or">Contains</option>
-                                            <option value="Or">NotContains</option>
-                                            <option value="Or">Greater Than</option>
-                                            <option value="Or">Less Than</option>
-                                            <option value="Or">Start With</option>
-                                            <option value="Or">End With<</option>
+                                        <select class="form-control dpl ruleOperator">
+                                            <option value="0">Select</option>
+                                            <option value="=">Equals</option>
+                                            <option value="!=">Not Equals</option>
+                                            <option value="like">Contains</option>
+                                            <option value="not like">NotContains</option>
+                                            <option value=">=">Greater Than</option>
+                                            <option value="<=">Less Than</option>
+                                            <option value="startwith">Start With</option>
+                                            <option value="endWith">End With<</option>
                                         </select>
                                     </td>
                                     <td>
-                                        <input type="text" class="form-control" />
+                                        <input type="text" class="form-control ruleVal" />
                                     </td>
                                     <td class="parentheseRight"></td>
                                     <td>

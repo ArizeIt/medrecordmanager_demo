@@ -259,6 +259,9 @@ namespace UrgentCareData
                     .IsRequired()
                     .HasMaxLength(200);
 
+                entity.Property(e => e.LastModifiedBy).HasMaxLength(200);
+
+                entity.Property(e => e.LastModifiedTime).HasColumnName("LastModifiedTime");
                 entity.Property(e => e.CreatedTime).HasColumnType("datetime");
 
                 entity.Property(e => e.Active).IsRequired();

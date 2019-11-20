@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Newtonsoft.Json;
 using UrgentCareData;
 using UrgentCareData.Models;
 
@@ -325,18 +326,116 @@ namespace MedRecordManager.Controllers
         }
 
         [HttpGet]
-
         public IActionResult CodeReviewRule()
         {
-            _urgentData.CodeReviewRule.AsParallel().Select(x => new RuleModel {
+            var ruleModel = _urgentData.CodeReviewRule.AsParallel().Select(x => new RuleModel {
                 Id = x.Id,
                 RuleName = x.RuleName,
                 Enabled = x.Active
             });
             //var ruleModel = null; 
-            return View("CodeReviewRule", null);
+            return View("CodeReviewRule", ruleModel);
         }
 
+        [HttpGet]
+        public IActionResult LoadRule(int ruleId)
+        {
+            var result = _urgentData.CodeReviewRule.First(x => x.Id == ruleId);
+            var ruleDetail = new RuleModel
+            {
+                RuleName = result.RuleName,
+                Id = result.Id,
+                Definition = !string.IsNullOrEmpty(result.RuleJsonString) ? JsonConvert.DeserializeObject<List<RuleItem>>(result.RuleJsonString) : new List<RuleItem>()
+            };
+            return Json(new {success= true, data = ruleDetail });
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> SaveReviewRule(int ruleId, string ruleName, List<RuleItem> ruleSets)
+        {
+            var existingRule = _urgentData.CodeReviewRule.FirstOrDefault(x => x.Id == ruleId);
+            var sameNameRule = _urgentData.CodeReviewRule.FirstOrDefault(x => x.RuleName == ruleName);
+
+            
+            if(existingRule == null)
+            {
+                if(sameNameRule == null)
+                {
+                    _urgentData.CodeReviewRule.Add(new CodeReviewRule
+                    {
+                        RuleName = ruleName,
+                        RuleJsonString = ruleSets.Any()? JsonConvert.SerializeObject(ruleSets).ToString(): "",
+                        CreatedBy = HttpContext.User.Identity.Name,
+                        CreatedTime = DateTime.Now
+                    });
+                }
+                else
+                {
+                    return Json(new { sucess = false, message = "Same rule names alreasy exists." });
+                }
+            }
+            else
+            {
+                if(sameNameRule == null ||(sameNameRule !=null && sameNameRule.Id ==ruleId))
+                {
+                    _urgentData.CodeReviewRule.Attach(existingRule);
+                    existingRule.RuleName = ruleName;
+                    existingRule.LastModifiedBy = HttpContext.User.Identity.Name;
+                    existingRule.LastModifiedTime = DateTime.UtcNow;
+                    existingRule.RuleJsonString = ruleSets.Any() ? JsonConvert.SerializeObject(ruleSets) : "";
+                }
+                else
+                {
+                    return Json(new { sucess = false, message = "Same rule names exisit" });
+                }
+                            
+            }
+            
+            try
+            {
+                await _urgentData.SaveChangesAsync();
+                return Json(new { success = true });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message="server side error, can not save the rule." });
+            }
+        }
+
+        [HttpDelete]
+        public async Task<IActionResult> DeleteRule(int ruleId)
+        {
+            var existingRule = _urgentData.CodeReviewRule.First(x => x.Id == ruleId);
+
+            try
+            {
+                _urgentData.Remove(existingRule);
+                await _urgentData.SaveChangesAsync();
+                return Json(new { success = true, last = !_urgentData.CodeReviewRule.Any()});
+            }
+           
+            catch(Exception ex)
+            {
+                return Json(new { success = false });
+            }
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> SetRuleActive(int ruleId, bool isOn)
+        {
+            var match = _urgentData.CodeReviewRule.First(x => x.Id == ruleId);
+            _urgentData.CodeReviewRule.Attach(match);
+            match.Active = isOn;
+            try
+            {
+                await _urgentData.SaveChangesAsync();
+                return Json(new { success = false });
+            }
+            catch(Exception ex)
+            {
+                return Json(new { success = false });
+            }     
+        }
         private async Task<IList<SelectListItem>> GetAmdProviderList(string officeKey)
         {
             int.TryParse(officeKey, out int numOfficeKey);

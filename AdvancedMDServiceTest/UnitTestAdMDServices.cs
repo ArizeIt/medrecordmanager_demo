@@ -21,7 +21,7 @@ namespace AdvancedMDServiceTest
             var uri = new Uri("https://partnerlogin.advancedmd.com/practicemanager/xmlrpc/processrequest.aspx");
             var app = new LoginService();
 
-            var response = app.ProcessLogin(uri, 1, "cmcus0228", "wer789gg", "133358", "MyApp", null).Result;
+            var response = app.ProcessLogin(uri, 1, "cmcus0228", "wer789gg", "133358", "CMCU", null).Result;
             ////var response = app.ProcessLogin(1, "cmcus0228", "rbw!@345", "132677", "MyApp", null);
             ////var response = app.ProcessLogin(1, "CMUC-FUL", "xcv900bb", "991347", "MyApp", null);
             ////var response = app.ProcessLogin(1, "SINAI0725", "hjp()567", "132637", "MyApp", null);
