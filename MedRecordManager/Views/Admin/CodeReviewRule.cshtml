@@ -9,7 +9,7 @@
     <script type="text/javascript">
         $(document).ready(function () {
             var regex = /^(.*)(\d)+$/i;
-
+            
             $('.btnDeleteRule').on('click', function () {
                 var id = $(this).attr('value');
                 var boxDiv = $(this).closest('.box-body');
@@ -45,24 +45,19 @@
                 success : function(response){
                     if(response.success){
                         $('#ruleContent').show();
+                        cleanRuleTable();
                         $('#ruleName').val(response.data.ruleName);
                         $('#ruleId').val(response.data.id);
                         if (response.data.definition.length > 0) {
                             if (response.data.definition.length > 1) {
-                                var originalTr = $('#id1');
                                 
-                                var cloneTr = originalTr.clone(true);
 
-                                for (var i = 1; i < response.data.definition.length; i++) {
-                                    cloneTr.attr('id', 'id' + (i + 1))
-                                    cloneTr.find("*").each(function () {
-                                        var id = this.id || "";
-                                        var match = id.match(regex) || [];
-                                        if (match.length == 3) {
-                                            this.id = match[1] + (cindex);
-                                        }
-                                    });
-                                    originalTr.after(cloneTr);
+                                for (var i = 2; i < (response.data.definition.length +1); i++) {
+                                    var originalTr = $('#id'+(i-1));                             
+                                    var cloneTr = originalTr.clone(true);
+                                   cloneRuleTable(cloneTr,i);
+                                  
+                                   originalTr.after(cloneTr);
                                 }
                             }
 
@@ -107,28 +102,13 @@
                     }
                 });    
             });
-
-
-            
-            var cindex = 1;
+ 
 
             $("button.tr_clone_add").on('click', function () {
                 var $tr = $(this).closest('.tr_clone');
                 var $clone = $tr.clone(true);
-                cindex++;
-                $clone.find(':text').val('');
-                $clone.attr('id', 'id' + (cindex)); //update row id if required
-                //update ids of elements in row
-                $clone.find("*").each(function () {
-                    var id = this.id || "";
-                    var match = id.match(regex) || [];
-                    if (match.length == 3) {
-                        this.id = match[1] + (cindex);
-                    }
-                });
-                if (cindex > 1) {
-                    $clone.find('.dpl').removeAttr('disabled');
-                }
+                var cindex = $('#ruleDetail tr').length;           
+                cloneRuleTable($clone, cindex);         
                 $tr.after($clone);
             });
 
@@ -154,10 +134,7 @@
             });
 
             $('#btnUndo').on('click', function () {
-                $('#ruleDetail').find("tr:gt(1)").remove();
-                $('.tr_clone').find(':text').val('')
-                $('.tr_clone').find('.dpl').prop('selectedIndex', 0)
-                $('.tr_clone').find(':checkbox').prop('checked', false)
+                cleanRuleTable();
             })
 
             $('#btnAdd').on('click', function () {
@@ -283,6 +260,30 @@
             $('#ruleName').change(function(){
                 $('#ruleMsg').hide();
             }); 
+
+            function cleanRuleTable(){
+                $('#ruleDetail').find("tr:gt(1)").remove();
+                $('.tr_clone').find(':text').val('')
+                $('.tr_clone').find('.dpl').prop('selectedIndex', 0)
+                $('.tr_clone').find(':checkbox').prop('checked', false)
+            }
+            
+            function cloneRuleTable(clone, index){
+                clone.attr('id', 'id' + (index)); //update row id if required
+                clone.find(':text').val('');
+                //update ids of elements in row
+                clone.find("*").each(function () {
+                    var id = this.id || "";
+                    var match = id.match(regex) || [];
+                    if (match.length == 3) {
+                        this.id = match[1] + (index);
+                    }
+                });
+                if (index > 1) {
+                    clone.find('.dpl').removeAttr('disabled');
+                }
+            }
+            
         });
     </script>
 }
