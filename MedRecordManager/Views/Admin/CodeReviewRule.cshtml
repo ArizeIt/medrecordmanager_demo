@@ -8,7 +8,8 @@
     <script src="~/lib/bootstrap-toggle/js/bootstrap-toggle.min.js"></script>
     <script type="text/javascript">
         $(document).ready(function () {
-           
+            var regex = /^(.*)(\d)+$/i;
+
             $('.btnDeleteRule').on('click', function () {
                 var id = $(this).attr('value');
                 var boxDiv = $(this).closest('.box-body');
@@ -46,6 +47,59 @@
                         $('#ruleContent').show();
                         $('#ruleName').val(response.data.ruleName);
                         $('#ruleId').val(response.data.id);
+                        if (response.data.definition.length > 0) {
+                            if (response.data.definition.length > 1) {
+                                var originalTr = $('#id1');
+                                
+                                var cloneTr = originalTr.clone(true);
+
+                                for (var i = 1; i < response.data.definition.length; i++) {
+                                    cloneTr.attr('id', 'id' + (i + 1))
+                                    cloneTr.find("*").each(function () {
+                                        var id = this.id || "";
+                                        var match = id.match(regex) || [];
+                                        if (match.length == 3) {
+                                            this.id = match[1] + (cindex);
+                                        }
+                                    });
+                                    originalTr.after(cloneTr);
+                                }
+                            }
+
+                            for (var i = 0; i < response.data.definition.length; i++) {
+                                var ruletr = $('#id' + (i+1));
+
+                                if (response.data.definition[i].logicOperator != null) {
+                                    ruletr.find('.ruleLogic').val(response.data.definition[i].logicOperator);
+                                    
+                                }
+
+                                if (response.data.definition[i].openparenthese != null) {
+                                    ruletr.find('.parentheseleft').html(response.data.definition[i].openparenthese);
+                                }
+
+                                if (response.data.definition[i].closeparenthese != null) {
+                                    ruletr.find('.parentheseRight').html(response.data.definition[i].closeparenthese)
+                                }
+
+                                if (response.data.definition[i].field !=null) {
+                                    
+                                   ruletr.find('.ruleField').val(response.data.definition[i].field);
+                                    
+                                }
+
+                                if (response.data.definition[i].operator!= null) {
+                                    
+                                   ruletr.find('.ruleOperator').val(response.data.definition[i].operator);
+                                    
+                                }
+
+                                if (response.data.definition[i].fieldValue != "") {
+
+                                    ruletr.find('.ruleVal').val(response.data.definition[i].fieldValue);
+                                }
+                            }
+                        }
                     }
                     else{
                         alert('Failed to load this rule.');
@@ -55,7 +109,7 @@
             });
 
 
-            var regex = /^(.*)(\d)+$/i;
+            
             var cindex = 1;
 
             $("button.tr_clone_add").on('click', function () {
