@@ -176,20 +176,20 @@
                     if(!ruletr.find('.ruleField').is('[disabled=disabled]')){
                         if(ruletr.find('.ruleField').val() != 0)
                         {
-                            ruleitem.field = ruletr.find('.ruleField').val();
+                            ruleitem.field = ruletr.find('.ruleField').val().trim();
                         }
                     }
                     
                     if(!ruletr.find('.ruleOperator').is('[disabled=disabled]')){
                         if(ruletr.find('.ruleOperator').val() != 0)
                         {
-                            ruleitem.operator = ruletr.find('.ruleOperator').val();
+                            ruleitem.operator = ruletr.find('.ruleOperator').val().trim();
                         }
                     }
                     
                     if (ruletr.find('.ruleVal').val() !=""){
 
-                        ruleitem.fieldValue = ruletr.find('.ruleVal').val();
+                        ruleitem.fieldValue = ruletr.find('.ruleVal').val().trim();
                     }
 
                     ruleData.push(ruleitem);
@@ -263,7 +263,9 @@
 
             function cleanRuleTable(){
                 $('#ruleDetail').find("tr:gt(1)").remove();
-                $('.tr_clone').find(':text').val('')
+                $('.tr_clone').find(':text').val('');
+                $('.tr_clone').find('.parentheseleft').html('');
+                $('.tr_clone').find('.parentheseRight').html('');
                 $('.tr_clone').find('.dpl').prop('selectedIndex', 0)
                 $('.tr_clone').find(':checkbox').prop('checked', false)
             }
@@ -413,9 +415,9 @@
                                     <td>
                                         <select class="form-control dpl ruleField">
                                             <option value="0">Select</option>
-                                            <option value="CPT">A CPT</option>
-                                            <option value="EM">An E&M</option>
-                                            <option value="ICD">An ICD</option>
+                                            <option value="ProcCode">A CPT</option>
+                                            <option value="EMCode">An EM</option>
+                                            <option value="IcdCodes">An ICD</option>
                                             <option value="Modifier">A Modifier</option>
                                             <option value="ChartText">Chart Text</option>
 
@@ -430,7 +432,7 @@
                                             <option value="not like">NotContains</option>
                                             <option value=">=">Greater Than</option>
                                             <option value="<=">Less Than</option>
-                                            <option value="startwith">Start With</option>
+                                            <option value="startWith">Start With</option>
                                             <option value="endWith">End With<</option>
                                         </select>
                                     </td>

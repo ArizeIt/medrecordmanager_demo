@@ -22,6 +22,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using PVAMCommon;
 using UrgentCareData;
@@ -196,7 +197,7 @@ namespace MedRecordManager.Controllers
                             Code = cpt.ProcCode,
                             Modifier = modifier1,
                             Modifier2 = modifier2,
-                            Quantity = cpt.Quantity.GetValueOrDefault(),
+                            Quantity = cpt.Quantity.GetValueOrDefault(1),
                             ModifiedBy = HttpContext.User.Identity.Name,
                             ModifiedTime = DateTime.UtcNow,
                             Action = "Cloned"
@@ -609,7 +610,7 @@ namespace MedRecordManager.Controllers
                         ModifierCode = x.Modifier,
                         ModifierCode2 = x.Modifier2,
                         CodeType = x.CodeType,
-                        Quantity = x.Quantity.GetValueOrDefault(0),
+                        Quantity = x.Quantity.GetValueOrDefault(1),
                         ShortDescription = ""
                     }).ToList();
 
@@ -1055,7 +1056,72 @@ namespace MedRecordManager.Controllers
             return Json(new { error = "email did not send" });
         }
                
-               
+        [HttpPost]
+        public async Task<IActionResult> ScrubRecord(string officekey, DateTime startDate, DateTime endDate)
+        {
+          
+            var officekeys = officekey.Split(',').ToList();
+            var activeRules = _urgentCareContext.CodeReviewRule.Where(x => x.Active);
+            var rawString = string.Empty;
+            foreach (var ruleSet in activeRules)
+            {
+                var ruleDetail = !string.IsNullOrEmpty(ruleSet.RuleJsonString)
+                    ? JsonConvert.DeserializeObject<List<RuleItem>>(ruleSet.RuleJsonString)
+                    : new List<RuleItem>();
+                var queryString = "Select * from Visit Where ";
+           
+                
+                if (ruleDetail.Any())
+                {
+                    foreach (var item in ruleDetail)
+                    {
+                        if (item.Operator != "startWith" && item.Operator != "endwith" && item.Operator != "like")
+                        {
+                            queryString += " " + item.LogicOperator + " " + item.Openparenthese + item.Field + " " + item.Operator + " '" + item.FieldValue + "'" + item.Closeparenthese;
+                        }
+                        if (item.Operator == "like")
+                        {
+                            queryString += " " + item.LogicOperator + " " + item.Openparenthese + item.Field + " " + item.Operator + " '%" + item.FieldValue + "%'" + item.Closeparenthese;
+                        }
+                        if (item.Operator == "startWith")
+                        {
+                            queryString += " " + item.LogicOperator + " " + item.Openparenthese + item.Field + " " + item.Operator + " '%" + item.FieldValue + "'" + item.Closeparenthese;
+                        }
+
+                        if (item.LogicOperator == "endWith")
+                        {
+                            queryString += " " + item.LogicOperator + " " + item.Openparenthese + item.Field + " " + item.Operator + " '" + item.FieldValue + "%'" + item.Closeparenthese;
+                        }
+                    }
+                }
+                if (ruleSet != activeRules.Last())
+                {
+                    rawString += queryString + " UNION ";
+                }
+                else
+                {
+                    rawString += queryString;
+                }
+            }
+
+            var sqlString = new RawSqlString(rawString);
+            try {
+                //var result = _urgentCareContext.Visit.Include(x => x.VisitImpotLog).FromSql(rawString).Where(x => officekeys.Contains(x.OfficeKey.ToString()) && x.ServiceDate >= startDate && x.ServiceDate <= endDate && !x.VisitImpotLog.Any() && !x.Flagged).ToList();
+                var query = _urgentCareContext.Visit.Include(x => x.VisitImpotLog).FromSql(rawString);
+                var results = query.Where(x=> officekeys.Contains(x.OfficeKey.ToString()) && x.ServiceDate >= startDate && x.ServiceDate <= endDate && !x.Flagged && !x.VisitImpotLog.Any());
+                foreach(var result in results)
+                {
+                    result.Flagged = true;
+                }
+                _urgentCareContext.SaveChanges();
+                return Json(new { success = true });
+            }
+            catch(Exception ex)
+            {
+                return Json(new {success=false, message=ex.Message});
+            }
+          
+        }
         private IEnumerable<SelectListItem> GetAvaliableOfficeKeys()
         {
             return _urgentCareContext.ProgramConfig.Where(x => !x.AmdSync).DistinctBy(x => x.AmdofficeKey)

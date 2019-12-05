@@ -25,7 +25,7 @@ namespace PVAMCommon
         public static  void ParseCptCode(string originalcode,  out string code,  out int quantity, out string modifier1, out string modifier2)
         {
             code = string.Empty;
-            quantity = 0;
+            quantity = 1;
             modifier1 = string.Empty;
             modifier2 = string.Empty;
 
@@ -66,6 +66,7 @@ namespace PVAMCommon
                             code = result[0];
                             modifier1 = result[1];
                             modifier2 = result[2];
+                            codeQuantity = 1;
                         }
                     }
                     if (result.Count() == 4)

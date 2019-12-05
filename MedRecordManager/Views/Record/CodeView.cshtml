@@ -2,13 +2,18 @@
 
 @section AddtoHead{
     <link href="~/lib/bootstrap-toggle/css/bootstrap-toggle.min.css" rel="stylesheet" type="text/css" />
+    <link href="~/css/autoComplete-lhc.css" rel="stylesheet" type="text/css" />
 }
 
 @section scripts{
     <script src="~/lib/printThis/printThis.js"></script>
     <script src="~/lib/bootstrap-toggle/js/bootstrap-toggle.min.js"></script>
+    <script src='https://clinicaltables.nlm.nih.gov/autocomplete-lhc-versions/17.0.2/autocomplete-lhc.min.js'></script>
     <script type="text/javascript">
         var unsaved = false;
+
+        new Def.Autocompleter.Search('icdCodeName', 'https://clinicaltables.nlm.nih.gov/api/icd10cm/v3/search?sf=code,name',
+        {tableFormat: true, valueCols: [0], colHeaders: ['Code', 'Name']});
 
         function unloadPage() {
             if (unsaved) {

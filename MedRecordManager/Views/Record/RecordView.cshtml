@@ -282,6 +282,33 @@
 
             });
 
+            $('#btnScrub').on('click', function () {
+                if (($('#officeKey').val().length != 0 && $('#startDate').val().length != 0 && $('#endDate').val().length != 0)) {
+                    var keys = [];
+                    $('#officeKey > Option:selected').each(function () {
+                        keys.push(this.value);
+                    });
+                    $.ajax({
+                        url: '/Record/ScrubRecord',
+                        data: {
+                            officekey: keys.join(','),
+                            startDate: $('#startDate').val(),
+                            endDate: $('#endDate').val()
+                        },
+                        type: 'POST',
+                        success: function (response) {
+                            if (response.success) {                               
+                                dailyGrid.clear();
+                                dailyGrid.reload({ office: keys.join(','), startDate: $('#startDate').val(), endDate: $('#endDate').val() });
+                                flaggedGrid.clear();
+                                flaggedGrid.reload({ page: 1 });
+                            }
+                        }
+                    });
+                }
+                
+            });
+
             $('#btnRun').on('click',function () {
                 $('#btnRun').attr('disabled', true);
                 $.ajax({
@@ -323,10 +350,13 @@
                     
             });
 
+            $('.closeTab').on('click', function () {
+                
+            });
         
             function addTab(id) {
                 if ($('#detail' + id).length == 0) {
-                    $('.nav-tabs').find('li').last().after('<li><a data-toggle="tab" href="#detail' + id + '"><button type="button" class="close" aria-label="Close"><span aria-hidden="true">&times;</span></button><b>Visit ' + id + '</b></a></li>');
+                    $('.nav-tabs').find('li').last().after('<li><a data-toggle="tab" href="#detail' + id + '"><button type="button" class="closeTab close" aria-label="Close"><span aria-hidden="true" class="closeTab">&times;</span></button><b>Visit ' + id + '</b></a></li>');
                     $.ajax({
                         type: "GET",
                         data: {
@@ -500,16 +530,18 @@
                             <div class="box-body">
                                 <table id="visitTable" class="table table-striped"></table>
                             </div>
+                            <div class="box-footer">
+                                <div class="btn-toolbar" role="toolbar" aria-label="Toolbar with button groups">
+                                    <button class="btn btn-success pull-right" id="btnNext">Next</button>
+                                    <button class="btn btn-primary pull-right" id="btnScrub">Scrub</button>
+                                </div>
+                            </div>
+                            
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="row dataView top-buffer" style="display:none">
-                <div class="col-sm-1 col-lg-offset-11 " style="text-align: left">
-                    <button class="btn btn-success text-right" id="btnNext">Next</button>
-                </div>
-            </div>
-
+            
             <div class="row modified" style="display:none">
                 <div class="col-md-12">
                     <div id="Results">

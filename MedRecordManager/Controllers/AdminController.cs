@@ -345,7 +345,9 @@ namespace MedRecordManager.Controllers
             {
                 RuleName = result.RuleName,
                 Id = result.Id,
-                Definition = !string.IsNullOrEmpty(result.RuleJsonString) ? JsonConvert.DeserializeObject<List<RuleItem>>(result.RuleJsonString) : new List<RuleItem>()
+                Definition = !string.IsNullOrEmpty(result.RuleJsonString) 
+                ? JsonConvert.DeserializeObject<List<RuleItem>>(result.RuleJsonString) 
+                : new List<RuleItem>()
             };
             return Json(new {success= true, data = ruleDetail });
         }
