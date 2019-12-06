@@ -350,13 +350,16 @@
                     
             });
 
-            $('.closeTab').on('click', function () {
-                
+            $(document).on('click', '.closeTab', function () {
+                var tabContentId = $(this).parent().attr("href");
+                $(this).parent().parent().remove();                
+                $(tabContentId).remove();
+                $('a[href$="#mainView"]').click();
             });
         
             function addTab(id) {
                 if ($('#detail' + id).length == 0) {
-                    $('.nav-tabs').find('li').last().after('<li><a data-toggle="tab" href="#detail' + id + '"><button type="button" class="closeTab close" aria-label="Close"><span aria-hidden="true" class="closeTab">&times;</span></button><b>Visit ' + id + '</b></a></li>');
+                    $('.nav-tabs').find('li').last().after('<li><a data-toggle="tab" href="#detail' + id + '"><button type="button" class="close closeTab" aria-label="Close">&nbsp;&times;</button><b>Visit ' + id + '</b></a></li>');
                     $.ajax({
                         type: "GET",
                         data: {
@@ -459,7 +462,7 @@
         }
 
     </ul>
-    <div class="tab-content">
+    <div class="tab-content" id="dataTab">
         <div class="tab-pane active" id="mainView">
             <input type="hidden" asp-for="Type" id="searchType" />
             <div class="row top-buffer">
