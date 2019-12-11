@@ -51,6 +51,7 @@ namespace MedRecordManager
             services.ConfigureApplicationCookie(options =>
             {
                 options.Cookie.HttpOnly = true;
+
                 options.ExpireTimeSpan = TimeSpan.FromMinutes(60);
                 options.LoginPath = "/Account/Login";
                 options.LogoutPath = "/Account/Logout";
