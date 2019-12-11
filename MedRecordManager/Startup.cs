@@ -53,12 +53,19 @@ namespace MedRecordManager
                 options.Cookie.HttpOnly = true;
                 options.ExpireTimeSpan = TimeSpan.FromMinutes(60);
                 options.LoginPath = "/Account/Login";
+                options.LogoutPath = "/Account/Logout";
                 options.AccessDeniedPath = "/Account/AccessDenied";
                 options.ReturnUrlParameter = CookieAuthenticationDefaults.ReturnUrlParameter;
                 options.SlidingExpiration = true;
             });
 
-            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
+            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2)
+                 .AddRazorPagesOptions(options =>
+                 {
+                     options.AllowAreas = true;
+                     options.Conventions.AuthorizeAreaFolder("Identity", "/Account/Manage");
+                     options.Conventions.AuthorizeAreaPage("Identity", "/Account/Logout");
+                 });
 
             services.AddDistributedMemoryCache();
             services.AddSession(opts =>
@@ -98,6 +105,10 @@ namespace MedRecordManager
           
             app.UseMvc(routes =>
             {
+                //routes.MapRoute(
+                //    name: "MyArea",
+                //    template: "{area:exists}/{controller=Home}/{action=Index}/{id?}");
+
                 routes.MapRoute(
                     name: "default",
                     template: "{controller=Home}/{action=Index}/{id?}");
