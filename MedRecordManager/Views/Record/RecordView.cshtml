@@ -94,15 +94,14 @@
                 pager: { limit: 10, sizes: [2, 5, 10, 20] },
             });
 
-
             if (type == 'Daily') {
                 dailyGrid = $('#visitTable').grid({
                     primaryKey: 'visitId',
-                    inlineEditing: { mode: 'command', managementColumn: false},
+                    inlineEditing: { mode: 'command', managementColumn: false },
                     dataSource: '/Record/LoadDaily',
                     columns: [
                         //{ field: 'pvRecordId', width:100, title: 'PV RecordId' },
-                        { field: 'Flag', width:50, renderer: flagManager },
+                        { field: 'Flag', width: 50, renderer: flagManager },
                         { filed: 'visitId', hidden: true },
                         { field: 'patientName', width: 250, title: 'Patient Name', priority: 1 },
                         { field: 'clinicName', width: 200, title: 'Clinic Name', priority: 2, type: 'dropdown', editor: { dataSource: '/Record/GetClinics', valueField: 'id' }, editField: 'clinicName' },
@@ -116,7 +115,7 @@
                         { field: 'procCodes', minWidth: 80, title: 'Proc Codes', priority: 3 },
                         { field: 'visitTime', minWidth: 80, title: 'Visit Date' },
                         //{ field: 'Action', width: 100, renderer: detailButtonRender },
-                        { field: 'Actions', width: 200, renderer: editManager, align:'center'}
+                        { field: 'Actions', width: 200, renderer: editManager, align: 'center' }
                     ],
                     pager: { limit: 10, sizes: [2, 5, 10, 20] },
                     detailTemplate: '<div><table/></div>'
@@ -143,28 +142,28 @@
                         method: 'POST',
                         cache: false,
                         success: function (response) {
-                            var caption; 
+                            var caption;
                             if (response.success) {
-                                $alert.addClass('alert alert-success')                               
+                                $alert.addClass('alert alert-success')
                                 caption = 'Sucessful! '
                             }
                             else {
-                                $alert.addClass('alert alert-warning')                           
+                                $alert.addClass('alert alert-warning')
                                 caption = 'Warning! '
                             }
                             $alert.children('.alert-content').empty();
-                            $alert.children('.alert-content').append('<strong>' + caption+ '</strong >' + response.message)
+                            $alert.children('.alert-content').append('<strong>' + caption + '</strong >' + response.message)
                         }
                     })
-                     .fail(function () {
+                        .fail(function () {
                             $('#visitGridAlert').addClass('alert alert-danger')
                             $alert.append(' <strong>Failed!</strong> ')
-                      })
-                     .done(function () {
+                        })
+                        .done(function () {
                             $alert.fadeTo(4000, 500).slideUp(1000, function () {
                                 $alert.slideUp(1000)
-                         });
-                      })
+                            });
+                        })
                 });
             }
             else if (type == 'Callback') {
@@ -186,7 +185,25 @@
                 });
 
             }
-
+            else if (type = 'Imported') {
+                dailyGrid = $('#visitTable').grid({
+                    primaryKey: 'pvId',
+                    dataSource: '/Record/LoadImported',
+                    columns: [
+                        { filed: 'visitId', hidden: true },
+                        { field: 'patientName', width: 250, title: 'Patient Name', priority: 1 },
+                        { field: 'clinicName', width: 200, title: 'Clinic Name', priority: 2 },                    
+                        { field: 'physicianName', width: 200, title: 'Physician Name' },
+                        { field: 'insuranceName', width: 200, title: 'Insurance Name' },                      
+                        { field: 'visitTime', minWidth: 80, title: 'Visit Time' },
+                        { field: 'importedDate', minWidth: 80, title: 'Imported Date' },
+                        { field: 'chargeImported', minWidth: 80, title: 'Charge Imported' },
+                        { field: 'patDocImported', minWidth: 80, title: 'Document All Imported' },
+                         { field: 'patChartImported', minWidth: 80, title: 'Chart All Imported' }
+                    ],
+                    pager: { limit: 10, sizes: [2, 5, 10, 20] }
+                });
+            }
 
             modifiedGrid = $('#changeTable').grid({
                 primaryKey: 'visitId',
@@ -251,7 +268,7 @@
                 }
 
                 if (($('#officeKey').val().length != 0 && $('#startDate').val().length != 0 && $('#endDate').val().length != 0)) {
-                    if (type === 'Daily') {
+                    if (type === 'Daily'|| type ==='Imported') {
                         var keys = [];
                         $('#officeKey > Option:selected').each(function () {
                             keys.push(this.value);
@@ -264,9 +281,11 @@
                         dailyGrid.clear();
                         dailyGrid.reload({ office: $('#officeKey').val(), startDate: $('#startDate').val(), endDate: $('#endDate').val() });
                     }
+                    
                     $('.dataView').show();
                     $('.modified').hide();
-                   
+
+                    
                 }
                 else {
                     $('.dataView').hide();
@@ -350,6 +369,7 @@
                     
             });
 
+            
             $(document).on('click', '.closeTab', function () {
                 var tabContentId = $(this).parent().attr("href");
                 $(this).parent().parent().remove();                
@@ -398,6 +418,10 @@
                     }   
                 });                                                             
             };
+
+            function filterImported(doc, chart) {
+                dailyGrid.clear()
+            }
 
             function select2editor($editorContainer, value, record) {
                 var select = $('<select><option value="'+ value+'">'+ value +'</option></select>');
@@ -450,17 +474,23 @@
     </div>
     
     <ul class="nav nav-tabs" role="tablist">
-        @if (Model.Type == "Daily")
-        {
-            <li class="active"><a data-toggle="tab" href="#mainView"><b>Daily Review</b></a></li>
+        @{
+            if (Model.Type == "Daily")
+            {
+                <li class="active"><a data-toggle="tab" href="#mainView"><b>Daily Review</b></a></li>
 
+            }
+            if (Model.Type == "Callback")
+            {
+                <li class="active"><a data-toggle="tab" href="#mainView"><b>Call Back</b></a></li>
+
+            }
+
+            if (Model.Type == "Imported")
+            {
+                <li class="active"><a data-toggle="tab" href="#mainView"><b>Imported View</b></a></li>
+            }
         }
-        else if (Model.Type == "Callback")
-        {
-            <li class="active"><a data-toggle="tab" href="#mainView"><b>Call Back</b></a></li>
-
-        }
-
     </ul>
     <div class="tab-content" id="dataTab">
         <div class="tab-pane active" id="mainView">
@@ -491,7 +521,8 @@
                                 </div>
 
                             </div>
-                            <div class="col-md-3">
+                           
+                            <div class="col-md-1">
                                 <div class="form-group">
                                     <div class="control-group">
                                         <div style="margin-top: 24px;">
@@ -531,12 +562,47 @@
                                 <h3 class="box-title">Daily Visit Records</h3>
                             </div>
                             <div class="box-body">
-                                <table id="visitTable" class="table table-striped"></table>
+                                @if (Model.Type == "Imported")
+                                {
+                                    <div class="row">
+                                        <div class="col-xs-3">
+                                            <div class="checkbox chkfilter">
+                                                <label>
+                                                    <input type="checkbox" value="">
+                                                    <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                                    Show Unimported Chart Only
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <div class="col-xs-3">
+                                            <div class="checkbox chkfilter">
+                                                <label>
+                                                    <input type="checkbox" value="">
+                                                    <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                                    Show Unimported Document Only
+                                                </label>
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                }
+
+                                <div class="row" style="margin-top: 10px">
+                                    <div class="col-xs-12">
+                                        <table id="visitTable" class="table table-striped"></table>
+                                    </div>
+                                </div>
                             </div>
                             <div class="box-footer">
                                 <div class="btn-toolbar" role="toolbar" aria-label="Toolbar with button groups">
-                                    <button class="btn btn-success pull-right" id="btnNext">Next</button>
-                                    <button class="btn btn-primary pull-right" id="btnScrub">Scrub</button>
+                                    @if (Model.Type == "Daily")
+                                    {
+                                        <button class="btn btn-success pull-right" id="btnNext">Next</button>
+                                        if (Model.Type == "Daily")
+                                        {
+                                            <button class="btn btn-primary pull-right" id="btnScrub">Scrub</button>
+                                        }
+                                    }                                  
                                 </div>
                             </div>
                             

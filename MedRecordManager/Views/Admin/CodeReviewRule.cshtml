@@ -144,12 +144,12 @@
             $('#btnSave').on('click', function () {
                 var id = $('#ruleId').val();
                 var rulename = $('#ruleName').val();
-                var rowCount = $('#ruleDetail tr').length;
+               
                 var ruleData = []; 
-        
-                for(var i = 1; i< rowCount; i++)
-                {
-                    var ruletr = $('#id'+i);
+              
+                
+                $('tr.tr_clone').each(function (i, ruletr) {
+                    console.log(ruletr);
                     var ruleitem = {
                         logicOperator: '',                
                         operator : '',
@@ -158,42 +158,42 @@
                         field : '',
                         fieldValue :'',
                     };
-                    if(!ruletr.find('.ruleLogic').is('[disabled=disabled]')){
-                        if(ruletr.find('.ruleLogic').val() != 0)
+                    if (!$(ruletr).children('.ruleLogic').is('[disabled=disabled]')) {
+                        if($(ruletr).children('.ruleLogic').val() != 0)
                         {
-                            ruleitem.logicOperator= ruletr.find('.ruleLogic').val();
+                            ruleitem.logicOperator= $(ruletr).find('.ruleLogic').val();
                         }
                     }
                     
-                    if(ruletr.find('.parentheseleft').html() != ""){
-                        ruleitem.openparenthese= ruletr.find('.parentheseleft').html();
+                    if($(ruletr).children('.parentheseleft').html() != ""){
+                        ruleitem.openparenthese= $(ruletr).find('.parentheseleft').html();
                     }
                     
-                    if(ruletr.find('.parentheseRight').html() != ""){
-                        ruleitem.closeparenthese= ruletr.find('.parentheseRight').html()
+                    if($(ruletr).children('.parentheseRight').html() != ""){
+                        ruleitem.closeparenthese= $(ruletr).find('.parentheseRight').html()
                     }
                     
-                    if(!ruletr.find('.ruleField').is('[disabled=disabled]')){
-                        if(ruletr.find('.ruleField').val() != 0)
+                    if(!$(ruletr).children('.ruleField').is('[disabled=disabled]')){
+                        if($(ruletr).find('.ruleField').val() != 0)
                         {
-                            ruleitem.field = ruletr.find('.ruleField').val().trim();
+                            ruleitem.field = $(ruletr).find('.ruleField').val().trim();
                         }
                     }
                     
-                    if(!ruletr.find('.ruleOperator').is('[disabled=disabled]')){
-                        if(ruletr.find('.ruleOperator').val() != 0)
+                    if(!$(ruletr).children('.ruleOperator').is('[disabled=disabled]')){
+                        if($(ruletr).find('.ruleOperator').val() != 0)
                         {
-                            ruleitem.operator = ruletr.find('.ruleOperator').val().trim();
+                            ruleitem.operator = $(ruletr).find('.ruleOperator').val().trim();
                         }
                     }
                     
-                    if (ruletr.find('.ruleVal').val() !=""){
+                    if ($(ruletr).children('.ruleVal').val() !=""){
 
-                        ruleitem.fieldValue = ruletr.find('.ruleVal').val().trim();
+                        ruleitem.fieldValue = $(ruletr).find('.ruleVal').val().trim();
                     }
 
                     ruleData.push(ruleitem);
-                };
+                });
                                       
                 
                 $.ajax({

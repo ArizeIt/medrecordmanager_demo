@@ -43,6 +43,8 @@ namespace MedRecordManager.Controllers
             _viewRenderService = viewRenderService;
             _emailSrv = mailerSrv;
         }
+
+        [HttpGet]
         public IActionResult Review()
         {
             var vm = new SearchInputs()
@@ -54,9 +56,21 @@ namespace MedRecordManager.Controllers
             return View("RecordView", vm);
         }
 
+        [HttpGet]
+        public IActionResult Imported()
+        {
+            var vm = new SearchInputs()
+            {
+                Type = "Imported",
+
+                OfficeKeys = GetAvaliableOfficeKeys()
+            };
+            return View("RecordView", vm);
+        }
+
+        [HttpGet]
         public IActionResult Callback()
         {
-
             var vm = new SearchInputs()
             {
                 Type = "Callback",
@@ -75,6 +89,7 @@ namespace MedRecordManager.Controllers
             return View("RecordView", vm);
         }
 
+        [HttpGet]
         public IActionResult LoadDaily(int? page, int? limit, string sortBy, string direction, string office, DateTime startDate, DateTime endDate)
         {
             IQueryable<Visit> query;
@@ -229,6 +244,7 @@ namespace MedRecordManager.Controllers
             return View("CodeView", vm);
         }
 
+        [HttpGet]
         public IActionResult Payer(int? page, int? limit, string sortBy, string direction, int visitId)
         {
 
@@ -247,6 +263,8 @@ namespace MedRecordManager.Controllers
             }
             return Json(new { records, total });
         }
+        
+        [HttpGet]
         public IActionResult LoadCallback(int? page, int? limit, string sortBy, string direction, string office, string clinic, DateTime startDate, DateTime endDate)
         {
 
@@ -281,6 +299,7 @@ namespace MedRecordManager.Controllers
             return Json(new { records, total });
         }
 
+        [HttpGet]
         public IActionResult GetDetails(int visitId)
         {
             var detailRecord = new DetailRecord
@@ -390,12 +409,14 @@ namespace MedRecordManager.Controllers
 
         }
 
+        [HttpGet]
         public async Task<IActionResult> GetClinics()
         {
             var records = await _urgentCareContext.ClinicProfile.Select(x => new { id = x.ClinicId, text = x.ClinicId }).ToListAsync();
             return Json(records);
         }
 
+        [HttpGet]
         public async Task<IActionResult> GetModifiers()
         {
             var records = await _urgentCareContext.Modifier.Select(x => new { id = x.ModifierCode, text = x.ModifierCode }).ToListAsync();
@@ -404,6 +425,7 @@ namespace MedRecordManager.Controllers
         }
 
 
+        [HttpGet]
         public async Task<IActionResult> GetPhysicians(string clinicId)
         {
             var physicians = await _urgentCareContext.Physican.Where(x => x.Clinic == clinicId).Select(x => new { id = x.PvPhysicanId, text = x.PvPhysicanId }).ToListAsync();
@@ -491,6 +513,7 @@ namespace MedRecordManager.Controllers
             }
         }
 
+        [HttpGet]
         public IActionResult GetFlaggedVisit(int? page, int? limit)
         {
             var records = _urgentCareContext.Visit.Where(x => x.Flagged)
@@ -552,7 +575,7 @@ namespace MedRecordManager.Controllers
             }
         }
 
-
+        [HttpGet]
         public IActionResult GetModifiedRecord(int? page, int? limit, DateTime startDate, DateTime endDate)
         {
             var total = 0;
@@ -592,7 +615,52 @@ namespace MedRecordManager.Controllers
 
         }
 
+        [HttpGet]
 
+        public IActionResult LoadImported(int? page, int? limit, string sortBy, string direction, string office, DateTime startDate, DateTime endDate)
+        {
+
+            IQueryable<VisitImpotLog> query;
+            var total = 0;
+            if (!string.IsNullOrEmpty(office) && startDate != DateTime.MinValue && endDate != DateTime.MinValue)
+            {
+                var officekeys = office.Split(',').ToList();
+                query = _urgentCareContext.VisitImpotLog.Include(x => x.Visit).ThenInclude(x => x.Physican)
+                    .Where(x => 
+                    officekeys.Contains(x.Visit.Physican.OfficeKey.ToString())
+                    && x.Visit.ServiceDate >= startDate
+                    && x.Visit.ServiceDate <= endDate );
+            }
+            else
+            {
+                query = _urgentCareContext.VisitImpotLog.Take(0);
+            }
+            var records = query.Select(y => new VisitRecordVm()
+            {
+                VisitId = y.VisitId,
+                PatientId = y.Visit.PvPatientId,
+                ClinicName = y.Visit.ClinicId,
+                PhysicianName = y.Visit.Physican.DisplayName,
+                InsuranceName = y.Visit.PayerInformation.FirstOrDefault().Insurance.PrimaryName,             
+                VisitTime = y.Visit.ServiceDate.ToShortDateString(),
+                PatientName = y.Visit.PvPatient.FirstName + " " + y.Visit.PvPatient.LastName,
+                OfficeKey = y.Visit.Physican.OfficeKey,
+                ImportedDate = y.ImportedDate.ToString("MM/dd/yyyy HH:mm:ss"),
+                ChargeImported = y.ChargeImported != null? "Yes":"No",
+                PatDocImported = y.Visit.PatientDocument.Any(x=> !string.IsNullOrEmpty(x.AmdFileId))?"Yes":"NO",
+                PatChartImported = _urgentCareContext.ChartImportLog.Any(x=> x.PvChartDocId == y.Visit.ChartId)?"Yes":"No"
+                
+            }).OrderBy(x=>x.ImportedDate).ToList();
+
+            total = records.Count();
+
+            if (page.HasValue && limit.HasValue)
+            {
+                var start = (page.Value - 1) * limit.Value;
+                records =  records.Skip(start).Take(limit.Value).ToList();
+            }
+            return Json(new { records, total });
+        }
 
         [HttpGet]
         public async Task<IActionResult> GetHistoryCode(int? page, int? limit, int visitId, string type)
@@ -1174,8 +1242,7 @@ namespace MedRecordManager.Controllers
             }
             return 0; ;
         }
-
-        
+  
         private void ConvertTiff2Jpeg(byte[] source, string jpegFileName)
         {
             var stream = new MemoryStream(source);
@@ -1211,7 +1278,6 @@ namespace MedRecordManager.Controllers
             img.Dispose();
         }
 
-
         private byte[] CreatePDF(byte[] source)
         {
             var baos = new ByteArrayOutputStream();
@@ -1231,8 +1297,6 @@ namespace MedRecordManager.Controllers
             document.Close();
             return baos.ToArray();
         }
-
-
 
         private Stream CreateCompressedImageStream(Image image)
         {
