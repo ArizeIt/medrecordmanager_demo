@@ -158,11 +158,11 @@
                         field : '',
                         fieldValue :'',
                     };
-                    if (!$(ruletr).children('.ruleLogic').is('[disabled=disabled]')) {
-                        if($(ruletr).children('.ruleLogic').val() != 0)
-                        {
-                            ruleitem.logicOperator= $(ruletr).find('.ruleLogic').val();
+                    if (!$(ruletr).find('.ruleLogic').is('[disabled=disabled]')) {
+                        if ($(ruletr).find('.ruleLogic').val() != 0) {
+                            ruleitem.logicOperator = $(ruletr).find('.ruleLogic').val();
                         }
+                       
                     }
                     
                     if($(ruletr).children('.parentheseleft').html() != ""){

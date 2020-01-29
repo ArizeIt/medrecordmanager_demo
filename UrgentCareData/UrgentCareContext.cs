@@ -29,6 +29,7 @@ namespace UrgentCareData
         public virtual DbSet<ChartImportLog> ChartImportLog { get; set; }
         public virtual DbSet<ClinicProfile> ClinicProfile { get; set; }
         public virtual DbSet<CodeReviewRule> CodeReviewRule { get; set; }
+        public virtual DbSet<CodeReviewQueue> CodeReviewQueue { get; set; }
         public virtual DbSet<CptCodeLookup> CptCodeLookup { get; set; }
         public virtual DbSet<FinClass> FinClass { get; set; }
         public virtual DbSet<GuarantorImportLog> GuarantorImportLog { get; set; }
@@ -269,6 +270,19 @@ namespace UrgentCareData
                 entity.Property(e => e.RuleName)
                     .IsRequired()
                     .HasMaxLength(255);
+            });
+
+            modelBuilder.Entity<CodeReviewQueue>(entity =>
+            {
+                entity.Property(e => e.CreatedBy)
+                    .IsRequired()
+                    .HasMaxLength(50);
+
+                entity.Property(e => e.CreatedTime).HasColumnType("datetime");
+
+                entity.HasKey(e => e.Id);
+                entity.HasOne(e => e.ParentQueue).WithMany(e => e.ChildrenQueue).HasForeignKey(e => e.ParentId);              
+
             });
 
             modelBuilder.Entity<CptCodeLookup>(entity =>

@@ -1117,7 +1117,7 @@ namespace MedRecordManager.Controllers
         }
                
         [HttpPost]
-        public async Task<IActionResult> ScrubRecord(string officekey, DateTime startDate, DateTime endDate)
+        public IActionResult ScrubRecord(string officekey, DateTime startDate, DateTime endDate)
         {
           
             var officekeys = officekey.Split(',').ToList();
@@ -1128,29 +1128,29 @@ namespace MedRecordManager.Controllers
                 var ruleDetail = !string.IsNullOrEmpty(ruleSet.RuleJsonString)
                     ? JsonConvert.DeserializeObject<List<RuleItem>>(ruleSet.RuleJsonString)
                     : new List<RuleItem>();
-                var queryString = "Select * from Visit Where ";
+                var queryString = "Select Visit.*  from Visit inner join VisitProcCode on Visit.VisitId = VisitProcCode.VisitId Where";
            
                 
                 if (ruleDetail.Any())
                 {
                     foreach (var item in ruleDetail)
                     {
-                        if (item.Operator != "startWith" && item.Operator != "endwith" && item.Operator != "like")
+                        if (item.Operator != "startWith" && item.Operator != "endwith" && item.Operator != "like" && item.Operator != "not like")
                         {
                             queryString += " " + item.LogicOperator + " " + item.Openparenthese + item.Field + " " + item.Operator + " '" + item.FieldValue + "'" + item.Closeparenthese;
                         }
-                        if (item.Operator == "like")
+                        if (item.Operator == "like" || item.Operator == "not like")
                         {
                             queryString += " " + item.LogicOperator + " " + item.Openparenthese + item.Field + " " + item.Operator + " '%" + item.FieldValue + "%'" + item.Closeparenthese;
                         }
                         if (item.Operator == "startWith")
                         {
-                            queryString += " " + item.LogicOperator + " " + item.Openparenthese + item.Field + " " + item.Operator + " '%" + item.FieldValue + "'" + item.Closeparenthese;
+                            queryString += " " + item.LogicOperator + " " + item.Openparenthese + item.Field + " like '" + item.FieldValue + "%'" + item.Closeparenthese;
                         }
 
                         if (item.LogicOperator == "endWith")
                         {
-                            queryString += " " + item.LogicOperator + " " + item.Openparenthese + item.Field + " " + item.Operator + " '" + item.FieldValue + "%'" + item.Closeparenthese;
+                            queryString += " " + item.LogicOperator + " " + item.Openparenthese + item.Field + " like '%" + item.FieldValue + "'" + item.Closeparenthese;
                         }
                     }
                 }
@@ -1167,7 +1167,8 @@ namespace MedRecordManager.Controllers
             var sqlString = new RawSqlString(rawString);
             try {
                 //var result = _urgentCareContext.Visit.Include(x => x.VisitImpotLog).FromSql(rawString).Where(x => officekeys.Contains(x.OfficeKey.ToString()) && x.ServiceDate >= startDate && x.ServiceDate <= endDate && !x.VisitImpotLog.Any() && !x.Flagged).ToList();
-                var query = _urgentCareContext.Visit.Include(x => x.VisitImpotLog).FromSql(rawString);
+                IQueryable<Visit> query = _urgentCareContext.Visit.Include(x => x.VisitImpotLog)
+                                                                  .FromSql(rawString);
                 var results = query.Where(x=> officekeys.Contains(x.OfficeKey.ToString()) && x.ServiceDate >= startDate && x.ServiceDate <= endDate && !x.Flagged && !x.VisitImpotLog.Any());
                 foreach(var result in results)
                 {
