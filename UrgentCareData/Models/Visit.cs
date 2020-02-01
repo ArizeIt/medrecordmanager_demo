@@ -24,6 +24,7 @@ namespace UrgentCareData.Models
         public string Icdcodes { get; set; }
         public string VisitType { get; set; }
         public string Emcode { get; set; }
+        public string EmModifier { get; set; }
         public int PhysicanId { get; set; }
         public decimal? CoPayAmount { get; set; }
         public string CopayType { get; set; }

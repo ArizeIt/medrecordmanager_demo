@@ -4,8 +4,12 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Net.Http;
 using System.Threading.Tasks;
+using ExpressionBuilder.Common;
+using ExpressionBuilder.Generics;
+using ExpressionBuilder.Helpers;
 using iText.IO.Image;
 using iText.IO.Source;
 using iText.Kernel.Geom;
@@ -27,6 +31,7 @@ using Newtonsoft.Json.Linq;
 using PVAMCommon;
 using UrgentCareData;
 using UrgentCareData.Models;
+using UrgentCareData.Queries;
 
 namespace MedRecordManager.Controllers
 {
@@ -159,7 +164,7 @@ namespace MedRecordManager.Controllers
 
                     if (vm.Chart.ChartType.Contains("tif"))
                     {
-                        vm.Chart.FileBinary = CreatePDF(vm.Chart.FileBinary);
+                        vm.Chart.FileBinary = Utility.CreatePDF(vm.Chart.FileBinary);
                     }
 
                     vm.Total = records.Count();
@@ -1122,59 +1127,48 @@ namespace MedRecordManager.Controllers
           
             var officekeys = officekey.Split(',').ToList();
             var activeRules = _urgentCareContext.CodeReviewRule.Where(x => x.Active);
-            var rawString = string.Empty;
+            var baseQuery = _urgentCareContext.Visit.Where(x => officekeys.Contains(x.OfficeKey.ToString()) && x.ServiceDate >= startDate && x.ServiceDate <= endDate && !x.Flagged && !x.VisitImpotLog.Any());
+            var operationHelper = new OperationHelper();
+            var results = new List<Visit>();
             foreach (var ruleSet in activeRules)
             {
                 var ruleDetail = !string.IsNullOrEmpty(ruleSet.RuleJsonString)
                     ? JsonConvert.DeserializeObject<List<RuleItem>>(ruleSet.RuleJsonString)
                     : new List<RuleItem>();
-                var queryString = "Select Visit.*  from Visit inner join VisitProcCode on Visit.VisitId = VisitProcCode.VisitId Where";
-           
-                
+                var records = new List<Visit>();
                 if (ruleDetail.Any())
                 {
+                    var filter = new Filter<Visit>();
+                    
                     foreach (var item in ruleDetail)
                     {
-                        if (item.Operator != "startWith" && item.Operator != "endwith" && item.Operator != "like" && item.Operator != "not like")
+                                             
+                        if(item.LogicOperator !=null)
                         {
-                            queryString += " " + item.LogicOperator + " " + item.Openparenthese + item.Field + " " + item.Operator + " '" + item.FieldValue + "'" + item.Closeparenthese;
+                            var connector = (Connector)Enum.Parse(typeof(Connector), item.LogicOperator);
+                            filter.By(item.Field, operationHelper.GetOperationByName(item.Operator), item.FieldValue, connector);
                         }
-                        if (item.Operator == "like" || item.Operator == "not like")
+                        else
                         {
-                            queryString += " " + item.LogicOperator + " " + item.Openparenthese + item.Field + " " + item.Operator + " '%" + item.FieldValue + "%'" + item.Closeparenthese;
+                            filter.By(item.Field, operationHelper.GetOperationByName(item.Operator), item.FieldValue);
                         }
-                        if (item.Operator == "startWith")
-                        {
-                            queryString += " " + item.LogicOperator + " " + item.Openparenthese + item.Field + " like '" + item.FieldValue + "%'" + item.Closeparenthese;
-                        }
-
-                        if (item.LogicOperator == "endWith")
-                        {
-                            queryString += " " + item.LogicOperator + " " + item.Openparenthese + item.Field + " like '%" + item.FieldValue + "'" + item.Closeparenthese;
-                        }
+                        
                     }
+
+                  
+                    records = (baseQuery.Where(filter).ToList());
                 }
-                if (ruleSet != activeRules.Last())
-                {
-                    rawString += queryString + " UNION ";
-                }
-                else
-                {
-                    rawString += queryString;
-                }
+                //results = results.Union(records).ToList();
             }
 
-            var sqlString = new RawSqlString(rawString);
+           
             try {
-                //var result = _urgentCareContext.Visit.Include(x => x.VisitImpotLog).FromSql(rawString).Where(x => officekeys.Contains(x.OfficeKey.ToString()) && x.ServiceDate >= startDate && x.ServiceDate <= endDate && !x.VisitImpotLog.Any() && !x.Flagged).ToList();
-                IQueryable<Visit> query = _urgentCareContext.Visit.Include(x => x.VisitImpotLog)
-                                                                  .FromSql(rawString);
-                var results = query.Where(x=> officekeys.Contains(x.OfficeKey.ToString()) && x.ServiceDate >= startDate && x.ServiceDate <= endDate && !x.Flagged && !x.VisitImpotLog.Any());
-                foreach(var result in results)
+                
+                foreach (var result in results)
                 {
                     result.Flagged = true;
                 }
-                _urgentCareContext.SaveChanges();
+                //_urgentCareContext.SaveChanges();
                 return Json(new { success = true });
             }
             catch(Exception ex)
@@ -1244,74 +1238,7 @@ namespace MedRecordManager.Controllers
             return 0; ;
         }
   
-        private void ConvertTiff2Jpeg(byte[] source, string jpegFileName)
-        {
-            var stream = new MemoryStream(source);
-            var img = Image.FromStream(stream);
-            var outputbyte = new byte[0];
-            var count = img.GetFrameCount(FrameDimension.Page);
-            for (int i = 0; i < count; i++)
-            {
-                using (var partialStream = new MemoryStream())
-                {
-                    img.SelectActiveFrame(FrameDimension.Page, i);
-                    img.Save(partialStream, ImageFormat.Jpeg);
-                    partialStream.ToArray();
-                }
-            }
-
-
-            int imageWidth = img.Width;
-            int imageHeight = img.Height * count;
-            Bitmap joinedBitmap = new Bitmap(imageWidth, imageHeight);
-            Graphics graphics = Graphics.FromImage(joinedBitmap);
-            for (int i = 0; i < count; i++)
-            {
-                var partImageFileName = jpegFileName + ".part" + i + ".jpg";
-                Image partImage = Image.FromFile(partImageFileName);
-                graphics.DrawImage(partImage, 0, partImage.Height * i, partImage.Width, partImage.Height);
-                partImage.Dispose();
-            }
-
-            joinedBitmap.Save(jpegFileName);
-            graphics.Dispose();
-            joinedBitmap.Dispose();
-            img.Dispose();
-        }
-
-        private byte[] CreatePDF(byte[] source)
-        {
-            var baos = new ByteArrayOutputStream();
-            var pdfDoc = new PdfDocument(new PdfWriter(baos));
-            var document = new Document(pdfDoc);
-            var pageCount = TiffImageData.GetNumberOfPages(source);
-
-            for(int i = 1; i<= pageCount; i++ )
-            {
-                var tiffImage = ImageDataFactory.CreateTiff(source, true, i, true);
-                var tiffPageSize = new iText.Kernel.Geom.Rectangle(tiffImage.GetWidth(), tiffImage.GetHeight());
-                var newPage = pdfDoc.AddNewPage(new PageSize(tiffPageSize));
-                var canvas = new PdfCanvas(newPage);
-                canvas.AddImage(tiffImage, tiffPageSize, false);
-            }
-           
-            document.Close();
-            return baos.ToArray();
-        }
-
-        private Stream CreateCompressedImageStream(Image image)
-        {
-            MemoryStream imageStream = new MemoryStream();
-
-            var info = ImageCodecInfo.GetImageEncoders().FirstOrDefault(i => i.MimeType.ToLower() == "image/png");
-            EncoderParameter colorDepthParameter = new EncoderParameter(Encoder.ColorDepth, 1L);
-            var parameters = new EncoderParameters(1);
-            parameters.Param[0] = colorDepthParameter;
-
-            image.Save(imageStream, info, parameters);
-
-            imageStream.Position = 0;
-            return imageStream;
-        }
+        
+     
     }
 }

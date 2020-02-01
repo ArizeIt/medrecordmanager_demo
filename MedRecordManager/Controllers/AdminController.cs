@@ -4,6 +4,9 @@ using System.Linq;
 using System.Threading.Tasks;
 using AdvancedMDDomain.DTOs.Responses;
 using AdvancedMDInterface;
+using ExpressionBuilder.Common;
+using ExpressionBuilder.Generics;
+using ExpressionBuilder.Helpers;
 using MedRecordManager.Extension;
 using MedRecordManager.Models;
 using Microsoft.AspNetCore.Authorization;
@@ -357,8 +360,7 @@ namespace MedRecordManager.Controllers
         {
             var existingRule = _urgentData.CodeReviewRule.FirstOrDefault(x => x.Id == ruleId);
             var sameNameRule = _urgentData.CodeReviewRule.FirstOrDefault(x => x.RuleName == ruleName);
-
-            
+           
             if(existingRule == null)
             {
                 if(sameNameRule == null)
@@ -395,6 +397,7 @@ namespace MedRecordManager.Controllers
             
             try
             {
+                
                 await _urgentData.SaveChangesAsync();
                 return Json(new { success = true });
             }

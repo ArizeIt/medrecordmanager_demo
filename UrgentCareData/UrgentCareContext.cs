@@ -804,6 +804,10 @@ namespace UrgentCareData
                     .HasColumnName("EMCode")
                     .HasMaxLength(50);
 
+                entity.Property(e => e.EmModifier)
+                   .HasColumnName("EMModifier")
+                   .HasMaxLength(50);
+
                 entity.Property(e => e.Icdcodes)
                     .HasColumnName("ICDCodes")
                     .HasMaxLength(500);

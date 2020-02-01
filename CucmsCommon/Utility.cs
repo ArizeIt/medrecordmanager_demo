@@ -1,4 +1,10 @@
-﻿using System;
+﻿using iText.IO.Image;
+using iText.IO.Source;
+using iText.Kernel.Geom;
+using iText.Kernel.Pdf;
+using iText.Kernel.Pdf.Canvas;
+using iText.Layout;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,6 +14,25 @@ namespace PVAMCommon
 {
     public static class Utility
     {
+        public static byte[] CreatePDF(byte[] source)
+        {
+            var baos = new ByteArrayOutputStream();
+            var pdfDoc = new PdfDocument(new PdfWriter(baos));
+            var document = new Document(pdfDoc);
+            var pageCount = TiffImageData.GetNumberOfPages(source);
+
+            for (int i = 1; i <= pageCount; i++)
+            {
+                var tiffImage = ImageDataFactory.CreateTiff(source, true, i, true);
+                var tiffPageSize = new iText.Kernel.Geom.Rectangle(tiffImage.GetWidth(), tiffImage.GetHeight());
+                var newPage = pdfDoc.AddNewPage(new PageSize(tiffPageSize));
+                var canvas = new PdfCanvas(newPage);
+                canvas.AddImage(tiffImage, tiffPageSize, false);
+            }
+
+            document.Close();
+            return baos.ToArray();
+        }
         public static string FormatAmdName(string fName, string lName, string mName)
         {
             string returnName;
