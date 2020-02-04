@@ -47,6 +47,7 @@ namespace UrgentCareData.Models
         public bool Flagged { get; set; }
         public bool IsModified { get; set; }
         public int? OfficeKey { get; set; }
+        public int? EmQuantity { get; set; }
 
         public virtual Chart Chart { get; set; }
         public virtual ClinicProfile Clinic { get; set; }

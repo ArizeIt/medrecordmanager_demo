@@ -49,6 +49,11 @@ namespace ExpressionBuilder.Builders
                     expr = GetExpression(param, statement);
                 }
 
+                if(!statement.Negation)
+                {
+                    expr = Expression.Not(expr);
+                }
+
                 expression = expression == null ? expr : CombineExpressions(expression, expr, connector);
                 connector = statement.Connector;
             }

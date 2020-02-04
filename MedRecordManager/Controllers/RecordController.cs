@@ -914,7 +914,7 @@ namespace MedRecordManager.Controllers
 
                 var newIcdCodes = _urgentCareContext.VisitCodeHistory.Where(x => x.VisitHistoryId == visitHistory.VisitHistoryId && x.CodeType == "IcdCode" && x.Action != "Modified").Select(x => x.Code).ToList();
                 var newProcCodes = _urgentCareContext.VisitCodeHistory.Where(x => x.VisitHistoryId == visitHistory.VisitHistoryId && x.CodeType == "CPTCode" && x.Action != "Modified").ToList();
-                var newEMCodes = _urgentCareContext.VisitCodeHistory.Where(x => x.VisitHistoryId == visitHistory.VisitHistoryId && x.CodeType == "EM_CPTCode" && x.Action != "Modified").ToList();
+                var newEMCode = _urgentCareContext.VisitCodeHistory.Where(x => x.VisitHistoryId == visitHistory.VisitHistoryId && x.CodeType == "EM_CPTCode" && x.Action != "Modified").First();
 
                 visitHistory.FinalizedTime = DateTime.UtcNow;
                 visitHistory.Saved = true;
@@ -971,34 +971,7 @@ namespace MedRecordManager.Controllers
 
                 }
 
-
-                var fullEmcode = string.Empty;
                 var fullProcCode = string.Empty;
-                foreach (var newEm in newEMCodes)
-                {
-                    var fullCode = newEm.Code.TrimEnd();
-                    if (newEm.Quantity != 0)
-                    {
-                        fullCode = string.Format("{0},{1}", newEm.Quantity, fullCode);
-                    }
-                    if (!string.IsNullOrEmpty(newEm.Modifier))
-                    {
-                        fullCode = string.Format("{0},{1}", fullCode, newEm.Modifier);
-                    }
-                    if (!string.IsNullOrEmpty(newEm.Modifier2))
-                    {
-                        fullCode = string.Format("{0},{1}", fullCode, newEm.Modifier2);
-                    }
-                    if (newEm != newEMCodes.Last())
-                    {
-                        fullEmcode += fullCode + "|";
-                    }
-                    else
-                    {
-                        fullEmcode += fullCode;
-                    }
-                }
-
                 foreach (var newProc in newProcCodes)
                 {
                     var fullCode = newProc.Code.TrimEnd();
@@ -1024,10 +997,22 @@ namespace MedRecordManager.Controllers
                     }
                 }
 
+                var emModifer = string.Empty;
+
+                if (!string.IsNullOrEmpty(newEMCode.Modifier))
+                {
+                    emModifer = newEMCode.Modifier;
+                }
+                if (!string.IsNullOrEmpty(newEMCode.Modifier2))
+                {
+                    emModifer = string.Format("{0},{1}", newEMCode.Modifier, newEMCode.Modifier2);
+                }
 
                 visit.IsModified = true;
                 visit.Icdcodes = newIcdCodes.Aggregate((current, next) => $"{current}|{next}");
-                visit.Emcode = fullEmcode;
+                visit.Emcode = newEMCode.Code;
+                visit.EmModifier = newEMCode.Modifier+",";
+                visit.EmQuantity = newEMCode.Quantity;
                 visit.ProcCodes = fullProcCode;
                 visit.ProcQty = newProcCodes.Count();
                 visit.Flagged = flaged;
@@ -1142,15 +1127,28 @@ namespace MedRecordManager.Controllers
                     
                     foreach (var item in ruleDetail)
                     {
-                                             
-                        if(item.LogicOperator !=null)
+                        var negation = true;
+                        // this means the field is collectable 
+                        if (item.Field.Contains("[") && item.Field.Contains("[") && item.Operator.ToLower() == "DoesNotContain".ToLower())
+                        {
+                            item.Operator = "Contains";
+                            negation = false;
+                        }
+
+                        if (item.Field.Contains("[") && item.Field.Contains("[") && item.Operator.ToLower() == "NotEqualTo".ToLower())
+                        {
+                            item.Operator = "EqualTo";
+                            negation = false;
+                        }
+
+                        if (item.LogicOperator !=null)
                         {
                             var connector = (Connector)Enum.Parse(typeof(Connector), item.LogicOperator);
-                            filter.By(item.Field, operationHelper.GetOperationByName(item.Operator), item.FieldValue, connector);
+                            filter.By(item.Field, operationHelper.GetOperationByName(item.Operator), item.FieldValue, connector, negation);
                         }
                         else
                         {
-                            filter.By(item.Field, operationHelper.GetOperationByName(item.Operator), item.FieldValue);
+                            filter.By(item.Field, operationHelper.GetOperationByName(item.Operator), item.FieldValue, negation);
                         }
                         
                     }
@@ -1158,7 +1156,7 @@ namespace MedRecordManager.Controllers
                   
                     records = (baseQuery.Where(filter).ToList());
                 }
-                //results = results.Union(records).ToList();
+                results = results.Union(records).ToList();
             }
 
            
@@ -1168,7 +1166,7 @@ namespace MedRecordManager.Controllers
                 {
                     result.Flagged = true;
                 }
-                //_urgentCareContext.SaveChanges();
+                _urgentCareContext.SaveChanges();
                 return Json(new { success = true });
             }
             catch(Exception ex)

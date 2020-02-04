@@ -65,8 +65,22 @@ namespace ExpressionBuilder.Generics
         /// <returns></returns>
         public IFilterStatementConnection By(string propertyId, IOperation operation, Connector connector)
         {
-            return By<string>(propertyId, operation, null, null, connector);
+            return By<string>(propertyId, operation, null, null, connector, true);
         }
+
+        /// <summary>
+        /// Adds a new <see cref="FilterStatement{TPropertyType}" /> to the <see cref="Filter{TClass}" />.
+        /// (To be used by <see cref="IOperation" /> that need no values)
+        /// </summary>
+        /// <param name="propertyId">Property identifier conventionalized by for the Expression Builder.</param>
+        /// <param name="operation">Operation to be used.</param>
+        /// <param name="connector"></param>
+        /// <returns></returns>
+        public IFilterStatementConnection By(string propertyId, IOperation operation, Connector connector, bool negation)
+        {
+            return By<string>(propertyId, operation, null, null, connector, negation);
+        }
+
 
         /// <summary>
         /// Adds a new <see cref="FilterStatement{TPropertyType}" /> to the <see cref="Filter{TClass}" />.
@@ -77,7 +91,19 @@ namespace ExpressionBuilder.Generics
         /// <returns></returns>
         public IFilterStatementConnection By(string propertyId, IOperation operation)
         {
-            return By<string>(propertyId, operation, null, null, Connector.And);
+            return By<string>(propertyId, operation, null, null, Connector.And, true);
+        }
+
+        /// <summary>
+        /// Adds a new <see cref="FilterStatement{TPropertyType}" /> to the <see cref="Filter{TClass}" />.
+        /// (To be used by <see cref="IOperation" /> that need no values)
+        /// </summary>
+        /// <param name="propertyId">Property identifier conventionalized by for the Expression Builder.</param>
+        /// <param name="operation">Operation to be used.</param>
+        /// <returns></returns>
+        public IFilterStatementConnection By(string propertyId, IOperation operation, bool negation)
+        {
+            return By<string>(propertyId, operation, null, null, Connector.And, negation);
         }
 
         /// <summary>
@@ -91,7 +117,22 @@ namespace ExpressionBuilder.Generics
         /// <returns></returns>
 		public IFilterStatementConnection By<TPropertyType>(string propertyId, IOperation operation, TPropertyType value)
         {
-            return By(propertyId, operation, value, default(TPropertyType));
+            return By(propertyId, operation, value, default(TPropertyType), true);
+        }
+
+
+        /// <summary>
+        /// Adds a new <see cref="FilterStatement{TPropertyType}" /> to the <see cref="Filter{TClass}" />.
+        /// </summary>
+        /// <typeparam name="TPropertyType"></typeparam>
+        /// <param name="propertyId">Property identifier conventionalized by for the Expression Builder.</param>
+        /// <param name="operation">Operation to be used.</param>
+        /// <param name="value"></param>
+        /// <param name="value2"></param>
+        /// <returns></returns>
+        public IFilterStatementConnection By<TPropertyType>(string propertyId, IOperation operation, TPropertyType value, bool negation)
+        {
+            return By(propertyId, operation, value, default(TPropertyType), negation);
         }
 
         /// <summary>
@@ -117,10 +158,39 @@ namespace ExpressionBuilder.Generics
         /// <param name="operation">Operation to be used.</param>
         /// <param name="value"></param>
         /// <param name="value2"></param>
+        /// <param name="connector"></param>
+        /// <returns></returns>
+        public IFilterStatementConnection By<TPropertyType>(string propertyId, IOperation operation, TPropertyType value, Connector connector, bool negation)
+        {
+            return By(propertyId, operation, value, default(TPropertyType), connector, negation);
+        }
+
+        /// <summary>
+        /// Adds a new <see cref="FilterStatement{TPropertyType}" /> to the <see cref="Filter{TClass}" />.
+        /// </summary>
+        /// <typeparam name="TPropertyType"></typeparam>
+        /// <param name="propertyId">Property identifier conventionalized by for the Expression Builder.</param>
+        /// <param name="operation">Operation to be used.</param>
+        /// <param name="value"></param>
+        /// <param name="value2"></param>
         /// <returns></returns>
 		public IFilterStatementConnection By<TPropertyType>(string propertyId, IOperation operation, TPropertyType value, TPropertyType value2)
         {
-            return By(propertyId, operation, value, value2, Connector.And);
+            return By(propertyId, operation, value, value2, Connector.And, true);
+        }
+
+        /// <summary>
+        /// Adds a new <see cref="FilterStatement{TPropertyType}" /> to the <see cref="Filter{TClass}" />.
+        /// </summary>
+        /// <typeparam name="TPropertyType"></typeparam>
+        /// <param name="propertyId">Property identifier conventionalized by for the Expression Builder.</param>
+        /// <param name="operation">Operation to be used.</param>
+        /// <param name="value"></param>
+        /// <param name="value2"></param>
+        /// <returns></returns>
+		public IFilterStatementConnection By<TPropertyType>(string propertyId, IOperation operation, TPropertyType value, TPropertyType value2, bool negation)
+        {
+            return By(propertyId, operation, value, value2, Connector.And, negation);
         }
 
         /// <summary>
@@ -135,7 +205,12 @@ namespace ExpressionBuilder.Generics
         /// <returns></returns>
 		public IFilterStatementConnection By<TPropertyType>(string propertyId, IOperation operation, TPropertyType value, TPropertyType value2, Connector connector)
         {
-            IFilterStatement statement = new FilterStatement<TPropertyType>(propertyId, operation, value, value2, connector);
+            return By(propertyId, operation, value, value2, Connector.And, false);
+        }
+
+        public IFilterStatementConnection By<TPropertyType>(string propertyId, IOperation operation, TPropertyType value, TPropertyType value2, Connector connector, bool negationOperator)
+        {
+            IFilterStatement statement = new FilterStatement<TPropertyType>(propertyId, operation, value, value2, connector, negationOperator);
             CurrentStatementGroup.Add(statement);
             return new FilterStatementConnection(this, statement);
         }

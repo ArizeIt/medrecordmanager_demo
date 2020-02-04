@@ -39,6 +39,11 @@ namespace ExpressionBuilder.Generics
         /// Constant value that will interact with the property defined in this filter statement when the operation demands a second value to compare to.
         /// </summary>
         public object Value2 { get; set; }
+        
+        /// <summary>
+        /// Negation value to determin the expression
+        /// </summary>
+        public bool Negation { get; set; }
 
         /// <summary>
         /// Instantiates a new <see cref="FilterStatement{TPropertyType}" />.
@@ -48,12 +53,13 @@ namespace ExpressionBuilder.Generics
         /// <param name="value"></param>
         /// <param name="value2"></param>
         /// <param name="connector"></param>
-        public FilterStatement(string propertyId, IOperation operation, TPropertyType value, TPropertyType value2, Connector connector)
+        public FilterStatement(string propertyId, IOperation operation, TPropertyType value, TPropertyType value2, Connector connector, bool negationOperator)
         {
             PropertyId = propertyId;
             Connector = connector;
             Operation = operation;
             SetValues(value, value2);
+            Negation = negationOperator;
             Validate();
         }
 

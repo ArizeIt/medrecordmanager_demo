@@ -49,14 +49,12 @@
                         $('#ruleName').val(response.data.ruleName);
                         $('#ruleId').val(response.data.id);
                         if (response.data.definition.length > 0) {
-                            if (response.data.definition.length > 1) {
-                                
+                            if (response.data.definition.length > 1) {           
 
                                 for (var i = 2; i < (response.data.definition.length +1); i++) {
                                     var originalTr = $('#id'+(i-1));                             
                                     var cloneTr = originalTr.clone(true);
-                                   cloneRuleTable(cloneTr,i);
-                                  
+                                   cloneRuleTable(cloneTr,i);                                  
                                    originalTr.after(cloneTr);
                                 }
                             }
@@ -68,6 +66,11 @@
                                     ruletr.find('.ruleLogic').val(response.data.definition[i].logicOperator);
                                     
                                 }
+
+                                if (i == response.data.definition.length -1 ){
+                                        ruletr.find('.ruleLogic').prop('disabled', true);
+                                    }
+
 
                                 if (response.data.definition[i].openparenthese != null) {
                                     ruletr.find('.parentheseleft').html(response.data.definition[i].openparenthese);
@@ -102,28 +105,32 @@
                     }
                 });    
             });
- 
-
+            
+            
             $("button.tr_clone_add").on('click', function () {
                 var $tr = $(this).closest('.tr_clone');
                 var $clone = $tr.clone(true);
                 var cindex = $('#ruleDetail tr').length;           
                 cloneRuleTable($clone, cindex);         
                 $tr.after($clone);
+                $tr.find('.ruleLogic').removeAttr("disabled")
+                $('#ruleDetail tr:last').find('.ruleLogic').prop('disabled', true);
             });
 
             $('button.tr_clone_remove').on('click', function () {
                 var clone = $(this).closest('.tr_clone');
                 var rowCount = $('#ruleDetail tr').length;
                 if (rowCount > 2) {
-                    clone.remove();
+                    clone.remove();                    
+                    $('#ruleDetail tr:last').find('.ruleLogic').prop('selectedIndex', 0);
+                    $('#ruleDetail tr:last').find('.ruleLogic').prop('disabled', true);
                 }
                 else {
                     alert('this is the last row, can not remove it. It will clear the entries. To remove the entire rule please use the rule list removal.')
                     clone.find(':text').val('');
                     clone.find('.dpl').prop('selectedIndex', 0)
                 }
-
+                
             });
 
             $('button.tr_clone_clear').on('click', function () {

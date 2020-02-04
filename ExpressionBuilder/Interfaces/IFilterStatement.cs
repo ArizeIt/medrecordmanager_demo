@@ -34,6 +34,11 @@ namespace ExpressionBuilder.Interfaces
         object Value2 { get; set; }
 
         /// <summary>
+        /// Determin the express return as false or true
+        /// </summary>
+        bool Negation { get; set; }
+
+        /// <summary>
         /// Validates the FilterStatement regarding the number of provided values and supported operations.
         /// </summary>
         void Validate();
