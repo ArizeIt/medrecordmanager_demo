@@ -1151,20 +1151,16 @@ namespace MedRecordManager.Controllers
                             filter.By(item.Field, operationHelper.GetOperationByName(item.Operator), item.FieldValue, negation);
                         }
                         
-                    }
-
-                  
-                    records = (baseQuery.Where(filter).ToList());
+                    }                  
+                    records = baseQuery.Where(filter).ToList();
                 }
                 results = results.Union(records).ToList();
-            }
-
-           
+            }         
             try {
                 
                 foreach (var result in results)
                 {
-                    result.Flagged = true;
+                    _urgentCareContext.Visit.FirstOrDefault(x=> x.VisitId == result.VisitId).Flagged = true;
                 }
                 _urgentCareContext.SaveChanges();
                 return Json(new { success = true });
