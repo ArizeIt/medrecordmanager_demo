@@ -50,6 +50,7 @@ namespace UrgentCareData
         public virtual DbSet<VisitHistory> VisitHistory { get; set; }
         public virtual DbSet<VisitImpotLog> VisitImpotLog { get; set; }
         public virtual DbSet<VisitProcCode> VisitProcCode { get; set; }
+        public virtual DbSet<VisitICDCode> VisitICDCode { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -979,6 +980,18 @@ namespace UrgentCareData
                     .HasForeignKey(d => d.VisitId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_VisitProcCode_Visit");
+            });
+
+            modelBuilder.Entity<VisitICDCode>(entity =>
+            {
+             
+                entity.Property(e => e.ICDCode).HasMaxLength(50);
+
+                entity.HasOne(d => d.Visit)
+                    .WithMany(p => p.VisitICDCode)
+                    .HasForeignKey(d => d.VisitId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_VisitICDCode_Visit");
             });
         }
     }

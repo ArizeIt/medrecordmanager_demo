@@ -7,6 +7,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Net.Http;
 using System.Threading.Tasks;
+using System.Xml;
 using ExpressionBuilder.Common;
 using ExpressionBuilder.Generics;
 using ExpressionBuilder.Helpers;
@@ -1127,6 +1128,12 @@ namespace MedRecordManager.Controllers
                     
                     foreach (var item in ruleDetail)
                     {
+                        if (!string.IsNullOrEmpty(item.Openparenthese))
+                        {
+                            var groups = item.Openparenthese.ToCharArray().Count(a => a == '(');
+                            filter.StartGroup();
+                        }
+                       
                         var negation = true;
                         // this means the field is collectable 
                         if (item.Field.Contains("[") && item.Field.Contains("[") && item.Operator.ToLower() == "DoesNotContain".ToLower())
@@ -1158,11 +1165,11 @@ namespace MedRecordManager.Controllers
             }         
             try {
                 
-                foreach (var result in results)
-                {
-                    _urgentCareContext.Visit.FirstOrDefault(x=> x.VisitId == result.VisitId).Flagged = true;
-                }
-                _urgentCareContext.SaveChanges();
+                //foreach (var result in results)
+                //{
+                //    _urgentCareContext.Visit.FirstOrDefault(x=> x.VisitId == result.VisitId).Flagged = true;
+                //}
+                //_urgentCareContext.SaveChanges();
                 return Json(new { success = true });
             }
             catch(Exception ex)
