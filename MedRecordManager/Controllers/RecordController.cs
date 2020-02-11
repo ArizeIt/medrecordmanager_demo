@@ -1158,23 +1158,38 @@ namespace MedRecordManager.Controllers
                             filter.By(item.Field, operationHelper.GetOperationByName(item.Operator), item.FieldValue, negation);
                         }
                         
-                    }                  
-                    records = baseQuery.Where(filter).ToList();
+                    }
+                    try
+                    {
+                        records = baseQuery.Where(filter).ToList();
+                    }
+                    catch
+                    {
+                        return Json(new { success = false, message = "Failed to apply the rules, please try again." });
+                    }
                 }
                 results = results.Union(records).ToList();
-            }         
-            try {
-                
-                //foreach (var result in results)
-                //{
-                //    _urgentCareContext.Visit.FirstOrDefault(x=> x.VisitId == result.VisitId).Flagged = true;
-                //}
-                //_urgentCareContext.SaveChanges();
-                return Json(new { success = true });
-            }
-            catch(Exception ex)
+            } 
+            
+            if(results.Any())
             {
-                return Json(new {success=false, message=ex.Message});
+                try
+                {
+                    foreach (var result in results)
+                    {
+                        _urgentCareContext.Visit.FirstOrDefault(x => x.VisitId == result.VisitId).Flagged = true;
+                    }
+                    _urgentCareContext.SaveChanges();
+                    return Json(new { success = true });
+                }
+                catch (Exception ex)
+                {
+                    return Json(new { success = false, message = ex.Message });
+                }
+            }
+            else
+            {
+                return Json(new { success = false, message = "This rule does not find any record that matches the conditions." });
             }
           
         }

@@ -322,6 +322,9 @@
                                 flaggedGrid.clear();
                                 flaggedGrid.reload({ page: 1 });
                             }
+                            if (response.success == false) {
+                                alert(response.message);
+                            }
                         }
                     });
                 }
