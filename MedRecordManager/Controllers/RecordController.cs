@@ -1116,52 +1116,69 @@ namespace MedRecordManager.Controllers
             var baseQuery = _urgentCareContext.Visit.Where(x => officekeys.Contains(x.OfficeKey.ToString()) && x.ServiceDate >= startDate && x.ServiceDate <= endDate && !x.Flagged && !x.VisitImpotLog.Any());
             var operationHelper = new OperationHelper();
             var results = new List<Visit>();
+            var problemRuleNames = new List<string>();
             foreach (var ruleSet in activeRules)
             {
                 var ruleDetail = !string.IsNullOrEmpty(ruleSet.RuleJsonString)
                     ? JsonConvert.DeserializeObject<List<RuleItem>>(ruleSet.RuleJsonString)
                     : new List<RuleItem>();
                 var records = new List<Visit>();
+
+                
+                
                 if (ruleDetail.Any())
                 {
                     var filter = new Filter<Visit>();
                     
                     foreach (var item in ruleDetail)
                     {
-                        if (!string.IsNullOrEmpty(item.Openparenthese))
+                        try
                         {
-                            var groups = item.Openparenthese.ToCharArray().Count(a => a == '(');
-                            filter.StartGroup();
+                            if (!string.IsNullOrEmpty(item.Openparenthese))
+                            {
+                                var groups = item.Openparenthese.ToCharArray().Count(a => a == '(');
+                                filter.StartGroup();
+                            }
+
+                            var negation = true;
+                            // this means the field is collectable 
+                            if (item.Field.Contains("[") && item.Field.Contains("[") && item.Operator.ToLower() == "DoesNotContain".ToLower())
+                            {
+                                item.Operator = "Contains";
+                                negation = false;
+                            }
+
+                            if (item.Field.Contains("[") && item.Field.Contains("[") && item.Operator.ToLower() == "NotEqualTo".ToLower())
+                            {
+                                item.Operator = "EqualTo";
+                                negation = false;
+                            }
+
+                            if (item.LogicOperator != null)
+                            {
+                                var connector = (Connector)Enum.Parse(typeof(Connector), item.LogicOperator);
+                                filter.By(item.Field, operationHelper.GetOperationByName(item.Operator), item.FieldValue, connector, negation);
+                            }
+                            else
+                            {
+                                filter.By(item.Field, operationHelper.GetOperationByName(item.Operator), item.FieldValue, negation);
+                            }
+                        }
+                        catch
+                        { 
+                            problemRuleNames.Add(ruleSet.RuleName);
+                            break;
                         }
                        
-                        var negation = true;
-                        // this means the field is collectable 
-                        if (item.Field.Contains("[") && item.Field.Contains("[") && item.Operator.ToLower() == "DoesNotContain".ToLower())
-                        {
-                            item.Operator = "Contains";
-                            negation = false;
-                        }
-
-                        if (item.Field.Contains("[") && item.Field.Contains("[") && item.Operator.ToLower() == "NotEqualTo".ToLower())
-                        {
-                            item.Operator = "EqualTo";
-                            negation = false;
-                        }
-
-                        if (item.LogicOperator !=null)
-                        {
-                            var connector = (Connector)Enum.Parse(typeof(Connector), item.LogicOperator);
-                            filter.By(item.Field, operationHelper.GetOperationByName(item.Operator), item.FieldValue, connector, negation);
-                        }
-                        else
-                        {
-                            filter.By(item.Field, operationHelper.GetOperationByName(item.Operator), item.FieldValue, negation);
-                        }
                         
                     }
                     try
                     {
-                        records = baseQuery.Where(filter).ToList();
+                        if(!problemRuleNames.Any())
+                        {
+                            records = baseQuery.Where(filter).ToList();
+                        }
+                                              
                     }
                     catch
                     {
@@ -1180,7 +1197,22 @@ namespace MedRecordManager.Controllers
                         _urgentCareContext.Visit.FirstOrDefault(x => x.VisitId == result.VisitId).Flagged = true;
                     }
                     _urgentCareContext.SaveChanges();
-                    return Json(new { success = true });
+                    var resultMessage = string.Empty;
+                    if(problemRuleNames.Any())
+                    {                      
+                        string ruleNames = string.Empty;
+                        if (problemRuleNames.Count()>1)
+                        {
+                            string dilimiter = ", ";
+                            ruleNames = problemRuleNames.Aggregate((i, j) => i + dilimiter + j);
+                        }
+                        else
+                        {
+                            ruleNames = problemRuleNames[0];
+                        }
+                        resultMessage = string.Format("Rules found results, how ever {0} had problems to run, please check the definition. ", ruleNames);
+                    }
+                    return Json(new { success = true, message = resultMessage });
                 }
                 catch (Exception ex)
                 {

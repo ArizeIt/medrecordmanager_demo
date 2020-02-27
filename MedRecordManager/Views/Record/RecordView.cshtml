@@ -316,7 +316,10 @@
                         },
                         type: 'POST',
                         success: function (response) {
-                            if (response.success) {                               
+                            if (response.success) {
+                                if (response.message.length > 0) {
+                                    alert(response.message);
+                                }
                                 dailyGrid.clear();
                                 dailyGrid.reload({ office: keys.join(','), startDate: $('#startDate').val(), endDate: $('#endDate').val() });
                                 flaggedGrid.clear();
