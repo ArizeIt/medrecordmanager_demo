@@ -1124,6 +1124,7 @@ namespace MedRecordManager.Controllers
                     : new List<RuleItem>();
                 var records = new List<Visit>();
 
+                var ruleError = false;
                 
                 
                 if (ruleDetail.Any())
@@ -1165,7 +1166,8 @@ namespace MedRecordManager.Controllers
                             }
                         }
                         catch
-                        { 
+                        {
+                            ruleError = true;
                             problemRuleNames.Add(ruleSet.RuleName);
                             break;
                         }
@@ -1174,7 +1176,7 @@ namespace MedRecordManager.Controllers
                     }
                     try
                     {
-                        if(!problemRuleNames.Any())
+                        if(!ruleError)
                         {
                             records = baseQuery.Where(filter).ToList();
                         }
