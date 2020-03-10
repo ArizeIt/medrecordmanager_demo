@@ -134,7 +134,7 @@ namespace MedRecordManager.Controllers
             if (page.HasValue && limit.HasValue)
             {
                 var start = (page.Value - 1) * limit.Value;
-                records = records.Skip(start).Take(limit.Value).ToList();
+                records = records.Skip(start).Take(limit.Value).OrderBy(x=>x.VisitTime).ToList();
             }
             return Json(new { records, total });
         }
@@ -298,7 +298,7 @@ namespace MedRecordManager.Controllers
             if (page.HasValue && limit.HasValue)
             {
                 var start = (page.Value - 1) * limit.Value;
-                records = records.Skip(start).Take(limit.Value).ToList();
+                records = records.Skip(start).Take(limit.Value).OrderBy(x=>x.VisitDate).ToList();
             }
 
 
@@ -538,7 +538,7 @@ namespace MedRecordManager.Controllers
                     ProcCodes = y.ProcCodes.Replace(",|", "<br/>").Replace("|", "<br/>"),
                     IsFlagged = y.Flagged
 
-                }).ToList();
+                }).OrderBy(x=>x.VisitTime).ToList();
 
             var total = records.Count();
 
