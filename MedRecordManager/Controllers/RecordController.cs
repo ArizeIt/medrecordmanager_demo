@@ -426,7 +426,7 @@ namespace MedRecordManager.Controllers
         public async Task<IActionResult> GetModifiers()
         {
             var records = await _urgentCareContext.Modifier.Select(x => new { id = x.ModifierCode, text = x.ModifierCode }).ToListAsync();
-           // records.Insert(0, new { id = "", text = "" });
+            records.Insert(0, new { id = "", text = "" });
             return Json(records);
         }
 
@@ -915,7 +915,7 @@ namespace MedRecordManager.Controllers
 
                 var newIcdCodes = _urgentCareContext.VisitCodeHistory.Where(x => x.VisitHistoryId == visitHistory.VisitHistoryId && x.CodeType == "IcdCode" && x.Action != "Modified").Select(x => x.Code).ToList();
                 var newProcCodes = _urgentCareContext.VisitCodeHistory.Where(x => x.VisitHistoryId == visitHistory.VisitHistoryId && x.CodeType == "CPTCode" && x.Action != "Modified").ToList();
-                var newEMCode = _urgentCareContext.VisitCodeHistory.Where(x => x.VisitHistoryId == visitHistory.VisitHistoryId && x.CodeType == "EM_CPTCode" && x.Action != "Modified").First();
+                var newEMCode = _urgentCareContext.VisitCodeHistory.Where(x => x.VisitHistoryId == visitHistory.VisitHistoryId && x.CodeType == "EM_CPTCode" && x.Action != "Modified").FirstOrDefault();
 
                 visitHistory.FinalizedTime = DateTime.UtcNow;
                 visitHistory.Saved = true;
@@ -998,25 +998,34 @@ namespace MedRecordManager.Controllers
                     }
                 }
 
-                var emModifer = string.Empty;
-
-                if (!string.IsNullOrEmpty(newEMCode.Modifier))
+                if(newEMCode !=null)
                 {
-                    emModifer = newEMCode.Modifier;
-                }
-                if (!string.IsNullOrEmpty(newEMCode.Modifier2))
-                {
-                    emModifer = string.Format("{0},{1}", newEMCode.Modifier, newEMCode.Modifier2);
-                }
+                    var emModifer = string.Empty;
 
-                visit.IsModified = true;
-                visit.Icdcodes = newIcdCodes.Aggregate((current, next) => $"{current}|{next}");
-                visit.Emcode = newEMCode.Code;
-                visit.EmModifier = newEMCode.Modifier+",";
-                visit.EmQuantity = newEMCode.Quantity;
-                visit.ProcCodes = fullProcCode;
-                visit.ProcQty = newProcCodes.Count();
-                visit.Flagged = flaged;
+                    if (!string.IsNullOrEmpty(newEMCode.Modifier))
+                    {
+                        emModifer = newEMCode.Modifier;
+                    }
+                    if (!string.IsNullOrEmpty(newEMCode.Modifier2))
+                    {
+                        emModifer = string.Format("{0},{1}", newEMCode.Modifier, newEMCode.Modifier2);
+                    }
+
+                    visit.IsModified = true;
+                    visit.Emcode = newEMCode.Code;
+                    visit.EmModifier = newEMCode.Modifier + ",";
+                    visit.EmQuantity = newEMCode.Quantity;
+                    visit.ProcCodes = fullProcCode;
+                    visit.ProcQty = newProcCodes.Count();
+                    visit.Flagged = flaged;
+                }
+                else
+                {
+                    visit.IsModified = true;
+                    visit.Emcode = string.Empty;
+                    visit.EmModifier = string.Empty;
+                    visit.EmQuantity = null;
+                }
 
                 if (visitHistoryDocument != null)
                 {
@@ -1024,6 +1033,7 @@ namespace MedRecordManager.Controllers
                     document.DocumentImage = UpdatedDocImage;
                 }
 
+                visit.Icdcodes = newIcdCodes.Aggregate((current, next) => $"{current}|{next}");
 
                 try
                 {
