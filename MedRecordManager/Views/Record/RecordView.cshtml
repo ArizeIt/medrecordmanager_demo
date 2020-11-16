@@ -4,7 +4,6 @@
 }
 
 @section scripts{
-    <script src="~/lib/microsoft/signalr/dist/browser/signalr.min.js"></script>
     <script type="text/javascript">
 
         var dailyGrid;
@@ -16,36 +15,36 @@
             var flagManager = function (value, record, $cell, $displayEl, id, $grid) {
                 var $flagModal = $('#flagModal');
                 var $checkBox = $('<input type="checkbox">').prop('checked', record.isFlagged)
-                        .attr({
-                            'dataKey': id
-                            });
+                    .attr({
+                        'dataKey': id
+                    });
 
                 $checkBox.on('click', function (e) {
                     var mark = $(this).is(':checked');
-                   
+
                     $flagModal.attr({
                         'dataKey': id,
                         'flagged': mark
                     });
-                    if (mark) {                       
+                    if (mark) {
                         $flagModal.find('.modal-body').children('p').html('This action will mark the current record for skipping the synchroniztion until it is unchecked.  Click Yes to go ahead, NO to cancel.')
                     }
-                    else {                      
-                        $flagModal.find('.modal-body').children('p').html('This action will re instate the current record for synchroniztion. Click Yes to go ahead, NO to cancel.')                      
+                    else {
+                        $flagModal.find('.modal-body').children('p').html('This action will re instate the current record for synchroniztion. Click Yes to go ahead, NO to cancel.')
                     }
                     $flagModal.modal({ backdrop: 'static', keyboard: false });
-            
+
                 });
                 $displayEl.empty().append($checkBox);
             };
             var editManager = function (value, record, $cell, $displayEl, id, $grid) {
-                var /*data = $grid.data(),    */            
+                var /*data = $grid.data(),    */
                     $detail = $('<button type="button"class="btn btn-info">Detail</button><span style="padding-right: 5px"/>').attr('data-key', id),
                     $edit = $('<button type="button"class="btn btn-warning">Edit</button>').attr('data-key', id),
-                    $update = $('<button type="button"class="btn btn-success">Update</button><span style="padding-right: 5px"/>').attr('data-key',id).hide(),
+                    $update = $('<button type="button"class="btn btn-success">Update</button><span style="padding-right: 5px"/>').attr('data-key', id).hide(),
                     $cancel = $('<button type="button"class="btn btn-default">Cancel</button>').attr('data-key', id).hide();
-                    
-                
+
+
                 $detail.on('click', function (e) {
                     addTab($(this).data('key'))
                 });
@@ -61,10 +60,10 @@
                     $edit.show();
                     $detail.show();
                     $update.hide();
-                    $cancel.hide();       
+                    $cancel.hide();
                 });
-                    
-  
+
+
                 $cancel.on('click', function (e) {
                     $grid.cancel($(this).data('key'));
                     $edit.show();
@@ -82,28 +81,27 @@
                     //{ field: 'pvRecordId', width:100, title: 'PV RecordId' },
                     { field: 'Flag', width: 50, renderer: flagManager },
                     { filed: 'visitId', hidden: true },
-                    { field: 'patientName', Width: 300, title: 'Patient Name'},
-                    { field: 'clinicName', Width: 150, title: 'Clinic Name'},
+                    { field: 'patientName', Width: 300, title: 'Patient Name' },
+                    { field: 'clinicName', Width: 150, title: 'Clinic Name' },
                     { field: 'pvFinClass', minwidth: 100, title: 'Finacial Class' },
                     { field: 'payment', minwidth: 100, title: 'Payment $' },
-                    { field: 'diagCode', width: 150,title: 'Diag Codes' },
-                    { field: 'icdCodes', width: 150,title: 'Icd Codes' },
+                    { field: 'diagCode', width: 150, title: 'Diag Codes' },
+                    { field: 'icdCodes', width: 150, title: 'Icd Codes' },
                     { field: 'procCodes', minwidth: 80, title: 'Proc Codes' },
                     { field: 'visitTime', minwidth: 80, title: 'Visit Date' },
-                   
+
                 ],
                 pager: { limit: 10, sizes: [2, 5, 10, 20] },
             });
 
-
             if (type == 'Daily') {
                 dailyGrid = $('#visitTable').grid({
                     primaryKey: 'visitId',
-                    inlineEditing: { mode: 'command', managementColumn: false},
+                    inlineEditing: { mode: 'command', managementColumn: false },
                     dataSource: '/Record/LoadDaily',
                     columns: [
                         //{ field: 'pvRecordId', width:100, title: 'PV RecordId' },
-                        { field: 'Flag', width:50, renderer: flagManager },
+                        { field: 'Flag', width: 50, renderer: flagManager },
                         { filed: 'visitId', hidden: true },
                         { field: 'patientName', width: 250, title: 'Patient Name', priority: 1 },
                         { field: 'clinicName', width: 200, title: 'Clinic Name', priority: 2, type: 'dropdown', editor: { dataSource: '/Record/GetClinics', valueField: 'id' }, editField: 'clinicName' },
@@ -117,7 +115,7 @@
                         { field: 'procCodes', minWidth: 80, title: 'Proc Codes', priority: 3 },
                         { field: 'visitTime', minWidth: 80, title: 'Visit Date' },
                         //{ field: 'Action', width: 100, renderer: detailButtonRender },
-                        { field: 'Actions', width: 200, renderer: editManager, align:'center'}
+                        { field: 'Actions', width: 200, renderer: editManager, align: 'center' }
                     ],
                     pager: { limit: 10, sizes: [2, 5, 10, 20] },
                     detailTemplate: '<div><table/></div>'
@@ -144,28 +142,28 @@
                         method: 'POST',
                         cache: false,
                         success: function (response) {
-                            var caption; 
+                            var caption;
                             if (response.success) {
-                                $alert.addClass('alert alert-success')                               
+                                $alert.addClass('alert alert-success')
                                 caption = 'Sucessful! '
                             }
                             else {
-                                $alert.addClass('alert alert-warning')                           
+                                $alert.addClass('alert alert-warning')
                                 caption = 'Warning! '
                             }
                             $alert.children('.alert-content').empty();
-                            $alert.children('.alert-content').append('<strong>' + caption+ '</strong >' + response.message)
+                            $alert.children('.alert-content').append('<strong>' + caption + '</strong >' + response.message)
                         }
                     })
-                     .fail(function () {
+                        .fail(function () {
                             $('#visitGridAlert').addClass('alert alert-danger')
                             $alert.append(' <strong>Failed!</strong> ')
-                      })
-                     .done(function () {
+                        })
+                        .done(function () {
                             $alert.fadeTo(4000, 500).slideUp(1000, function () {
                                 $alert.slideUp(1000)
-                         });
-                      })
+                            });
+                        })
                 });
             }
             else if (type == 'Callback') {
@@ -187,7 +185,25 @@
                 });
 
             }
-
+            else if (type = 'Imported') {
+                dailyGrid = $('#visitTable').grid({
+                    primaryKey: 'pvId',
+                    dataSource: '/Record/LoadImported',
+                    columns: [
+                        { filed: 'visitId', hidden: true },
+                        { field: 'patientName', width: 250, title: 'Patient Name', priority: 1 },
+                        { field: 'clinicName', width: 200, title: 'Clinic Name', priority: 2 },
+                        { field: 'physicianName', width: 200, title: 'Physician Name' },
+                        { field: 'insuranceName', width: 200, title: 'Insurance Name' },
+                        { field: 'visitTime', minWidth: 80, title: 'Visit Time' },
+                        { field: 'importedDate', minWidth: 80, title: 'Imported Date' },
+                        { field: 'chargeImported', minWidth: 80, title: 'Charge Imported' },
+                        { field: 'patDocImported', minWidth: 80, title: 'Document All Imported' },
+                        { field: 'patChartImported', minWidth: 80, title: 'Chart All Imported' }
+                    ],
+                    pager: { limit: 10, sizes: [2, 5, 10, 20] }
+                });
+            }
 
             modifiedGrid = $('#changeTable').grid({
                 primaryKey: 'visitId',
@@ -237,8 +253,8 @@
                     $('#officeKey').closest('.form-group').removeClass('has-error')
                 }
 
-                if ($('#startDate').val().length != 0 ){
-                    $('#startDate').closest('.form-group').removeClass('has-error') 
+                if ($('#startDate').val().length != 0) {
+                    $('#startDate').closest('.form-group').removeClass('has-error')
                 }
                 else {
                     $('#startDate').closest('.form-group').addClass('has-error')
@@ -252,7 +268,7 @@
                 }
 
                 if (($('#officeKey').val().length != 0 && $('#startDate').val().length != 0 && $('#endDate').val().length != 0)) {
-                    if (type === 'Daily') {
+                    if (type === 'Daily' || type === 'Imported') {
                         var keys = [];
                         $('#officeKey > Option:selected').each(function () {
                             keys.push(this.value);
@@ -265,9 +281,11 @@
                         dailyGrid.clear();
                         dailyGrid.reload({ office: $('#officeKey').val(), startDate: $('#startDate').val(), endDate: $('#endDate').val() });
                     }
+
                     $('.dataView').show();
                     $('.modified').hide();
-                   
+
+
                 }
                 else {
                     $('.dataView').hide();
@@ -279,11 +297,44 @@
                 $('.dataView').hide();
                 $('.modified').show();
                 modifiedGrid.clear();
-                modifiedGrid.reload({ startDate: $('#startDate').val(), endDate: $('#endDate').val()})
+                modifiedGrid.reload({ startDate: $('#startDate').val(), endDate: $('#endDate').val() })
 
             });
 
-            $('#btnRun').on('click',function () {
+            $('#btnScrub').on('click', function () {
+                if (($('#officeKey').val().length != 0 && $('#startDate').val().length != 0 && $('#endDate').val().length != 0)) {
+                    var keys = [];
+                    $('#officeKey > Option:selected').each(function () {
+                        keys.push(this.value);
+                    });
+                    $.ajax({
+                        url: '/Record/ScrubRecord',
+                        data: {
+                            officekey: keys.join(','),
+                            startDate: $('#startDate').val(),
+                            endDate: $('#endDate').val()
+                        },
+                        type: 'POST',
+                        success: function (response) {
+                            if (response.success) {
+                                if (response.message.length > 0) {
+                                    alert(response.message);
+                                }
+                                dailyGrid.clear();
+                                dailyGrid.reload({ office: keys.join(','), startDate: $('#startDate').val(), endDate: $('#endDate').val() });
+                                flaggedGrid.clear();
+                                flaggedGrid.reload({ page: 1 });
+                            }
+                            if (response.success == false) {
+                                alert(response.message);
+                            }
+                        }
+                    });
+                }
+
+            });
+
+            $('#btnRun').on('click', function () {
                 $('#btnRun').attr('disabled', true);
                 $.ajax({
                     url: '/Record/RunBatch',
@@ -293,19 +344,19 @@
                     },
                     type: 'POST',
 
-                    success: function (response) {                       
-                            $('#btnRun').attr('disabled', false);                           
+                    success: function (response) {
+                        $('#btnRun').attr('disabled', false);
                     },
-                    dataType:'json'
+                    dataType: 'json'
                 })
             });
 
             $('#flagModal').on('click', '.btn-primary', function () {
                 var id = $('#flagModal').attr('datakey');
-                var mark = $('#flagModal').attr('flagged');      
+                var mark = $('#flagModal').attr('flagged');
                 $('#flagModal').removeAttr('dataKey');
                 $('#flagModal').removeAttr('flagged');
-                $('#flagModal').modal('hide');               
+                $('#flagModal').modal('hide');
                 flagRecord(mark, id);
             });
 
@@ -321,13 +372,20 @@
                 else {
                     $('input[dataKey=' + id + ']').prop('checked', false);
                 }
-                    
+
             });
 
-        
+
+            $(document).on('click', '.closeTab', function () {
+                var tabContentId = $(this).parent().attr("href");
+                $(this).parent().parent().remove();
+                $(tabContentId).remove();
+                $('a[href$="#mainView"]').click();
+            });
+
             function addTab(id) {
                 if ($('#detail' + id).length == 0) {
-                    $('.nav-tabs').find('li').last().after('<li><a data-toggle="tab" href="#detail' + id + '"><button type="button" class="close" aria-label="Close"><span aria-hidden="true">&times;</span></button><b>Visit ' + id + '</b></a></li>');
+                    $('.nav-tabs').find('li').last().after('<li><a data-toggle="tab" href="#detail' + id + '"><button type="button" class="close closeTab" aria-label="Close">&nbsp;&times;</button><b>Visit ' + id + '</b></a></li>');
                     $.ajax({
                         type: "GET",
                         data: {
@@ -341,13 +399,12 @@
                         }
                     });
                 }
-                else
-                {
-                    $('a[href$="#detail' + id+'"]').click();
+                else {
+                    $('a[href$="#detail' + id + '"]').click();
                 }
             };
 
-            function flagRecord(mark, id){
+            function flagRecord(mark, id) {
                 $.ajax({
                     type: 'POST',
                     data: {
@@ -363,12 +420,16 @@
                 }).done(function () {
                     if (mark == 'false') {
                         $('input[dataKey=' + id + ']').prop('checked', false);
-                    }   
-                });                                                             
+                    }
+                });
             };
 
+            function filterImported(doc, chart) {
+                dailyGrid.clear()
+            }
+
             function select2editor($editorContainer, value, record) {
-                var select = $('<select><option value="'+ value+'">'+ value +'</option></select>');
+                var select = $('<select><option value="' + value + '">' + value + '</option></select>');
                 $editorContainer.append(select);
                 select.select2({
                     width: '150px',
@@ -377,7 +438,7 @@
                         url: '/Record/GetPhysicians',
                         data: function () {
                             return {
-                                clinicId: record.clinicName 
+                                clinicId: record.clinicName
                             };
                         },
                         processResults: function (data) {
@@ -399,155 +460,199 @@
 
     </script>
 }
-    
-    <div class="modal fade" role="dialog" tabindex="-1" id="flagModal" >
-        <div class="modal-dialog modal-dialog-centered" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h4 class="modal-title">Attention</h4>
-                </div>
-                <div class="modal-body">
-                    <p></p>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-primary">Yes</button>
-                    <button type="button" class="btn btn-secondary">No</button>
-                </div>
+
+<div class="modal fade" role="dialog" tabindex="-1" id="flagModal">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Attention</h4>
+            </div>
+            <div class="modal-body">
+                <p></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary">Yes</button>
+                <button type="button" class="btn btn-secondary">No</button>
             </div>
         </div>
     </div>
-    
-    <ul class="nav nav-tabs" role="tablist">
-        @if (Model.Type == "Daily")
+</div>
+
+<ul class="nav nav-tabs" role="tablist">
+    @{
+        if (Model.Type == "Daily")
         {
             <li class="active"><a data-toggle="tab" href="#mainView"><b>Daily Review</b></a></li>
 
         }
-        else if (Model.Type == "Callback")
+        if (Model.Type == "Callback")
         {
             <li class="active"><a data-toggle="tab" href="#mainView"><b>Call Back</b></a></li>
 
         }
 
-    </ul>
-    <div class="tab-content">
-        <div class="tab-pane active" id="mainView">
-            <input type="hidden" asp-for="Type" id="searchType" />
-            <div class="row top-buffer">
-                <div class="col-md-12">
-                    <div class="box box-widget">
-                        <div class="box-header with-border">
-                            <h3 class="box-title">Search</h3>
+        if (Model.Type == "Imported")
+        {
+            <li class="active"><a data-toggle="tab" href="#mainView"><b>Imported View</b></a></li>
+        }
+    }
+</ul>
+<div class="tab-content" id="dataTab">
+    <div class="tab-pane active" id="mainView">
+        <input type="hidden" asp-for="Type" id="searchType" />
+        <div class="row top-buffer">
+            <div class="col-md-12">
+                <div class="box box-widget">
+                    <div class="box-header with-border">
+                        <h3 class="box-title">Search</h3>
+                    </div>
+                    <div class="box-body">
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label asp-for="OfficeKey" class="control-label"> Select Key(s)</label>
+                                <select class="form-control" asp-for="OfficeKey" , asp-items="@Model.OfficeKeys" id="officeKey" multiple></select>
+                            </div>
                         </div>
-                        <div class="box-body">
-                            <div class="col-md-3">
-                                <div class="form-group">
-                                    <label asp-for="OfficeKey" class="control-label"> Select Key(s)</label>
-                                    <select class="form-control" asp-for="OfficeKey" , asp-items="@Model.OfficeKeys" id="officeKey" multiple></select>
-                                </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label asp-for="StartDate" class="control-label">Visit Start Date</label>
+                                <input class="form-control date" id="startDate" type="text" value="@DateTime.Today.AddDays(-1).ToShortDateString()" />
                             </div>
-                            <div class="col-md-3">
-                                <div class="form-group">
-                                    <label asp-for="StartDate" class="control-label">Visit Start Date</label>
-                                    <input class="form-control date" id="startDate" type="text" value="@DateTime.Today.AddDays(-1).ToShortDateString()" />
-                                </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label asp-for="EndDate" class="control-label">Visit End Date</label>
+                                <input class="form-control date" id="endDate" type="text" value="@DateTime.Today.ToShortDateString()" />
                             </div>
-                            <div class="col-md-3">
-                                <div class="form-group">
-                                    <label asp-for="EndDate" class="control-label">Visit End Date</label>
-                                    <input class="form-control date" id="endDate" type="text" value="@DateTime.Today.ToShortDateString()" />
-                                </div>
 
+                        </div>
+
+                        <div class="col-md-1">
+                            <div class="form-group">
+                                <div class="control-group">
+                                    <div style="margin-top: 24px;">
+                                        <input type="button" value="Search" class="btn btn-primary" id="searchButton" />
+                                    </div>
+                                </div>
                             </div>
-                            <div class="col-md-3">
-                                <div class="form-group">
-                                    <div class="control-group">
-                                        <div style="margin-top: 24px;">
-                                            <input type="button" value="Search" class="btn btn-primary" id="searchButton" />
-                                        </div>
+                        </div>
+
+                        @if (Model.Type == "Callback")
+                        {
+                            <div class="row">
+                                <div class="col-sm-3">
+                                    <div class="form-group">
+                                        <label asp-for="Clinic" class="control-label">Select Clinic(s)</label>
+                                        <select class="form-control" asp-for="Clinic" , asp-items="@Model.Clinics" id="officeKey" multiple></select>
                                     </div>
                                 </div>
                             </div>
 
-                            @if (Model.Type == "Callback")
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row dataView" style="display:none">
+            <div class="col-md-12">
+                <div class="alert-dismissible fade" role="alert" id="visitGridAlert">
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                    <div class="alert-content"></div>
+                </div>
+                <div id="Results">
+                    <div class="box box-danger">
+                        <div class="box-header with-border">
+                            <h3 class="box-title">Daily Visit Records</h3>
+                        </div>
+                        <div class="box-body">
+                            @if (Model.Type == "Imported")
                             {
                                 <div class="row">
-                                    <div class="col-sm-3">
-                                        <div class="form-group">
-                                            <label asp-for="Clinic" class="control-label">Select Clinic(s)</label>
-                                            <select class="form-control" asp-for="Clinic" , asp-items="@Model.Clinics" id="officeKey" multiple></select>
+                                    <div class="col-xs-3">
+                                        <div class="checkbox chkfilter">
+                                            <label>
+                                                <input type="checkbox" value="">
+                                                <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                                Show Unimported Chart Only
+                                            </label>
                                         </div>
                                     </div>
+                                    <div class="col-xs-3">
+                                        <div class="checkbox chkfilter">
+                                            <label>
+                                                <input type="checkbox" value="">
+                                                <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                                Show Unimported Document Only
+                                            </label>
+                                        </div>
+                                    </div>
+
                                 </div>
-
                             }
+
+                            <div class="row" style="margin-top: 10px">
+                                <div class="col-xs-12">
+                                    <table id="visitTable" class="table table-striped"></table>
+                                </div>
+                            </div>
                         </div>
+                        <div class="box-footer">
+                            <div class="btn-toolbar" role="toolbar" aria-label="Toolbar with button groups">
+                                @if (Model.Type == "Daily")
+                                {
+                                    <button class="btn btn-success pull-right" id="btnNext">Next</button>
+                                    if (Model.Type == "Daily")
+                                    {
+                                        <button class="btn btn-primary pull-right" id="btnScrub">Scrub</button>
+                                    }
+                                }
+                            </div>
+                        </div>
+
                     </div>
                 </div>
             </div>
-            <div class="row dataView" style="display:none">
-                <div class="col-md-12">
-                    <div class="alert-dismissible fade" role="alert" id="visitGridAlert">
-                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                        <div class="alert-content"></div>
-                    </div>                   
-                    <div id="Results">
-                        <div class="box box-danger">
-                            <div class="box-header with-border">
-                                <h3 class="box-title">Daily Visit Records</h3>
-                            </div>
-                            <div class="box-body">
-                                <table id="visitTable" class="table table-striped"></table>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="row dataView top-buffer" style="display:none">
-                <div class="col-sm-1 col-lg-offset-11 " style="text-align: left">
-                    <button class="btn btn-success text-right" id="btnNext">Next</button>
-                </div>
-            </div>
+        </div>
 
-            <div class="row modified" style="display:none">
-                <div class="col-md-12">
-                    <div id="Results">
-                        <div class="box box-danger">
-                            <div class="box-header with-border">
-                                <h3 class="box-title">Modfied Records</h3>
-                            </div>
-                            <div class="box-body">
-                                <table id="changeTable" class="table table-striped"></table>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="row modified top-buffer" style="display:none">
-                <div class="col-sm-1 col-lg-offset-11 " style="text-align: left">
-                    <button class="btn btn-success text-right" id="btnRun">run</button>
-                </div>
-            </div>
-
-
-            <div class="row top-buffer">
-                <div class="col-md-12">
-                    <div class="box box-warning">
+        <div class="row modified" style="display:none">
+            <div class="col-md-12">
+                <div id="Results">
+                    <div class="box box-danger">
                         <div class="box-header with-border">
-                            <h3 class="box-title">Flagged Visit Records</h3>
+                            <h3 class="box-title">Modfied Records</h3>
                         </div>
                         <div class="box-body">
-                            <div class="table-responsive">
-                                <table id="flaggedVisitTable" class="table table-striped"></table>
-                            </div>
+                            <table id="changeTable" class="table table-striped"></table>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
 
-       
+        <div class="row modified top-buffer" style="display:none">
+            <div class="col-sm-1 col-lg-offset-11 " style="text-align: left">
+                <button class="btn btn-success text-right" id="btnRun">run</button>
+            </div>
+        </div>
+
+
+        <div class="row top-buffer">
+            <div class="col-md-12">
+                <div class="box box-warning">
+                    <div class="box-header with-border">
+                        <h3 class="box-title">Flagged Visit Records</h3>
+                    </div>
+                    <div class="box-body">
+                        <div class="table-responsive">
+                            <table id="flaggedVisitTable" class="table table-striped"></table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
+
+
+</div>
