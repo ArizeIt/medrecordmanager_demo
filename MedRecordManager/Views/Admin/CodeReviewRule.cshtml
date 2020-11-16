@@ -8,32 +8,113 @@
     <script src="~/lib/bootstrap-toggle/js/bootstrap-toggle.min.js"></script>
     <script type="text/javascript">
         $(document).ready(function () {
+            var regex = /^(.*)(\d)+$/i;
+
             $('.btnDeleteRule').on('click', function () {
-                var ruleId = $(this).attr('name');
-                alert(ruleId);
+                var id = $(this).attr('value');
+                var boxDiv = $(this).closest('.box-body');
+                if(confirm('You are about to delete a rule, are you sure?')){
+                    $.ajax({
+                    url:'/Admin/DeleteRule',
+                    data : {ruleId : id},
+                    method : 'DELETE',
+                    success : function(response){
+                        if(response.success){
+                            $('#ruleId'+id).remove();
+                            if(response.last)
+                            {
+                              boxDiv.empty().html('<div class="alert alert-info">There is no rule defined yet. You can save a new rule.</div>');
+                            }
+                        }
+                        else{
+                            alert('Failed to delete this rule.');
+                            }
+                        }
+                    });
+                }
+
             });
 
-            var regex = /^(.*)(\d)+$/i;
-            var cindex = 1;
+
+            $('.btnEditRule').on('click', function () {
+                var id = $(this).attr('value');
+                $.ajax({
+                url:'/Admin/LoadRule',
+                data : {ruleId : id},
+                method : 'GET',
+                success : function(response){
+                    if(response.success){
+                        $('#ruleContent').show();
+                        cleanRuleTable();
+                        $('#ruleName').val(response.data.ruleName);
+                        $('#ruleId').val(response.data.id);
+                        if (response.data.definition.length > 0) {
+                            if (response.data.definition.length > 1) {
+
+                                for (var i = 2; i < (response.data.definition.length +1); i++) {
+                                    var originalTr = $('#id'+(i-1));
+                                    var cloneTr = originalTr.clone(true);
+                                   cloneRuleTable(cloneTr,i);
+                                   originalTr.after(cloneTr);
+                                }
+                            }
+
+                            for (var i = 0; i < response.data.definition.length; i++) {
+                                var ruletr = $('#id' + (i+1));
+
+                                if (response.data.definition[i].logicOperator != null) {
+                                    ruletr.find('.ruleLogic').val(response.data.definition[i].logicOperator);
+
+                                }
+
+                                if (i == response.data.definition.length -1 ){
+                                        ruletr.find('.ruleLogic').prop('disabled', true);
+                                    }
+
+
+                                if (response.data.definition[i].openparenthese != null) {
+                                    ruletr.find('.parentheseleft').html(response.data.definition[i].openparenthese);
+                                }
+
+                                if (response.data.definition[i].closeparenthese != null) {
+                                    ruletr.find('.parentheseRight').html(response.data.definition[i].closeparenthese)
+                                }
+
+                                if (response.data.definition[i].field !=null) {
+
+                                   ruletr.find('.ruleField').val(response.data.definition[i].field);
+
+                                }
+
+                                if (response.data.definition[i].operator!= null) {
+
+                                   ruletr.find('.ruleOperator').val(response.data.definition[i].operator);
+
+                                }
+
+                                if (response.data.definition[i].fieldValue != "") {
+
+                                    ruletr.find('.ruleVal').val(response.data.definition[i].fieldValue);
+                                }
+                            }
+                        }
+                    }
+                    else{
+                        alert('Failed to load this rule.');
+                        }
+                    }
+                });
+            });
+
 
             $("button.tr_clone_add").on('click', function () {
                 var $tr = $(this).closest('.tr_clone');
                 var $clone = $tr.clone(true);
-                cindex++;
-                $clone.find(':text').val('');
-                $clone.attr('id', 'id' + (cindex)); //update row id if required
-                //update ids of elements in row
-                $clone.find("*").each(function () {
-                    var id = this.id || "";
-                    var match = id.match(regex) || [];
-                    if (match.length == 3) {
-                        this.id = match[1] + (cindex);
-                    }
-                });
-                if (cindex > 1) {
-                    $clone.find('.dpl').removeAttr('disabled');
-                }
+                var cindex = $('#ruleDetail tr').length;
+                cloneRuleTable($clone, cindex);
                 $tr.after($clone);
+                $tr.find('.ruleLogic').removeAttr("disabled")
+                $('#ruleDetail tr:last').find('.ruleLogic').prop('disabled', true);
             });
 
             $('button.tr_clone_remove').on('click', function () {
@@ -41,6 +122,8 @@
                 var rowCount = $('#ruleDetail tr').length;
                 if (rowCount > 2) {
                     clone.remove();
+                    $('#ruleDetail tr:last').find('.ruleLogic').prop('selectedIndex', 0);
+                    $('#ruleDetail tr:last').find('.ruleLogic').prop('disabled', true);
                 }
                 else {
                     alert('this is the last row, can not remove it. It will clear the entries. To remove the entire rule please use the rule list removal.')
@@ -58,10 +141,7 @@
             });
 
             $('#btnUndo').on('click', function () {
-                $('#ruleDetail').find("tr:gt(1)").remove();
-                $('.tr_clone').find(':text').val('')
-                $('.tr_clone').find('.dpl').prop('selectedIndex', 0)
-                $('.tr_clone').find(':checkbox').prop('checked', false)
+                cleanRuleTable();
             })
 
             $('#btnAdd').on('click', function () {
@@ -69,17 +149,73 @@
             });
 
             $('#btnSave').on('click', function () {
-                var name = $('#ruleName').val();
+                var id = $('#ruleId').val();
+                var rulename = $('#ruleName').val();
 
-                $ajax({
-                    url: '/Admin/SaveCodeReviewRule',
-                    data: '',
+                var ruleData = [];
+
+
+                $('tr.tr_clone').each(function (i, ruletr) {
+                    console.log(ruletr);
+                    var ruleitem = {
+                        logicOperator: '',
+                        operator : '',
+                        openparenthese : '',
+                        closeparenthese : '',
+                        field : '',
+                        fieldValue :'',
+                    };
+                    if (!$(ruletr).find('.ruleLogic').is('[disabled=disabled]')) {
+                        if ($(ruletr).find('.ruleLogic').val() != 0) {
+                            ruleitem.logicOperator = $(ruletr).find('.ruleLogic').val();
+                        }
+
+                    }
+
+                    if($(ruletr).children('.parentheseleft').html() != ""){
+                        ruleitem.openparenthese= $(ruletr).find('.parentheseleft').html();
+                    }
+
+                    if($(ruletr).children('.parentheseRight').html() != ""){
+                        ruleitem.closeparenthese= $(ruletr).find('.parentheseRight').html()
+                    }
+
+                    if(!$(ruletr).children('.ruleField').is('[disabled=disabled]')){
+                        if($(ruletr).find('.ruleField').val() != 0)
+                        {
+                            ruleitem.field = $(ruletr).find('.ruleField').val().trim();
+                        }
+                    }
+
+                    if(!$(ruletr).children('.ruleOperator').is('[disabled=disabled]')){
+                        if($(ruletr).find('.ruleOperator').val() != 0)
+                        {
+                            ruleitem.operator = $(ruletr).find('.ruleOperator').val().trim();
+                        }
+                    }
+
+                    if ($(ruletr).children('.ruleVal').val() !=""){
+
+                        ruleitem.fieldValue = $(ruletr).find('.ruleVal').val().trim();
+                    }
+
+                    ruleData.push(ruleitem);
+                });
+
+
+                $.ajax({
+                    url: '/Admin/SaveReviewRule',
+                    data: {
+                            ruleName : rulename,
+                            ruleId : id,
+                            ruleSets: ruleData
+                        },
                     method: 'POST',
                     success: function (response) {
                         if (response.success) {
-
+                            window.location.replace('@Url.Action("CodeReviewRule", "Admin")');
                         } else {
-                            alert('failed to save the current rule.')
+                            $('#ruleMsg').show();
                         }
                     }
 
@@ -111,9 +247,51 @@
                 }
                 var newVal = paren.html().slice(0, -1);
                 paren.empty().append(newVal);
-            })
+            });
 
+            $('.chkRule').on('change', function(){
+                var id= $(this).attr('value');
+                var active = $(this).is(':checked');
+                $.ajax({
+                    url:'/Admin/SetRuleActive',
+                    data:{ruleId:id, isOn: active},
+                    method: 'POST',
+                    success : function(response){
+                        if(response.success){
+                            alert('this rule is active');
+                        }
+                    }
+                });
+            });
 
+            $('#ruleName').change(function(){
+                $('#ruleMsg').hide();
+            });
+
+            function cleanRuleTable(){
+                $('#ruleDetail').find("tr:gt(1)").remove();
+                $('.tr_clone').find(':text').val('');
+                $('.tr_clone').find('.parentheseleft').html('');
+                $('.tr_clone').find('.parentheseRight').html('');
+                $('.tr_clone').find('.dpl').prop('selectedIndex', 0)
+                $('.tr_clone').find(':checkbox').prop('checked', false)
+            }
+
+            function cloneRuleTable(clone, index){
+                clone.attr('id', 'id' + (index)); //update row id if required
+                clone.find(':text').val('');
+                //update ids of elements in row
+                clone.find("*").each(function () {
+                    var id = this.id || "";
+                    var match = id.match(regex) || [];
+                    if (match.length == 3) {
+                        this.id = match[1] + (index);
+                    }
+                });
+                if (index = 1) {
+                    clone.find('.dpl').removeAttr('disabled');
+                }
+            }
 
         });
     </script>
@@ -132,18 +310,18 @@
 
                     </div>
                     <div class="box-body">
-                        @if (Model!= null && Model.Any())
+                        @if (Model != null && Model.Any())
                         {
                             foreach (var rule in Model)
                             {
-                                <div class="form-inline">
-                                    <button type="button" class="btn btn-default btnDeleteRule" arial-label="left Align" name="ruleId@(rule.Id)">
+                                <div class="form-inline top-buffer" id="ruleId@(rule.Id)">
+                                    <button type="button" class="btn btn-default btnDeleteRule" arial-label="left Align" value="@rule.Id">
                                         <span class="glyphicon glyphicon-remove" arial-hidden="true" data-></span>
                                     </button>
-                                    <button type="button" class="btn btn-default" arial-label="left Align">
+                                    <button type="button" class="btn btn-default btnEditRule" arial-label="left Align" value="@(rule.Id)">
                                         <span class="glyphicon glyphicon-pencil" arial-hidden="true"></span>
                                     </button>
-                                    <input type="checkbox" checked="@rule.Enabled" , id="@rule.Id" data-toggle="toggle" />
+                                    <input type="checkbox" checked="@rule.Enabled" data-toggle="toggle" class="chkRule" value="@rule.Id">
                                     <lable>@rule.RuleName</lable>
                                 </div>
 
@@ -161,7 +339,11 @@
     </div>
     <div class="col-lg-9">
         <div class="panel panel-default">
-            <div class="panel-heading"><h3>Rule Details</h3></div>
+            <div class="panel-heading">
+                <h3>
+                    Rule Detail
+                </h3>
+            </div>
             <div class="panel-body">
                 <div class="box box-warning">
                     <div class="box-header with-border">
@@ -176,17 +358,22 @@
                     </div>
                     <div id="ruleContent" hidden>
                         <div class="box-body">
+                            <div class="alert alert-danger alert-dismissible" role="alert" id='ruleMsg' hidden>
+                                <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                                <strong>Attention!</strong>
+                            </div>
                             <div class="form-inline">
                                 <label data-error="wrong" data-success="right" for="ruleName">Rule Name:</label>
-                                <input type="email" id="ruleName" class="form-control validate">
+                                <input type="text" id="ruleName" class="form-control validate" required>
                             </div>
+                            <input type="hidden" id="ruleId" value="0" />
                         </div>
                         <hr />
+
                         <table class="table table-borderless" id="ruleDetail">
                             <thead>
                                 <tr>
                                     <th scope="col"></th>
-                                    <th scope="col">And/Or</th>
                                     <th scope="col">(</th>
                                     <th scope="col"></th>
                                     <th scope="col">Field</th>
@@ -194,6 +381,7 @@
                                     <th scope="col">Value</th>
                                     <th scope="col"></th>
                                     <th scope="col">)</th>
+                                    <th scope="col">And/Or</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -209,13 +397,7 @@
                                             <span class="glyphicon glyphicon-repeat text-blue" arial-hidden="true" style="padding-top: 15%" data-toggle="tooltip" title="Clear row entries"></span>
                                         </button>
                                     </th>
-                                    <td>
-                                        <select class="form-control dpl" disabled="disabled">
-                                            <option value="0">Select</option>
-                                            <option value="And">And</option>
-                                            <option value="Or">Or</option>
-                                        </select>
-                                    </td>
+
                                     <td>
                                         <div class="col">
                                             <div class="btn-toolbar" role="toolbar">
@@ -232,33 +414,35 @@
                                     </td>
                                     <td class="parentheseleft"></td>
                                     <td>
-                                        <select class="form-control dpl">
-                                            <option value="And">Select</option>
-                                            <option value="CPT">A CPT</option>
-                                            <option value="EM">An E&M</option>
-                                            <option value="ICD">An ICD</option>
-                                            <option value="Modifier">A Modifier</option>
+                                        <select class="form-control dpl ruleField">
+                                            <option value="0">Select</option>
+                                            <option value="VisitProcCode[ProcCode]">A CPT</option>
+                                            <option value="EMCode">An EM</option>
+                                            <option value="VisitICDCode[ICDCode]">An ICD</option>
+                                            <option value="VisitProcCode[Modifier]">A CPT Modifier</option>
+                                            <option value="EMModifier">A EM Modifier</option>
                                             <option value="ChartText">Chart Text</option>
 
                                         </select>
                                     </td>
                                     <td>
-                                        <select class="form-control dpl">
-                                            <option value="And">Select</option>
-                                            <option value="And">Equals</option>
-                                            <option value="Or">Not Equals</option>
-                                            <option value="Or">Contains</option>
-                                            <option value="Or">NotContains</option>
-                                            <option value="Or">Greater Than</option>
-                                            <option value="Or">Less Than</option>
-                                            <option value="Or">Start With</option>
-                                            <option value="Or">End With<</option>
+                                        <select class="form-control dpl ruleOperator">
+                                            <option value="0">Select</option>
+                                            <option value="EqualTo">Equals</option>
+                                            <option value="NotEqualTo">Not Equals</option>
+                                            <option value="Contains">Contains</option>
+                                            <option value="DoesNotContain">NotContains</option>
+                                            <option value="GraterThen">Greater Than</option>
+                                            <option value="LessThan">Less Than</option>
+                                            <option value="StartsWith">Starts With</option>
+                                            <option value="EndsWith">Ends With</option>
                                         </select>
                                     </td>
                                     <td>
-                                        <input type="text" class="form-control" />
+                                        <input type="text" class="form-control ruleVal" />
                                     </td>
                                     <td class="parentheseRight"></td>
+
                                     <td>
                                         <div class="btn-toolbar" role="toolbar">
                                             <div class="btn-group-vertical" role="group">
@@ -270,6 +454,13 @@
                                                 </button>
                                             </div>
                                         </div>
+                                    </td>
+                                    <td>
+                                        <select class="form-control dpl ruleLogic">
+                                            <option value="0">Select</option>
+                                            <option value="And">And</option>
+                                            <option value="Or">Or</option>
+                                        </select>
                                     </td>
                                 </tr>
                             </tbody>
