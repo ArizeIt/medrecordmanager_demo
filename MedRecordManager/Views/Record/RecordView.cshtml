@@ -192,14 +192,14 @@
                     columns: [
                         { filed: 'visitId', hidden: true },
                         { field: 'patientName', width: 250, title: 'Patient Name', priority: 1 },
-                        { field: 'clinicName', width: 200, title: 'Clinic Name', priority: 2 },
+                        { field: 'clinicName', width: 200, title: 'Clinic Name', priority: 2 },                    
                         { field: 'physicianName', width: 200, title: 'Physician Name' },
-                        { field: 'insuranceName', width: 200, title: 'Insurance Name' },
+                        { field: 'insuranceName', width: 200, title: 'Insurance Name' },                      
                         { field: 'visitTime', minWidth: 80, title: 'Visit Time' },
                         { field: 'importedDate', minWidth: 80, title: 'Imported Date' },
                         { field: 'chargeImported', minWidth: 80, title: 'Charge Imported' },
                         { field: 'patDocImported', minWidth: 80, title: 'Document All Imported' },
-                        { field: 'patChartImported', minWidth: 80, title: 'Chart All Imported' }
+                         { field: 'patChartImported', minWidth: 80, title: 'Chart All Imported' }
                     ],
                     pager: { limit: 10, sizes: [2, 5, 10, 20] }
                 });
@@ -268,7 +268,7 @@
                 }
 
                 if (($('#officeKey').val().length != 0 && $('#startDate').val().length != 0 && $('#endDate').val().length != 0)) {
-                    if (type === 'Daily' || type === 'Imported') {
+                    if (type === 'Daily'|| type ==='Imported') {
                         var keys = [];
                         $('#officeKey > Option:selected').each(function () {
                             keys.push(this.value);
@@ -281,11 +281,11 @@
                         dailyGrid.clear();
                         dailyGrid.reload({ office: $('#officeKey').val(), startDate: $('#startDate').val(), endDate: $('#endDate').val() });
                     }
-
+                    
                     $('.dataView').show();
                     $('.modified').hide();
 
-
+                    
                 }
                 else {
                     $('.dataView').hide();
@@ -331,10 +331,10 @@
                         }
                     });
                 }
-
+                
             });
 
-            $('#btnRun').on('click', function () {
+            $('#btnRun').on('click',function () {
                 $('#btnRun').attr('disabled', true);
                 $.ajax({
                     url: '/Record/RunBatch',
@@ -375,14 +375,14 @@
 
             });
 
-
+            
             $(document).on('click', '.closeTab', function () {
                 var tabContentId = $(this).parent().attr("href");
-                $(this).parent().parent().remove();
+                $(this).parent().parent().remove();                
                 $(tabContentId).remove();
                 $('a[href$="#mainView"]').click();
             });
-
+        
             function addTab(id) {
                 if ($('#detail' + id).length == 0) {
                     $('.nav-tabs').find('li').last().after('<li><a data-toggle="tab" href="#detail' + id + '"><button type="button" class="close closeTab" aria-label="Close">&nbsp;&times;</button><b>Visit ' + id + '</b></a></li>');
@@ -460,82 +460,82 @@
 
     </script>
 }
-
-<div class="modal fade" role="dialog" tabindex="-1" id="flagModal">
-    <div class="modal-dialog modal-dialog-centered" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h4 class="modal-title">Attention</h4>
-            </div>
-            <div class="modal-body">
-                <p></p>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-primary">Yes</button>
-                <button type="button" class="btn btn-secondary">No</button>
+    
+    <div class="modal fade" role="dialog" tabindex="-1" id="flagModal" >
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Attention</h4>
+                </div>
+                <div class="modal-body">
+                    <p></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary">Yes</button>
+                    <button type="button" class="btn btn-secondary">No</button>
+                </div>
             </div>
         </div>
     </div>
-</div>
+    
+    <ul class="nav nav-tabs" role="tablist">
+        @{
+            if (Model.Type == "Daily")
+            {
+                <li class="active"><a data-toggle="tab" href="#mainView"><b>Daily Review</b></a></li>
 
-<ul class="nav nav-tabs" role="tablist">
-    @{
-        if (Model.Type == "Daily")
-        {
-            <li class="active"><a data-toggle="tab" href="#mainView"><b>Daily Review</b></a></li>
+            }
+            if (Model.Type == "Callback")
+            {
+                <li class="active"><a data-toggle="tab" href="#mainView"><b>Call Back</b></a></li>
 
+            }
+
+            if (Model.Type == "Imported")
+            {
+                <li class="active"><a data-toggle="tab" href="#mainView"><b>Imported View</b></a></li>
+            }
         }
-        if (Model.Type == "Callback")
-        {
-            <li class="active"><a data-toggle="tab" href="#mainView"><b>Call Back</b></a></li>
-
-        }
-
-        if (Model.Type == "Imported")
-        {
-            <li class="active"><a data-toggle="tab" href="#mainView"><b>Imported View</b></a></li>
-        }
-    }
-</ul>
-<div class="tab-content" id="dataTab">
-    <div class="tab-pane active" id="mainView">
-        <input type="hidden" asp-for="Type" id="searchType" />
-        <div class="row top-buffer">
-            <div class="col-md-12">
-                <div class="box box-widget">
-                    <div class="box-header with-border">
-                        <h3 class="box-title">Search</h3>
-                    </div>
-                    <div class="box-body">
-                        <div class="col-md-3">
-                            <div class="form-group">
-                                <label asp-for="OfficeKey" class="control-label"> Select Key(s)</label>
-                                <select class="form-control" asp-for="OfficeKey" , asp-items="@Model.OfficeKeys" id="officeKey" multiple></select>
-                            </div>
+    </ul>
+    <div class="tab-content" id="dataTab">
+        <div class="tab-pane active" id="mainView">
+            <input type="hidden" asp-for="Type" id="searchType" />
+            <div class="row top-buffer">
+                <div class="col-md-12">
+                    <div class="box box-widget">
+                        <div class="box-header with-border">
+                            <h3 class="box-title">Search</h3>
                         </div>
-                        <div class="col-md-3">
-                            <div class="form-group">
-                                <label asp-for="StartDate" class="control-label">Visit Start Date</label>
-                                <input class="form-control date" id="startDate" type="text" value="@DateTime.Today.AddDays(-1).ToShortDateString()" />
+                        <div class="box-body">
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label asp-for="OfficeKey" class="control-label"> Select Key(s)</label>
+                                    <select class="form-control" asp-for="OfficeKey" , asp-items="@Model.OfficeKeys" id="officeKey" multiple></select>
+                                </div>
                             </div>
-                        </div>
-                        <div class="col-md-3">
-                            <div class="form-group">
-                                <label asp-for="EndDate" class="control-label">Visit End Date</label>
-                                <input class="form-control date" id="endDate" type="text" value="@DateTime.Today.ToShortDateString()" />
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label asp-for="StartDate" class="control-label">Visit Start Date</label>
+                                    <input class="form-control date" id="startDate" type="text" value="@DateTime.Today.AddDays(-1).ToShortDateString()" />
+                                </div>
                             </div>
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label asp-for="EndDate" class="control-label">Visit End Date</label>
+                                    <input class="form-control date" id="endDate" type="text" value="@DateTime.Today.ToShortDateString()" />
+                                </div>
 
-                        </div>
-
-                        <div class="col-md-1">
-                            <div class="form-group">
-                                <div class="control-group">
-                                    <div style="margin-top: 24px;">
-                                        <input type="button" value="Search" class="btn btn-primary" id="searchButton" />
+                            </div>
+                           
+                            <div class="col-md-1">
+                                <div class="form-group">
+                                    <div class="control-group">
+                                        <div style="margin-top: 24px;">
+                                            <input type="button" value="Search" class="btn btn-primary" id="searchButton" />
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
 
                         @if (Model.Type == "Callback")
                         {
@@ -548,88 +548,88 @@
                                 </div>
                             </div>
 
-                        }
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="row dataView" style="display:none">
-            <div class="col-md-12">
-                <div class="alert-dismissible fade" role="alert" id="visitGridAlert">
-                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                    <div class="alert-content"></div>
-                </div>
-                <div id="Results">
-                    <div class="box box-danger">
-                        <div class="box-header with-border">
-                            <h3 class="box-title">Daily Visit Records</h3>
-                        </div>
-                        <div class="box-body">
-                            @if (Model.Type == "Imported")
-                            {
-                                <div class="row">
-                                    <div class="col-xs-3">
-                                        <div class="checkbox chkfilter">
-                                            <label>
-                                                <input type="checkbox" value="">
-                                                <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
-                                                Show Unimported Chart Only
-                                            </label>
-                                        </div>
-                                    </div>
-                                    <div class="col-xs-3">
-                                        <div class="checkbox chkfilter">
-                                            <label>
-                                                <input type="checkbox" value="">
-                                                <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
-                                                Show Unimported Document Only
-                                            </label>
-                                        </div>
-                                    </div>
-
-                                </div>
                             }
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row dataView" style="display:none">
+                <div class="col-md-12">
+                    <div class="alert-dismissible fade" role="alert" id="visitGridAlert">
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                        <div class="alert-content"></div>
+                    </div>                   
+                    <div id="Results">
+                        <div class="box box-danger">
+                            <div class="box-header with-border">
+                                <h3 class="box-title">Daily Visit Records</h3>
+                            </div>
+                            <div class="box-body">
+                                @if (Model.Type == "Imported")
+                                {
+                                    <div class="row">
+                                        <div class="col-xs-3">
+                                            <div class="checkbox chkfilter">
+                                                <label>
+                                                    <input type="checkbox" value="">
+                                                    <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                                    Show Unimported Chart Only
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <div class="col-xs-3">
+                                            <div class="checkbox chkfilter">
+                                                <label>
+                                                    <input type="checkbox" value="">
+                                                    <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                                    Show Unimported Document Only
+                                                </label>
+                                            </div>
+                                        </div>
 
-                            <div class="row" style="margin-top: 10px">
-                                <div class="col-xs-12">
-                                    <table id="visitTable" class="table table-striped"></table>
+                                    </div>
+                                }
+
+                                <div class="row" style="margin-top: 10px">
+                                    <div class="col-xs-12">
+                                        <table id="visitTable" class="table table-striped"></table>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                        <div class="box-footer">
-                            <div class="btn-toolbar" role="toolbar" aria-label="Toolbar with button groups">
-                                @if (Model.Type == "Daily")
-                                {
-                                    <button class="btn btn-success pull-right" id="btnNext">Next</button>
-                                    if (Model.Type == "Daily")
+                            <div class="box-footer">
+                                <div class="btn-toolbar" role="toolbar" aria-label="Toolbar with button groups">
+                                    @if (Model.Type == "Daily")
                                     {
-                                        <button class="btn btn-primary pull-right" id="btnScrub">Scrub</button>
-                                    }
-                                }
+                                        <button class="btn btn-success pull-right" id="btnNext">Next</button>
+                                        if (Model.Type == "Daily")
+                                        {
+                                            <button class="btn btn-primary pull-right" id="btnScrub">Scrub</button>
+                                        }
+                                    }                                  
+                                </div>
+                            </div>
+                            
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row modified" style="display:none">
+                <div class="col-md-12">
+                    <div id="Results">
+                        <div class="box box-danger">
+                            <div class="box-header with-border">
+                                <h3 class="box-title">Modfied Records</h3>
+                            </div>
+                            <div class="box-body">
+                                <table id="changeTable" class="table table-striped"></table>
                             </div>
                         </div>
-
                     </div>
                 </div>
             </div>
-        </div>
-
-        <div class="row modified" style="display:none">
-            <div class="col-md-12">
-                <div id="Results">
-                    <div class="box box-danger">
-                        <div class="box-header with-border">
-                            <h3 class="box-title">Modfied Records</h3>
-                        </div>
-                        <div class="box-body">
-                            <table id="changeTable" class="table table-striped"></table>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
 
         <div class="row modified top-buffer" style="display:none">
             <div class="col-sm-1 col-lg-offset-11 " style="text-align: left">

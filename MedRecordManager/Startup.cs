@@ -13,6 +13,8 @@ using MedRecordManager.Services;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using AdvancedMDService;
 using AdvancedMDInterface;
+using System.Threading.Tasks;
+using MedRecordManager.Models.UserRecord;
 
 namespace MedRecordManager
 {
@@ -40,7 +42,7 @@ namespace MedRecordManager
                  options.UseSqlServer(
                  Configuration.GetConnectionString("accountConnection")));
 
-            services.AddDefaultIdentity<IdentityUser>()
+            services.AddDefaultIdentity<IdentityUser>().AddRoles<IdentityRole>()
                 .AddEntityFrameworkStores<ApplicationDbContext>();
 
            
@@ -49,15 +51,22 @@ namespace MedRecordManager
             services.ConfigureApplicationCookie(options =>
             {
                 options.Cookie.HttpOnly = true;
+
                 options.ExpireTimeSpan = TimeSpan.FromMinutes(60);
                 options.LoginPath = "/Account/Login";
+                options.LogoutPath = "/Account/Logout";
                 options.AccessDeniedPath = "/Account/AccessDenied";
                 options.ReturnUrlParameter = CookieAuthenticationDefaults.ReturnUrlParameter;
                 options.SlidingExpiration = true;
             });
 
-            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
-            services.AddSignalR();
+            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2)
+                 .AddRazorPagesOptions(options =>
+                 {
+                     options.AllowAreas = true;
+                     options.Conventions.AuthorizeAreaFolder("Identity", "/Account/Manage");
+                     options.Conventions.AuthorizeAreaPage("Identity", "/Account/Logout");
+                 });
 
             services.AddDistributedMemoryCache();
             services.AddSession(opts =>
@@ -93,15 +102,60 @@ namespace MedRecordManager
             app.UseStaticFiles();
             app.UseCookiePolicy();
             app.UseSession();
-
             app.UseAuthentication();
           
             app.UseMvc(routes =>
             {
+                //routes.MapRoute(
+                //    name: "MyArea",
+                //    template: "{area:exists}/{controller=Home}/{action=Index}/{id?}");
+
                 routes.MapRoute(
                     name: "default",
                     template: "{controller=Home}/{action=Index}/{id?}");
             });
         }
+
+        //private void CreateRoles(IServiceProvider serviceProvider)
+        //{
+
+        //    var roleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+        //    var userManager = serviceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+        //    Task<IdentityResult> roleResult;
+        //    string email = "Danny.x.li@gmail.com";
+
+        //    //Check that there is an Administrator role and create if not
+        //    Task<bool> hasAdminRole = roleManager.RoleExistsAsync("Administrator");
+        //    hasAdminRole.Wait();
+
+        //    if (!hasAdminRole.Result)
+        //    {
+        //        roleResult = roleManager.CreateAsync(new IdentityRole("Administrator"));
+        //        roleResult.Wait();
+        //    }
+
+        //    //Check if the admin user exists and create it if not
+        //    //Add to the Administrator role
+
+        //    Task<ApplicationUser> testUser = userManager.FindByEmailAsync(email);
+        //    testUser.Wait();
+
+        //    if (testUser.Result == null)
+        //    {
+        //        ApplicationUser administrator = new ApplicationUser();
+        //        administrator.Email = email;
+        //        administrator.UserName = email;
+
+        //        Task<IdentityResult> newUser = userManager.CreateAsync(administrator, "Danny.x.li@gmail.com");
+        //        newUser.Wait();
+
+        //        if (newUser.Result.Succeeded)
+        //        {
+        //            Task<IdentityResult> newUserRole = userManager.AddToRoleAsync(administrator, "Administrator");
+        //            newUserRole.Wait();
+        //        }
+        //    }
+
+        //}
     }
 }

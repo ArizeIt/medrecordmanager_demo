@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
     <TargetFramework>netcoreapp2.2</TargetFramework>
@@ -7,21 +7,22 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="itext7" Version="7.1.8" />
-    <PackageReference Include="Microsoft.AspNet.WebApi.Client" Version="5.2.7" />
+    <PackageReference Include="EntityFramework" Version="6.4.0" />
+    <PackageReference Include="itext7" Version="7.1.9" />
     <PackageReference Include="Microsoft.AspNetCore.App" />
-    <PackageReference Include="Microsoft.AspNetCore.SignalR" Version="1.1.0" />
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="2.2.4" />
     <PackageReference Include="System.Drawing.Common" Version="4.6.0" />
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Views\Queue\" />
     <Folder Include="wwwroot\lib\datatable-editor\" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\AdvancedMDService\AdvancedMDService.csproj" />
     <ProjectReference Include="..\CucmsCommon\CucmsCommon.csproj" />
+    <ProjectReference Include="..\ExpressionBuilder\ExpressionBuilder.csproj" />
     <ProjectReference Include="..\PracticeVelocityDomain\PracticeVelocityDomain.csproj" />
     <ProjectReference Include="..\UrgentCareData\UrgentCareData.csproj" />
   </ItemGroup>

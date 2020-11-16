@@ -4,16 +4,16 @@ using System.Linq;
 using System.Threading.Tasks;
 
 namespace MedRecordManager.Models
+{
+    
+    public class RuleModel
     {
 
-        public class RuleModel
+        public RuleModel()
         {
-
-            public RuleModel()
-            {
-                Definition = new List<RuleItem>();
-            }
-            public int Id { get; set; }
+            Definition = new List<RuleItem>();
+        }
+        public int Id { get; set; }
 
             public string RuleName { get; set; }
 
@@ -21,10 +21,10 @@ namespace MedRecordManager.Models
 
             public bool Enabled { get; set; }
 
-            public IList<RuleItem> Definition { get; set; }
+        public IList<RuleItem> Definition { get; set; }
 
-            public int RuleSetCount { get { return Definition.Count(); } }
-        }
+        public int RuleSetCount { get { return Definition.Count(); }  }
+    }
 
         public class RuleItem
         {

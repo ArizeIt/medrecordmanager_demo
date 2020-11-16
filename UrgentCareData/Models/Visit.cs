@@ -12,6 +12,7 @@ namespace UrgentCareData.Models
             VisitHistory = new HashSet<VisitHistory>();
             VisitImpotLog = new HashSet<VisitImpotLog>();
             VisitProcCode = new HashSet<VisitProcCode>();
+            VisitICDCode = new HashSet<VisitICDCode>();
         }
 
         public DateTime ServiceDate { get; set; }
@@ -24,6 +25,7 @@ namespace UrgentCareData.Models
         public string Icdcodes { get; set; }
         public string VisitType { get; set; }
         public string Emcode { get; set; }
+        public string EmModifier { get; set; }
         public int PhysicanId { get; set; }
         public decimal? CoPayAmount { get; set; }
         public string CopayType { get; set; }
@@ -46,6 +48,7 @@ namespace UrgentCareData.Models
         public bool Flagged { get; set; }
         public bool IsModified { get; set; }
         public int? OfficeKey { get; set; }
+        public int? EmQuantity { get; set; }
 
         public virtual Chart Chart { get; set; }
         public virtual ClinicProfile Clinic { get; set; }
@@ -57,5 +60,7 @@ namespace UrgentCareData.Models
         public virtual ICollection<VisitHistory> VisitHistory { get; set; }
         public virtual ICollection<VisitImpotLog> VisitImpotLog { get; set; }
         public virtual ICollection<VisitProcCode> VisitProcCode { get; set; }
+
+        public virtual ICollection<VisitICDCode> VisitICDCode { get; set; }
     }
 }

@@ -29,6 +29,7 @@ namespace UrgentCareData
         public virtual DbSet<ChartImportLog> ChartImportLog { get; set; }
         public virtual DbSet<ClinicProfile> ClinicProfile { get; set; }
         public virtual DbSet<CodeReviewRule> CodeReviewRule { get; set; }
+        public virtual DbSet<CodeReviewQueue> CodeReviewQueue { get; set; }
         public virtual DbSet<CptCodeLookup> CptCodeLookup { get; set; }
         public virtual DbSet<FinClass> FinClass { get; set; }
         public virtual DbSet<GuarantorImportLog> GuarantorImportLog { get; set; }
@@ -49,6 +50,7 @@ namespace UrgentCareData
         public virtual DbSet<VisitHistory> VisitHistory { get; set; }
         public virtual DbSet<VisitImpotLog> VisitImpotLog { get; set; }
         public virtual DbSet<VisitProcCode> VisitProcCode { get; set; }
+        public virtual DbSet<VisitICDCode> VisitICDCode { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -259,6 +261,9 @@ namespace UrgentCareData
                     .IsRequired()
                     .HasMaxLength(200);
 
+                entity.Property(e => e.LastModifiedBy).HasMaxLength(200);
+
+                entity.Property(e => e.LastModifiedTime).HasColumnName("LastModifiedTime");
                 entity.Property(e => e.CreatedTime).HasColumnType("datetime");
 
                 entity.Property(e => e.Active).IsRequired();
@@ -266,6 +271,19 @@ namespace UrgentCareData
                 entity.Property(e => e.RuleName)
                     .IsRequired()
                     .HasMaxLength(255);
+            });
+
+            modelBuilder.Entity<CodeReviewQueue>(entity =>
+            {
+                entity.Property(e => e.CreatedBy)
+                    .IsRequired()
+                    .HasMaxLength(50);
+
+                entity.Property(e => e.CreatedTime).HasColumnType("datetime");
+
+                entity.HasKey(e => e.Id);
+                entity.HasOne(e => e.ParentQueue).WithMany(e => e.ChildrenQueue).HasForeignKey(e => e.ParentId);              
+
             });
 
             modelBuilder.Entity<CptCodeLookup>(entity =>
@@ -787,6 +805,13 @@ namespace UrgentCareData
                     .HasColumnName("EMCode")
                     .HasMaxLength(50);
 
+                entity.Property(e => e.EmModifier)
+                   .HasColumnName("EMModifier")
+                   .HasMaxLength(50);
+
+                entity.Property(e => e.EmQuantity)
+                  .HasColumnName("EMQuantity");
+                
                 entity.Property(e => e.Icdcodes)
                     .HasColumnName("ICDCodes")
                     .HasMaxLength(500);
@@ -955,6 +980,18 @@ namespace UrgentCareData
                     .HasForeignKey(d => d.VisitId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_VisitProcCode_Visit");
+            });
+
+            modelBuilder.Entity<VisitICDCode>(entity =>
+            {
+             
+                entity.Property(e => e.ICDCode).HasMaxLength(50);
+
+                entity.HasOne(d => d.Visit)
+                    .WithMany(p => p.VisitICDCode)
+                    .HasForeignKey(d => d.VisitId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_VisitICDCode_Visit");
             });
         }
     }

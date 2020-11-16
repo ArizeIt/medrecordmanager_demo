@@ -4,8 +4,13 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Net.Http;
 using System.Threading.Tasks;
+using System.Xml;
+using ExpressionBuilder.Common;
+using ExpressionBuilder.Generics;
+using ExpressionBuilder.Helpers;
 using iText.IO.Image;
 using iText.IO.Source;
 using iText.Kernel.Geom;
@@ -22,10 +27,12 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using PVAMCommon;
 using UrgentCareData;
 using UrgentCareData.Models;
+using UrgentCareData.Queries;
 
 namespace MedRecordManager.Controllers
 {
@@ -42,6 +49,8 @@ namespace MedRecordManager.Controllers
             _viewRenderService = viewRenderService;
             _emailSrv = mailerSrv;
         }
+
+        [HttpGet]
         public IActionResult Review()
         {
             var vm = new SearchInputs()
@@ -53,9 +62,21 @@ namespace MedRecordManager.Controllers
             return View("RecordView", vm);
         }
 
+        [HttpGet]
+        public IActionResult Imported()
+        {
+            var vm = new SearchInputs()
+            {
+                Type = "Imported",
+
+                OfficeKeys = GetAvaliableOfficeKeys()
+            };
+            return View("RecordView", vm);
+        }
+
+        [HttpGet]
         public IActionResult Callback()
         {
-
             var vm = new SearchInputs()
             {
                 Type = "Callback",
@@ -74,6 +95,7 @@ namespace MedRecordManager.Controllers
             return View("RecordView", vm);
         }
 
+        [HttpGet]
         public IActionResult LoadDaily(int? page, int? limit, string sortBy, string direction, string office, DateTime startDate, DateTime endDate)
         {
             IQueryable<Visit> query;
@@ -112,7 +134,7 @@ namespace MedRecordManager.Controllers
             if (page.HasValue && limit.HasValue)
             {
                 var start = (page.Value - 1) * limit.Value;
-                records = records.Skip(start).Take(limit.Value).ToList();
+                records = records.Skip(start).Take(limit.Value).OrderBy(x=>x.VisitTime).ToList();
             }
             return Json(new { records, total });
         }
@@ -143,7 +165,7 @@ namespace MedRecordManager.Controllers
 
                     if (vm.Chart.ChartType.Contains("tif"))
                     {
-                        vm.Chart.FileBinary = CreatePDF(vm.Chart.FileBinary);
+                        vm.Chart.FileBinary = Utility.CreatePDF(vm.Chart.FileBinary);
                     }
 
                     vm.Total = records.Count();
@@ -196,7 +218,7 @@ namespace MedRecordManager.Controllers
                             Code = cpt.ProcCode,
                             Modifier = modifier1,
                             Modifier2 = modifier2,
-                            Quantity = cpt.Quantity.GetValueOrDefault(),
+                            Quantity = cpt.Quantity.GetValueOrDefault(1),
                             ModifiedBy = HttpContext.User.Identity.Name,
                             ModifiedTime = DateTime.UtcNow,
                             Action = "Cloned"
@@ -228,6 +250,7 @@ namespace MedRecordManager.Controllers
             return View("CodeView", vm);
         }
 
+        [HttpGet]
         public IActionResult Payer(int? page, int? limit, string sortBy, string direction, int visitId)
         {
 
@@ -246,6 +269,8 @@ namespace MedRecordManager.Controllers
             }
             return Json(new { records, total });
         }
+        
+        [HttpGet]
         public IActionResult LoadCallback(int? page, int? limit, string sortBy, string direction, string office, string clinic, DateTime startDate, DateTime endDate)
         {
 
@@ -273,13 +298,14 @@ namespace MedRecordManager.Controllers
             if (page.HasValue && limit.HasValue)
             {
                 var start = (page.Value - 1) * limit.Value;
-                records = records.Skip(start).Take(limit.Value).ToList();
+                records = records.Skip(start).Take(limit.Value).OrderBy(x=>x.VisitDate).ToList();
             }
 
 
             return Json(new { records, total });
         }
 
+        [HttpGet]
         public IActionResult GetDetails(int visitId)
         {
             var detailRecord = new DetailRecord
@@ -389,12 +415,14 @@ namespace MedRecordManager.Controllers
 
         }
 
+        [HttpGet]
         public async Task<IActionResult> GetClinics()
         {
             var records = await _urgentCareContext.ClinicProfile.Select(x => new { id = x.ClinicId, text = x.ClinicId }).ToListAsync();
             return Json(records);
         }
 
+        [HttpGet]
         public async Task<IActionResult> GetModifiers()
         {
             var records = await _urgentCareContext.Modifier.Select(x => new { id = x.ModifierCode, text = x.ModifierCode }).ToListAsync();
@@ -403,6 +431,7 @@ namespace MedRecordManager.Controllers
         }
 
 
+        [HttpGet]
         public async Task<IActionResult> GetPhysicians(string clinicId)
         {
             var physicians = await _urgentCareContext.Physican.Where(x => x.Clinic == clinicId).Select(x => new { id = x.PvPhysicanId, text = x.PvPhysicanId }).ToListAsync();
@@ -490,6 +519,7 @@ namespace MedRecordManager.Controllers
             }
         }
 
+        [HttpGet]
         public IActionResult GetFlaggedVisit(int? page, int? limit)
         {
             var records = _urgentCareContext.Visit.Where(x => x.Flagged)
@@ -508,7 +538,7 @@ namespace MedRecordManager.Controllers
                     ProcCodes = y.ProcCodes.Replace(",|", "<br/>").Replace("|", "<br/>"),
                     IsFlagged = y.Flagged
 
-                }).ToList();
+                }).OrderBy(x=>x.VisitTime).ToList();
 
             var total = records.Count();
 
@@ -551,7 +581,7 @@ namespace MedRecordManager.Controllers
             }
         }
 
-
+        [HttpGet]
         public IActionResult GetModifiedRecord(int? page, int? limit, DateTime startDate, DateTime endDate)
         {
             var total = 0;
@@ -591,7 +621,52 @@ namespace MedRecordManager.Controllers
 
         }
 
+        [HttpGet]
 
+        public IActionResult LoadImported(int? page, int? limit, string sortBy, string direction, string office, DateTime startDate, DateTime endDate)
+        {
+
+            IQueryable<VisitImpotLog> query;
+            var total = 0;
+            if (!string.IsNullOrEmpty(office) && startDate != DateTime.MinValue && endDate != DateTime.MinValue)
+            {
+                var officekeys = office.Split(',').ToList();
+                query = _urgentCareContext.VisitImpotLog.Include(x => x.Visit).ThenInclude(x => x.Physican)
+                    .Where(x => 
+                    officekeys.Contains(x.Visit.Physican.OfficeKey.ToString())
+                    && x.Visit.ServiceDate >= startDate
+                    && x.Visit.ServiceDate <= endDate );
+            }
+            else
+            {
+                query = _urgentCareContext.VisitImpotLog.Take(0);
+            }
+            var records = query.Select(y => new VisitRecordVm()
+            {
+                VisitId = y.VisitId,
+                PatientId = y.Visit.PvPatientId,
+                ClinicName = y.Visit.ClinicId,
+                PhysicianName = y.Visit.Physican.DisplayName,
+                InsuranceName = y.Visit.PayerInformation.FirstOrDefault().Insurance.PrimaryName,             
+                VisitTime = y.Visit.ServiceDate.ToShortDateString(),
+                PatientName = y.Visit.PvPatient.FirstName + " " + y.Visit.PvPatient.LastName,
+                OfficeKey = y.Visit.Physican.OfficeKey,
+                ImportedDate = y.ImportedDate.ToString("MM/dd/yyyy HH:mm:ss"),
+                ChargeImported = y.ChargeImported != null? "Yes":"No",
+                PatDocImported = y.Visit.PatientDocument.Any(x=> !string.IsNullOrEmpty(x.AmdFileId))?"Yes":"NO",
+                PatChartImported = _urgentCareContext.ChartImportLog.Any(x=> x.PvChartDocId == y.Visit.ChartId)?"Yes":"No"
+                
+            }).OrderBy(x=>x.ImportedDate).ToList();
+
+            total = records.Count();
+
+            if (page.HasValue && limit.HasValue)
+            {
+                var start = (page.Value - 1) * limit.Value;
+                records =  records.Skip(start).Take(limit.Value).ToList();
+            }
+            return Json(new { records, total });
+        }
 
         [HttpGet]
         public async Task<IActionResult> GetHistoryCode(int? page, int? limit, int visitId, string type)
@@ -609,7 +684,7 @@ namespace MedRecordManager.Controllers
                         ModifierCode = x.Modifier,
                         ModifierCode2 = x.Modifier2,
                         CodeType = x.CodeType,
-                        Quantity = x.Quantity.GetValueOrDefault(0),
+                        Quantity = x.Quantity.GetValueOrDefault(1),
                         ShortDescription = ""
                     }).ToList();
 
@@ -659,14 +734,6 @@ namespace MedRecordManager.Controllers
 
             return Json(new { records, total });
         }
-
-
-        //public async Task<IActionResult> GetModifierCode()
-        //{
-        //    var records = await _urgentCareContext.Modifier.Select(x => new { id = x.ModifierCode, text = x.ModifierCode }).ToListAsync();
-        //    records.Insert(0, new { id = "", text = "" });
-        //    return Json(records);
-        //}
 
         [HttpPost]
         public async Task<IActionResult> UploadChart(List<IFormFile> files, int visitId)
@@ -848,7 +915,7 @@ namespace MedRecordManager.Controllers
 
                 var newIcdCodes = _urgentCareContext.VisitCodeHistory.Where(x => x.VisitHistoryId == visitHistory.VisitHistoryId && x.CodeType == "IcdCode" && x.Action != "Modified").Select(x => x.Code).ToList();
                 var newProcCodes = _urgentCareContext.VisitCodeHistory.Where(x => x.VisitHistoryId == visitHistory.VisitHistoryId && x.CodeType == "CPTCode" && x.Action != "Modified").ToList();
-                var newEMCodes = _urgentCareContext.VisitCodeHistory.Where(x => x.VisitHistoryId == visitHistory.VisitHistoryId && x.CodeType == "EM_CPTCode" && x.Action != "Modified").ToList();
+                var newEMCode = _urgentCareContext.VisitCodeHistory.Where(x => x.VisitHistoryId == visitHistory.VisitHistoryId && x.CodeType == "EM_CPTCode" && x.Action != "Modified").FirstOrDefault();
 
                 visitHistory.FinalizedTime = DateTime.UtcNow;
                 visitHistory.Saved = true;
@@ -905,34 +972,7 @@ namespace MedRecordManager.Controllers
 
                 }
 
-
-                var fullEmcode = string.Empty;
                 var fullProcCode = string.Empty;
-                foreach (var newEm in newEMCodes)
-                {
-                    var fullCode = newEm.Code.TrimEnd();
-                    if (newEm.Quantity != 0)
-                    {
-                        fullCode = string.Format("{0},{1}", newEm.Quantity, fullCode);
-                    }
-                    if (!string.IsNullOrEmpty(newEm.Modifier))
-                    {
-                        fullCode = string.Format("{0},{1}", fullCode, newEm.Modifier);
-                    }
-                    if (!string.IsNullOrEmpty(newEm.Modifier2))
-                    {
-                        fullCode = string.Format("{0},{1}", fullCode, newEm.Modifier2);
-                    }
-                    if (newEm != newEMCodes.Last())
-                    {
-                        fullEmcode += fullCode + "|";
-                    }
-                    else
-                    {
-                        fullEmcode += fullCode;
-                    }
-                }
-
                 foreach (var newProc in newProcCodes)
                 {
                     var fullCode = newProc.Code.TrimEnd();
@@ -958,13 +998,34 @@ namespace MedRecordManager.Controllers
                     }
                 }
 
+                if(newEMCode !=null)
+                {
+                    var emModifer = string.Empty;
 
-                visit.IsModified = true;
-                visit.Icdcodes = newIcdCodes.Aggregate((current, next) => $"{current}|{next}");
-                visit.Emcode = fullEmcode;
-                visit.ProcCodes = fullProcCode;
-                visit.ProcQty = newProcCodes.Count();
-                visit.Flagged = flaged;
+                    if (!string.IsNullOrEmpty(newEMCode.Modifier))
+                    {
+                        emModifer = newEMCode.Modifier;
+                    }
+                    if (!string.IsNullOrEmpty(newEMCode.Modifier2))
+                    {
+                        emModifer = string.Format("{0},{1}", newEMCode.Modifier, newEMCode.Modifier2);
+                    }
+
+                    visit.IsModified = true;
+                    visit.Emcode = newEMCode.Code;
+                    visit.EmModifier = newEMCode.Modifier + ",";
+                    visit.EmQuantity = newEMCode.Quantity;
+                    visit.ProcCodes = fullProcCode;
+                    visit.ProcQty = newProcCodes.Count();
+                    visit.Flagged = flaged;
+                }
+                else
+                {
+                    visit.IsModified = true;
+                    visit.Emcode = string.Empty;
+                    visit.EmModifier = string.Empty;
+                    visit.EmQuantity = null;
+                }
 
                 if (visitHistoryDocument != null)
                 {
@@ -972,6 +1033,7 @@ namespace MedRecordManager.Controllers
                     document.DocumentImage = UpdatedDocImage;
                 }
 
+                visit.Icdcodes = newIcdCodes.Aggregate((current, next) => $"{current}|{next}");
 
                 try
                 {
@@ -1054,36 +1116,127 @@ namespace MedRecordManager.Controllers
            
             return Json(new { error = "email did not send" });
         }
-        
-        
-        [HttpGet]
-        public IActionResult BulkUpdate(int? page, int? limit)
+               
+        [HttpPost]
+        public IActionResult ScrubRecord(string officekey, DateTime startDate, DateTime endDate)
         {
-            var records = _urgentCareContext.Visit.Include(x=>x.PayerInformation).Include(x=>x.Physican).Where(x => x.Flagged);
-
-            var vm = new FiltersModel
+          
+            var officekeys = officekey.Split(',').ToList();
+            var activeRules = _urgentCareContext.CodeReviewRule.Where(x => x.Active);
+            var baseQuery = _urgentCareContext.Visit.Where(x => officekeys.Contains(x.OfficeKey.ToString()) && x.ServiceDate >= startDate && x.ServiceDate <= endDate && !x.Flagged && !x.VisitImpotLog.Any());
+            var operationHelper = new OperationHelper();
+            var results = new List<Visit>();
+            var problemRuleNames = new List<string>();
+            foreach (var ruleSet in activeRules)
             {
-                Clinics = records.DistinctBy(x => x.ClinicId).Select(y => new SelectListItem {
-                    Selected = false,
-                    Text = y.ClinicId,
-                    Value = y.ClinicId,
-                }),
-                Physicians = records.DistinctBy(x => x.PhysicanId).Select(y => new SelectListItem
-                {
-                    Selected = false,
-                    Text = y.Physican.DisplayName,
-                    Value = y.PhysicanId.ToString(),
-                }),
-                FinClasses = records.DistinctBy(x => x.PayerInformation.Select(y=>y.Class)).Select(y => new SelectListItem
-                {
-                    Selected = false,
-                    Text = y.PayerInformation.FirstOrDefault().Class.ToString(),
-                    Value = y.PayerInformation.FirstOrDefault().Class.ToString()
-                })
-            };
-            return View("BulkUpdateView", vm);
-        }
+                var ruleDetail = !string.IsNullOrEmpty(ruleSet.RuleJsonString)
+                    ? JsonConvert.DeserializeObject<List<RuleItem>>(ruleSet.RuleJsonString)
+                    : new List<RuleItem>();
+                var records = new List<Visit>();
 
+                var ruleError = false;
+                
+                
+                if (ruleDetail.Any())
+                {
+                    var filter = new Filter<Visit>();
+                    
+                    foreach (var item in ruleDetail)
+                    {
+                        try
+                        {
+                            if (!string.IsNullOrEmpty(item.Openparenthese))
+                            {
+                                var groups = item.Openparenthese.ToCharArray().Count(a => a == '(');
+                                filter.StartGroup();
+                            }
+
+                            var negation = true;
+                            // this means the field is collectable 
+                            if (item.Field.Contains("[") && item.Field.Contains("[") && item.Operator.ToLower() == "DoesNotContain".ToLower())
+                            {
+                                item.Operator = "Contains";
+                                negation = false;
+                            }
+
+                            if (item.Field.Contains("[") && item.Field.Contains("[") && item.Operator.ToLower() == "NotEqualTo".ToLower())
+                            {
+                                item.Operator = "EqualTo";
+                                negation = false;
+                            }
+
+                            if (item.LogicOperator != null)
+                            {
+                                var connector = (Connector)Enum.Parse(typeof(Connector), item.LogicOperator);
+                                filter.By(item.Field, operationHelper.GetOperationByName(item.Operator), item.FieldValue, connector, negation);
+                            }
+                            else
+                            {
+                                filter.By(item.Field, operationHelper.GetOperationByName(item.Operator), item.FieldValue, negation);
+                            }
+                        }
+                        catch
+                        {
+                            ruleError = true;
+                            problemRuleNames.Add(ruleSet.RuleName);
+                            break;
+                        }
+                       
+                        
+                    }
+                    try
+                    {
+                        if(!ruleError)
+                        {
+                            records = baseQuery.Where(filter).ToList();
+                        }
+                                              
+                    }
+                    catch
+                    {
+                        return Json(new { success = false, message = "Failed to apply the rules, please try again." });
+                    }
+                }
+                results = results.Union(records).ToList();
+            } 
+            
+            if(results.Any())
+            {
+                try
+                {
+                    foreach (var result in results)
+                    {
+                        _urgentCareContext.Visit.FirstOrDefault(x => x.VisitId == result.VisitId).Flagged = true;
+                    }
+                    _urgentCareContext.SaveChanges();
+                    var resultMessage = string.Empty;
+                    if(problemRuleNames.Any())
+                    {                      
+                        string ruleNames = string.Empty;
+                        if (problemRuleNames.Count()>1)
+                        {
+                            string dilimiter = ", ";
+                            ruleNames = problemRuleNames.Aggregate((i, j) => i + dilimiter + j);
+                        }
+                        else
+                        {
+                            ruleNames = problemRuleNames[0];
+                        }
+                        resultMessage = string.Format("Rules found results, how ever {0} had problems to run, please check the definition. ", ruleNames);
+                    }
+                    return Json(new { success = true, message = resultMessage });
+                }
+                catch (Exception ex)
+                {
+                    return Json(new { success = false, message = ex.Message });
+                }
+            }
+            else
+            {
+                return Json(new { success = false, message = "This rule does not find any record that matches the conditions." });
+            }
+          
+        }
         private IEnumerable<SelectListItem> GetAvaliableOfficeKeys()
         {
             return _urgentCareContext.ProgramConfig.Where(x => !x.AmdSync).DistinctBy(x => x.AmdofficeKey)
@@ -1144,79 +1297,8 @@ namespace MedRecordManager.Controllers
             }
             return 0; ;
         }
-
+  
         
-        private void ConvertTiff2Jpeg(byte[] source, string jpegFileName)
-        {
-            var stream = new MemoryStream(source);
-            var img = Image.FromStream(stream);
-            var outputbyte = new byte[0];
-            var count = img.GetFrameCount(FrameDimension.Page);
-            for (int i = 0; i < count; i++)
-            {
-                using (var partialStream = new MemoryStream())
-                {
-                    img.SelectActiveFrame(FrameDimension.Page, i);
-                    img.Save(partialStream, ImageFormat.Jpeg);
-                    partialStream.ToArray();
-                }
-            }
-
-
-            int imageWidth = img.Width;
-            int imageHeight = img.Height * count;
-            Bitmap joinedBitmap = new Bitmap(imageWidth, imageHeight);
-            Graphics graphics = Graphics.FromImage(joinedBitmap);
-            for (int i = 0; i < count; i++)
-            {
-                var partImageFileName = jpegFileName + ".part" + i + ".jpg";
-                Image partImage = Image.FromFile(partImageFileName);
-                graphics.DrawImage(partImage, 0, partImage.Height * i, partImage.Width, partImage.Height);
-                partImage.Dispose();
-            }
-
-            joinedBitmap.Save(jpegFileName);
-            graphics.Dispose();
-            joinedBitmap.Dispose();
-            img.Dispose();
-        }
-
-
-        private byte[] CreatePDF(byte[] source)
-        {
-            var baos = new ByteArrayOutputStream();
-            var pdfDoc = new PdfDocument(new PdfWriter(baos));
-            var document = new Document(pdfDoc);
-            var pageCount = TiffImageData.GetNumberOfPages(source);
-
-            for(int i = 1; i<= pageCount; i++ )
-            {
-                var tiffImage = ImageDataFactory.CreateTiff(source, true, i, true);
-                var tiffPageSize = new iText.Kernel.Geom.Rectangle(tiffImage.GetWidth(), tiffImage.GetHeight());
-                var newPage = pdfDoc.AddNewPage(new PageSize(tiffPageSize));
-                var canvas = new PdfCanvas(newPage);
-                canvas.AddImage(tiffImage, tiffPageSize, false);
-            }
-           
-            document.Close();
-            return baos.ToArray();
-        }
-
-
-
-        private Stream CreateCompressedImageStream(Image image)
-        {
-            MemoryStream imageStream = new MemoryStream();
-
-            var info = ImageCodecInfo.GetImageEncoders().FirstOrDefault(i => i.MimeType.ToLower() == "image/png");
-            EncoderParameter colorDepthParameter = new EncoderParameter(Encoder.ColorDepth, 1L);
-            var parameters = new EncoderParameters(1);
-            parameters.Param[0] = colorDepthParameter;
-
-            image.Save(imageStream, info, parameters);
-
-            imageStream.Position = 0;
-            return imageStream;
-        }
+     
     }
 }

@@ -33,6 +33,14 @@ namespace MedRecordManager.Models.DailyRecord
         public string PhysicianName { get; set; }
 
         public string InsuranceName { get; set; }
+
+        public string ImportedDate { get; set; }
+
+        public string ChargeImported { get; set; }
+
+        public string PatChartImported { get; set; }
+
+        public string PatDocImported { get; set; }
     }
 
     public class PatientVisitVM
