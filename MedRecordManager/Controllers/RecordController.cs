@@ -207,18 +207,18 @@ namespace MedRecordManager.Controllers
 
                     Utility.ParseCptCode(emcode, out string em, out int emQuantity, out string emModifier1, out string emModifier2);
                     
-                    _urgentCareContext.VisitCodeHistory.Add(new VisitCodeHistory
-                    {
-                        VisitHistoryId = visitHistoryId,
-                        CodeType = "EM_CPTCode",
-                        Code = em,
-                        Modifier = emModifier1,
-                        Modifier2 = emModifier2,
-                        Quantity = emQuantity,
-                        ModifiedBy = HttpContext.User.Identity.Name,
-                        ModifiedTime = DateTime.UtcNow,
-                        Action = "Cloned"
-                    });
+                    //_urgentCareContext.VisitCodeHistory.Add(new VisitCodeHistory
+                    //{
+                    //    VisitHistoryId = visitHistoryId,
+                    //    CodeType = "EM_CPTCode",
+                    //    Code = em,
+                    //    Modifier = emModifier1,
+                    //    Modifier2 = emModifier2,
+                    //    Quantity = emQuantity,
+                    //    ModifiedBy = HttpContext.User.Identity.Name,
+                    //    ModifiedTime = DateTime.UtcNow,
+                    //    Action = "Cloned"
+                    //});
 
 
 
