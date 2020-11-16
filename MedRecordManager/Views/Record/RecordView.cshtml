@@ -82,14 +82,14 @@
                     { field: 'Flag', width: 50, renderer: flagManager },
                     { filed: 'visitId', hidden: true },
                     { field: 'patientName', Width: 300, title: 'Patient Name' },
-                    { field: 'clinicName', Width: 150, title: 'Clinic Name' },
+                    { field: 'clinicName', Width: 150, title: 'Clinic Name',type: 'dropdown', editor: { dataSource: '/Record/GetClinics', valueField: 'id' }, editField: 'clinicName'},
                     { field: 'pvFinClass', minwidth: 100, title: 'Finacial Class' },
                     { field: 'payment', minwidth: 100, title: 'Payment $' },
                     { field: 'diagCode', width: 150, title: 'Diag Codes' },
                     { field: 'icdCodes', width: 150, title: 'Icd Codes' },
                     { field: 'procCodes', minwidth: 80, title: 'Proc Codes' },
                     { field: 'visitTime', minwidth: 80, title: 'Visit Date' },
-
+                    { field: 'Actions', width: 200, renderer: editManager, align: 'center' }
                 ],
                 pager: { limit: 10, sizes: [2, 5, 10, 20] },
             });

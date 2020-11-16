@@ -249,28 +249,28 @@
                                     <div class="col-lg-3">
                                         <div class="form-group">
                                             <label class="control-label">Primary Name</label>
-                                            <input asp-for="@item.InsuranceName" class="form-control" />
+                                            <input asp-for="@item.InsuranceName" class="form-control" id="@item.InsuranceName"/>
                                             <span asp-validation-for="@item.InsuranceName" class="text-danger"></span>
                                         </div>
                                     </div>
                                     <div class="col-lg-3">
                                         <div class="form-group">
                                             <label class="control-label">Phone Number</label>
-                                            <input asp-for="@item.Phone" class="form-control" />
+                                            <input asp-for="@item.Phone" class="form-control" id="@item.InsuranceId@item.Phone"/>
                                             <span asp-validation-for="@item.Phone" class="text-danger"></span>
                                         </div>
                                     </div>
                                     <div class="col-lg-3">
                                         <div class="form-group">
                                             <label class="control-label">Address Line 1</label>
-                                            <input asp-for="@item.Address.Address1" class="form-control" />
+                                            <input asp-for="@item.Address.Address1" class="form-control" id="@item.InsuranceId@item.Address.Address1"/>
                                             <span asp-validation-for="@item.Address.Address1" class="text-danger"></span>
                                         </div>
                                     </div>
                                     <div class="col-lg-3">
                                         <div class="form-group">
                                             <label class="control-label">Addres Line 2</label>
-                                            <input asp-for="@item.Address.Address2" class="form-control" />
+                                            <input asp-for="@item.Address.Address2" class="form-control" id="@item.InsuranceId@item.Address.Address2"/>
                                             <span asp-validation-for="@item.Address.Address2" class="text-danger"></span>
                                         </div>
                                     </div>
@@ -279,28 +279,28 @@
                                     <div class="col-lg-3">
                                         <div class="form-group">
                                             <label class="control-label">City</label>
-                                            <input asp-for="@item.Address.City" class="form-control" />
+                                            <input asp-for="@item.Address.City" class="form-control" id="@item.InsuranceId@item.Address.City"/>
                                             <span asp-validation-for="@item.Address.City" class="text-danger"></span>
                                         </div>
                                     </div>
                                     <div class="col-lg-3">
                                         <div class="form-group">
                                             <label class="control-label">State</label>
-                                            <input asp-for="@item.Address.State" class="form-control" />
+                                            <input asp-for="@item.Address.State" class="form-control" id="@item.InsuranceId@item.Address.State"/>
                                             <span asp-validation-for="@item.Address.State" class="text-danger"></span>
                                         </div>
                                     </div>
                                     <div class="col-lg-3">
                                         <div class="form-group">
                                             <label class="control-label">Zip</label>
-                                            <input asp-for="@item.Address.Zip" class="form-control" />
+                                            <input asp-for="@item.Address.Zip" class="form-control" id="@item.InsuranceId@item.Address.Zip"/>
                                             <span asp-validation-for="@item.Address.Zip" class="text-danger"></span>
                                         </div>
                                     </div>
                                     <div class="col-lg-3">
                                         <div class="form-group">
                                             <label class="control-label">Advanced MD Code</label>
-                                            <input asp-for="@item.AmdCode" class="form-control" />
+                                            <input asp-for="@item.AmdCode" class="form-control" id="@item.InsuranceId@item.AmdCode"/>
                                             <span asp-validation-for="@item.AmdCode" class="text-danger"></span>
                                         </div>
                                     </div>

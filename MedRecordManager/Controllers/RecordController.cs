@@ -1054,8 +1054,36 @@ namespace MedRecordManager.Controllers
            
             return Json(new { error = "email did not send" });
         }
-               
-               
+        
+        
+        [HttpGet]
+        public IActionResult BulkUpdate(int? page, int? limit)
+        {
+            var records = _urgentCareContext.Visit.Include(x=>x.PayerInformation).Include(x=>x.Physican).Where(x => x.Flagged);
+
+            var vm = new FiltersModel
+            {
+                Clinics = records.DistinctBy(x => x.ClinicId).Select(y => new SelectListItem {
+                    Selected = false,
+                    Text = y.ClinicId,
+                    Value = y.ClinicId,
+                }),
+                Physicians = records.DistinctBy(x => x.PhysicanId).Select(y => new SelectListItem
+                {
+                    Selected = false,
+                    Text = y.Physican.DisplayName,
+                    Value = y.PhysicanId.ToString(),
+                }),
+                FinClasses = records.DistinctBy(x => x.PayerInformation.Select(y=>y.Class)).Select(y => new SelectListItem
+                {
+                    Selected = false,
+                    Text = y.PayerInformation.FirstOrDefault().Class.ToString(),
+                    Value = y.PayerInformation.FirstOrDefault().Class.ToString()
+                })
+            };
+            return View("BulkUpdateView", vm);
+        }
+
         private IEnumerable<SelectListItem> GetAvaliableOfficeKeys()
         {
             return _urgentCareContext.ProgramConfig.Where(x => !x.AmdSync).DistinctBy(x => x.AmdofficeKey)
