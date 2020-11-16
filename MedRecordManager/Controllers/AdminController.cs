@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Newtonsoft.Json;
 using UrgentCareData;
 using UrgentCareData.Models;
 
@@ -25,7 +26,7 @@ namespace MedRecordManager.Controllers
 
         private readonly ILoginService _apiLoginServicce;
 
-        private readonly string apiContext; 
+        private readonly string apiContext;
 
         public AdminController(UrgentCareContext urgentData, ILookupService lookupService, ILoginService apiLoginServicce)
         {
@@ -33,7 +34,7 @@ namespace MedRecordManager.Controllers
             _lookupService = lookupService;
             _apiLoginServicce = apiLoginServicce;
         }
-        private SearchInputs InitializeInput ()
+        private SearchInputs InitializeInput()
         {
             IEnumerable<SelectListItem> emptyRecord = new SelectListItem[]
           {
@@ -62,7 +63,7 @@ namespace MedRecordManager.Controllers
         }
 
 
-      
+
         public IActionResult Physician()
         {
 
@@ -70,7 +71,7 @@ namespace MedRecordManager.Controllers
             {
                 Inputs = InitializeInput()
             };
-         
+
             return View("Physician", physican);
         }
 
@@ -83,13 +84,13 @@ namespace MedRecordManager.Controllers
                      ClinicId = x.ClinicId,
                      OfficeKey = x.OfficeKey.GetValueOrDefault().ToString(),
                      AmdFacility = x.AmdcodeName,
-                     
+
                  });
             return View("Clinic", mappedClinics);
-                   
+
         }
 
-    
+
         [HttpGet]
         public IActionResult MappedClinic()
         {
@@ -127,13 +128,13 @@ namespace MedRecordManager.Controllers
         }
 
         [HttpGet]
-        public IActionResult GetInsurance(int? page, int? limit, string insName )
-        { 
+        public IActionResult GetInsurance(int? page, int? limit, string insName)
+        {
             var total = 0;
             IQueryable<InsuranceInformation> query;
-            
 
-            if(!string.IsNullOrEmpty(insName))
+
+            if (!string.IsNullOrEmpty(insName))
             {
                 query = _urgentData.InsuranceInformation.Where(x => x.PrimaryName.Contains(insName));
             }
@@ -169,8 +170,8 @@ namespace MedRecordManager.Controllers
         [HttpGet]
         public IActionResult getMapedPh(int officeKey)
         {
-          
-            if(officeKey!=0)
+
+            if (officeKey != 0)
             {
                 var vm = new List<PhysicianVm>();
                 vm = _urgentData.Physican.Where(x => x.OfficeKey == officeKey && x.Active).Select(x => new PhysicianVm()
@@ -194,7 +195,7 @@ namespace MedRecordManager.Controllers
             var vm = new PhysicianVm();
             try
             {
-               
+
                 vm.MappedProviders = vm.MappedProviders = await GetAmdProviderList(officeKey);
 
                 return PartialView("_AddPhysician", vm);
@@ -213,7 +214,8 @@ namespace MedRecordManager.Controllers
         {
             int.TryParse(officeKey, out int numOfficeKey);
             var existingPh = _urgentData.Physican.FirstOrDefault(x => x.PvPhysicanId == pvPhysicianId && x.OfficeKey == numOfficeKey);
-            var vm = new PhysicianVm {
+            var vm = new PhysicianVm
+            {
                 pvFirstName = existingPh.FirstName,
                 pvLastName = existingPh.LastName,
                 pvPhysicianId = existingPh.PvPhysicanId
@@ -235,11 +237,11 @@ namespace MedRecordManager.Controllers
         [HttpPost]
         public IActionResult EditClinic(string pvClinicId)
         {
-          
+
             var existingCp = _urgentData.ClinicProfile.FirstOrDefault(x => x.ClinicId == pvClinicId.Trim());
             var vm = new ClinicVm
             {
-                AllClinics = _urgentData.ClinicProfile.Where(x=> !string.IsNullOrEmpty(x.ClinicFullName)).DistinctBy(x=>x.ClinicId).Select(x=> new SelectListItem { Text = x.ClinicId, Value = x.ClinicId}),
+                AllClinics = _urgentData.ClinicProfile.Where(x => !string.IsNullOrEmpty(x.ClinicFullName)).DistinctBy(x => x.ClinicId).Select(x => new SelectListItem { Text = x.ClinicId, Value = x.ClinicId }),
                 AllOfficeKeys = _urgentData.ClinicProfile.Where(x => !string.IsNullOrEmpty(x.ClinicFullName)).DistinctBy(x => x.OfficeKey).Select(x => new SelectListItem { Text = x.OfficeKey.ToString(), Value = x.OfficeKey.ToString(), Selected = x.OfficeKey == existingCp.OfficeKey }),
                 AllFacilities = _urgentData.ClinicProfile.Where(x => !string.IsNullOrEmpty(x.ClinicFullName)).DistinctBy(x => x.AmdcodeName).Select(x => new SelectListItem { Text = x.AmdcodeName, Value = x.AmdcodeName, Selected = x.AmdcodeName == existingCp.AmdcodeName }),
                 ClinicId = existingCp.ClinicId
@@ -265,7 +267,7 @@ namespace MedRecordManager.Controllers
             {
                 if (physician.pvPhysicianId.HasValue)
                 {
-                   
+
 
                     if (!_urgentData.Physican.Any(x => x.PvPhysicanId == pvPhyId && x.OfficeKey == officeKey))
                     {
@@ -280,12 +282,13 @@ namespace MedRecordManager.Controllers
                             Active = true,
                             DisplayName = physician.pvLastName + ", " + physician.pvFirstName
 
-                    });
+                        });
 
                     }
                     else
                     {
-                        try {
+                        try
+                        {
                             _urgentData.Physican.Any(x => x.PvPhysicanId == pvPhyId);
 
                             var exitingPhy = _urgentData.Physican.FirstOrDefault(x => x.PvPhysicanId == pvPhyId); ;
@@ -298,17 +301,17 @@ namespace MedRecordManager.Controllers
                             exitingPhy.Active = true;
                             _urgentData.Attach(exitingPhy);
                         }
-                        catch(Exception ex)
+                        catch (Exception ex)
                         {
                             return PartialView("_Error");
                         }
-                       
+
                     }
                     _urgentData.SaveChanges();
                 }
             }
 
-           return  getMapedPh(officeKey);
+            return getMapedPh(officeKey);
         }
 
         [HttpPost]
@@ -325,18 +328,119 @@ namespace MedRecordManager.Controllers
         }
 
         [HttpGet]
-
         public IActionResult CodeReviewRule()
         {
-            _urgentData.CodeReviewRule.AsParallel().Select(x => new RuleModel {
+            var ruleModel = _urgentData.CodeReviewRule.AsParallel().Select(x => new RuleModel
+            {
                 Id = x.Id,
                 RuleName = x.RuleName,
                 Enabled = x.Active
             });
             //var ruleModel = null; 
-            return View("CodeReviewRule", null);
+            return View("CodeReviewRule", ruleModel);
         }
 
+        [HttpGet]
+        public IActionResult LoadRule(int ruleId)
+        {
+            var result = _urgentData.CodeReviewRule.First(x => x.Id == ruleId);
+            var ruleDetail = new RuleModel
+            {
+                RuleName = result.RuleName,
+                Id = result.Id,
+                Definition = !string.IsNullOrEmpty(result.RuleJsonString)
+                ? JsonConvert.DeserializeObject<List<RuleItem>>(result.RuleJsonString)
+                : new List<RuleItem>()
+            };
+            return Json(new { success = true, data = ruleDetail });
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> SaveReviewRule(int ruleId, string ruleName, List<RuleItem> ruleSets)
+        {
+            var existingRule = _urgentData.CodeReviewRule.FirstOrDefault(x => x.Id == ruleId);
+            var sameNameRule = _urgentData.CodeReviewRule.FirstOrDefault(x => x.RuleName == ruleName);
+
+            if (existingRule == null)
+            {
+                if (sameNameRule == null)
+                {
+                    _urgentData.CodeReviewRule.Add(new CodeReviewRule
+                    {
+                        RuleName = ruleName,
+                        RuleJsonString = ruleSets.Any() ? JsonConvert.SerializeObject(ruleSets).ToString() : "",
+                        CreatedBy = HttpContext.User.Identity.Name,
+                        CreatedTime = DateTime.Now
+                    });
+                }
+                else
+                {
+                    return Json(new { sucess = false, message = "Same rule names alreasy exists." });
+                }
+            }
+            else
+            {
+                if (sameNameRule == null || (sameNameRule != null && sameNameRule.Id == ruleId))
+                {
+                    _urgentData.CodeReviewRule.Attach(existingRule);
+                    existingRule.RuleName = ruleName;
+                    existingRule.LastModifiedBy = HttpContext.User.Identity.Name;
+                    existingRule.LastModifiedTime = DateTime.UtcNow;
+                    existingRule.RuleJsonString = ruleSets.Any() ? JsonConvert.SerializeObject(ruleSets) : "";
+                }
+                else
+                {
+                    return Json(new { sucess = false, message = "Same rule names exisit" });
+                }
+
+            }
+
+            try
+            {
+
+                await _urgentData.SaveChangesAsync();
+                return Json(new { success = true });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = "server side error, can not save the rule." });
+            }
+        }
+
+        [HttpDelete]
+        public async Task<IActionResult> DeleteRule(int ruleId)
+        {
+            var existingRule = _urgentData.CodeReviewRule.First(x => x.Id == ruleId);
+
+            try
+            {
+                _urgentData.Remove(existingRule);
+                await _urgentData.SaveChangesAsync();
+                return Json(new { success = true, last = !_urgentData.CodeReviewRule.Any() });
+            }
+
+            catch (Exception ex)
+            {
+                return Json(new { success = false });
+            }
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> SetRuleActive(int ruleId, bool isOn)
+        {
+            var match = _urgentData.CodeReviewRule.First(x => x.Id == ruleId);
+            _urgentData.CodeReviewRule.Attach(match);
+            match.Active = isOn;
+            try
+            {
+                await _urgentData.SaveChangesAsync();
+                return Json(new { success = false });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false });
+            }
+        }
         private async Task<IList<SelectListItem>> GetAmdProviderList(string officeKey)
         {
             int.TryParse(officeKey, out int numOfficeKey);
@@ -357,7 +461,7 @@ namespace MedRecordManager.Controllers
             }
 
             var lookupResult = await _lookupService.LookupProviderByName(new Uri(HttpContext.Session.GetString("redirectUrl")), HttpContext.Session.GetString("apiContext"), "");
-            return  lookupResult.Results.Profilelist.Profile.Where(x => x.Status == "ACTIVE").Select(x => new SelectListItem() { Text = x.Name + " (" + x.Code +")", Value = x.Id }).ToList();
+            return lookupResult.Results.Profilelist.Profile.Where(x => x.Status == "ACTIVE").Select(x => new SelectListItem() { Text = x.Name + " (" + x.Code + ")", Value = x.Id }).ToList();
         }
 
     }
