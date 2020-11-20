@@ -9,7 +9,7 @@
         var flaggedGrid;
 
         $(document).ready(function () {
-                var flagManager = function (value, record, $cell, $displayEl, id, $grid) {
+            var flagManager = function (value, record, $cell, $displayEl, id, $grid) {
                 var $flagModal = $('#flagModal');
                 var $checkBox = $('<input type="checkbox">').prop('checked', record.isFlagged)
                     .attr({
@@ -33,9 +33,9 @@
 
                 });
                 $displayEl.empty().append($checkBox);
-              };
+            };
 
-             flaggedGrid = $('#flaggedVisitTable').grid({
+            flaggedGrid = $('#flaggedVisitTable').grid({
                 primaryKey: 'visitId',
                 dataSource: '/Record/GetFlaggedVisit',
                 columns: [
@@ -50,74 +50,128 @@
                     { field: 'icdCodes', width: 150, title: 'Icd Codes' },
                     { field: 'procCodes', minwidth: 80, title: 'Proc Codes' },
                     { field: 'visitTime', minwidth: 80, title: 'Visit Date' },
+                    { field: 'appliedRules', minWidth: 100, title: 'Applied Rules' }
                 ],
                 pager: { limit: 10, sizes: [2, 5, 10, 20] },
+            });
+
+
+            $('#startDate').datepicker({
+                uiLibrary: 'bootstrap'
+            });
+
+            $('#endDate').datepicker({
+                uiLibrary: 'bootstrap'
             });
 
         })
     </script>
 }
 
-    <div class="row top-buffer">
-        <div class="col-md-12">
-            <div class="box box-widget">
-                <div class="box-header with-border">
-                    <h3 class="box-title">Filters</h3>
-                </div>
-                <div class="box-body">
-                    <div class="row">
-                        <div class="col-md-3">
-                            <div class="form-group">
-                                <label asp-for="Clinic" class="control-label"> Clinic</label>
-                                <select class="form-control" asp-for="Clinic" , asp-items="@Model.Clinics" id="officeKey"></select>
-                            </div>
-                        </div>
-                        <div class="col-md-3">
-                            <div class="form-group">
-                                <label asp-for="Physician" class="control-label">Physician</label>
-                                <select class="form-control" asp-for="Physician" , asp-items="@Model.Physicians" id="officeKey"></select>
-                            </div>
-                        </div>
-                        <div class="col-md-3">
-                            <div class="form-group">
-                                <label asp-for="FlaggedRule" class="control-label"> Flagged Rule</label>
-                                <select class="form-control" asp-for="FlaggedRule" , asp-items="@Model.FlaggedRules" id="officeKey"></select>
-                            </div>
+<div class="alert alert-warning" id="globalmsg" hidden>
+    <strong>Warning!</strong> You have unsaved changes.
+</div>
+<div class="row">
+    <div class="col-lg-6">
+        <div class="btn-toolbar" role="toolbar" aria-label="Toolbar with button groups">
+            <div class="btn-group" role="group" aria-label="first group">
+                <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    Bulk Action <span class="caret"></span>
+                </button>
+                <ul class="dropdown-menu">
+                    <li><a href="#">Add Modifier</a></li>
+                    <li><a href="#">Delete Modifier</a></li>
+                    <li role="separator" class="divider"></li>
+                    <li><a href="#">Add CPT </a></li>
+                    <li><a href="#">Delete CPT </a></li>
+                    <li role="separator" class="divider"></li>
+                    <li><a href="#">Add ICD </a></li>
+                    <li><a href="#">Delete ICD </a></li>
+                    <li role="separator" class="divider"></li>
+                    <li><a href="#">Update Physician </a></li>
+                    <li><a href="#">Update Clinic </a></li>
+                    <li><a href="#">Unflag Records </a></li>
+                </ul>
+            </div>
+           
+            <button type="button" class="btn btn-success" disabled="disabled" id="saveBulk">Bulk Save</button>
+            <button type="button" class="btn btn-info" disabled="disabled" id="Cancel">Cancel</button>
+            
+        </div>
+    </div>
+</div>
+
+<div class="row top-buffer">
+    <div class="col-md-12">
+        <div class="box box-widget">
+            <div class="box-header with-border">
+                <h3 class="box-title">Filters</h3>
+            </div>
+            <div class="box-body">
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label asp-for="Clinic" class="control-label"> Clinic</label>
+                            <select class="form-control" asp-for="Clinic" , asp-items="@Model.Clinics" id="officeKey" multiple></select>
                         </div>
                     </div>
-                    <div class="row">
-
-                        <div class="col-md-3">
-                            <div class="form-group">
-                                <label asp-for="FinClass" class="control-label"> Fin Class</label>
-                                <select class="form-control" asp-for="FinClass" , asp-items="@Model.FinClasses" id="officeKey"></select>
-                            </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label asp-for="Physician" class="control-label">Physician</label>
+                            <select class="form-control" asp-for="Physician" , asp-items="@Model.Physicians" id="officeKey" multiple></select>
                         </div>
-                        <div class="col-md-3">
-                            <div class="form-group">
-                                <label asp-for="StartDate" class="control-label">Visit Start Date</label>
-                                <input class="form-control date" id="startDate" type="text" value="@DateTime.Today.AddDays(-1).ToShortDateString()" />
-                            </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label asp-for="FlaggedRule" class="control-label"> Flagged Rule</label>
+                            <select class="form-control" asp-for="FlaggedRule" , asp-items="@Model.FlaggedRules" id="officeKey" multiple></select>
                         </div>
-                        <div class="col-md-3">
-                            <div class="form-group">
-                                <label asp-for="EndDate" class="control-label">Visit End Date</label>
-                                <input class="form-control date" id="endDate" type="text" value="@DateTime.Today.ToShortDateString()" />
-                            </div>
-
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label asp-for="FinClass" class="control-label"> Fin Class</label>
+                            <select class="form-control" asp-for="FinClass" , asp-items="@Model.FinClasses" id="officeKey" multiple></select>
                         </div>
-
-                        <div class="col-md-1">
-                            <div class="form-group">
-                                <div class="control-group">
-                                    <div style="margin-top: 24px;">
-                                        <input type="button" value="Filter" class="btn btn-primary" id="filterButton" />
-                                    </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label asp-for="StartDate" class="control-label">Visit Start Date</label>
+                            <input class="form-control date" id="startDate" type="text" value="@DateTime.Today.AddDays(-1).ToShortDateString()" />
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label asp-for="EndDate" class="control-label">Visit End Date</label>
+                            <input class="form-control date" id="endDate" type="text" value="@DateTime.Today.ToShortDateString()" />
+                        </div>
+                    </div>
+                    <div class="col-md-1">
+                        <div class="form-group">
+                            <div class="control-group">
+                                <div style="margin-top: 24px;">
+                                    <input type="button" value="Filter" class="btn btn-primary" id="filterButton" />
                                 </div>
                             </div>
                         </div>
                     </div>
-
+                </div>
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="btn-group">
+                            <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                Action <span class="caret"></span>
+                            </button>
+                            <ul class="dropdown-menu">
+                                <li><a href="#">Action</a></li>
+                                <li><a href="#">Another action</a></li>
+                                <li><a href="#">Something else here</a></li>
+                                <li role="separator" class="divider"></li>
+                                <li><a href="#">Separated link</a></li>
+                            </ul>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -137,5 +191,7 @@
             </div>
         </div>
     </div>
+</div>
+
 
 

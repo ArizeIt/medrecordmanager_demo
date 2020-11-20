@@ -41,6 +41,8 @@ namespace MedRecordManager.Models.DailyRecord
         public string PatChartImported { get; set; }
 
         public string PatDocImported { get; set; }
+
+        public string AppliedRules { get; set; }
     }
 
     public class PatientVisitVM

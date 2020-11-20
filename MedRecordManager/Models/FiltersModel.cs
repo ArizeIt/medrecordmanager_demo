@@ -25,6 +25,7 @@ namespace MedRecordManager.Models
 
         public string FlaggedRule { get; set; }
 
+        [Display(Name = "Flagged Rule")]
         public IEnumerable<SelectListItem> FlaggedRules { get; set; }
 
         [DisplayName("Start Date Time:"), DisplayFormat(DataFormatString = "{0:dd/MM/yyyy hh:mm:ss tt}")]
@@ -32,5 +33,8 @@ namespace MedRecordManager.Models
 
         [DisplayName("End Date Time:"), DisplayFormat(DataFormatString = "{0:dd/MM/yyyy hh:mm:ss tt}")]
         public DateTime EndDate { get; set; }
+
+        public IList<int> AppliedRuleIds { get; set; }
+
     }
 }

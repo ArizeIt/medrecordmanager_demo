@@ -42,6 +42,11 @@
     {
         @RenderSection("AddToHead", required: false)
     }
+
+    @if (IsSectionDefined("Styles"))
+    {
+        @RenderSection("Styles", required:false)
+    }
 </head>
 <body class="hold-transition skin-blue sidebar-mini">
     <div class="wrapper">

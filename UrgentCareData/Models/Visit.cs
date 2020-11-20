@@ -13,6 +13,7 @@ namespace UrgentCareData.Models
             VisitImpotLog = new HashSet<VisitImpotLog>();
             VisitProcCode = new HashSet<VisitProcCode>();
             VisitICDCode = new HashSet<VisitICDCode>();
+            AppliedRules  = new HashSet<VisitRuleSet>();
         }
 
         public DateTime ServiceDate { get; set; }
@@ -60,7 +61,8 @@ namespace UrgentCareData.Models
         public virtual ICollection<VisitHistory> VisitHistory { get; set; }
         public virtual ICollection<VisitImpotLog> VisitImpotLog { get; set; }
         public virtual ICollection<VisitProcCode> VisitProcCode { get; set; }
-
         public virtual ICollection<VisitICDCode> VisitICDCode { get; set; }
+
+        public virtual ICollection<VisitRuleSet> AppliedRules { get; set; }
     }
 }

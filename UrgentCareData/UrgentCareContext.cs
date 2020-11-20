@@ -51,7 +51,7 @@ namespace UrgentCareData
         public virtual DbSet<VisitImpotLog> VisitImpotLog { get; set; }
         public virtual DbSet<VisitProcCode> VisitProcCode { get; set; }
         public virtual DbSet<VisitICDCode> VisitICDCode { get; set; }
-
+        public virtual DbSet<VisitRuleSet> VisitRuleSet { get; set; }
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             if (!optionsBuilder.IsConfigured)
@@ -762,6 +762,8 @@ namespace UrgentCareData
                     .IsUnicode(false);
             });
 
+
+           
             modelBuilder.Entity<SourceProcessLog>(entity =>
             {
                 entity.HasKey(e => e.ProcessId)
@@ -992,6 +994,35 @@ namespace UrgentCareData
                     .HasForeignKey(d => d.VisitId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_VisitICDCode_Visit");
+            });
+
+            modelBuilder.Entity<VisitRuleSet>(entity =>
+            {
+                entity.HasKey(e => e.VisitRuleId);
+
+                entity.Property(e => e.VisitRuleId)
+                .IsRequired()
+                .HasColumnName("VisitRuleId");
+
+                entity.Property(e => e.RuleSetId)
+                .IsRequired()
+                .HasColumnName("RuleSetId");
+
+                entity.Property(e => e.VisitId)
+                .IsRequired()
+                .HasColumnName("VisitId");
+
+                entity.HasOne(d => d.Visit)
+                   .WithMany(p => p.AppliedRules)
+                   .HasForeignKey(d => d.VisitId)
+                   .OnDelete(DeleteBehavior.Restrict)
+                   .HasConstraintName("FK_VisitRuleSets_Visit");
+
+                entity.HasOne(d => d.CodeReviewRuleSet)
+                  .WithMany(p => p.AppliedRules)
+                  .HasForeignKey(d => d.RuleSetId)
+                  .OnDelete(DeleteBehavior.Cascade)
+                  .HasConstraintName("FK_VisitRuleSets_CodeReviewRule");
             });
         }
     }

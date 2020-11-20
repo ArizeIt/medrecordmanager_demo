@@ -522,32 +522,46 @@ namespace MedRecordManager.Controllers
         [HttpGet]
         public IActionResult GetFlaggedVisit(int? page, int? limit)
         {
-            var records = _urgentCareContext.Visit.Where(x => x.Flagged)
-                .Select(y => new VisitRecordVm {
-                    VisitId = y.VisitId,
-                    PatientId = y.PvPatientId,
-                    ClinicName = y.ClinicId,
-                    DiagCode = y.DiagCodes.Replace("|", "<br/>"),
-                    PvRecordId = y.PvlogNum,
-                    VisitTime = y.ServiceDate.ToShortDateString(),
-                    PatientName = y.PvPatient.FirstName + " " + y.PvPatient.LastName,
-                    OfficeKey = y.Physican.OfficeKey,
-                    PVFinClass = y.PayerInformation.FirstOrDefault().Class.ToString(),
-                    IcdCodes = y.Icdcodes.Replace("|", "<br/>"),
-                    Payment = y.CoPayAmount.GetValueOrDefault(),
-                    ProcCodes = y.ProcCodes.Replace(",|", "<br/>").Replace("|", "<br/>"),
-                    IsFlagged = y.Flagged
-
-                }).OrderBy(x=>x.VisitTime).ToList();
-
-            var total = records.Count();
-
-            if (page.HasValue && limit.HasValue)
+            try
             {
-                var start = (page.Value - 1) * limit.Value;
-                records = records.Skip(start).Take(limit.Value).ToList();
+                var records = _urgentCareContext.Visit.Where(x => x.Flagged)
+               .Select(y => new VisitRecordVm
+               {
+                   VisitId = y.VisitId,
+                   PatientId = y.PvPatientId,
+                   ClinicName = y.ClinicId,
+                   DiagCode = y.DiagCodes.Replace("|", "<br/>"),
+                   PvRecordId = y.PvlogNum,
+                   VisitTime = y.ServiceDate.ToShortDateString(),
+                   PatientName = y.PvPatient.FirstName + " " + y.PvPatient.LastName,
+                   OfficeKey = y.Physican.OfficeKey,
+                   PVFinClass = y.PayerInformation.FirstOrDefault().Class.ToString(),
+                   IcdCodes = y.Icdcodes.Replace("|", "<br/>"),
+                   Payment = y.CoPayAmount.GetValueOrDefault(),
+                   ProcCodes = y.ProcCodes.Replace(",|", "<br/>").Replace("|", "<br/>"),
+                   IsFlagged = y.Flagged,
+
+                }).OrderBy(x => x.VisitTime).ToList();
+
+                var total = records.Count();
+
+                if (page.HasValue && limit.HasValue)
+                {
+                    var start = (page.Value - 1) * limit.Value;
+                    records = records.Skip(start).Take(limit.Value).ToList();
+
+                    foreach(var record in records)
+                    {
+                        var visitRules = _urgentCareContext.VisitRuleSet.Include(x => x.CodeReviewRuleSet).Where(x => x.VisitId == record.VisitId).Select(x=>x.CodeReviewRuleSet.RuleName);
+                        record.AppliedRules = string.Join("<br/>", visitRules);
+                    }
+                }
+                return Json(new { records, total });
             }
-            return Json(new { records, total });
+           catch (Exception ex)
+            {
+                return Json(new { succcess = false, message= ex.Message.ToString() });
+            }
         }
 
         [HttpPost]
@@ -1198,16 +1212,39 @@ namespace MedRecordManager.Controllers
                     }
                 }
                 results = results.Union(records).ToList();
+                try
+                {
+                    if (results.Any())
+                    {
+                        foreach (var result in results)
+                        {
+                            _urgentCareContext.Visit.FirstOrDefault(x => x.VisitId == result.VisitId).Flagged = true;
+                            if (!_urgentCareContext.VisitRuleSet.Any(x => x.VisitId == result.VisitId && x.VisitRuleId == ruleSet.Id))
+                            {
+                                _urgentCareContext.VisitRuleSet.Add(new VisitRuleSet()
+                                {
+
+                                    VisitId = result.VisitId,
+                                    RuleSetId = ruleSet.Id
+                                });
+                            }
+                        }
+                    }
+                }
+
+                catch(Exception ex)
+                {
+                    ex.ToString();
+                }
+                // if the ruleset found any record.. then mark them
+               
             } 
             
             if(results.Any())
             {
                 try
                 {
-                    foreach (var result in results)
-                    {
-                        _urgentCareContext.Visit.FirstOrDefault(x => x.VisitId == result.VisitId).Flagged = true;
-                    }
+                    
                     _urgentCareContext.SaveChanges();
                     var resultMessage = string.Empty;
                     if(problemRuleNames.Any())
@@ -1237,6 +1274,55 @@ namespace MedRecordManager.Controllers
             }
           
         }
+
+
+
+        [HttpGet]
+        public IActionResult BulkUpdate(int? page, int? limit)
+        {
+            var records = _urgentCareContext.Visit.Include(x => x.PayerInformation).Include(x => x.Physican).Include(x=>x.AppliedRules)
+                
+                
+                .Where(x => x.Flagged).ToList();
+
+            var vm = new FiltersModel
+            {
+                Clinics = records.DistinctBy(x => x.ClinicId).Select(y => new SelectListItem
+                {
+                    Selected = false,
+                    Text = y.ClinicId,
+                    Value = y.ClinicId,
+                }).OrderBy(r => r.Text),
+                Physicians = records.DistinctBy(x => x.PhysicanId).Select(y => new SelectListItem
+                {
+                    Selected = false,
+                    Text = y.Physican.DisplayName,
+                    Value = y.PhysicanId.ToString(),
+                }).OrderBy(r => r.Text),
+                FinClasses = records.DistinctBy(x => x.PayerInformation.Select(y => y.Class)).Select(y => new SelectListItem
+                {
+                    Selected = false,
+                    Text = y.PayerInformation.FirstOrDefault() != null ? y.PayerInformation.FirstOrDefault().Class.ToString() : "None",
+                    Value = y.PayerInformation.FirstOrDefault() != null ? y.PayerInformation.FirstOrDefault().Class.ToString() : "None"
+                }).DistinctBy(z => z.Text).OrderByDescending(r => r.Text),
+
+                Clinic =string.Empty, 
+                FinClass = string.Empty,
+                Physician = string.Empty,
+                FlaggedRule = string.Empty
+            };
+
+            vm.AppliedRuleIds = _urgentCareContext.VisitRuleSet.Where(x => records.Select(y => y.VisitId).Contains(x.VisitId)).DistinctBy(z => z.VisitRuleId).Select(x => x.VisitRuleId).ToList();
+            vm.FlaggedRules = _urgentCareContext.CodeReviewRule.Where(x => vm.AppliedRuleIds.Contains(x.Id)).Select(y => new SelectListItem
+            {
+                Selected = false,
+                Text = y.RuleName,
+                Value = y.Id.ToString()
+            }).ToList();
+            return View("BulkUpdateView", vm);
+        }
+
+
         private IEnumerable<SelectListItem> GetAvaliableOfficeKeys()
         {
             return _urgentCareContext.ProgramConfig.Where(x => !x.AmdSync).DistinctBy(x => x.AmdofficeKey)

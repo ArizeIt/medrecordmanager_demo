@@ -3,6 +3,18 @@
     ViewData["Title"] = "Record Manager - Daily Review";
 }
 
+@section Styles{ 
+
+    <style>
+        .gridHeader {
+            font-size: 14px !important;
+            font-weight: bold !important;
+        }
+    </style>
+
+}
+
+
 @section scripts{
     <script type="text/javascript">
 
@@ -89,6 +101,7 @@
                     { field: 'icdCodes', width: 150, title: 'Icd Codes' },
                     { field: 'procCodes', minwidth: 80, title: 'Proc Codes' },
                     { field: 'visitTime', minwidth: 80, title: 'Visit Date' },
+                    { field: 'appliedRules', minWidth: 100, title: 'Applied Rules' },
                     { field: 'Actions', width: 200, renderer: editManager, align: 'center' }
                 ],
                 pager: { limit: 10, sizes: [2, 5, 10, 20] },
@@ -103,17 +116,17 @@
                         //{ field: 'pvRecordId', width:100, title: 'PV RecordId' },
                         { field: 'Flag', width: 50, renderer: flagManager },
                         { filed: 'visitId', hidden: true },
-                        { field: 'patientName', width: 250, title: 'Patient Name', priority: 1 },
+                        { field: 'patientName', width: 250, title: 'Patient Name', priority: 1, sortable: true, filterable: true , headerCssClass:'gridHeader'},
                         { field: 'clinicName', width: 200, title: 'Clinic Name', priority: 2, type: 'dropdown', editor: { dataSource: '/Record/GetClinics', valueField: 'id' }, editField: 'clinicName' },
                         //{ field: 'physicanId', width: 200, title: 'Physican Number', priority: 3, type: 'dropdown', editor: select2editor },
-                        { field: 'physicianName', width: 200, title: 'Physician Name' },
-                        { field: 'insuranceName', width: 200, title: 'Insurance Name' },
-                        { field: 'pvFinClass', minWidth: 100, title: 'Finacial Class' },
+                        { field: 'physicianName', width: 200, title: 'Physician Name' ,sortable: true},
+                        { field: 'insuranceName', width: 200, title: 'Insurance Name',sortable: true},
+                        { field: 'pvFinClass', minWidth: 100, title: 'Finacial Class',sortable: true},
                         { field: 'payment', minWidth: 100, title: 'Payment', /*renderer: function (value, record) {  value }*/ },
                         //{ field: 'diagCode', width: 150,title: 'Diag Codes' },
                         //{ field: 'icdCodes', width: 150,title: 'Icd Codes' },
                         { field: 'procCodes', minWidth: 80, title: 'Proc Codes', priority: 3 },
-                        { field: 'visitTime', minWidth: 80, title: 'Visit Date' },
+                        { field: 'visitTime', minWidth: 80, title: 'Visit Date' , sortable: true},
                         //{ field: 'Action', width: 100, renderer: detailButtonRender },
                         { field: 'Actions', width: 200, renderer: editManager, align: 'center' }
                     ],
@@ -191,10 +204,10 @@
                     dataSource: '/Record/LoadImported',
                     columns: [
                         { filed: 'visitId', hidden: true },
-                        { field: 'patientName', width: 250, title: 'Patient Name', priority: 1 },
-                        { field: 'clinicName', width: 200, title: 'Clinic Name', priority: 2 },                    
-                        { field: 'physicianName', width: 200, title: 'Physician Name' },
-                        { field: 'insuranceName', width: 200, title: 'Insurance Name' },                      
+                        { field: 'patientName', width: 250, title: 'Patient Name', priority: 1, sortable: true},
+                        { field: 'clinicName', width: 200, title: 'Clinic Name', priority: 2 , sortable: true},                    
+                        { field: 'physicianName', width: 200, title: 'Physician Name' , sortable: true},
+                        { field: 'insuranceName', width: 200, title: 'Insurance Name',sortable: true },                      
                         { field: 'visitTime', minWidth: 80, title: 'Visit Time' },
                         { field: 'importedDate', minWidth: 80, title: 'Imported Date' },
                         { field: 'chargeImported', minWidth: 80, title: 'Charge Imported' },
