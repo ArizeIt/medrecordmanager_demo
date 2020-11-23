@@ -12,4 +12,15 @@ namespace MedRecordManager.Models.UserRecord
         [Required]
         public string RoleName { get; set; }
     }
+
+    public enum Roles
+    {
+        SuperAdmin, 
+        CompanyAdmin,
+        OfficeAdmin, 
+        ClinicAdmin, 
+        CompanyPowerUser, 
+        OfficePowerUser,
+        ClinicPowerUser
+    }
 }

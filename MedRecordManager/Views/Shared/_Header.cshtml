@@ -1,7 +1,7 @@
 ﻿@using Microsoft.AspNetCore.Identity
 @using MedRecordManager.Models
-@inject SignInManager<IdentityUser> SignInManager
-@inject UserManager<IdentityUser> UserManager
+@inject SignInManager<MedRecordManager.Models.UserRecord.ApplicationUser> SignInManager
+@inject UserManager<MedRecordManager.Models.UserRecord.ApplicationUser> UserManager
 
 <header class="main-header">
     @* BEGIN Logo *@

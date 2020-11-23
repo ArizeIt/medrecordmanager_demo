@@ -2445,10 +2445,10 @@ a:focus {
 }
 /* NAV STACKED */
 .nav-stacked > li > a {
-  border-radius: 0;
-  border-top: 0;
-  border-left: 3px solid transparent;
-  color: #444;
+    border-radius: 0;
+    border-top: 0;
+    border-left: 3px solid transparent;
+    color: #3c2cca;
 }
 .nav-stacked > li.active > a,
 .nav-stacked > li.active > a:hover {

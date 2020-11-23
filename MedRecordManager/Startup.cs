@@ -1,20 +1,20 @@
-﻿using System;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using MedRecordManager.Data;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using UrgentCareData;
-using MedRecordManager.Services;
-using Microsoft.AspNetCore.Authentication.Cookies;
-using AdvancedMDService;
-using AdvancedMDInterface;
-using System.Threading.Tasks;
+
 using MedRecordManager.Models.UserRecord;
+using MedRecordManager.Data;
+using UrgentCareData;
+using System;
+using MedRecordManager.Services;
+using AdvancedMDInterface;
+using AdvancedMDService;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Hosting;
 
 namespace MedRecordManager
 {
@@ -40,12 +40,16 @@ namespace MedRecordManager
           
             services.AddDbContext<ApplicationDbContext>(options =>
                  options.UseSqlServer(
-                 Configuration.GetConnectionString("accountConnection")));
+                 Configuration.GetConnectionString("defaultConnection")));
 
-            services.AddDefaultIdentity<IdentityUser>().AddRoles<IdentityRole>()
-                .AddEntityFrameworkStores<ApplicationDbContext>();
+            services.AddIdentity<ApplicationUser, IdentityRole>()
+                  .AddEntityFrameworkStores<ApplicationDbContext>()
+                  .AddDefaultUI()
+                  .AddDefaultTokenProviders();
+            services.AddControllersWithViews();
+            services.AddRazorPages();
 
-           
+
             services.AddDbContext<UrgentCareContext>(options => options.UseSqlServer(Configuration.GetConnectionString("defaultConnection")));
 
             services.ConfigureApplicationCookie(options =>
@@ -60,13 +64,15 @@ namespace MedRecordManager
                 options.SlidingExpiration = true;
             });
 
-            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2)
-                 .AddRazorPagesOptions(options =>
-                 {
-                     options.AllowAreas = true;
-                     options.Conventions.AuthorizeAreaFolder("Identity", "/Account/Manage");
-                     options.Conventions.AuthorizeAreaPage("Identity", "/Account/Logout");
-                 });
+            services.AddControllersWithViews();
+            services.AddRazorPages();
+            //services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2)
+            //     .AddRazorPagesOptions(options =>
+            //     {
+            //         options.AllowAreas = true;
+            //         options.Conventions.AuthorizeAreaFolder("Identity", "/Account/Manage");
+            //         options.Conventions.AuthorizeAreaPage("Identity", "/Account/Logout");
+            //     });
 
             services.AddDistributedMemoryCache();
             services.AddSession(opts =>
@@ -81,11 +87,10 @@ namespace MedRecordManager
             services.AddScoped<IViewRenderService, ViewRenderService>();
             services.AddScoped<ILookupService, LookupService>();
             services.AddScoped<ILoginService, LoginService>();
-            
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             if (env.IsDevelopment())
             {
@@ -95,24 +100,23 @@ namespace MedRecordManager
             else
             {
                 app.UseExceptionHandler("/Home/Error");
+                // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
-
             app.UseHttpsRedirection();
             app.UseStaticFiles();
-            app.UseCookiePolicy();
-            app.UseSession();
-            app.UseAuthentication();
-          
-            app.UseMvc(routes =>
-            {
-                //routes.MapRoute(
-                //    name: "MyArea",
-                //    template: "{area:exists}/{controller=Home}/{action=Index}/{id?}");
 
-                routes.MapRoute(
+            app.UseRouting();
+
+            app.UseAuthentication();
+            app.UseAuthorization();
+
+            app.UseEndpoints(endpoints =>
+            {
+                endpoints.MapControllerRoute(
                     name: "default",
-                    template: "{controller=Home}/{action=Index}/{id?}");
+                    pattern: "{controller=Home}/{action=Index}/{id?}");
+                endpoints.MapRazorPages();
             });
         }
 
