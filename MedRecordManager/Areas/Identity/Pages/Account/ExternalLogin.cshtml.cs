@@ -9,11 +9,12 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using MedRecordManager.Models.UserRecord;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.UI.Services;
+
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Logging;
+using MedRecordManager.Services;
 
 namespace MedRecordManager.Areas.Identity.Pages.Account
 {

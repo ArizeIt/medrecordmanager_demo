@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace MedRecordManager.Models
 {
-    public class FiltersModel
+    public class FilterRecord
     {
         [Display(Name = "Clinic")]
         public string Clinic { get; set; }

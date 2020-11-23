@@ -1,0 +1,166 @@
+﻿@model MedRecordManager.Models.FilterUser
+@{
+    ViewData["Title"] = "ManageUser";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@section scripts{
+
+    <script type="text/javascript">
+        var flaggedGrid;
+
+        //$(document).ready(function () {
+        //    var userManager = function (value, record, $cell, $displayEl, id, $grid) {
+        //        var $userModal = $('#userModal');
+        //        var $checkBox = $('<input type="checkbox">').prop('checked', record.isuserged)
+        //            .attr({
+        //                'dataKey': id
+        //            });
+
+        //        $checkBox.on('click', function (e) {
+        //            var mark = $(this).is(':checked');
+
+        //            $userModal.attr({
+        //                'dataKey': id,
+        //                'userged': mark
+        //            });
+        //            if (mark) {
+        //                $userModal.find('.modal-body').children('p').html('This action will mark the current record for skipping the synchroniztion until it is unchecked.  Click Yes to go ahead, NO to cancel.')
+        //            }
+        //            else {
+        //                $userModal.find('.modal-body').children('p').html('This action will re instate the current record for synchroniztion. Click Yes to go ahead, NO to cancel.')
+        //            }
+        //            $userModal.modal({ backdrop: 'static', keyboard: false });
+
+        //        });
+        //        $displayEl.empty().append($checkBox);
+        //    };
+
+        //    usergedGrid = $('#usergedVisitTable').grid({
+        //        primaryKey: 'visitId',
+        //        dataSource: '/Record/GetusergedVisit',
+        //        columns: [
+        //            //{ field: 'pvRecordId', width:100, title: 'PV RecordId' },
+        //            { field: 'user', width: 50, renderer: userManager },
+        //            { filed: 'visitId', hidden: true },
+        //            { field: 'patientName', Width: 300, title: 'Patient Name' },
+        //            { field: 'clinicName', Width: 150, title: 'Clinic Name' },
+        //            { field: 'pvFinClass', minwidth: 100, title: 'Finacial Class' },
+        //            { field: 'payment', minwidth: 100, title: 'Payment $' },
+        //            { field: 'diagCode', width: 150, title: 'Diag Codes' },
+        //            { field: 'icdCodes', width: 150, title: 'Icd Codes' },
+        //            { field: 'procCodes', minwidth: 80, title: 'Proc Codes' },
+        //            { field: 'visitTime', minwidth: 80, title: 'Visit Date' },
+        //            { field: 'appliedRules', minWidth: 100, title: 'Applied Rules' }
+        //        ],
+        //        pager: { limit: 10, sizes: [2, 5, 10, 20] },
+        //    });
+
+
+        //    $('#startDate').datepicker({
+        //        uiLibrary: 'bootstrap'
+        //    });
+
+        //    $('#endDate').datepicker({
+        //        uiLibrary: 'bootstrap'
+        //    });
+
+        //})
+    </script>
+}
+
+<div class="alert alert-warning" id="globalmsg" hidden>
+    <strong>Warning!</strong> You have unsaved changes.
+</div>
+<div class="row">
+    <div class="col-lg-6">
+        <div class="btn-toolbar" role="toolbar" aria-label="Toolbar with button groups">
+            <div class="btn-group" role="group" aria-label="first group">
+                <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    Bulk Action <span class="caret"></span>
+                </button>
+                <ul class="dropdown-menu">
+                    <li><a href="#">Add Modifier</a></li>
+                </ul>
+            </div>
+
+            <button type="button" class="btn btn-success" disabled="disabled" id="saveBulk">Bulk Save</button>
+            <button type="button" class="btn btn-info" disabled="disabled" id="Cancel">Cancel</button>
+
+        </div>
+    </div>
+</div>
+
+<div class="row top-buffer">
+    <div class="col-md-12">
+        <div class="box box-widget">
+            <div class="box-header with-border">
+                <h3 class="box-title">Filters</h3>
+            </div>
+            <div class="box-body">
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label asp-for="Company" control-label">Company</label>
+                            <select class="form-control" asp-for="Company" , asp-items="@Model.Companies" id="userCompany" multiple></select>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label asp-for="OfficeKey" class="control-label">Office Key</label>
+                            <select class="form-control" asp-for="OfficeKey" , asp-items="@Model.OfficeKeys" id="userOfficeKey" multiple></select>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label asp-for="Clinic" class="control-label"> Flagged Rule</label>
+                            <select class="form-control" asp-for="Clinic" , asp-items="@Model.Clinics" id="userClinc" multiple></select>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <div class="control-group">
+                                <div style="margin-top: 24px;">
+                                    <input type="button" value="Filter" class="btn btn-primary" id="filterButton" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+               
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="btn-group">
+                            <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                Action <span class="caret"></span>
+                            </button>
+                            <ul class="dropdown-menu">
+                                <li><a href="#">Action</a></li>
+                                <li><a href="#">Another action</a></li>
+                                <li><a href="#">Something else here</a></li>
+                                <li role="separator" class="divider"></li>
+                                <li><a href="#">Separated link</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row top-buffer">
+        <div class="col-md-12">
+            <div class="box box-warning">
+                <div class="box-header with-border">
+                    <h3 class="box-title">Flagged Visit Records</h3>
+                </div>
+                <div class="box-body">
+                    <div class="table-responsive">
+                        <table id="flaggedVisitTable" class="table table-striped"></table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+

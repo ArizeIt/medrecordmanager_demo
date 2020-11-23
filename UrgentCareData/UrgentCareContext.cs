@@ -286,6 +286,76 @@ namespace UrgentCareData
 
             });
 
+            modelBuilder.Entity<CompanyClinic>(entity =>
+            {
+                entity.ToTable("CompanyClinic");
+
+                entity.HasIndex(e => new { e.ClinicId, e.CompanyId }, "uq_CompanyClinic")
+                    .IsUnique();
+
+                entity.Property(e => e.ClinicId)
+                    .IsRequired()
+                    .HasMaxLength(50);
+
+                entity.HasOne(d => d.Clinic)
+                    .WithMany(p => p.CompanyClinics)
+                    .HasForeignKey(d => d.ClinicId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_CompanyClinic_ClinicProfile");
+
+                entity.HasOne(d => d.Company)
+                    .WithMany(p => p.CompanyClinics)
+                    .HasForeignKey(d => d.CompanyId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_CompanyClinic_CompanyProfile");
+            });
+
+            modelBuilder.Entity<CompanyProfile>(entity =>
+            {
+                entity.ToTable("CompanyProfile");
+
+                entity.Property(e => e.Address1)
+                    .HasMaxLength(100)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Address2)
+                    .HasMaxLength(100)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.City)
+                    .HasMaxLength(100)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.CompanyName)
+                    .IsRequired()
+                    .HasMaxLength(100)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.DisplayName)
+                    .HasMaxLength(100)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Email)
+                    .HasMaxLength(100)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Fax)
+                    .HasMaxLength(100)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Phone)
+                    .HasMaxLength(100)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.State)
+                    .HasMaxLength(50)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Zip)
+                    .HasMaxLength(10)
+                    .IsUnicode(false);
+            });
+
             modelBuilder.Entity<CptCodeLookup>(entity =>
             {
                 entity.HasKey(e => e.Code);
@@ -783,6 +853,146 @@ namespace UrgentCareData
                     .IsUnicode(false);
             });
 
+
+            modelBuilder.Entity<User>(entity =>
+            {
+                entity.ToTable("User", "Application");
+
+                entity.HasIndex(e => e.NormalizedEmail, "EmailIndex");
+
+                entity.HasIndex(e => e.NormalizedUserName, "UserNameIndex")
+                    .IsUnique()
+                    .HasFilter("([NormalizedUserName] IS NOT NULL)");
+
+                entity.Property(e => e.Email).HasMaxLength(256);
+
+                entity.Property(e => e.NormalizedEmail).HasMaxLength(256);
+
+                entity.Property(e => e.NormalizedUserName).HasMaxLength(256);
+
+                entity.Property(e => e.UserName).HasMaxLength(256);
+            });
+
+            modelBuilder.Entity<UserClaim>(entity =>
+            {
+                entity.ToTable("UserClaims", "Application");
+
+                entity.HasIndex(e => e.UserId, "IX_UserClaims_UserId");
+
+                entity.Property(e => e.UserId).IsRequired();
+
+                entity.HasOne(d => d.User)
+                    .WithMany(p => p.UserClaims)
+                    .HasForeignKey(d => d.UserId);
+            });
+
+            modelBuilder.Entity<UserClinic>(entity =>
+            {
+                entity.ToTable("UserClinic");
+
+                entity.HasIndex(e => new { e.UserId, e.ClinicId }, "uq_UserClinic")
+                    .IsUnique();
+
+                entity.Property(e => e.ClinicId)
+                    .IsRequired()
+                    .HasMaxLength(50);
+
+                entity.Property(e => e.UserId).IsRequired();
+
+                entity.HasOne(d => d.Clinic)
+                    .WithMany(p => p.UserClinics)
+                    .HasForeignKey(d => d.ClinicId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_UserClinic_ClinicProfile");
+
+                entity.HasOne(d => d.User)
+                    .WithMany(p => p.UserClinics)
+                    .HasForeignKey(d => d.UserId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_UserClinic_User");
+            });
+
+            modelBuilder.Entity<UserCompany>(entity =>
+            {
+                entity.ToTable("UserCompany");
+
+                entity.HasIndex(e => new { e.UserId, e.CompanyId }, "uq_UserCompany")
+                    .IsUnique();
+
+                entity.Property(e => e.UserId).IsRequired();
+
+                entity.HasOne(d => d.Company)
+                    .WithMany(p => p.UserCompanies)
+                    .HasForeignKey(d => d.CompanyId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_UserCompany_CompanyProfile");
+
+                entity.HasOne(d => d.User)
+                    .WithMany(p => p.UserCompanies)
+                    .HasForeignKey(d => d.UserId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_UserCompany_User");
+            });
+
+            modelBuilder.Entity<UserLogin>(entity =>
+            {
+                entity.HasKey(e => new { e.LoginProvider, e.ProviderKey });
+
+                entity.ToTable("UserLogins", "Application");
+
+                entity.HasIndex(e => e.UserId, "IX_UserLogins_UserId");
+
+                entity.Property(e => e.UserId).IsRequired();
+
+                entity.HasOne(d => d.User)
+                    .WithMany(p => p.UserLogins)
+                    .HasForeignKey(d => d.UserId);
+            });
+
+            modelBuilder.Entity<UserOfficeKey>(entity =>
+            {
+                entity.ToTable("UserOfficeKey");
+
+                entity.HasIndex(e => new { e.UserId, e.OfficeKey }, "uq_UserOfficeKey")
+                    .IsUnique();
+
+                entity.Property(e => e.UserId).IsRequired();
+
+                entity.HasOne(d => d.User)
+                    .WithMany(p => p.UserOfficeKeys)
+                    .HasForeignKey(d => d.UserId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_UserOfficeKey_User");
+            });
+
+            modelBuilder.Entity<UserRole>(entity =>
+            {
+                entity.HasKey(e => new { e.UserId, e.RoleId });
+
+                entity.ToTable("UserRoles", "Application");
+
+                entity.HasIndex(e => e.RoleId, "IX_UserRoles_RoleId");
+
+                entity.HasOne(d => d.Role)
+                    .WithMany(p => p.UserRoles)
+                    .HasForeignKey(d => d.RoleId);
+
+                entity.HasOne(d => d.User)
+                    .WithMany(p => p.UserRoles)
+                    .HasForeignKey(d => d.UserId);
+            });
+
+            modelBuilder.Entity<UserToken>(entity =>
+            {
+                entity.HasKey(e => new { e.UserId, e.LoginProvider, e.Name });
+
+                entity.ToTable("UserTokens", "Application");
+
+                entity.HasOne(d => d.User)
+                    .WithMany(p => p.UserTokens)
+                    .HasForeignKey(d => d.UserId);
+            });
+
             modelBuilder.Entity<Visit>(entity =>
             {
                 entity.Property(e => e.ClinicId)
@@ -851,7 +1061,7 @@ namespace UrgentCareData
                     .HasConstraintName("FK_Visit_Chart");
 
                 entity.HasOne(d => d.Clinic)
-                    .WithMany(p => p.Visit)
+                    .WithMany(p => p.Visits)
                     .HasForeignKey(d => d.ClinicId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_Visit_ClinicProfile");

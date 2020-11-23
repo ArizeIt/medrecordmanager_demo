@@ -26,8 +26,7 @@ namespace MedRecordManager.Controllers
 
         private readonly ILoginService _apiLoginServicce;
 
-        private readonly string apiContext; 
-
+   
         public AdminController(UrgentCareContext urgentData, ILookupService lookupService, ILoginService apiLoginServicce)
         {
             _urgentData = urgentData;

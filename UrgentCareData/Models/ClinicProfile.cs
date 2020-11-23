@@ -7,7 +7,9 @@ namespace UrgentCareData.Models
     {
         public ClinicProfile()
         {
-            Visit = new HashSet<Visit>();
+            CompanyClinics = new HashSet<CompanyClinic>();
+            UserClinics = new HashSet<UserClinic>();
+            Visits = new HashSet<Visit>();
         }
 
         public string ClinicFullName { get; set; }
@@ -16,6 +18,8 @@ namespace UrgentCareData.Models
         public string AmdcodePrefix { get; set; }
         public int? OfficeKey { get; set; }
 
-        public virtual ICollection<Visit> Visit { get; set; }
+        public virtual ICollection<CompanyClinic> CompanyClinics { get; set; }
+        public virtual ICollection<UserClinic> UserClinics { get; set; }
+        public virtual ICollection<Visit> Visits { get; set; }
     }
 }

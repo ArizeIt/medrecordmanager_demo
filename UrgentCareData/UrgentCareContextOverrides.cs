@@ -40,7 +40,7 @@ namespace UrgentCareData
 
                 var auditEntry = new AuditEntry(entry, currentUser)
                 {
-                    TableName = entry.Metadata.Relational().TableName
+                    TableName = entry.Metadata.GetTableName()
                 };
                 auditEntries.Add(auditEntry);
 

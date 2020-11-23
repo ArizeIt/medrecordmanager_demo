@@ -532,7 +532,7 @@ namespace MedRecordManager.Controllers
                    ClinicName = y.ClinicId,
                    DiagCode = y.DiagCodes.Replace("|", "<br/>"),
                    PvRecordId = y.PvlogNum,
-                   VisitTime = y.ServiceDate.ToShortDateString(),
+                   VisitTime = y.ServiceDate.ToString(),
                    PatientName = y.PvPatient.FirstName + " " + y.PvPatient.LastName,
                    OfficeKey = y.Physican.OfficeKey,
                    PVFinClass = y.PayerInformation.FirstOrDefault().Class.ToString(),
@@ -1285,7 +1285,7 @@ namespace MedRecordManager.Controllers
                 
                 .Where(x => x.Flagged).ToList();
 
-            var vm = new FiltersModel
+            var vm = new FilterRecord
             {
                 Clinics = records.DistinctBy(x => x.ClinicId).Select(y => new SelectListItem
                 {

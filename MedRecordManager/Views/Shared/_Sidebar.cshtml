@@ -16,7 +16,7 @@
     <ul class="sidebar-menu" data-widget="tree">
         <li class="treeview">
             <a href="#">
-                <i class="fa fa-link"></i> <span>Admin Setup </span>
+                <i class="fa fa-link"></i> <span>Mange Configuration</span>
                 <span class="pull-right-container">
                     <i class="fa fa-angle-left pull-right"></i>
                 </span>
@@ -30,20 +30,35 @@
             </ul>
         </li>
 
-            <li class="treeview">
-                <a href="#">
-                    <i class="fa fa-link"></i> <span>Change Record</span>
-                    <span class="pull-right-container">
-                        <i class="fa fa-angle-left pull-right"></i>
-                    </span>
-                </a>
-                <ul class="treeview-menu">
-                    <li><a href="@Url.Action("review","record")">Daily Record</a></li>
-                    <li><a href="@Url.Action("callback", "record")">Callback Record</a></li>
-                    <li><a href="@Url.Action("loadcode", "record")">Code Record</a></li>
-                    <li><a href="@Url.Action("BulkUpdate", "record")">Bulk Updates</a></li>
-                </ul>
-            </li>
+        <li class="treeview">
+            <a href="#">
+                <i class="fa fa-link"></i> <span>Manage Record</span>
+                <span class="pull-right-container">
+                    <i class="fa fa-angle-left pull-right"></i>
+                </span>
+            </a>
+            <ul class="treeview-menu">
+                <li><a href="@Url.Action("review","record")">Daily Record</a></li>
+                <li><a href="@Url.Action("callback", "record")">Callback Record</a></li>
+                <li><a href="@Url.Action("loadcode", "record")">Code Record</a></li>
+                <li><a href="@Url.Action("BulkUpdate", "record")">Bulk Updates</a></li>
+            </ul>
+        </li>
+
+        <li class="treeview">
+            <a href="#">
+                <i class="fa fa-link"></i> <span>Manage Access</span>
+                <span class="pull-right-container">
+                    <i class="fa fa-angle-left pull-right"></i>
+                </span>
+            </a>
+            <ul class="treeview-menu">
+                <li><a href="@Url.Action("ManageUser","UserAdmin")">Manage Users</a></li>
+                <li><a href="@Url.Action("callback", "record")">Mange Clinic</a></li>
+                <li><a href="@Url.Action("loadcode", "record")">Manage Office</a></li>
+                <li><a href="@Url.Action("BulkUpdate", "record")">Manage Company</a></li>
+            </ul>
+        </li>
     </ul>
         @* END Menu *@
     </section>

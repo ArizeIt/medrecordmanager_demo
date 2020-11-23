@@ -44,7 +44,6 @@ namespace MedRecordManager
 
             services.AddIdentity<ApplicationUser, IdentityRole>()
                   .AddEntityFrameworkStores<ApplicationDbContext>()
-                  .AddDefaultUI()
                   .AddDefaultTokenProviders();
             services.AddControllersWithViews();
             services.AddRazorPages();
@@ -95,7 +94,7 @@ namespace MedRecordManager
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
-                app.UseDatabaseErrorPage();
+                //app.UseDatabaseErrorPage();
             }
             else
             {
