@@ -1,3 +1,6 @@
+using System;
+using System.Collections.Generic;
+
 namespace MedRecordManager.Models.DailyRecord
 {
     public class VisitRecordVm
@@ -43,6 +46,9 @@ namespace MedRecordManager.Models.DailyRecord
         public string PatDocImported { get; set; }
 
         public string AppliedRules { get; set; }
+
+        public DateTime ServiceDate { get; set; }
+
     }
 
     public class PatientVisitVM

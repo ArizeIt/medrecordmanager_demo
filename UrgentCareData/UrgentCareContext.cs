@@ -23,6 +23,7 @@ namespace UrgentCareData
         public virtual DbSet<AmdLoginSession> AmdLoginSession { get; set; }
         public virtual DbSet<Audit> Audit { get; set; }
         public virtual DbSet<BatchJob> BatchJob { get; set; }
+        public virtual DbSet<BulkVisit> BulkVisit { get; set; }
         public virtual DbSet<Chart> Chart { get; set; }
         public virtual DbSet<ChartDocument> ChartDocument { get; set; }
         public virtual DbSet<ChartDocumentHistory> ChartDocumentHistory { get; set; }
@@ -151,6 +152,76 @@ namespace UrgentCareData
                     .HasMaxLength(50);
 
                 entity.Property(e => e.Paramters).IsRequired();
+            });
+
+            modelBuilder.Entity<BulkVisit>(entity =>
+            {
+                entity.HasKey(e => e.VisitId);
+
+                entity.Property(e => e.ClinicId)
+                    .IsRequired()
+                    .HasMaxLength(50);
+
+                entity.Property(e => e.PatientName).HasMaxLength(200);
+
+                entity.Property(e => e.FinClass).HasMaxLength(50);
+
+                entity.Property(e => e.CoPayAmount).HasColumnType("money");
+
+                entity.Property(e => e.CopayNote).HasMaxLength(500);
+
+                entity.Property(e => e.CopayType).HasMaxLength(50);
+
+                entity.Property(e => e.CurrentPaymentAmount).HasColumnType("money");
+
+                entity.Property(e => e.CurrentPaymentNote).HasMaxLength(500);
+
+                entity.Property(e => e.CurrentPaymentType).HasMaxLength(50);
+
+                entity.Property(e => e.DiagCodes).HasMaxLength(500);
+
+                entity.Property(e => e.Emcode)
+                    .HasColumnName("EMCode")
+                    .HasMaxLength(50);
+
+                entity.Property(e => e.EmModifier)
+                   .HasColumnName("EMModifier")
+                   .HasMaxLength(50);
+
+                entity.Property(e => e.EmQuantity)
+                  .HasColumnName("EMQuantity");
+
+                entity.Property(e => e.Icdcodes)
+                    .HasColumnName("ICDCodes")
+                    .HasMaxLength(500);
+
+                entity.Property(e => e.LastUpdateTime).HasColumnType("datetime");
+
+                entity.Property(e => e.LastUpdateUser)
+                    .IsRequired()
+                    .HasMaxLength(50)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Notes).HasMaxLength(500);
+
+                entity.Property(e => e.PreviousPaymentAmount).HasColumnType("money");
+
+                entity.Property(e => e.PreviousPaymentNote).HasMaxLength(500);
+
+                entity.Property(e => e.PreviousPaymentType).HasMaxLength(50);
+
+                entity.Property(e => e.ProcCodes).HasMaxLength(500);
+
+                entity.Property(e => e.PvlogNum).HasColumnName("PVLogNum");
+
+                entity.Property(e => e.ServiceDate).HasColumnType("datetime");
+
+                entity.Property(e => e.TimeIn).HasColumnType("datetime");
+
+                entity.Property(e => e.TimeOut).HasColumnType("datetime");
+
+                entity.Property(e => e.VisitType).HasMaxLength(50);
+
             });
 
             modelBuilder.Entity<Chart>(entity =>
