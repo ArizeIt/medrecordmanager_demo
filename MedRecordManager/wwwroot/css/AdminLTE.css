@@ -910,8 +910,9 @@ a:focus {
  */
 /*Dropdowns in general*/
 .dropdown-menu {
-  box-shadow: none;
-  border-color: #eee;
+    box-shadow: none;
+    border-color: #eee;
+    background-color: aliceblue;
 }
 .dropdown-menu > li > a {
   color: #777;

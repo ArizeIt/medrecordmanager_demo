@@ -3,12 +3,29 @@
     ViewData["Title"] = "Bulk Updates";
 }
 
-@section scripts{
+@section AddtoHead{
+    <link href="~/lib/bootstrap-toggle/css/bootstrap-toggle.min.css" rel="stylesheet" type="text/css" />
+    <link href="~/css/autoComplete-lhc.css" rel="stylesheet" type="text/css" />
+}
 
+@section scripts{
+    <script src="~/lib/bootstrap-toggle/js/bootstrap-toggle.min.js"></script>
+    <script src='https://clinicaltables.nlm.nih.gov/autocomplete-lhc-versions/17.0.2/autocomplete-lhc.min.js'></script>
     <script type="text/javascript">
+        var unsaved = false;
         var flaggedGrid;
 
+        new Def.Autocompleter.Search('icdCodeName', 'https://clinicaltables.nlm.nih.gov/api/icd10cm/v3/search?sf=code,name',
+            { tableFormat: true, valueCols: [0], colHeaders: ['Code', 'Name'] });
+
+        function unloadPage() {
+            if (unsaved) {
+                return "You have unsaved changes on this page. Do you want to leave this page and discard your changes or stay on this page?";
+            }
+        }
         $(document).ready(function () {
+
+
             var flagManager = function (value, record, $cell, $displayEl, id, $grid) {
                 var $flagModal = $('#flagModal');
                 var $checkBox = $('<input type="checkbox">').prop('checked', record.isFlagged)
@@ -72,27 +89,52 @@
                 var finclasses = [];
                 $('#clinic > Option:selected').each(function () {
                     clinics.push(this.value);
-                });     
+                });
 
                 $('#physician > Option:selected').each(function () {
                     physicians.push(this.value);
-                });     
+                });
                 $('#rule > Option:selected').each(function () {
                     rules.push(this.value);
-                });     
+                });
                 $('#finclass > Option:selected').each(function () {
                     finclasses.push(this.value);
-                });     
+                });
                 flaggedGrid.reload(
                     {
                         clinic: clinics.join(','),
                         physician: physicians.join(','),
                         rule: rules.join(','),
-                        finclass:finclasses.join(','),
+                        finclass: finclasses.join(','),
                         startDate: $('#startDate').val(),
-                        endDate: $('#endDate').val(),                     
-                    });   
-                                                       
+                        endDate: $('#endDate').val(),
+                    });
+            });
+
+            $.ajax({
+                type: "GET",
+                url: "/record/getClinics",
+                data: "{}",
+                success: function (data) {
+                    var s = '<option value="-1">Please Select a Clinic</option>';
+                    for (var i = 0; i < data.length; i++) {
+                        s += '<option value="' + data[i].text + '">' + data[i].id + '</option>';
+                    }
+                    $("#drpclinic").html(s);
+                }
+            });
+
+            $.ajax({
+                type: "GET",
+                url: "/record/getAllPhysicians",
+                data: "{}",
+                success: function (data) {
+                    var s = '<option value="-1">Please Select a Physician</option>';
+                    for (var i = 0; i < data.length; i++) {
+                        s += '<option value="' + data[i].id + '">' + data[i].text + '</option>';
+                    }
+                    $("#drpphysician").html(s);
+                }
             });
 
         })
@@ -111,24 +153,23 @@
                     Bulk Action <span class="caret"></span>
                 </button>
                 <ul class="dropdown-menu">
-                    <li><a href="#">Add Modifier</a></li>
-                    <li><a href="#">Delete Modifier</a></li>
+                    <li><a href="" data-toggle="modal" data-target="#modalModifier">Update Modifier</a></li>
                     <li role="separator" class="divider"></li>
-                    <li><a href="#">Add CPT </a></li>
-                    <li><a href="#">Delete CPT </a></li>
+                    <li><a href="" data-toggle="modal" data-target="#modalcptCode">Update CPT </a></li>
                     <li role="separator" class="divider"></li>
-                    <li><a href="#">Add ICD </a></li>
-                    <li><a href="#">Delete ICD </a></li>
+                    <li><a href="" data-toggle="modal" data-target="#modalIcdCode">Update ICD </a></li>
                     <li role="separator" class="divider"></li>
-                    <li><a href="#">Update Physician </a></li>
-                    <li><a href="#">Update Clinic </a></li>
+                    <li><a href="" data-toggle="modal" data-target="#modalPhysician">Update Physician </a></li>
+                    <li role="separator" class="divider"></li>
+                    <li><a href="" data-toggle="modal" data-target="#modalClinic">Update Clinic </a></li>
+                    <li role="separator" class="divider"></li>
                     <li><a href="#">Unflag Records </a></li>
                 </ul>
             </div>
-           
+
             <button type="button" class="btn btn-success" disabled="disabled" id="saveBulk">Bulk Save</button>
             <button type="button" class="btn btn-info" disabled="disabled" id="Cancel">Cancel</button>
-            
+
         </div>
     </div>
 </div>
@@ -199,10 +240,156 @@
             <div class="box-header with-border">
                 <h3 class="box-title">Flagged Visit Records</h3>
             </div>
-            <div class="box-body">                    
+            <div class="box-body">
                 <div class="table-responsive">
                     <table id="flaggedVisitTable" class="table table-striped"></table>
-                </div>      
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="modalIcdCode" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header text-center">
+                <h4 class="modal-title w-100 font-weight-bold">Add Or Remove Icd Code</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body mx-3">
+                <div id="addIcdMsg" class="modalmsg"></div>
+                <div class="md-form mb-5">
+                    <div class="form-group">
+                        <label data-error="wrong" data-success="right" for="icdCodeName">Code name</label>
+                        <input type="text" id="icdCodeName" class="form-control" name="icdCodeName" required>
+                    </div>
+                </div>
+
+            </div>
+            <div class="modal-footer d-flex justify-content-center">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button class="btn btn-primary" id="IcdAddCode">Add</button>
+                <button class="btn btn-danger" id="IcdremoveCode">Remove</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalcptCode" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header text-center">
+                <h4 class="modal-title w-100 font-weight-bold">Add Or Remove CPT Code</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+
+            <div class="modal-body mx-3">
+                <div id="addcptMsg" class="modalmsg"></div>
+
+                <div class="md-form mb-5">
+                    <div class="form-group">
+                        <label data-error="wrong" data-success="right" for="cptCodeName">Code name</label>
+                        <input type="text" id="cptCodeName" class="form-control validate" name="cptCodeName" required>
+                    </div>
+                </div>
+
+            </div>
+            <div class="modal-footer d-flex justify-content-center">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button class="btn btn-primary" id="cptAddCode">Add</button>
+                <button class="btn btn-danger" id="cptRemoveCode">Remove</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalModifier" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header text-center">
+                <h4 class="modal-title w-100 font-weight-bold">Add Or Remove Modifer</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body mx-3">
+                <div id="addIcdMsg" class="modalmsg"></div>
+                <div class="md-form mb-5">
+                    <div class="form-group">
+                        <label data-error="wrong" data-success="right" for="icdCodeName">Modifer</label>
+                        <input type="number" id="editModifier" class="form-control" name="editModifier" required>
+                    </div>
+                </div>
+
+            </div>
+            <div class="modal-footer d-flex justify-content-center">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button class="btn btn-primary" id="modiAdd">Add</button>
+                <button class="btn btn-danger" id="ModiRemove">Remove</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalClinic" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header text-center">
+                <h4 class="modal-title w-100 font-weight-bold">Update Clinic</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body mx-3">
+                <div id="addIcdMsg" class="modalmsg"></div>
+                <div class="md-form mb-5">
+                    <div class="form-group">
+                        <label data-error="wrong" data-success="right" for="drpclinc">Clinics</label>
+                        <select id="drpclinic" name="drpclinic" class="form-control">
+                        </select>
+                    </div>
+                </div>
+
+            </div>
+            <div class="modal-footer d-flex justify-content-center">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button class="btn btn-primary" id="updClinic">Update</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalPhysician" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header text-center">
+                <h4 class="modal-title w-100 font-weight-bold">Add Icd Code Record</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body mx-3">
+                <div id="addIcdMsg" class="modalmsg"></div>
+                <div class="md-form mb-5">
+                    <div class="form-group">
+                        <label data-error="wrong" data-success="right" for="drpPhysician">Physicians</label>
+                        <select id="drpphysician" name="drpphysician" class="form-control">
+                        </select>
+                    </div>
+                </div>
+
+            </div>
+            <div class="modal-footer d-flex justify-content-center">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button class="btn btn-primary" id="updPhysician">Update</button>
             </div>
         </div>
     </div>
