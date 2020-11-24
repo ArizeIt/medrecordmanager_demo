@@ -1,0 +1,94 @@
+﻿@model List<Microsoft.AspNetCore.Identity.IdentityRole>
+@{
+    ViewData["Title"] = "Role Manager";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@section scripts{
+
+    <script type="text/javascript">
+        var userOfficeGrid;
+
+        $(document).ready(function () {
+
+            usergedGrid = $('#userOfficeTable').grid({
+                primaryKey: 'userId',
+                dataSource: '/UserAdmin/getUsersOffice',
+                columns: [
+                    //{ field: 'pvRecordId', width:100, title: 'PV RecordId' },
+
+                    { filed: 'userId', hidden: true },
+                    { field: 'firstName', Width: 300, title: 'FirstName' },
+                    { field: 'email', Width: 150, title: 'Email' },
+                    //{ field: 'pvFinClass', minwidth: 100, title: 'Finacial Class' },
+                    //{ field: 'payment', minwidth: 100, title: 'Payment $' },
+                    //{ field: 'diagCode', width: 150, title: 'Diag Codes' },
+                    //{ field: 'icdCodes', width: 150, title: 'Icd Codes' },
+                    { field: 'Roles', minwidth: 80, title: 'Assigned Roles' },
+                    //{ field: 'visitTime', minwidth: 80, title: 'Visit Date' },
+                    //{ field: 'appliedRules', minWidth: 100, title: 'Applied Rules' }
+                ],
+                pager: { limit: 10, sizes: [2, 5, 10, 20] },
+            });
+
+
+        })
+    </script>
+}
+<h1>Office Manager</h1>
+<div class="row top-buffer">
+    <div class="col-md-12">
+        <div class="box box-widget">
+            <div class="box-header with-border">
+                <h3 class="box-title">Add New Role</h3>
+            </div>
+            <div class="box-body">
+                <div class="col-md-9">
+                    <form method="post" asp-action="AddRole" asp-controller="UserAdmin">
+                        <div class="input-group">
+                            <input name="roleName" class="form-control">
+                            <span class="input-group-btn">
+                                <button class="btn btn-info">Add New Role</button>
+                            </span>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@if (Model.Any())
+{
+    <div class="row top-buffer">
+        <div class="col-md-12">
+            <div class="box box-warning">
+                <div class="box-header with-border">
+                    <h3 class="box-title">Defined Roles</h3>
+                </div>
+                <div class="box-body">
+                    <div class="table-responsive">
+                        <table id="roleTable" class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Id</th>
+                                    <th>Role</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var role in Model)
+                                {
+                                    <tr>
+                                        <td>@role.Id</td>
+                                        <td>@role.Name</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+

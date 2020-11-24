@@ -32,7 +32,7 @@ namespace MedRecordManager.Services
         public Task SendEmailAsync(string email, string subject, string message)
         {
             var smtpClient = new SmtpMailer("smtp.gmail.com", 587, "webadmin@cmucs.com", "Zsxdcf12!");
-            return smtpClient.SendMailAsync("admin", new List<string>() { email }, null, subject, message, null);
+            return smtpClient.SendMailAsync("webadmin@cmucs.com", new List<string>() { email }, null, subject, message, null);
         }
 
         public Task SendEmailAsync(string fromEmail, string email, string subject, string message, string filename)
