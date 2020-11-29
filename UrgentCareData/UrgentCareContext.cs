@@ -31,6 +31,8 @@ namespace UrgentCareData
         public virtual DbSet<ClinicProfile> ClinicProfile { get; set; }
         public virtual DbSet<CodeReviewRule> CodeReviewRule { get; set; }
         public virtual DbSet<CodeReviewQueue> CodeReviewQueue { get; set; }
+
+        public virtual DbSet<CompanyProfile> CompanyProfile { get; set; }
         public virtual DbSet<CptCodeLookup> CptCodeLookup { get; set; }
         public virtual DbSet<FinClass> FinClass { get; set; }
         public virtual DbSet<GuarantorImportLog> GuarantorImportLog { get; set; }

@@ -13,10 +13,11 @@ using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using UrgentCareData;
+using UrgentCareData.Models;
 
 namespace MedRecordManager.Controllers
 {
-
+    [Authorize]
     public class UserAdminController : Controller
     {
         private readonly RoleManager<IdentityRole> _roleManager;
@@ -46,7 +47,7 @@ namespace MedRecordManager.Controllers
         {
 
             var userId = _userManager.GetUserId(User);
-            var vm = new FilterUser
+            var vm = new UserVm
             {
                 //Clinics = users.DistinctBy(x => x.ClinicId).Select(y => new SelectListItem
                 //{
@@ -66,37 +67,53 @@ namespace MedRecordManager.Controllers
                 //    Text = y.PayerInformation.FirstOrDefault() != null ? y.PayerInformation.FirstOrDefault().Class.ToString() : "None",
                 //    Value = y.PayerInformation.FirstOrDefault() != null ? y.PayerInformation.FirstOrDefault().Class.ToString() : "None"
                 //}).DistinctBy(z => z.Text).OrderByDescending(r => r.Text),
-
-                Clinic = string.Empty,
-                OfficeKey = string.Empty,
-                Company = string.Empty,
+                Filter = new FilterUser
+                {
+                    Clinic = string.Empty,
+                    OfficeKey = string.Empty,
+                    Company = string.Empty,
+                },
             };
             return View("ManageUser", vm);
         }
 
         [HttpPost]
-        public async Task<IActionResult> AddNewUser(string email, string firstName, string lastName)
+        public async Task<IActionResult> AddNewUser(UserVm user)
         {
-            if (!string.IsNullOrEmpty(email)) {
+            if (ModelState.IsValid)
+            {
+               
                 var appUser = new ApplicationUser
                 {
-                    UserName = email,
-                    Email = email,
-                    FirstName = firstName,
-                    LastName = lastName
+                    UserName = user.Email,
+                    Email = user.Email,
+                    FirstName = user.FirstName,
+                    LastName = user.LastName,
                 };
 
-                IdentityResult result = await _userManager.CreateAsync(appUser);
+                IdentityResult result = await _userManager.CreateAsync(appUser, user.Password);
                 if (result.Succeeded)
-                    return Json(new { success = true, responseText = "The user  was added." });
-                else
                 {
-                    return Json(new { success = false, responseText = string.Join("</br>", result.Errors) });
+                    RedirectToAction("ManageUser");
                 }
+                   
 
+                foreach (var error in result.Errors)
+                {
+                    ModelState.AddModelError(string.Empty, error.Description);
+                }
+                user.HasError = true;
+               
             }
 
-            return Json(new { success = false, responseText = "The user  was not added." });
+            user.Filter = new FilterUser
+            {
+                Clinic = string.Empty,
+                OfficeKey = string.Empty,
+                Company = string.Empty,
+            };
+
+            return View("ManageUser", user);
         }
 
         public IActionResult LoadAddUser()
@@ -153,7 +170,58 @@ namespace MedRecordManager.Controllers
             return View("ManageRole",roles);
         }
 
-       
-       
+
+        public IActionResult ManageCompany()
+        {
+           
+            return View("ManageCompany");
+        }
+
+        public IActionResult ManageClinic()
+        {
+
+            return View("ManageClinic");
+        }
+
+
+        public async Task<IActionResult> GetUserCompanies(int? page, int? limit)
+        {
+           
+            var records = new List<CompanyProfile>();
+
+            records = await _urgentCareContext.CompanyProfile.ToListAsync();
+            var total = records.Count();
+
+            if (page.HasValue && limit.HasValue)
+            {
+                var start = (page.Value - 1) * limit.Value;
+                records = records.Skip(start).Take(limit.Value).ToList();
+
+
+            }
+            return Json(new { records, total });
+        }
+
+        
+
+        public async Task<IActionResult> getUserClinics(int? page, int? limit)
+        {
+
+            var records = new List<ClinicProfile>();
+
+            records = await _urgentCareContext.ClinicProfile.Where(x=>x.OfficeKey != null).ToListAsync();
+            records.ForEach(x => x.ClinicName = x.ClinicId);
+            var total = records.Count();
+
+            if (page.HasValue && limit.HasValue)
+            {
+                var start = (page.Value - 1) * limit.Value;
+                records = records.Skip(start).Take(limit.Value).ToList();
+
+
+            }
+            return Json(new { records, total });
+        }
+
     }
 }

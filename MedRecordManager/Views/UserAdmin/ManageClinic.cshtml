@@ -1,0 +1,63 @@
+﻿@{
+    ViewData["Title"] = "Role Manager";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@section scripts{
+
+    <script type="text/javascript">
+         var clinicGrid;
+
+        $(document).ready(function () {
+              clinicGrid = $('#clinicTable').grid({
+                primaryKey: 'clinicId',
+                dataSource: '/UserAdmin/getUserClinics',
+                  columns: [
+                      { field: 'clinicId', Width: 300, title: 'Clinic' },
+                      { field: 'clinicFullName', Width: 300, title: 'Clinic Full Name' },     
+                      { field: 'amdcodeName', Width: 300, title: 'AMD Code Name' },
+                      { field: 'officeKey', Width: 300, title: 'OficeKey' },
+
+                    //{ field: 'address2', minwidth: 80, title: 'Address Line 2' },
+                    //{ field: 'city', minwidth: 80, title: 'City' },
+                    //{ field: 'state', minwidth: 80, title: 'State' },
+                    //{ field: 'zip', minwidth: 80, title: 'Zip' },
+                    //{ field: 'email', Width: 150, title: 'Company Email' },
+                    //{ field: 'phone', minwidth: 100, title: 'Company Phone number' }
+
+                ],
+                pager: { limit: 10, sizes: [2, 5, 10, 20] },
+            });
+
+        });
+    </script>
+}
+
+
+<h1>Company Manager</h1>
+
+<div class="row top-buffer">
+    <div class="col-md-12">
+        <div class="box box-warning">
+            <div class="box-header with-border">
+                <h3 class="box-title">clinic profile Records</h3>
+            </div>
+            <div class="box-body">
+                <div class="row">
+                    <div class="col-xs-12">
+                        <button type="button" class="btn btn-success pull-right" id="btnAddCompany" data-toggle="modal" data-target="#modalUser">Add Clinic</button>
+                    </div>
+                </div>
+                <div class="row" style="margin-top: 10px">
+                    <div class="col-xs-12">
+                        <div class="table-responsive">
+                            <table id="clinicTable" class="table table-striped"></table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
