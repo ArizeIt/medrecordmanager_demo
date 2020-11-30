@@ -46,10 +46,13 @@
                     }
                     else
                     {
-                        <ul class="nav navbar-nav navbar-right">
-                            <li><a asp-area="Identity" asp-page="/Account/Register">Register</a></li>
-                            <li><a asp-area="Identity" asp-page="/Account/Login">Login</a></li>
-                        </ul>
+                <ul class="nav navbar-nav navbar-right">
+                    @if (User.IsInRole("SuperAdmin"))
+                    {
+                        <li><a asp-area="Identity" asp-page="/Account/Register">Register</a></li>
+                    }
+                    <li><a asp-area="Identity" asp-page="/Account/Login">Login</a></li>
+                </ul>
                     }
                 </li>
                 @* BEGIN Control Sidebar Toggle Button *@

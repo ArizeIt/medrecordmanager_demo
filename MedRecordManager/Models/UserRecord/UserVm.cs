@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -34,6 +35,22 @@ namespace MedRecordManager.Models.UserRecord
         [Compare("Password", ErrorMessage = "The password and confirmation password do not match.")]
         public string ConfirmPassword { get; set; }
         public string Roles { get; set; }
+        public string Companies { get; set; }
+
+        public string OfficeKeys { get; set; }
+
+        public string Clinics { get; set; }
+
+        public string Role { get; set; }
+
+        public IEnumerable<SelectListItem> AssignedRoles { get; set; }
+        public IEnumerable<SelectListItem> AvaliableRoles { get; set; }
+        public IEnumerable<SelectListItem> AssignedComps { get; set; }
+        public IEnumerable<SelectListItem> AvaliableComps { get; set; }
+        public IEnumerable<SelectListItem> AssignedOffices { get; set; }
+        public IEnumerable<SelectListItem> AvaliableOffices { get; set; }
+        public IEnumerable<SelectListItem> AssignedClinics { get; set; }
+        public IEnumerable<SelectListItem> AvailableClinics { get; set; }
 
         public string UserId { get; set; }
         public FilterUser Filter { get; set; }

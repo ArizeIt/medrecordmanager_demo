@@ -1,5 +1,15 @@
-﻿@{
+﻿@using Microsoft.AspNetCore.Identity
+@inject UserManager<MedRecordManager.Models.UserRecord.ApplicationUser> UserManager
+
+@{
     ViewData["Title"] = "Home Page";
+}
+
+@{
+
+    var user = await UserManager.GetUserAsync(User);
+
+    var roles = await UserManager.GetRolesAsync(user);
 }
 
 @section scripts{
@@ -44,15 +54,15 @@
                     //{ field: 'successFlag', width: 100, title: 'Succceed' },
 
                 ],
-                pager: { limit: 5, sizes: [2,5] },
+                pager: { limit: 5, sizes: [2, 5] },
             });
 
 
 
-           processChart = $('#processChart');
-           new Chart(processChart, {
+            processChart = $('#processChart');
+            new Chart(processChart, {
                 type: 'line',
-                data: linedata ,
+                data: linedata,
                 options: {
                 }
             });
@@ -60,8 +70,11 @@
 
     </script>
 
+
 }
 
+@if (User.Identity.IsAuthenticated && roles.Any())
+{
     <div class="row">
         <div class="col-md-6">
             <div class="box box-primary">
@@ -106,7 +119,20 @@
         </div>
     </div>
 
+
+
+
+}
+else
+{
 <div class="row top-buffer">
-    
-</div>
+    <div class="col-md-9">
+        <div class="alert alert-warning" role="alert">
+            <strong>Information!</strong>You have a valid log in, but you have no permission to view the content yet. Please contact the your administrator to obtain the proper permissions.
+        </div>
+
+    </div>
+ </div>
+    }
+
 

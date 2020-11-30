@@ -8,29 +8,32 @@
 
     <script type="text/javascript">
         var userGrid;
-
+        var $muserModel = $('#manageUserModal');
         $(document).ready(function () {
 
             var editManager = function (value, record, $cell, $displayEl, id, $grid) {
-                var
-                    $edit = $('<button type="button"class="btn btn-warning">Edit</button>').attr('data-key', id),
+                var /*data = $grid.data(),    */
+                    $detail = $('<button type="button"class="btn btn-info">Manage</button><span style="padding-right: 5px"/>').attr('data-key', id),
+                    $edit = $('<button type="button"class="btn btn-warning">Quick Edit</button><span style="padding-right: 5px"/>').attr('data-key', id),
                     $update = $('<button type="button"class="btn btn-success">Update</button><span style="padding-right: 5px"/>').attr('data-key', id).hide(),
-                    $cancel = $('<button type="button"class="btn btn-default">Cancel</button>').attr('data-key', id).hide();
-                    $delete = $('<button type="button"class="btn btn-danger">Delete</button><span style="padding-right: 5px"/>').attr('data-key', id)
+                    $cancel = $('<button type="button"class="btn btn-default">Cancel</button><span style="padding-right: 5px"/>').attr('data-key', id).hide();
+                $delete = $('<button type="button"class="btn btn-danger">Delete</button><span style="padding-right: 5px"/>').attr('data-key', id)
 
 
-                
+                $detail.on('click', function (e) {
+                    addTab($(this).data('key'))
+                });
                 $edit.on('click', function (e) {
                     $grid.edit($(this).data('key'));
                     $edit.hide();
-                   
+                    $detail.hide();
                     $update.show();
                     $cancel.show();
                 });
                 $update.on('click', function (e, id, record) {
                     $grid.update($(this).data('key'));
                     $edit.show();
-                    
+                    $detail.show();
                     $update.hide();
                     $cancel.hide();
                 });
@@ -38,7 +41,7 @@
                 $cancel.on('click', function (e) {
                     $grid.cancel($(this).data('key'));
                     $edit.show();
-                  
+                    $detail.show();
                     $update.hide();
                     $cancel.hide();
                 });
@@ -47,7 +50,7 @@
                     deleteUser($(this).data('key'))
                 });
 
-                $displayEl.empty().append($delete).append($edit).append($update).append($cancel);
+                $displayEl.empty().append($detail).append($edit).append($update).append($cancel).append($delete);
             };
 
             usergedGrid = $('#userTable').grid({
@@ -55,18 +58,47 @@
                 dataSource: '/UserAdmin/getusers',
                 columns: [
                     { filed: 'userId', hidden: true },
-                    { field: 'firstName', Width: 300, title: 'First Name' },
-                    { field: 'lastName', Width: 300, title: 'Last Name' },
-                    { field: 'email', Width: 150, title: 'User Name' },
-                    { field: 'phone', minwidth: 100, title: 'Phone number' },
-                    { field: 'roles', minwidth: 80, title: 'Assigned Roles' },
-                    { field: 'companies', minwidth: 80, title: 'Assigned Companys' },
-                    { field: 'offices', minWidth: 100, title: 'Assigned Offices' },
-                    { field: 'clinics', minWidth: 100, title: 'Assigned Clinics' },
-                    { field: 'Actions', width: 200, renderer: editManager, align: 'center' }
+                    { field: 'firstName', title: 'First Name' },
+                    { field: 'lastName', title: 'Last Name' },
+                    { field: 'email', title: 'User Name' },
+                    { field: 'roles', title: 'Assigned Roles' },
+                    { field: 'companies', title: 'Assigned Companys' },
+                    { field: 'officeKeys', title: 'Assigned Offices' },
+                    { field: 'clinics', title: 'Assigned Clinics' },
+                    { field: 'Actions', minwidth: 350, renderer: editManager, align: 'center' }
                 ],
                 pager: { limit: 10, sizes: [2, 5, 10, 20] },
             });
+
+            $(document).on('click', '.closeTab', function () {
+                var tabContentId = $(this).parent().attr("href");
+                $(this).parent().parent().remove();                
+                $(tabContentId).remove();
+                $('a[href$="#mainView"]').click();
+                usergedGrid.reload();
+
+            });
+
+            function addTab(id) {
+                if ($('#detail' + id).length == 0) {
+                    $('.nav-tabs').find('li').last().after('<li><a data-toggle="tab" href="#detail' + id + '"><button type="button" class="close closeTab" aria-label="Close">&nbsp;&times;</button><b>User ' + id + '</b></a></li>');
+                    $.ajax({
+                        type: "GET",
+                        data: {
+                            userId: id
+                        },
+                        url: "/UserAdmin/AssignPermission",
+                        cache: false,
+                        success: function (response) {
+                            $('.tab-content').append(response);
+                            $(".nav-tabs li").children('a').last().click();
+                        }
+                    });
+                }
+                else {
+                    $('a[href$="#detail' + id + '"]').click();
+                }
+            };
 
             $('#addUser').on('click', function () {
 
@@ -105,19 +137,89 @@
             });
 
             function deleteUser(id) {
-                
-                $.ajax({
-                    type: "DELETE",
-                    data: {
-                        userName: id
-                    },
-                    url: "/UserAdmin/DeleteUser",
-                    cache: false,
-                    success: function () {
-                        usergedGrid.reload();
-                    }
-                });              
+                if (confirm("Are you sure to delete this user?")) {
+
+                    $.ajax({
+                        type: "DELETE",
+                        data: {
+                            userName: id
+                        },
+                        url: "/UserAdmin/DeleteUser",
+                        cache: false,
+                        success: function (data) {
+                            if (data.success) {
+                                usergedGrid.reload();
+                            }
+                            else {
+                                alert(data.message);
+                            }
+                        }
+                    });
+
+                }
             }
+
+            $('a[href="#mainView"]').click(function () {
+                usergedGrid.reload();
+            });
+           
+            $(document).on('click', '.btnAddPerm', function (e) {
+                var parent = $(this).closest('.row');
+                var dest = parent.find('.destList');               
+                parent.find('.fromList >option:selected').appendTo(dest);
+                e.preventDefault();
+            });
+
+             $(document).on('click', '.btnRemovePerm', function (e) {
+                var parent = $(this).closest('.row');
+                var dest = parent.find('.fromList');               
+                parent.find('.destList >option:selected').appendTo(dest);
+                e.preventDefault();
+             });
+
+
+            $(document).on('click', '#saveUserPerm', function () {
+                var roles = [];
+                var companies = [];
+                var offices = [];
+                 var clinics = [];
+                var uid = $('#updUid').val();
+                var fName = $('#updFirstName').val();
+                var lName = $('#updFirstName').val();
+
+                $('#assignedRoles > option').each(function () {
+                    roles.push($(this).text());
+                });
+                $('#assignedComps > option').each(function () {
+                    companies.push($(this).val());
+                 })
+                 $('#assignedOffices > option').each(function () {
+                    offices.push($(this).text());
+                 })
+                 $('#assignedClinics > option').each(function () {
+                    clinics.push($(this).text());
+                })
+
+                $.ajax({
+                    type: "POST",
+                    dataType: 'html',
+                    data: {
+                        userId: uid,
+                        firstName: fName,
+                        lastName: lName,
+                        assignedRoles: roles,
+                        assignedComps: companies,
+                        assignedOffices: offices,
+                        assignedClinics: clinics
+                    },
+                    url: "/UserAdmin/UpdateUserPerm",
+                    cache: false,
+                    success: function (data) {
+                        $('#detail' + uid).html(data);
+                       
+                    }
+                });
+            });
 
         });
     </script>
@@ -126,146 +228,151 @@
 <div class="alert alert-warning" id="userMsg" hidden>
     <strong>Warning!</strong>
 </div>
-<h1>User Manager</h1>
 
-<div class="row top-buffer">
-    <div class="col-md-12">
-        <div class="box box-widget">
-            <div class="box-header with-border">
-                <h3 class="box-title">user Filters</h3>
+<h1>User Manager</h1>
+<ul class="nav nav-tabs" role="tablist">
+    <li class="active"><a data-toggle="tab" href="#mainView"><b>Main View</b></a></li>
+</ul>
+<div class="tab-content" id="dataTab">
+    <div class="tab-pane active" id="mainView">
+        <div class="row top-buffer">
+            <div class="col-md-12">
+                <div class="box box-widget">
+                    <div class="box-header with-border">
+                        <h3 class="box-title">user Filters</h3>
+                    </div>
+                    <div class="box-body">
+                        <div class="row">
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label asp-for="@Model.Filter.Company" class="control-label">Company</label>
+                                    <select class="form-control" asp-for="@Model.Filter.Company" , asp-items="@Model.Filter.Companies" id="userCompany" multiple></select>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label asp-for="@Model.Filter.OfficeKey" class="control-label">Office Key</label>
+                                    <select class="form-control" asp-for="@Model.Filter.OfficeKey" , asp-items="@Model.Filter.OfficeKeys" id="userOfficeKey" multiple></select>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label asp-for="@Model.Filter.Clinic" class="control-label">Clinc</label>
+                                    <select class="form-control" asp-for="@Model.Filter.Clinic" , asp-items="@Model.Filter.Clinics" id="userClinc" multiple></select>
+                                </div>
+                            </div>
+
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <div class="control-group">
+                                        <div style="margin-top: 24px;">
+                                            <input type="button" value="Filter" class="btn btn-primary" id="filterButton" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
             </div>
-            <div class="box-body">
-                <div class="row">
-                    <div class="col-md-3">
-                        <div class="form-group">
-                            <label asp-for="@Model.Filter.Company" control-label">Company</label>
-                            <select class="form-control" asp-for="@Model.Filter.Company" , asp-items="@Model.Filter.Companies" id="userCompany" multiple></select>
-                        </div>
+        </div>
+        @if (@Model.HasError)
+        {
+            <div class="alert alert-warning" id="globalmsg">
+                <strong>ERROR!</strong> There is some thing wrong, please go back and fix the error.
+            </div>
+        }
+        <div class="row top-buffer">
+            <div class="col-md-12">
+                <div class="box box-warning">
+                    <div class="box-header with-border">
+                        <h3 class="box-title">Curret User Records</h3>
                     </div>
-                    <div class="col-md-3">
-                        <div class="form-group">
-                            <label asp-for="@Model.Filter.OfficeKey" class="control-label">Office Key</label>
-                            <select class="form-control" asp-for="@Model.Filter.OfficeKey" , asp-items="@Model.Filter.OfficeKeys" id="userOfficeKey" multiple></select>
+                    <div class="box-body">
+                        <div class="row">
+                            <div class="col-xs-12">
+                                <button type="button" class="btn btn-success pull-right" id="btnAddUser" data-toggle="modal" data-target="#modalUser">Add User</button>
+                            </div>
                         </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="form-group">
-                            <label asp-for="@Model.Filter.Clinic" class="control-label">Clinc</label>
-                            <select class="form-control" asp-for="@Model.Filter.Clinic" , asp-items="@Model.Filter.Clinics" id="userClinc" multiple></select>
-                        </div>
-                    </div>
-                    
-                    <div class="col-md-3">
-                        <div class="form-group">
-                            <div class="control-group">
-                                <div style="margin-top: 24px;">
-                                    <input type="button" value="Filter" class="btn btn-primary" id="filterButton" />
+                        <div class="row" style="margin-top: 10px">
+                            <div class="col-xs-12">
+                                <div class="table-responsive">
+                                    <table id="userTable" class="table table-striped"></table>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
+            </div>
+        </div>
+        <div class="modal fade" id="modalUser" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+             aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header text-center">
+                        <h4 class="modal-title w-100 font-weight-bold">Add New User</h4>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
 
+                    <form asp-controller="UserAdmin" , asp-action="AddNewUser" method="post">
+
+                        <div asp-validation-summary="All" class="text-danger"></div>
+                        <div class="modal-body mx-3">
+                            <div id="addUserMsg" class="modalmsg"></div>
+                            <div class="md-form mb-5">
+                                <div class="form-group">
+                                    <label data-error="wrong" data-success="right" asp-for="FirstName">First Name</label>
+                                    <input type="text" class="form-control validate" asp-for="FirstName">
+                                    <span asp-validation-for="FirstName" class="text-danger"></span>
+                                </div>
+
+                            </div>
+
+                            <div class="md-form mb-5">
+                                <div class="form-group">
+                                    <label data-error="wrong" data-success="right" asp-for="LastName">Last Name</label>
+                                    <input type="text" class="form-control validate" asp-for="LastName">
+                                    <span asp-validation-for="LastName" class="text-danger"></span>
+                                </div>
+                            </div>
+
+                            <div class="md-form mb-5">
+                                <div class="form-group">
+                                    <label data-error="wrong" data-success="right" asp-for="Email">Email</label>
+                                    <input type="email" class="form-control validate" asp-for="Email">
+                                    <span asp-validation-for="Email" class="text-danger"></span>
+                                </div>
+                            </div>
+
+                            <div class="md-form mb-5">
+                                <div class="form-group">
+                                    <label data-error="wrong" data-success="right" asp-for="Password">Password</label>
+                                    <input type="password" class="form-control validate" asp-for="Password">
+                                    <span asp-validation-for="Password" class="text-danger"></span>
+                                </div>
+                            </div>
+
+                            <div class="md-form mb-5">
+                                <div class="form-group">
+                                    <label data-error="wrong" data-success="right" asp-for="ConfirmPassword">ConfirmPassword</label>
+                                    <input type="password" class="form-control validate" asp-for="ConfirmPassword">
+                                    <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer d-flex justify-content-center">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                            <button type="submit" class="btn form-control btn-primary">Add</button>
+                        </div>
+                    </form>
+                </div>
             </div>
         </div>
     </div>
-</div>  
-
-@if(@Model.HasError)
-{
-<div class="alert alert-warning" id="globalmsg">
-    <strong>ERROR!</strong> There is some thing wrong, please go back and fix the error.
 </div>
-}
+        
 
-<div class="row top-buffer">
-    <div class="col-md-12">
-        <div class="box box-warning">
-            <div class="box-header with-border">
-                <h3 class="box-title">Curret User Records</h3>
-            </div>
-            <div class="box-body">
-                <div class="row">
-                    <div class="col-xs-12">
-                        <button type="button" class="btn btn-success pull-right" id="btnAddUser" data-toggle="modal" data-target="#modalUser">Add User</button>
-                    </div>
-                </div>
-                <div class="row" style="margin-top: 10px">
-                    <div class="col-xs-12">
-                        <div class="table-responsive">
-                            <table id="userTable" class="table table-striped"></table>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-
-<div class="modal fade" id="modalUser" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
-     aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header text-center">
-                <h4 class="modal-title w-100 font-weight-bold">Add New User</h4>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-
-            <form asp-controller="UserAdmin" , asp-action="AddNewUser" method="post">
-                
-                <div asp-validation-summary="All" class="text-danger"></div>
-                <div class="modal-body mx-3">
-                    <div id="addUserMsg" class="modalmsg"></div>
-                    <div class="md-form mb-5">
-                        <div class="form-group">
-                            <label data-error="wrong" data-success="right" asp-for="FirstName">First Name</label>
-                            <input type="text" class="form-control validate" asp-for="FirstName">
-                            <span asp-validation-for="FirstName" class="text-danger"></span>
-                        </div>
-
-                    </div>
-
-                    <div class="md-form mb-5">
-                        <div class="form-group">
-                            <label data-error="wrong" data-success="right" asp-for="LastName">Last Name</label>
-                            <input type="text"  class="form-control validate" asp-for="LastName">
-                            <span asp-validation-for="LastName" class="text-danger"></span>
-                        </div>
-                    </div>
-
-                    <div class="md-form mb-5">
-                        <div class="form-group">
-                            <label data-error="wrong" data-success="right" asp-for="Email">Email</label>
-                            <input type="email"  class="form-control validate" asp-for="Email">
-                            <span asp-validation-for="Email" class="text-danger"></span>
-                        </div>
-                    </div>
-
-                    <div class="md-form mb-5">
-                        <div class="form-group">
-                            <label data-error="wrong" data-success="right" asp-for="Password">Password</label>
-                            <input type="password"  class="form-control validate" asp-for="Password">
-                            <span asp-validation-for="Password" class="text-danger"></span>
-                        </div>
-                    </div>
-
-                    <div class="md-form mb-5">
-                        <div class="form-group">
-                            <label data-error="wrong" data-success="right" asp-for="ConfirmPassword">ConfirmPassword</label>
-                            <input type="password" class="form-control validate" asp-for="ConfirmPassword">
-                            <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
-                        </div>
-                    </div>
-                </div>
-                <div class="modal-footer d-flex justify-content-center">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                    <button type="submit" class="btn form-control btn-primary">Add</button>
-                </div>
-             </form>
-        </div>
-    </div>
-</div>
 

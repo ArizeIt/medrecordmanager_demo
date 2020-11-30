@@ -9,12 +9,12 @@
          var clinicGrid;
 
         $(document).ready(function () {
-              clinicGrid = $('#OfficeTable').grid({
-                primaryKey: 'officeKey',
-                dataSource: '/UserAdmin/getUserClinics',
+              clinicGrid = $('#clinicTable').grid({
+                primaryKey: 'clinicId',
+                dataSource: '/UserAdmin/getUserOffices',
                   columns: [
                       //{ field: 'clinicId', Width: 300, title: 'Clinic' },
-                      //{ field: 'clinicFullName', Width: 300, title: 'Clinic Full Name' },
+                      //{ field: 'clinicFullName', Width: 300, title: 'Clinic Full Name' },     
                       //{ field: 'amdcodeName', Width: 300, title: 'AMD Code Name' },
                       { field: 'officeKey', Width: 300, title: 'OficeKey' },
 
@@ -34,7 +34,7 @@
 }
 
 
-<h1>Company Manager</h1>
+<h1>Office Manager</h1>
 
 <div class="row top-buffer">
     <div class="col-md-12">
@@ -45,13 +45,13 @@
             <div class="box-body">
                 <div class="row">
                     <div class="col-xs-12">
-                        <button type="button" class="btn btn-success pull-right" id="btnAddCompany" data-toggle="modal" data-target="#modalUser">Add Clinic</button>
+                        <button type="button" class="btn btn-success pull-right" id="btnAddOffice" data-toggle="modal" data-target="#modalUser">Add OfficeKey</button>
                     </div>
                 </div>
                 <div class="row" style="margin-top: 10px">
                     <div class="col-xs-12">
                         <div class="table-responsive">
-                            <table id="OfficeTable" class="table table-striped"></table>
+                            <table id="clinicTable" class="table table-striped"></table>
                         </div>
                     </div>
                 </div>

@@ -6,9 +6,11 @@ using System.Linq;
 using System;
 using System.Collections.Generic;
 using UrgentCareData.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace MedRecordManager.Controllers
 {
+    [Authorize]
     public class HomeController : Controller
     {
         private readonly UrgentCareContext _urgentCareContext;

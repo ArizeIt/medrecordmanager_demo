@@ -55,6 +55,9 @@ namespace UrgentCareData
         public virtual DbSet<VisitProcCode> VisitProcCode { get; set; }
         public virtual DbSet<VisitICDCode> VisitICDCode { get; set; }
         public virtual DbSet<VisitRuleSet> VisitRuleSet { get; set; }
+        public virtual DbSet<UserClinic> UserClinic { get; set; }
+        public virtual DbSet<UserCompany> UserCompany { get; set; }
+        public virtual DbSet<UserOfficeKey> UserOfficeKey { get; set; }
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             if (!optionsBuilder.IsConfigured)
