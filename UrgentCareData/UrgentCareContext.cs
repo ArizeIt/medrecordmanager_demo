@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -7,19 +6,19 @@ using UrgentCareData.Models;
 
 namespace UrgentCareData
 {
-    public partial class UrgentCareContext : DbContext
+    public partial class UrgentCareContext  : DbContext
     {
-        public UrgentCareContext()
+        public UrgentCareContext ()
         {
         }
 
-        public UrgentCareContext(DbContextOptions<UrgentCareContext> options)
+        public UrgentCareContext (DbContextOptions<UrgentCareContext > options)
             : base(options)
         {
         }
 
-        public virtual DbSet<AdvancedMdcolumnHeader> AdvancedMdcolumnHeader { get; set; }
         public virtual DbSet<AdvanceMdimportLog> AdvanceMdimportLog { get; set; }
+        public virtual DbSet<AdvancedMdcolumnHeader> AdvancedMdcolumnHeader { get; set; }
         public virtual DbSet<AmdLoginSession> AmdLoginSession { get; set; }
         public virtual DbSet<Audit> Audit { get; set; }
         public virtual DbSet<BatchJob> BatchJob { get; set; }
@@ -29,9 +28,9 @@ namespace UrgentCareData
         public virtual DbSet<ChartDocumentHistory> ChartDocumentHistory { get; set; }
         public virtual DbSet<ChartImportLog> ChartImportLog { get; set; }
         public virtual DbSet<ClinicProfile> ClinicProfile { get; set; }
-        public virtual DbSet<CodeReviewRule> CodeReviewRule { get; set; }
         public virtual DbSet<CodeReviewQueue> CodeReviewQueue { get; set; }
-
+        public virtual DbSet<CodeReviewRule> CodeReviewRule { get; set; }
+        public virtual DbSet<CompanyClinic> CompanyClinic { get; set; }
         public virtual DbSet<CompanyProfile> CompanyProfile { get; set; }
         public virtual DbSet<CptCodeLookup> CptCodeLookup { get; set; }
         public virtual DbSet<FinClass> FinClass { get; set; }
@@ -47,28 +46,45 @@ namespace UrgentCareData
         public virtual DbSet<Physican> Physican { get; set; }
         public virtual DbSet<ProgramConfig> ProgramConfig { get; set; }
         public virtual DbSet<Relationship> Relationship { get; set; }
+        public virtual DbSet<Role> Role { get; set; }
+        public virtual DbSet<RoleClaim> RoleClaims { get; set; }
         public virtual DbSet<SourceProcessLog> SourceProcessLog { get; set; }
+        public virtual DbSet<User> User { get; set; }
+        public virtual DbSet<UserClaim> UserClaims { get; set; }
+        public virtual DbSet<UserClinic> UserClinic { get; set; }
+        public virtual DbSet<UserCompany> UserCompany { get; set; }
+        public virtual DbSet<UserLogin> UserLogins { get; set; }
+        public virtual DbSet<UserOfficeKey> UserOfficeKey { get; set; }
+        public virtual DbSet<UserRole> UserRoles { get; set; }
+        public virtual DbSet<UserToken> UserTokens { get; set; }
         public virtual DbSet<Visit> Visit { get; set; }
         public virtual DbSet<VisitCodeHistory> VisitCodeHistory { get; set; }
         public virtual DbSet<VisitHistory> VisitHistory { get; set; }
+        public virtual DbSet<VisitICDCode> VisitIcdcode { get; set; }
         public virtual DbSet<VisitImpotLog> VisitImpotLog { get; set; }
         public virtual DbSet<VisitProcCode> VisitProcCode { get; set; }
-        public virtual DbSet<VisitICDCode> VisitICDCode { get; set; }
         public virtual DbSet<VisitRuleSet> VisitRuleSet { get; set; }
-        public virtual DbSet<UserClinic> UserClinic { get; set; }
-        public virtual DbSet<UserCompany> UserCompany { get; set; }
-        public virtual DbSet<UserOfficeKey> UserOfficeKey { get; set; }
+
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             if (!optionsBuilder.IsConfigured)
             {
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. See http://go.microsoft.com/fwlink/?LinkId=723263 for guidance on storing connection strings.
-                optionsBuilder.UseSqlServer("Server=localhost;Database=UrgentCare;Trusted_Connection=True;");
+                optionsBuilder.UseSqlServer("Server=localhost;Database=UrgentCareDev;Trusted_Connection=True;");
             }
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.Entity<AdvanceMdimportLog>(entity =>
+            {
+                entity.ToTable("AdvanceMDImportLog");
+
+                entity.Property(e => e.ImportedDate).HasColumnType("datetime");
+
+                entity.Property(e => e.Status).HasMaxLength(50);
+            });
+
             modelBuilder.Entity<AdvancedMdcolumnHeader>(entity =>
             {
                 entity.HasKey(e => new { e.Clinic, e.OfficeKey });
@@ -87,15 +103,6 @@ namespace UrgentCareData
                 entity.Property(e => e.FacilityId)
                     .HasMaxLength(50)
                     .IsUnicode(false);
-            });
-
-            modelBuilder.Entity<AdvanceMdimportLog>(entity =>
-            {
-                entity.ToTable("AdvanceMDImportLog");
-
-                entity.Property(e => e.ImportedDate).HasColumnType("datetime");
-
-                entity.Property(e => e.Status).HasMaxLength(50);
             });
 
             modelBuilder.Entity<AmdLoginSession>(entity =>
@@ -163,13 +170,11 @@ namespace UrgentCareData
             {
                 entity.HasKey(e => e.VisitId);
 
+                entity.Property(e => e.VisitId).ValueGeneratedNever();
+
                 entity.Property(e => e.ClinicId)
                     .IsRequired()
                     .HasMaxLength(50);
-
-                entity.Property(e => e.PatientName).HasMaxLength(200);
-
-                entity.Property(e => e.FinClass).HasMaxLength(50);
 
                 entity.Property(e => e.CoPayAmount).HasColumnType("money");
 
@@ -190,11 +195,12 @@ namespace UrgentCareData
                     .HasMaxLength(50);
 
                 entity.Property(e => e.EmModifier)
-                   .HasColumnName("EMModifier")
-                   .HasMaxLength(50);
+                    .HasColumnName("EMModifier")
+                    .HasMaxLength(50);
 
-                entity.Property(e => e.EmQuantity)
-                  .HasColumnName("EMQuantity");
+                entity.Property(e => e.EmQuantity).HasColumnName("EMQuantity");
+
+                entity.Property(e => e.FinClass).HasMaxLength(50);
 
                 entity.Property(e => e.Icdcodes)
                     .HasColumnName("ICDCodes")
@@ -208,6 +214,8 @@ namespace UrgentCareData
                     .IsUnicode(false);
 
                 entity.Property(e => e.Notes).HasMaxLength(500);
+
+                entity.Property(e => e.PatientName).HasMaxLength(200);
 
                 entity.Property(e => e.PreviousPaymentAmount).HasColumnType("money");
 
@@ -226,7 +234,6 @@ namespace UrgentCareData
                 entity.Property(e => e.TimeOut).HasColumnType("datetime");
 
                 entity.Property(e => e.VisitType).HasMaxLength(50);
-
             });
 
             modelBuilder.Entity<Chart>(entity =>
@@ -251,6 +258,8 @@ namespace UrgentCareData
                 entity.Property(e => e.DocumentImage)
                     .IsRequired()
                     .HasColumnType("image");
+
+                entity.Property(e => e.DocumentImage).HasColumnType("text");
 
                 entity.Property(e => e.FileName)
                     .IsRequired()
@@ -314,9 +323,7 @@ namespace UrgentCareData
             {
                 entity.HasKey(e => e.ClinicId);
 
-                entity.Property(e => e.ClinicId)
-                    .HasMaxLength(50)
-                    .ValueGeneratedNever();
+                entity.Property(e => e.ClinicId).HasMaxLength(50);
 
                 entity.Property(e => e.AmdcodeName)
                     .HasColumnName("AMDCodeName")
@@ -331,24 +338,6 @@ namespace UrgentCareData
                     .IsUnicode(false);
             });
 
-            modelBuilder.Entity<CodeReviewRule>(entity =>
-            {
-                entity.Property(e => e.CreatedBy)
-                    .IsRequired()
-                    .HasMaxLength(200);
-
-                entity.Property(e => e.LastModifiedBy).HasMaxLength(200);
-
-                entity.Property(e => e.LastModifiedTime).HasColumnName("LastModifiedTime");
-                entity.Property(e => e.CreatedTime).HasColumnType("datetime");
-
-                entity.Property(e => e.Active).IsRequired();
-                
-                entity.Property(e => e.RuleName)
-                    .IsRequired()
-                    .HasMaxLength(255);
-            });
-
             modelBuilder.Entity<CodeReviewQueue>(entity =>
             {
                 entity.Property(e => e.CreatedBy)
@@ -357,16 +346,42 @@ namespace UrgentCareData
 
                 entity.Property(e => e.CreatedTime).HasColumnType("datetime");
 
-                entity.HasKey(e => e.Id);
-                entity.HasOne(e => e.ParentQueue).WithMany(e => e.ChildrenQueue).HasForeignKey(e => e.ParentId);              
+                entity.Property(e => e.Name)
+                    .IsRequired()
+                    .HasMaxLength(50)
+                    .IsUnicode(false);
 
+                entity.HasOne(d => d.ParentQueue)
+                    .WithMany(p => p.ChildrenQueue)
+                    .HasForeignKey(d => d.ParentId)
+                    .HasConstraintName("FK_CodeReviewQueue_CodeReviewQueue");
+            });
+
+            modelBuilder.Entity<CodeReviewRule>(entity =>
+            {
+                entity.Property(e => e.CreatedBy)
+                    .IsRequired()
+                    .HasMaxLength(200);
+
+                entity.Property(e => e.CreatedTime).HasColumnType("datetime");
+
+                entity.Property(e => e.LastModifiedBy)
+                    .HasColumnName("lastModifiedBy")
+                    .HasMaxLength(200);
+
+                entity.Property(e => e.LastModifiedTime)
+                    .HasColumnName("lastModifiedTime")
+                    .HasColumnType("datetime");
+
+                entity.Property(e => e.RuleName)
+                    .IsRequired()
+                    .HasMaxLength(255);
             });
 
             modelBuilder.Entity<CompanyClinic>(entity =>
             {
-                entity.ToTable("CompanyClinic");
-
-                entity.HasIndex(e => new { e.ClinicId, e.CompanyId }, "uq_CompanyClinic")
+                entity.HasIndex(e => new { e.ClinicId, e.CompanyId })
+                    .HasName("uq_CompanyClinic")
                     .IsUnique();
 
                 entity.Property(e => e.ClinicId)
@@ -388,8 +403,6 @@ namespace UrgentCareData
 
             modelBuilder.Entity<CompanyProfile>(entity =>
             {
-                entity.ToTable("CompanyProfile");
-
                 entity.Property(e => e.Address1)
                     .HasMaxLength(100)
                     .IsUnicode(false);
@@ -436,9 +449,7 @@ namespace UrgentCareData
             {
                 entity.HasKey(e => e.Code);
 
-                entity.Property(e => e.Code)
-                    .HasMaxLength(255)
-                    .ValueGeneratedNever();
+                entity.Property(e => e.Code).HasMaxLength(255);
 
                 entity.Property(e => e.LongDescription).HasMaxLength(500);
 
@@ -583,9 +594,7 @@ namespace UrgentCareData
                 entity.HasKey(e => e.ModifierCode)
                     .HasName("PK_ModifierCode");
 
-                entity.Property(e => e.ModifierCode)
-                    .HasMaxLength(50)
-                    .ValueGeneratedNever();
+                entity.Property(e => e.ModifierCode).HasMaxLength(50);
 
                 entity.Property(e => e.Description).HasMaxLength(200);
             });
@@ -698,7 +707,7 @@ namespace UrgentCareData
                     .IsUnicode(false);
 
                 entity.Property(e => e.Sex)
-                    .HasMaxLength(1)
+                    .HasMaxLength(10)
                     .IsUnicode(false);
 
                 entity.Property(e => e.Ssn)
@@ -754,7 +763,9 @@ namespace UrgentCareData
 
                 entity.Property(e => e.MemberId).HasMaxLength(50);
 
-                entity.Property(e => e.Type).HasMaxLength(10);
+                entity.Property(e => e.Type)
+                    .HasMaxLength(10)
+                    .IsFixedLength();
 
                 entity.HasOne(d => d.Insurance)
                     .WithMany(p => p.PayerInformation)
@@ -897,8 +908,7 @@ namespace UrgentCareData
 
                 entity.Property(e => e.Hipaarelationship)
                     .HasColumnName("HIPAARelationship")
-                    .HasMaxLength(5)
-                    .ValueGeneratedNever();
+                    .HasMaxLength(5);
 
                 entity.Property(e => e.AmrelationshipCode).HasColumnName("AMRelationshipCode");
 
@@ -908,8 +918,33 @@ namespace UrgentCareData
                     .IsUnicode(false);
             });
 
+            modelBuilder.Entity<Role>(entity =>
+            {
+                entity.ToTable("Role", "Application");
 
-           
+                entity.HasIndex(e => e.NormalizedName)
+                    .HasName("RoleNameIndex")
+                    .IsUnique()
+                    .HasFilter("([NormalizedName] IS NOT NULL)");
+
+                entity.Property(e => e.Name).HasMaxLength(256);
+
+                entity.Property(e => e.NormalizedName).HasMaxLength(256);
+            });
+
+            modelBuilder.Entity<RoleClaim>(entity =>
+            {
+                entity.ToTable("RoleClaims", "Application");
+
+                entity.HasIndex(e => e.RoleId);
+
+                entity.Property(e => e.RoleId).IsRequired();
+
+                entity.HasOne(d => d.Role)
+                    .WithMany(p => p.RoleClaims)
+                    .HasForeignKey(d => d.RoleId);
+            });
+
             modelBuilder.Entity<SourceProcessLog>(entity =>
             {
                 entity.HasKey(e => e.ProcessId)
@@ -929,14 +964,15 @@ namespace UrgentCareData
                     .IsUnicode(false);
             });
 
-
             modelBuilder.Entity<User>(entity =>
             {
                 entity.ToTable("User", "Application");
 
-                entity.HasIndex(e => e.NormalizedEmail, "EmailIndex");
+                entity.HasIndex(e => e.NormalizedEmail)
+                    .HasName("EmailIndex");
 
-                entity.HasIndex(e => e.NormalizedUserName, "UserNameIndex")
+                entity.HasIndex(e => e.NormalizedUserName)
+                    .HasName("UserNameIndex")
                     .IsUnique()
                     .HasFilter("([NormalizedUserName] IS NOT NULL)");
 
@@ -953,7 +989,7 @@ namespace UrgentCareData
             {
                 entity.ToTable("UserClaims", "Application");
 
-                entity.HasIndex(e => e.UserId, "IX_UserClaims_UserId");
+                entity.HasIndex(e => e.UserId);
 
                 entity.Property(e => e.UserId).IsRequired();
 
@@ -964,9 +1000,8 @@ namespace UrgentCareData
 
             modelBuilder.Entity<UserClinic>(entity =>
             {
-                entity.ToTable("UserClinic");
-
-                entity.HasIndex(e => new { e.UserId, e.ClinicId }, "uq_UserClinic")
+                entity.HasIndex(e => new { e.UserId, e.ClinicId })
+                    .HasName("uq_UserClinic")
                     .IsUnique();
 
                 entity.Property(e => e.ClinicId)
@@ -990,9 +1025,8 @@ namespace UrgentCareData
 
             modelBuilder.Entity<UserCompany>(entity =>
             {
-                entity.ToTable("UserCompany");
-
-                entity.HasIndex(e => new { e.UserId, e.CompanyId }, "uq_UserCompany")
+                entity.HasIndex(e => new { e.UserId, e.CompanyId })
+                    .HasName("uq_UserCompany")
                     .IsUnique();
 
                 entity.Property(e => e.UserId).IsRequired();
@@ -1016,7 +1050,7 @@ namespace UrgentCareData
 
                 entity.ToTable("UserLogins", "Application");
 
-                entity.HasIndex(e => e.UserId, "IX_UserLogins_UserId");
+                entity.HasIndex(e => e.UserId);
 
                 entity.Property(e => e.UserId).IsRequired();
 
@@ -1027,9 +1061,8 @@ namespace UrgentCareData
 
             modelBuilder.Entity<UserOfficeKey>(entity =>
             {
-                entity.ToTable("UserOfficeKey");
-
-                entity.HasIndex(e => new { e.UserId, e.OfficeKey }, "uq_UserOfficeKey")
+                entity.HasIndex(e => new { e.UserId, e.OfficeKey })
+                    .HasName("uq_UserOfficeKey")
                     .IsUnique();
 
                 entity.Property(e => e.UserId).IsRequired();
@@ -1047,7 +1080,7 @@ namespace UrgentCareData
 
                 entity.ToTable("UserRoles", "Application");
 
-                entity.HasIndex(e => e.RoleId, "IX_UserRoles_RoleId");
+                entity.HasIndex(e => e.RoleId);
 
                 entity.HasOne(d => d.Role)
                     .WithMany(p => p.UserRoles)
@@ -1094,12 +1127,11 @@ namespace UrgentCareData
                     .HasMaxLength(50);
 
                 entity.Property(e => e.EmModifier)
-                   .HasColumnName("EMModifier")
-                   .HasMaxLength(50);
+                    .HasColumnName("EMModifier")
+                    .HasMaxLength(50);
 
-                entity.Property(e => e.EmQuantity)
-                  .HasColumnName("EMQuantity");
-                
+                entity.Property(e => e.EmQuantity).HasColumnName("EMQuantity");
+
                 entity.Property(e => e.Icdcodes)
                     .HasColumnName("ICDCodes")
                     .HasMaxLength(500);
@@ -1224,6 +1256,25 @@ namespace UrgentCareData
                     .HasConstraintName("FK_VisitHistory_Visit");
             });
 
+            modelBuilder.Entity<VisitICDCode>(entity =>
+            {
+                entity.ToTable("VisitICDCode");
+
+                entity.Property(e => e.VisitICDCodeId).HasColumnName("VisitICDCodeId");
+
+                entity.Property(e => e.ICDCode)
+                    .IsRequired()
+                    .HasColumnName("ICDCode")
+                    .HasMaxLength(50)
+                    .IsUnicode(false);
+
+                entity.HasOne(d => d.Visit)
+                    .WithMany(p => p.VisitICDCode)
+                    .HasForeignKey(d => d.VisitId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_VisitICDCode_Visit");
+            });
+
             modelBuilder.Entity<VisitImpotLog>(entity =>
             {
                 entity.Property(e => e.AmdimportLogId).HasColumnName("AMDImportLogId");
@@ -1237,7 +1288,8 @@ namespace UrgentCareData
 
                 entity.Property(e => e.OfficeKey)
                     .IsRequired()
-                    .HasMaxLength(10);
+                    .HasMaxLength(10)
+                    .IsFixedLength();
 
                 entity.Property(e => e.Status)
                     .IsRequired()
@@ -1270,47 +1322,28 @@ namespace UrgentCareData
                     .HasConstraintName("FK_VisitProcCode_Visit");
             });
 
-            modelBuilder.Entity<VisitICDCode>(entity =>
-            {
-             
-                entity.Property(e => e.ICDCode).HasMaxLength(50);
-
-                entity.HasOne(d => d.Visit)
-                    .WithMany(p => p.VisitICDCode)
-                    .HasForeignKey(d => d.VisitId)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK_VisitICDCode_Visit");
-            });
-
             modelBuilder.Entity<VisitRuleSet>(entity =>
             {
-                entity.HasKey(e => e.VisitRuleId);
-
-                entity.Property(e => e.VisitRuleId)
-                .IsRequired()
-                .HasColumnName("VisitRuleId");
-
-                entity.Property(e => e.RuleSetId)
-                .IsRequired()
-                .HasColumnName("RuleSetId");
-
-                entity.Property(e => e.VisitId)
-                .IsRequired()
-                .HasColumnName("VisitId");
-
-                entity.HasOne(d => d.Visit)
-                   .WithMany(p => p.AppliedRules)
-                   .HasForeignKey(d => d.VisitId)
-                   .OnDelete(DeleteBehavior.Restrict)
-                   .HasConstraintName("FK_VisitRuleSets_Visit");
+                entity.HasKey(e => e.VisitRuleId)
+                    .HasName("PK_VisitRuleSets");
 
                 entity.HasOne(d => d.CodeReviewRuleSet)
-                  .WithMany(p => p.AppliedRules)
-                  .HasForeignKey(d => d.RuleSetId)
-                  .OnDelete(DeleteBehavior.Cascade)
-                  .HasConstraintName("FK_VisitRuleSets_CodeReviewRule");
+                    .WithMany(p => p.AppliedRules)
+                    .HasForeignKey(d => d.RuleSetId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_VisitRuleSets_CodeReviewRule");
+
+                entity.HasOne(d => d.Visit)
+                    .WithMany(p => p.AppliedRules)
+                    .HasForeignKey(d => d.VisitId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_VisitRuleSets_Visit");
             });
+
+            OnModelCreatingPartial(modelBuilder);
         }
+
+        partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
     }
 }
 
