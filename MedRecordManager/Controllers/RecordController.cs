@@ -649,7 +649,8 @@ namespace MedRecordManager.Controllers
                    ProcCodes = y.ProcCodes.Replace(",|", "<br/>").Replace("|", "<br/>"),
                    IsFlagged = y.Flagged,
                    PhysicanId = y.PhysicanId,
-                   ServiceDate = y.ServiceDate
+                   ServiceDate = y.ServiceDate,
+                   Selected = y.Selected
 
                }).OrderBy(x => x.VisitTime).ToList();
 

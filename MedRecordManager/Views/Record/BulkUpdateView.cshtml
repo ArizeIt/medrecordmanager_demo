@@ -26,39 +26,42 @@
         $(document).ready(function () {
 
 
-            var flagManager = function (value, record, $cell, $displayEl, id, $grid) {
-                var $flagModal = $('#flagModal');
-                var $checkBox = $('<input type="checkbox">').prop('checked', record.isFlagged)
-                    .attr({
-                        'dataKey': id
-                    });
+            //var flagManager = function (value, record, $cell, $displayEl, id, $grid) {
+            //    //var $flagModal = $('#flagModal');
+            //    //var $checkBox = $('<input type="checkbox" onclick="return false" >').prop('checked', record.isFlagged)
+            //    //    .attr({
+            //    //        'dataKey': id
+            //    //    });
 
-                $checkBox.on('click', function (e) {
-                    var mark = $(this).is(':checked');
+            //    //$checkBox.on('click', function (e) {
+            //    //    var mark = $(this).is(':checked');
 
-                    $flagModal.attr({
-                        'dataKey': id,
-                        'flagged': mark
-                    });
-                    if (mark) {
-                        $flagModal.find('.modal-body').children('p').html('This action will mark the current record for skipping the synchroniztion until it is unchecked.  Click Yes to go ahead, NO to cancel.')
-                    }
-                    else {
-                        $flagModal.find('.modal-body').children('p').html('This action will re instate the current record for synchroniztion. Click Yes to go ahead, NO to cancel.')
-                    }
-                    $flagModal.modal({ backdrop: 'static', keyboard: false });
+            //    //    $flagModal.attr({
+            //    //        'dataKey': id,
+            //    //        'flagged': mark
+            //    //    });
+            //    //    if (mark) {
+            //    //        $flagModal.find('.modal-body').children('p').html('This action will mark the current record for skipping the synchroniztion until it is unchecked.  Click Yes to go ahead, NO to cancel.')
+            //    //    }
+            //    //    else {
+            //    //        $flagModal.find('.modal-body').children('p').html('This action will re instate the current record for synchroniztion. Click Yes to go ahead, NO to cancel.')
+            //    //    }
+            //    //    $flagModal.modal({ backdrop: 'static', keyboard: false });
 
-                });
-                $displayEl.empty().append($checkBox);
-            };
+            //    //});
+            //    //$displayEl.empty().append($checkBox);
+            //};
 
             flaggedGrid = $('#flaggedVisitTable').grid({
                 primaryKey: 'visitId',
                 dataSource: '/Record/GetBulkVisit',
+                selectionType: 'multiple',
+                selectionMethod: 'checkbox',
                 columns: [
                     //{ field: 'pvRecordId', width:100, title: 'PV RecordId' },
-                    { field: 'Flag', width: 50, renderer: flagManager },
+                    //{ field: 'Flag', width: 50, title:'Flagged', renderer: flagManager },
                     { filed: 'visitId', hidden: true },
+                    { field: 'selected', hidden: true },
                     { field: 'patientName', Width: 300, title: 'Patient Name' },
                     { field: 'clinicName', Width: 150, title: 'Clinic Name' },
                     { field: 'pvFinClass', minwidth: 100, title: 'Finacial Class' },
@@ -72,6 +75,13 @@
                 pager: { limit: 10, sizes: [2, 5, 10, 20] },
             });
 
+            flaggedGrid.on('rowSelect', function (e, $row, id, record) {
+                
+            });
+
+             grid.on('rowUnselect', function (e, $row, id, record) {
+            
+            });
 
             $('#startDate').datepicker({
                 uiLibrary: 'bootstrap'
@@ -111,6 +121,15 @@
                     });
             });
 
+
+            $("#selectAll").on('change', function () {
+                var ischecked = $(this).is(':checked');
+                if (!ischecked)
+                    alert('uncheckd ' + $(this).val());
+            });
+
+            
+
             $.ajax({
                 type: "GET",
                 url: "/record/getClinics",
@@ -148,31 +167,13 @@
 <div class="row">
     <div class="col-lg-6">
         <div class="btn-toolbar" role="toolbar" aria-label="Toolbar with button groups">
-            <div class="btn-group" role="group" aria-label="first group">
-                <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    Bulk Action <span class="caret"></span>
-                </button>
-                <ul class="dropdown-menu">
-                    <li><a href="" data-toggle="modal" data-target="#modalModifier">Update Modifier</a></li>
-                    <li role="separator" class="divider"></li>
-                    <li><a href="" data-toggle="modal" data-target="#modalcptCode">Update CPT </a></li>
-                    <li role="separator" class="divider"></li>
-                    <li><a href="" data-toggle="modal" data-target="#modalIcdCode">Update ICD </a></li>
-                    <li role="separator" class="divider"></li>
-                    <li><a href="" data-toggle="modal" data-target="#modalPhysician">Update Physician </a></li>
-                    <li role="separator" class="divider"></li>
-                    <li><a href="" data-toggle="modal" data-target="#modalClinic">Update Clinic </a></li>
-                    <li role="separator" class="divider"></li>
-                    <li><a href="#">Unflag Records </a></li>
-                </ul>
-            </div>
-
             <button type="button" class="btn btn-success" disabled="disabled" id="saveBulk">Bulk Save</button>
             <button type="button" class="btn btn-info" disabled="disabled" id="Cancel">Cancel</button>
-
         </div>
     </div>
 </div>
+
+
 
 <div class="row top-buffer">
     <div class="col-md-12">
@@ -234,6 +235,32 @@
         </div>
     </div>
 </div>
+
+<div class="row top-buffer">
+    <div class="col-md-12">
+        <div class="btn-toolbar" role="toolbar" aria-label="Toolbar with button groups">
+            <div class="btn-group" role="group" aria-label="first group">
+                <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    Bulk Action <span class="caret"></span>
+                </button>
+                <ul class="dropdown-menu">
+                    <li><a href="" data-toggle="modal" data-target="#modalModifier">Update Modifier</a></li>
+                    <li role="separator" class="divider"></li>
+                    <li><a href="" data-toggle="modal" data-target="#modalcptCode">Update CPT </a></li>
+                    <li role="separator" class="divider"></li>
+                    <li><a href="" data-toggle="modal" data-target="#modalIcdCode">Update ICD </a></li>
+                    <li role="separator" class="divider"></li>
+                    <li><a href="" data-toggle="modal" data-target="#modalPhysician">Update Physician </a></li>
+                    <li role="separator" class="divider"></li>
+                    <li><a href="" data-toggle="modal" data-target="#modalClinic">Update Clinic </a></li>
+                    <li role="separator" class="divider"></li>
+                    <li><a href="#unflag">Unflag Records </a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div class="row top-buffer">
     <div class="col-md-12">
         <div class="box box-warning">
@@ -241,6 +268,16 @@
                 <h3 class="box-title">Flagged Visit Records</h3>
             </div>
             <div class="box-body">
+                <div class="row">
+                    <div class="col-xs-12">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" value="" id="selectAll">
+                            <label class="form-check-label" for="selectAll">
+                                Sellect All
+                            </label>
+                        </div>
+                    </div>
+                </div>
                 <div class="table-responsive">
                     <table id="flaggedVisitTable" class="table table-striped"></table>
                 </div>
@@ -249,7 +286,7 @@
     </div>
 </div>
 <div class="modal fade" id="modalIcdCode" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
-     aria-hidden="true">
+        aria-hidden="true">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header text-center">
@@ -278,7 +315,7 @@
 </div>
 
 <div class="modal fade" id="modalcptCode" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
-     aria-hidden="true">
+        aria-hidden="true">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header text-center">
@@ -309,7 +346,7 @@
 </div>
 
 <div class="modal fade" id="modalModifier" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
-     aria-hidden="true">
+        aria-hidden="true">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header text-center">
@@ -338,7 +375,7 @@
 </div>
 
 <div class="modal fade" id="modalClinic" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
-     aria-hidden="true">
+        aria-hidden="true">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header text-center">
@@ -367,7 +404,7 @@
 </div>
 
 <div class="modal fade" id="modalPhysician" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
-     aria-hidden="true">
+        aria-hidden="true">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header text-center">

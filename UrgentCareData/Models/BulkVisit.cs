@@ -43,5 +43,6 @@ namespace UrgentCareData.Models
         public int? EmQuantity { get; set; }
         public string PatientName { get; set; }
         public string FinClass { get; set; }
+        public bool Selected { get; set; }
     }
 }

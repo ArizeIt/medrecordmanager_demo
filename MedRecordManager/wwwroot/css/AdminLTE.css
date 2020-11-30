@@ -24,6 +24,10 @@ body {
   overflow-y: auto;
 }
 
+label.gj-checkbox-md.gj-checkbox-material-icons {
+    display: inline;
+}
+
 .top-buffer {
     margin-top: 20px;
 }
