@@ -24,29 +24,16 @@
             var regex = /^(.*)(\d)+$/i;
 
             //var flagManager = function (value, record, $cell, $displayEl, id, $grid) {
-            //    //var $flagModal = $('#flagModal');
-            //    //var $checkBox = $('<input type="checkbox" onclick="return false" >').prop('checked', record.isFlagged)
-            //    //    .attr({
-            //    //        'dataKey': id
-            //    //    });
+            //    var $checkBox = $('<input type="checkbox">').prop('checked', record.selected)
+            //        .attr({
+            //            'dataKey': id
+            //        });
 
-            //    //$checkBox.on('click', function (e) {
-            //    //    var mark = $(this).is(':checked');
+            //    $checkBox.on('click', function (e) {
+            //        var mark = $(this).is(':checked');                    
 
-            //    //    $flagModal.attr({
-            //    //        'dataKey': id,
-            //    //        'flagged': mark
-            //    //    });
-            //    //    if (mark) {
-            //    //        $flagModal.find('.modal-body').children('p').html('This action will mark the current record for skipping the synchroniztion until it is unchecked.  Click Yes to go ahead, NO to cancel.')
-            //    //    }
-            //    //    else {
-            //    //        $flagModal.find('.modal-body').children('p').html('This action will re instate the current record for synchroniztion. Click Yes to go ahead, NO to cancel.')
-            //    //    }
-            //    //    $flagModal.modal({ backdrop: 'static', keyboard: false });
-
-            //    //});
-            //    //$displayEl.empty().append($checkBox);
+            //    });
+            //    $displayEl.empty().append($checkBox);
             //};
 
             flaggedGrid = $('#flaggedVisitTable').grid({
@@ -58,7 +45,7 @@
                     //{ field: 'pvRecordId', width:100, title: 'PV RecordId' },
                     //{ field: 'Flag', width: 50, title:'Flagged', renderer: flagManager },
                     { filed: 'visitId', hidden: true },
-                    { field: 'selected', hidden: true },
+                    //{ field: 'selected', width: 80, renderer: flagManager},
                     { field: 'patientName', Width: 300, title: 'Patient Name' },
                     { field: 'clinicName', Width: 150, title: 'Clinic Name' },
                     { field: 'pvFinClass', minwidth: 100, title: 'Finacial Class' },
@@ -71,14 +58,8 @@
                 ],
                 pager: { limit: 10, sizes: [2, 5, 10, 20] },
             });
-
-            flaggedGrid.on('rowSelect', function (e, $row, id, record) {
-
-            });
-
-            flaggedGrid.on('rowUnselect', function (e, $row, id, record) {
-
-            });
+                      
+                        
 
             $('#startDate').datepicker({
                 uiLibrary: 'bootstrap'
@@ -121,8 +102,47 @@
 
             $("#selectAll").on('change', function () {
                 var ischecked = $(this).is(':checked');
-                if (!ischecked)
-                    alert('uncheckd ' + $(this).val());
+                //var clinics = [];
+                //var physicians = [];
+                //var physicians = [];
+                //var rules = [];
+                //var finclasses = [];
+                //$('#clinic > Option:selected').each(function () {
+                //    clinics.push(this.value);
+                //});
+
+                //$('#physician > Option:selected').each(function () {
+                //    physicians.push(this.value);
+                //});
+                //$('#rule > Option:selected').each(function () {
+                //    rules.push(this.value);
+                //});
+                //$('#finclass > Option:selected').each(function () {
+                //    finclasses.push(this.value);
+                //});
+
+                //$.ajax({
+                //    type: "POST",
+                //    url: "/record/markBulkUpdate",
+                //    data: {
+                //        clinic: clinics.join(','),
+                //        physician: physicians.join(','),
+                //        rule: rules.join(','),
+                //        finclass: finclasses.join(','),
+                //        startDate: $('#startDate').val(),
+                //        endDate: $('#endDate').val(),
+                //        ischecked: ischecked
+                //    },
+                   
+                //});
+                //flaggedGrid.clear();
+                //flaggedGrid.reload({ page: 2, clinic: clinics.join(','), physician: physicians.join(','), rule: rules.join(','), startDate: $('#startDate').val(), endDate: $('#endDate').val(), ischecked: ischecked });
+                if (ischecked) {
+                    flaggedGrid.selectAll();
+                }
+                else {
+                    flaggedGrid.unSelectAll();
+                }
             });
 
             $('#btnAddAction').on('click', function () {
@@ -273,8 +293,6 @@
                 }
             }
 
-
-
         })
     </script>
 }
@@ -331,13 +349,13 @@
                     <div class="col-md-3">
                         <div class="form-group">
                             <label asp-for="StartDate" class="control-label">Visit Start Date</label>
-                            <input class="form-control date" id="startDate" type="text" value="@DateTime.Today.AddDays(-1).ToShortDateString()" />
+                            <input class="form-control date" id="startDate" type="text"  />
                         </div>
                     </div>
                     <div class="col-md-3">
                         <div class="form-group">
                             <label asp-for="EndDate" class="control-label">Visit End Date</label>
-                            <input class="form-control date" id="endDate" type="text" value="@DateTime.Today.ToShortDateString()" />
+                            <input class="form-control date" id="endDate" type="text"  />
                         </div>
                     </div>
                     <div class="col-md-1">

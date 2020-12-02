@@ -652,27 +652,27 @@ namespace MedRecordManager.Controllers
                    ServiceDate = y.ServiceDate,
                    Selected = y.Selected
 
-               }).OrderBy(x => x.VisitTime).ToList();
+               }).OrderBy(x => x.VisitTime).AsQueryable();
 
 
 
                 if (!string.IsNullOrEmpty(clinic))
                 {
                     var clinicids = clinic.Split(',').ToList();
-                    records = records.Where(x => clinicids.Contains(x.ClinicName)).ToList();
+                    records = records.Where(x => clinicids.Contains(x.ClinicName));
                 }
 
                 if (!string.IsNullOrEmpty(physician))
                 {
                     var physicians = physician.Split(',').Select(int.Parse).ToList();
-                    records = records.Where(x => physicians.Contains(x.PhysicanId)).ToList();
+                    records = records.Where(x => physicians.Contains(x.PhysicanId));
 
                 }
 
                 if (!string.IsNullOrEmpty(finclass))
                 {
                     var finclasses = finclass.Split(',').ToList();
-                    records = records.Where(x => finclasses.Contains(x.PVFinClass)).ToList();
+                    records = records.Where(x => finclasses.Contains(x.PVFinClass));
                 }
 
                 if (!string.IsNullOrEmpty(rule))
@@ -680,17 +680,17 @@ namespace MedRecordManager.Controllers
                     var rules = rule.Split(',').Select(int.Parse).ToList();
                     var affecedVisits = _urgentCareContext.VisitRuleSet.Where(x => rules.Contains(x.RuleSetId)).Select(y => y.VisitId).ToList();
 
-                    records = records.Where(x => affecedVisits.Contains(x.VisitId)).ToList();
+                    records = records.Where(x => affecedVisits.Contains(x.VisitId));
                 }
 
                 if (startDate != DateTime.MinValue)
                 {
-                    records = records.Where(x => x.ServiceDate >= startDate).ToList();
+                    records = records.Where(x => x.ServiceDate >= startDate);
                 }
 
                 if (endDate != DateTime.MinValue)
                 {
-                    records = records.Where(x => x.ServiceDate <= endDate).ToList();
+                    records = records.Where(x => x.ServiceDate <= endDate);
                 }
 
                 var total = records.Count();
@@ -698,7 +698,7 @@ namespace MedRecordManager.Controllers
                 if (page.HasValue && limit.HasValue)
                 {
                     var start = (page.Value - 1) * limit.Value;
-                    records = records.Skip(start).Take(limit.Value).ToList();
+                    records = records.Skip(start).Take(limit.Value);
 
                     foreach (var record in records)
                     {
@@ -1542,6 +1542,63 @@ namespace MedRecordManager.Controllers
             return View("BulkUpdateView", vm);
         }
 
+
+        [HttpPost]
+
+        public async Task<IActionResult> MarkBulkUpdate(int? page, int? limit, string clinic, string physician, string rule, string finclass, DateTime startDate, DateTime endDate, bool ischecked)
+        {
+            var records = _urgentCareContext.BulkVisit.AsQueryable();
+            
+            if (!string.IsNullOrEmpty(clinic))
+            {
+                var clinicids = clinic.Split(',').ToList();
+                records = records.Where(x => clinicids.Contains(x.ClinicId));
+            }
+
+            if (!string.IsNullOrEmpty(physician))
+            {
+                var physicians = physician.Split(',').Select(int.Parse).ToList();
+                records = records.Where(x => physicians.Contains(x.PhysicanId));
+
+            }
+
+            if (!string.IsNullOrEmpty(finclass))
+            {
+                var finclasses = finclass.Split(',').ToList();
+                records = records.Where(x => finclasses.Contains(x.FinClass));
+            }
+
+            if (!string.IsNullOrEmpty(rule))
+            {
+                var rules = rule.Split(',').Select(int.Parse).ToList();
+                var affecedVisits = _urgentCareContext.VisitRuleSet.Where(x => rules.Contains(x.RuleSetId)).Select(y => y.VisitId).ToList();
+
+                records = records.Where(x => affecedVisits.Contains(x.VisitId));
+            }
+
+            if (startDate != DateTime.MinValue)
+            {
+                records = records.Where(x => x.ServiceDate >= startDate);
+            }
+
+            if (endDate != DateTime.MinValue)
+            {
+                records = records.Where(x => x.ServiceDate <= endDate);
+            }
+
+            await records.ForEachAsync(x => x.Selected = ischecked);
+            try
+            {
+                await _urgentCareContext.SaveChangesAsync();
+            }
+            catch 
+            {
+                return Json(new { success = false });
+            }
+
+            return Json(new { success = true });
+
+        }
 
         private IEnumerable<SelectListItem> GetAvaliableOfficeKeys()
         {
