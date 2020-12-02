@@ -15,16 +15,13 @@
         var unsaved = false;
         var flaggedGrid;
 
-        new Def.Autocompleter.Search('icdCodeName', 'https://clinicaltables.nlm.nih.gov/api/icd10cm/v3/search?sf=code,name',
-            { tableFormat: true, valueCols: [0], colHeaders: ['Code', 'Name'] });
-
         function unloadPage() {
             if (unsaved) {
                 return "You have unsaved changes on this page. Do you want to leave this page and discard your changes or stay on this page?";
             }
         }
         $(document).ready(function () {
-
+            var regex = /^(.*)(\d)+$/i;
 
             //var flagManager = function (value, record, $cell, $displayEl, id, $grid) {
             //    //var $flagModal = $('#flagModal');
@@ -76,11 +73,11 @@
             });
 
             flaggedGrid.on('rowSelect', function (e, $row, id, record) {
-                
+
             });
 
-             grid.on('rowUnselect', function (e, $row, id, record) {
-            
+            flaggedGrid.on('rowUnselect', function (e, $row, id, record) {
+
             });
 
             $('#startDate').datepicker({
@@ -128,33 +125,155 @@
                     alert('uncheckd ' + $(this).val());
             });
 
-            
+            $('#btnAddAction').on('click', function () {
+                var $tr = $('#actionDetail tr:last');
+                var $clone = $tr.clone(true);
+                var cindex = $('#actionDetail tr').length;
 
-            $.ajax({
-                type: "GET",
-                url: "/record/getClinics",
-                data: "{}",
-                success: function (data) {
-                    var s = '<option value="-1">Please Select a Clinic</option>';
-                    for (var i = 0; i < data.length; i++) {
-                        s += '<option value="' + data[i].text + '">' + data[i].id + '</option>';
+                $clone.find('.actionContent').empty();
+                if ($('#actionDetail').is(':hidden')) {
+                    $('#actionDetail').show();
+                    $('#actionDetail .actionContent').hide();
+                }
+                else {
+
+                    if ($tr.find('.actionSelector').val() != 0) {
+                        cloneActionTable($clone, cindex);
+                        $tr.after($clone);
                     }
-                    $("#drpclinic").html(s);
+                    else {
+                        alert('You can not add another action before you finish this one.')
+                    }
                 }
             });
 
-            $.ajax({
-                type: "GET",
-                url: "/record/getAllPhysicians",
-                data: "{}",
-                success: function (data) {
-                    var s = '<option value="-1">Please Select a Physician</option>';
-                    for (var i = 0; i < data.length; i++) {
-                        s += '<option value="' + data[i].id + '">' + data[i].text + '</option>';
-                    }
-                    $("#drpphysician").html(s);
+            $('.actionSelector').on('change', function () {
+                var tId = $(this).closest('.tr_clone').attr('id');
+                var $newMod = $('#codeTemp').clone();
+                var $newIcd = $('#icdTemp').clone();
+                var $newDpl = $('#dplTemp').clone();
+                var $actionContent = $(this).closest('.tr_clone').find('.actionContent');
+
+                $actionContent.empty();
+                $actionContent.show();
+                if (this.value == 'addMod' || this.value == 'delMod') {
+                    var modId = 'modAct_' + tId;
+                    $newMod.attr('id', modId)
+                    $newMod.appendTo($actionContent);
+                    $newMod.show();
                 }
+
+                if (this.value == 'addCpt' || this.value == 'delCpt') {
+                    var modId = 'cptAct_' + tId;
+                    $newMod.attr('id', modId)
+                    $newMod.appendTo($actionContent);
+                    $newMod.find('.modifier').remove();
+                    $newMod.show();
+                }
+
+                if (this.value == 'addIcd' || this.value == 'delIcd') {
+                    var cptId = 'icdAct_' + tId;
+                    var inputIcd = 'tIcd_' + tId;
+                    $newIcd.attr('id', cptId);
+                    $newIcd.appendTo($actionContent);
+                    $newIcd.find('input[type=text]').attr('id', inputIcd)
+                    $newIcd.show();
+                    new Def.Autocompleter.Search(inputIcd, 'https://clinicaltables.nlm.nih.gov/api/icd10cm/v3/search?sf=code,name',
+                        { tableFormat: true, valueCols: [0], colHeaders: ['Code', 'Name'] });
+                }
+
+                if (this.value == 'updClinic') {
+                    var clinicId = 'dplcl_' + tId
+                    $newDpl.attr('id', clinicId)
+                    $newDpl.attr('id', 'actionClinic')
+                    $newDpl.appendTo($(this).closest('.tr_clone').find('.actionContent'));
+                    $newDpl.find('.dplCap').text('Clinics')
+                    $newDpl.show();
+                    $.ajax({
+                        type: "GET",
+                        url: "/record/getClinics",
+                        data: "{}",
+                        success: function (data) {
+                            var s = '<option value="-1">Please Select a Clinic</option>';
+                            for (var i = 0; i < data.length; i++) {
+                                s += '<option value="' + data[i].text + '">' + data[i].id + '</option>';
+                            }
+                            $newDpl.find('.dpl').html(s);
+                        }
+                    });
+                }
+                if (this.value == 'updPhys') {
+                    var physId = 'dplPhys_' + tId
+                    $newDpl.attr('id', physId)
+                    $newDpl.appendTo($(this).closest('.tr_clone').find('.actionContent'));
+                    $newDpl.find('.dplCap').text('Physicians')
+                    $newDpl.show();
+                    $.ajax({
+                        type: "GET",
+                        url: "/record/getAllPhysicians",
+                        data: "{}",
+                        success: function (data) {
+                            var s = '<option value="-1">Please Select a Physician</option>';
+                            for (var i = 0; i < data.length; i++) {
+                                s += '<option value="' + data[i].id + '">' + data[i].text + '</option>';
+                            }
+                            $newDpl.find('.dpl').html(s);
+                        }
+                    });
+                }
+
             });
+
+            $('button.tr_clone_remove').on('click', function () {
+                var clone = $(this).closest('.tr_clone');
+                var rowCount = $('#actionDetail tr').length;
+                if (rowCount > 2) {
+                    clone.remove();
+                }
+                else {
+                    clone.find(':text').val('');
+                    clone.find('.dpl').prop('selectedIndex', 0)
+                    if (!$('#actionDetail').is(':hidden')) {
+                        $('#actionDetail .actionContent').hide();
+                        $('#actionDetail').hide();
+                    }
+                }
+
+            });
+
+            $('button.tr_clone_clear').on('click', function () {
+                var clone = $(this).closest('.tr_clone');
+                clone.find(':text').val('');
+                clone.find('.dpl').prop('selectedIndex', 0)
+                clone.find(':checkbox').prop('checked', false)
+            });
+
+
+            function cleanActionTable() {
+                $('#actionDetail').find("tr:gt(1)").remove();
+                $('.tr_clone').find(':text').val('');
+
+                $('.tr_clone').find('.dpl').prop('selectedIndex', 0)
+                $('.tr_clone').find(':checkbox').prop('checked', false)
+            }
+
+            function cloneActionTable(clone, index) {
+                clone.attr('id', 'id' + (index)); //update row id if required
+                clone.find(':text').val('');
+                //update ids of elements in row
+                clone.find("*").each(function () {
+                    var id = this.id || "";
+                    var match = id.match(regex) || [];
+                    if (match.length == 3) {
+                        this.id = match[1] + (index);
+                    }
+                });
+                if (index = 1) {
+                    clone.find('.dpl').removeAttr('disabled');
+                }
+            }
+
+
 
         })
     </script>
@@ -238,24 +357,63 @@
 
 <div class="row top-buffer">
     <div class="col-md-12">
-        <div class="btn-toolbar" role="toolbar" aria-label="Toolbar with button groups">
-            <div class="btn-group" role="group" aria-label="first group">
-                <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    Bulk Action <span class="caret"></span>
-                </button>
-                <ul class="dropdown-menu">
-                    <li><a href="" data-toggle="modal" data-target="#modalModifier">Update Modifier</a></li>
-                    <li role="separator" class="divider"></li>
-                    <li><a href="" data-toggle="modal" data-target="#modalcptCode">Update CPT </a></li>
-                    <li role="separator" class="divider"></li>
-                    <li><a href="" data-toggle="modal" data-target="#modalIcdCode">Update ICD </a></li>
-                    <li role="separator" class="divider"></li>
-                    <li><a href="" data-toggle="modal" data-target="#modalPhysician">Update Physician </a></li>
-                    <li role="separator" class="divider"></li>
-                    <li><a href="" data-toggle="modal" data-target="#modalClinic">Update Clinic </a></li>
-                    <li role="separator" class="divider"></li>
-                    <li><a href="#unflag">Unflag Records </a></li>
-                </ul>
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3>
+                    Bulk Actions
+                </h3>
+            </div>
+            <div class="panel-body">
+                <div class="box box-warning">
+                    <div class="box-header with-border">
+                        <div class="col-lg-9 align-self-end">
+                            <div class="row">
+                                <button type="button" class="btn btn-success glyphicon glyphicon-plus" id="btnAddAction"></button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="alert alert-danger alert-dismissible" role="alert" id='actionMsg' hidden>
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                        <strong>Attention!</strong>
+                    </div>
+
+                    <table class="table table-borderless" id="actionDetail" hidden>
+                        <thead>
+                            <tr>
+                                <th scope="col" class="col-md-1">Action</th>
+                                <th scope="col" class="col-md-1"></th>
+                                <th scope="col" class="col-md-10"></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="tr_clone" id="id1">
+                                <td>
+                                    <select class="form-control dpl actionSelector">
+                                        <option value="0">Select</option>
+                                        <option value="addMod">Add Modifier</option>
+                                        <option value="delMod">Delete Modifier</option>
+                                        <option value="addCpt">Add CPT</option>
+                                        <option value="delCpt">Delete CPT</option>
+                                        <option value="addIcd">Add ICD</option>
+                                        <option value="delIcd">Delete ICD</option>
+                                        <option value="updPhys">Update Physicin</option>
+                                        <option value="updClinic">Update Clinic</option>
+                                    </select>
+                                </td>
+
+                                <td>
+                                    <button class="btn btn-outline tr_clone_remove">
+                                        <span class="glyphicon glyphicon-remove text-red" arial-hidden="true" style="padding-top: 15%" data-toggle="tooltip" title="Delete row entires"></span>
+                                    </button>
+                                    <button class="btn btn-outline tr_clone_clear">
+                                        <span class="glyphicon glyphicon-repeat text-blue" arial-hidden="true" style="padding-top: 15%" data-toggle="tooltip" title="Clear row entries"></span>
+                                    </button>
+                                </td>
+                                <td class="actionContent"></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>
@@ -285,152 +443,54 @@
         </div>
     </div>
 </div>
-<div class="modal fade" id="modalIcdCode" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
-        aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header text-center">
-                <h4 class="modal-title w-100 font-weight-bold">Add Or Remove Icd Code</h4>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body mx-3">
-                <div id="addIcdMsg" class="modalmsg"></div>
-                <div class="md-form mb-5">
-                    <div class="form-group">
-                        <label data-error="wrong" data-success="right" for="icdCodeName">Code name</label>
-                        <input type="text" id="icdCodeName" class="form-control" name="icdCodeName" required>
-                    </div>
-                </div>
 
-            </div>
-            <div class="modal-footer d-flex justify-content-center">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                <button class="btn btn-primary" id="IcdAddCode">Add</button>
-                <button class="btn btn-danger" id="IcdremoveCode">Remove</button>
-            </div>
+<div id="codeTemp" class="row" hidden>
+    <div class="col-md-5 row codeName">
+        <div class="col-xs-2">
+            <label data-error="wrong" data-success="right" for="actionInput">Code Name</label>
+        </div>
+        <div class="col-xs-10">
+            <input type="text" class="form-control actionInput" name="codeName" required>
+        </div>
+    </div>
+
+    <div class="col-md-5 row modifier">
+        <div class="col-xs-2">
+            <label data-error="wrong" data-success="right" for="actionInput">Modifier</label>
+        </div>
+        <div class="col-xs-10">
+            <input type="text" class="form-control actionInput" name="modifier" required>
         </div>
     </div>
 </div>
 
-<div class="modal fade" id="modalcptCode" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
-        aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header text-center">
-                <h4 class="modal-title w-100 font-weight-bold">Add Or Remove CPT Code</h4>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
 
-            <div class="modal-body mx-3">
-                <div id="addcptMsg" class="modalmsg"></div>
-
-                <div class="md-form mb-5">
-                    <div class="form-group">
-                        <label data-error="wrong" data-success="right" for="cptCodeName">Code name</label>
-                        <input type="text" id="cptCodeName" class="form-control validate" name="cptCodeName" required>
-                    </div>
-                </div>
-
-            </div>
-            <div class="modal-footer d-flex justify-content-center">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                <button class="btn btn-primary" id="cptAddCode">Add</button>
-                <button class="btn btn-danger" id="cptRemoveCode">Remove</button>
-            </div>
+<div id="dplTemp" class="row" hidden>
+    <div class="col-md-5 row">
+        <div class="col-xs-2">
+            <label data-error="wrong" data-success="right" class="dplCap"></label>
+        </div>
+        <div class="col-xs-10">
+            <select class="form-control dpl">
+            </select>
         </div>
     </div>
 </div>
 
-<div class="modal fade" id="modalModifier" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
-        aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header text-center">
-                <h4 class="modal-title w-100 font-weight-bold">Add Or Remove Modifer</h4>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body mx-3">
-                <div id="addIcdMsg" class="modalmsg"></div>
-                <div class="md-form mb-5">
-                    <div class="form-group">
-                        <label data-error="wrong" data-success="right" for="icdCodeName">Modifer</label>
-                        <input type="number" id="editModifier" class="form-control" name="editModifier" required>
-                    </div>
-                </div>
-
-            </div>
-            <div class="modal-footer d-flex justify-content-center">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                <button class="btn btn-primary" id="modiAdd">Add</button>
-                <button class="btn btn-danger" id="ModiRemove">Remove</button>
-            </div>
+<div id="icdTemp" class="row" hidden>
+    <div class="col-md-5 row">
+        <div class="col-xs-2">
+            <label data-error="wrong" data-success="right" >Code name</label>
+        </div>
+        <div class="col-xs-10">
+            <input type="text" class="form-control" name="icdCodeName" required>
         </div>
     </div>
 </div>
 
-<div class="modal fade" id="modalClinic" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
-        aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header text-center">
-                <h4 class="modal-title w-100 font-weight-bold">Update Clinic</h4>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body mx-3">
-                <div id="addIcdMsg" class="modalmsg"></div>
-                <div class="md-form mb-5">
-                    <div class="form-group">
-                        <label data-error="wrong" data-success="right" for="drpclinc">Clinics</label>
-                        <select id="drpclinic" name="drpclinic" class="form-control">
-                        </select>
-                    </div>
-                </div>
 
-            </div>
-            <div class="modal-footer d-flex justify-content-center">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                <button class="btn btn-primary" id="updClinic">Update</button>
-            </div>
-        </div>
-    </div>
-</div>
 
-<div class="modal fade" id="modalPhysician" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
-        aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header text-center">
-                <h4 class="modal-title w-100 font-weight-bold">Add Icd Code Record</h4>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body mx-3">
-                <div id="addIcdMsg" class="modalmsg"></div>
-                <div class="md-form mb-5">
-                    <div class="form-group">
-                        <label data-error="wrong" data-success="right" for="drpPhysician">Physicians</label>
-                        <select id="drpphysician" name="drpphysician" class="form-control">
-                        </select>
-                    </div>
-                </div>
 
-            </div>
-            <div class="modal-footer d-flex justify-content-center">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                <button class="btn btn-primary" id="updPhysician">Update</button>
-            </div>
-        </div>
-    </div>
-</div>
 
 
 

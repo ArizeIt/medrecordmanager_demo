@@ -441,7 +441,7 @@ namespace MedRecordManager.Controllers
         [HttpGet]
         public IActionResult  GetAllPhysicians()
         {
-            var physicians = _urgentCareContext.Physican.Where(x=> !string.IsNullOrEmpty(x.DisplayName)).Select(x => new { id = x.PvPhysicanId, text = x.DisplayName }).DistinctBy(x=>x.id).ToList();
+            var physicians = _urgentCareContext.Physican.Where(x=> !string.IsNullOrEmpty(x.DisplayName)).OrderBy(x=>x.DisplayName).Select(x => new { id = x.PvPhysicanId, text = x.DisplayName }).DistinctBy(x=>x.id).ToList();
             return Json(physicians);
         }
 
