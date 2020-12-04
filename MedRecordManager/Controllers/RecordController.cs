@@ -463,6 +463,7 @@ namespace MedRecordManager.Controllers
                     }
 
                     visit.ClinicId = record.ClinicName;
+                    visit.OfficeKey = newfficeKey;
                     visit.IsModified = true;
                     _urgentCareContext.Visit.Attach(visit);
 
