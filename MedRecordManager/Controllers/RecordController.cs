@@ -1,21 +1,12 @@
 using System;
 using System.Collections.Generic;
-using System.Drawing;
-using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Net.Http;
 using System.Threading.Tasks;
-using System.Xml;
 using ExpressionBuilder.Common;
 using ExpressionBuilder.Generics;
 using ExpressionBuilder.Helpers;
-using iText.IO.Image;
-using iText.IO.Source;
-using iText.Kernel.Geom;
-using iText.Kernel.Pdf;
-using iText.Kernel.Pdf.Canvas;
 using iText.Layout;
 using MedRecordManager.Extension;
 using MedRecordManager.Models;
@@ -32,7 +23,6 @@ using Newtonsoft.Json.Linq;
 using PVAMCommon;
 using UrgentCareData;
 using UrgentCareData.Models;
-using UrgentCareData.Queries;
 
 namespace MedRecordManager.Controllers
 {
@@ -456,6 +446,7 @@ namespace MedRecordManager.Controllers
                     }
 
                     visit.ClinicId = record.ClinicName;
+                    visit.OfficeKey = newfficeKey;
                     visit.IsModified = true;
                     _urgentCareContext.Visit.Attach(visit);
 
