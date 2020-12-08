@@ -23,31 +23,32 @@
         $(document).ready(function () {
             var regex = /^(.*)(\d)+$/i;
 
-            //var flagManager = function (value, record, $cell, $displayEl, id, $grid) {
-            //    var $checkBox = $('<input type="checkbox">').prop('checked', record.selected)
-            //        .attr({
-            //            'dataKey': id
-            //        });
+            var flagManager = function (value, record, $cell, $displayEl, id, $grid) {
+                var $checkBox = $('<input type="checkbox">').prop('checked', record.selected)
+                    .attr({
+                        'dataKey': id
+                    });
 
-            //    $checkBox.on('click', function (e) {
-            //        var mark = $(this).is(':checked');                    
-
-            //    });
-            //    $displayEl.empty().append($checkBox);
-            //};
+                $checkBox.on('change', function (e) {
+                    var mark = $(this).is(':checked');
+                    SelectRecord(id, mark);
+                });
+                $displayEl.empty().append($checkBox);
+            };
 
             flaggedGrid = $('#flaggedVisitTable').grid({
                 primaryKey: 'visitId',
-                dataSource: '/Record/GetBulkVisit',
-                selectionType: 'multiple',
-                selectionMethod: 'checkbox',
+                dataSource: '/BulkEdit/GetBulkVisit',
+              
                 columns: [
                     //{ field: 'pvRecordId', width:100, title: 'PV RecordId' },
-                    //{ field: 'Flag', width: 50, title:'Flagged', renderer: flagManager },
+                    { field: 'Flag', width: 50, title:'<input type="Checkbox" id="selectedPage">', renderer: flagManager },
                     { filed: 'visitId', hidden: true },
                     //{ field: 'selected', width: 80, renderer: flagManager},
                     { field: 'patientName', Width: 300, title: 'Patient Name' },
                     { field: 'clinicName', Width: 150, title: 'Clinic Name' },
+                    //{ field: 'PhysicianId', Width: 150, title: 'Physicin' },
+                    
                     { field: 'pvFinClass', minwidth: 100, title: 'Finacial Class' },
                     { field: 'payment', minwidth: 100, title: 'Payment $' },
                     { field: 'diagCode', width: 150, title: 'Diag Codes' },
@@ -59,7 +60,7 @@
                 pager: { limit: 10, sizes: [2, 5, 10, 20] },
             });
                       
-                        
+            
 
             $('#startDate').datepicker({
                 uiLibrary: 'bootstrap'
@@ -70,11 +71,28 @@
             });
 
             $('#filterButton').on('click', function () {
+                filterBulkView();
+            });
+
+            $('#selectedPage').on('click', function () {
+                var ischecked = $(this).is(':checked');
+
+                $('#flaggedVisitTable').find('td :input[type=checkbox]').prop('checked', ischecked).each(function () {
+                    var id = $(this).attr('datakey');
+                    var mark = $(this).is(':checked');
+                    SelectRecord(id,mark);
+                })
+                flaggedGrid.reload();
+            })
+
+            $("#selectAll").on('change', function () {
+                var ischecked = $(this).is(':checked');
                 var clinics = [];
                 var physicians = [];
                 var physicians = [];
                 var rules = [];
                 var finclasses = [];
+
                 $('#clinic > Option:selected').each(function () {
                     clinics.push(this.value);
                 });
@@ -88,61 +106,26 @@
                 $('#finclass > Option:selected').each(function () {
                     finclasses.push(this.value);
                 });
-                flaggedGrid.reload(
-                    {
+
+                $.ajax({
+                    type: "POST",
+                    url: "/record/markBulkUpdate",
+                    data: {
                         clinic: clinics.join(','),
                         physician: physicians.join(','),
                         rule: rules.join(','),
                         finclass: finclasses.join(','),
                         startDate: $('#startDate').val(),
                         endDate: $('#endDate').val(),
-                    });
-            });
-
-
-            $("#selectAll").on('change', function () {
-                var ischecked = $(this).is(':checked');
-                //var clinics = [];
-                //var physicians = [];
-                //var physicians = [];
-                //var rules = [];
-                //var finclasses = [];
-                //$('#clinic > Option:selected').each(function () {
-                //    clinics.push(this.value);
-                //});
-
-                //$('#physician > Option:selected').each(function () {
-                //    physicians.push(this.value);
-                //});
-                //$('#rule > Option:selected').each(function () {
-                //    rules.push(this.value);
-                //});
-                //$('#finclass > Option:selected').each(function () {
-                //    finclasses.push(this.value);
-                //});
-
-                //$.ajax({
-                //    type: "POST",
-                //    url: "/record/markBulkUpdate",
-                //    data: {
-                //        clinic: clinics.join(','),
-                //        physician: physicians.join(','),
-                //        rule: rules.join(','),
-                //        finclass: finclasses.join(','),
-                //        startDate: $('#startDate').val(),
-                //        endDate: $('#endDate').val(),
-                //        ischecked: ischecked
-                //    },
-                   
-                //});
-                //flaggedGrid.clear();
-                //flaggedGrid.reload({ page: 2, clinic: clinics.join(','), physician: physicians.join(','), rule: rules.join(','), startDate: $('#startDate').val(), endDate: $('#endDate').val(), ischecked: ischecked });
-                if (ischecked) {
-                    flaggedGrid.selectAll();
-                }
-                else {
-                    flaggedGrid.unSelectAll();
-                }
+                        ischecked: ischecked
+                    },
+                    success: function (response) {
+                          $('#flaggedVisitTable').find('td :input[type=checkbox]').prop('checked', ischecked)
+                    }
+                });
+                flaggedGrid.clear();
+                flaggedGrid.reload(/*{ page: 2, clinic: clinics.join(','), physician: physicians.join(','), rule: rules.join(','), startDate: $('#startDate').val(), endDate: $('#endDate').val(), ischecked: ischecked }*/);
+                               
             });
 
             $('#btnAddAction').on('click', function () {
@@ -154,6 +137,11 @@
                 if ($('#actionDetail').is(':hidden')) {
                     $('#actionDetail').show();
                     $('#actionDetail .actionContent').hide();
+                }
+
+                if ($('#btnExecute').is(':hidden'))
+                {
+                    $('#btnExecute').show();
                 }
                 else {
 
@@ -256,6 +244,7 @@
                     if (!$('#actionDetail').is(':hidden')) {
                         $('#actionDetail .actionContent').hide();
                         $('#actionDetail').hide();
+                        $('#btnExecute').hide();
                     }
                 }
 
@@ -267,6 +256,91 @@
                 clone.find('.dpl').prop('selectedIndex', 0)
                 clone.find(':checkbox').prop('checked', false)
             });
+
+            $('#reset').on('click', function () {
+                $('#clinic > Option:selected').removeAttr("selected");
+
+                $('#physician > Option:selected').removeAttr("selected");
+
+                $('#rule > Option:selected').removeAttr("selected");
+
+                $('#finclass > Option:selected').removeAttr("selected");
+                filterBulkView();
+            });
+
+            $('#btnExecute').on('click', function () {
+                var bulkActions = [];
+                $('tr.tr_clone').each(function (i, action) {
+                    var stp = [];
+                    var actName = $(action).find('.dplAction').val();
+                    var field = $(action).find('.actionInput').attr('name');
+                    var field2 = $(action).find('.actionInput2').attr('name')
+                    var value1 = $(action).find('.actionInput').val();
+                    var value2 = $(action).find('.actionInput2').val();
+                    var dlpVal = $(action).find('.dplInput').val();
+                    if (field == 'codeName') {
+                        stp.push({
+                            key: 'CPT',
+                            value: value1
+                        });
+                    }
+                    if (field2 == 'modifier') {
+                        stp.push({
+                            key: 'Mofifier',
+                            value: value2
+                        });
+                    }
+                    if (field == 'icdCodeName') {
+                        stp.push({
+                            key: 'ICD',
+                            value: value1
+                        });
+                    }
+
+                    if ($(action).find('.dplCap').text() == 'Physicians') {
+
+                        stp.push({
+                            key: 'UpdatePhysician',
+                            value: dlpVal
+                        });
+                    }
+
+                    if ($(action).find('.dplCap').text() == 'Clinics') {
+
+                        stp.push({
+                            key: 'UpdateClinic',
+                            value: dlpVal
+                        });
+                    }
+                    bulkActions.push({
+
+                        actionName: actName,
+                        actionSteps: stp
+                    })
+
+                });
+                console.log(bulkActions);
+                var data = {};
+                data.bulkVisitIds = bulkActions,
+                    data.bulkVisitIds = flaggedGrid.getSelected();
+                $.ajax({
+                    type: "POST",
+                    url: "/BulkEdit/ExecuteAct",
+                    data: {
+                        bulkVisitIds: flaggedGrid.getSelected(),
+                        actions: bulkActions
+                    },
+
+                }).done(function (response) {
+                    if (response.success) {
+                        flaggedGrid.reload();
+                    }
+                    flaggedGrid.reload();
+                }).fail(function (response) {
+                    console.log('Error: ' + response);
+                });
+            });
+
 
 
             function cleanActionTable() {
@@ -291,6 +365,53 @@
                 if (index = 1) {
                     clone.find('.dpl').removeAttr('disabled');
                 }
+            }
+
+            function filterBulkView() {
+                var clinics = [];
+                var physicians = [];
+                var physicians = [];
+                var rules = [];
+                var finclasses = [];
+                $('#clinic > Option:selected').each(function () {
+                    clinics.push(this.value);
+                });
+
+                $('#physician > Option:selected').each(function () {
+                    physicians.push(this.value);
+                });
+                $('#rule > Option:selected').each(function () {
+                    rules.push(this.value);
+                });
+                $('#finclass > Option:selected').each(function () {
+                    finclasses.push(this.value);
+                });
+                flaggedGrid.reload(
+                    {
+                        clinic: clinics.join(','),
+                        physician: physicians.join(','),
+                        rule: rules.join(','),
+                        finclass: finclasses.join(','),
+                        startDate: $('#startDate').val(),
+                        endDate: $('#endDate').val(),
+                    });
+            }
+
+            function SelectRecord(id, mark) {
+
+                $.ajax({
+                        type: 'POST',
+                        url: '/BulkEdit/SelectRecord',
+                        data: {
+                            visitId: id,
+                            isSelected: mark
+                        },
+                        success: function () {
+
+                        },
+
+                    })
+
             }
 
         })
@@ -349,13 +470,13 @@
                     <div class="col-md-3">
                         <div class="form-group">
                             <label asp-for="StartDate" class="control-label">Visit Start Date</label>
-                            <input class="form-control date" id="startDate" type="text"  />
+                            <input class="form-control date" id="startDate" type="text"  asp-for="@Model.StartDate"/>
                         </div>
                     </div>
                     <div class="col-md-3">
                         <div class="form-group">
                             <label asp-for="EndDate" class="control-label">Visit End Date</label>
-                            <input class="form-control date" id="endDate" type="text"  />
+                            <input class="form-control date" id="endDate" type="text"  asp-for="@Model.EndDate"/>
                         </div>
                     </div>
                     <div class="col-md-1">
@@ -364,6 +485,7 @@
                                 <div style="margin-top: 24px;">
                                     <input type="button" value="Filter" class="btn btn-primary" id="filterButton" />
                                 </div>
+                                <button id="reset">Reset</button>
                             </div>
                         </div>
                     </div>
@@ -385,6 +507,7 @@
                         <div class="col-lg-9 align-self-end">
                             <div class="row">
                                 <button type="button" class="btn btn-success glyphicon glyphicon-plus" id="btnAddAction"></button>
+                                <button type="button" class="btn btn-primary " id="btnExecute" style="display:none">Execute</button>
                             </div>
                         </div>
                     </div>
@@ -404,7 +527,7 @@
                         <tbody>
                             <tr class="tr_clone" id="id1">
                                 <td>
-                                    <select class="form-control dpl actionSelector">
+                                    <select class="form-control dpl actionSelector dplAction">
                                         <option value="0">Select</option>
                                         <option value="addMod">Add Modifier</option>
                                         <option value="delMod">Delete Modifier</option>
@@ -475,7 +598,7 @@
             <label data-error="wrong" data-success="right" for="actionInput">Modifier</label>
         </div>
         <div class="col-xs-10">
-            <input type="text" class="form-control actionInput" name="modifier" required>
+            <input type="text" class="form-control actionInput2" name="modifier" required>
         </div>
     </div>
 </div>
@@ -487,7 +610,7 @@
             <label data-error="wrong" data-success="right" class="dplCap"></label>
         </div>
         <div class="col-xs-10">
-            <select class="form-control dpl">
+            <select class="form-control dpl dplInput">
             </select>
         </div>
     </div>
@@ -499,7 +622,7 @@
             <label data-error="wrong" data-success="right" >Code name</label>
         </div>
         <div class="col-xs-10">
-            <input type="text" class="form-control" name="icdCodeName" required>
+            <input type="text" class="form-control actionInput" name="icdCodeName" required>
         </div>
     </div>
 </div>

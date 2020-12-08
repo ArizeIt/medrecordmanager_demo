@@ -1,12 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Text;
 
 namespace UrgentCareData.Models
 {
     public partial class BulkVisit
     {
-       
+        public BulkVisit()
+        {
+          
+            VisitICDCodes = new HashSet<BulkVisitICDCode>();
+            VisitProcCodes = new HashSet<BulkVisitProcCode>();
+        }
         public DateTime ServiceDate { get; set; }
         public int VisitId { get; set; }
         public string ClinicId { get; set; }
@@ -44,5 +50,12 @@ namespace UrgentCareData.Models
         public string PatientName { get; set; }
         public string FinClass { get; set; }
         public bool Selected { get; set; }
+        [NotMapped]
+        public string PhysicanName { get; set; }
+        public bool UnFlagged { get; set; }
+        public virtual ICollection<BulkVisitICDCode> VisitICDCodes { get; set; }
+        public virtual ICollection<BulkVisitProcCode> VisitProcCodes { get; set; }
+
     }
 }
+

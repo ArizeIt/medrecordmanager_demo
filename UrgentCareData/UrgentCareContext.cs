@@ -23,6 +23,8 @@ namespace UrgentCareData
         public virtual DbSet<Audit> Audit { get; set; }
         public virtual DbSet<BatchJob> BatchJob { get; set; }
         public virtual DbSet<BulkVisit> BulkVisit { get; set; }
+        public virtual DbSet<BulkVisitProcCode> BulkVisitProcCode { get; set; }
+        public virtual DbSet<BulkVisitICDCode> BulkVisitICDCode { get; set; }
         public virtual DbSet<Chart> Chart { get; set; }
         public virtual DbSet<ChartDocument> ChartDocument { get; set; }
         public virtual DbSet<ChartDocumentHistory> ChartDocumentHistory { get; set; }
@@ -234,6 +236,39 @@ namespace UrgentCareData
                 entity.Property(e => e.TimeOut).HasColumnType("datetime");
 
                 entity.Property(e => e.VisitType).HasMaxLength(50);
+            });
+
+            modelBuilder.Entity<BulkVisitICDCode>(entity =>
+            {
+                entity.ToTable("BulkVisitICDCode");
+                entity.HasKey("BulkVisitICDCodeId");
+                entity.Property(e => e.BulkVisitICDCodeId).HasColumnName("BulkVisitICDCodeId");
+
+                entity.Property(e => e.ICDCode)
+                    .IsRequired()
+                    .HasColumnName("ICDCode")
+                    .HasMaxLength(50)
+                    .IsUnicode(false);
+
+                entity.HasOne(d => d.BulkVisit)
+                    .WithMany(p => p.VisitICDCodes)
+                    .HasForeignKey(d => d.VisitId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_BulkVisitICDCode_BulkVisit");
+            });
+
+
+            modelBuilder.Entity<BulkVisitProcCode>(entity =>
+            {
+                entity.Property(e => e.Modifier).HasMaxLength(50);
+                entity.HasKey("BulkVisitProcCodeId");
+                entity.Property(e => e.ProcCode).HasMaxLength(200);
+
+                entity.HasOne(d => d.Visit)
+                    .WithMany(p => p.VisitProcCodes)
+                    .HasForeignKey(d => d.VisitId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_BulkVisitProcCode_BulkVisit");
             });
 
             modelBuilder.Entity<Chart>(entity =>
@@ -1274,6 +1309,7 @@ namespace UrgentCareData
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_VisitICDCode_Visit");
             });
+
 
             modelBuilder.Entity<VisitImpotLog>(entity =>
             {

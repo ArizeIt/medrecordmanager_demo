@@ -28,13 +28,15 @@ namespace MedRecordManager.Models
         [Display(Name = "Flagged Rule")]
         public IEnumerable<SelectListItem> FlaggedRules { get; set; }
 
-        [DisplayName("Start Date Time:"), DisplayFormat(DataFormatString = "{0:dd/MM/yyyy hh:mm:ss tt}")]
+        [DisplayName("Start Date Time:"), DisplayFormat(ApplyFormatInEditMode = true, DataFormatString = "{0:MM/dd/yyyy}")]
         public DateTime StartDate { get; set; }
 
-        [DisplayName("End Date Time:"), DisplayFormat(DataFormatString = "{0:dd/MM/yyyy hh:mm:ss tt}")]
+        [DisplayName("End Date Time:"), DisplayFormat(ApplyFormatInEditMode = true, DataFormatString = "{0:MM/dd/yyyy}")]
         public DateTime EndDate { get; set; }
 
         public IList<int> AppliedRuleIds { get; set; }
+
+        public bool AllSelected { get; set; }
 
     }
 }

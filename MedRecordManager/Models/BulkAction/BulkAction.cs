@@ -8,7 +8,7 @@ namespace MedRecordManager.Models
     public class BulkAction
     {
         public string ActionName { get; set; }
-        public IDictionary<string, string> ActionStep { get; set;}
+        public IDictionary<string, string> ActionSteps { get; set;}
     }
 
     

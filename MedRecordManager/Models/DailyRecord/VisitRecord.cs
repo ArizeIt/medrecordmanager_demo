@@ -50,6 +50,7 @@ namespace MedRecordManager.Models.DailyRecord
         public DateTime ServiceDate { get; set; }
 
         public bool Selected { get; set; }
+
     }
 
     public class PatientVisitVM
