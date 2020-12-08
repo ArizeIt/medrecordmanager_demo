@@ -371,7 +371,7 @@ namespace MedRecordManager.Controllers
                 }
             }
 
-            return Json(new { sucess = true, message = "All actions have been applied to the selected records." });
+            return Json(new { success = true, message = "All actions have been applied to the selected records." });
         }
 
         [HttpPost]
@@ -406,7 +406,7 @@ namespace MedRecordManager.Controllers
                     });
                 }
 
-                visit.ProcCodes = string.Join("|", visit.VisitProcCodes);
+                visit.ProcCodes = ConverProcToString(visit.VisitProcCodes.ToList());
             }
             _urgentCareContext.SaveChanges();
         }
@@ -427,13 +427,13 @@ namespace MedRecordManager.Controllers
             foreach (var visit in bulkVisits)
             {
 
-                if (visit.VisitProcCodes.Any(x => x.ProcCode == cptCode))
+                var matches = visit.VisitProcCodes.Where(x => x.ProcCode == cptCode).ToList();
+                foreach(var match in matches)
                 {
-                    var match = visit.VisitProcCodes.FirstOrDefault(x => x.ProcCode == cptCode);
-
                     visit.VisitProcCodes.Remove(match);
                     _urgentCareContext.BulkVisitProcCode.Remove(match);
                 }
+                       
 
                 visit.ProcCodes = ConverProcToString(visit.VisitProcCodes.ToList());
             }
@@ -465,22 +465,37 @@ namespace MedRecordManager.Controllers
         private void RemoveIcd(List<int> bulkVisitIds, string icd)
         {
             var bulkVisits = _urgentCareContext.BulkVisit.Include(x => x.VisitICDCodes).Where(x => bulkVisitIds.Contains(x.VisitId));
-
-
-            foreach (var visit in bulkVisits)
+            try
             {
 
-                if (visit.VisitICDCodes.Any(x => x.ICDCode == icd))
-                {
-                    var match = visit.VisitICDCodes.FirstOrDefault(x => x.ICDCode == icd);
+                foreach (var visit in bulkVisits)
+            {
+               
+                    
+                        var matched = visit.VisitICDCodes.Where(x => x.ICDCode == icd).ToList();
 
-                    visit.VisitICDCodes.Remove(match);
+                        if (matched.Any())
+                        {
+                            foreach (var match in matched)
+                            {
+
+                                _urgentCareContext.BulkVisitICDCode.Remove(match);
+                                visit.VisitICDCodes.Remove(match);
+                            }
+                        }
+
+                    visit.Icdcodes = string.Join("|", visit.VisitICDCodes.Select(x => x.ICDCode));
                 }
-
-                string.Join("|", visit.VisitICDCodes.Select(x => x.ICDCode));
+                _urgentCareContext.SaveChanges();
             }
 
-            _urgentCareContext.SaveChanges();
+
+            catch (Exception ex)
+            {
+
+            }
+
+
         }
         private void AddModifier(List<int> bulkVisitIds, string cptCode, string modifier)
         {
@@ -536,7 +551,7 @@ namespace MedRecordManager.Controllers
                     match.Modifier = string.Join(",", modfilers);
                 }
 
-                visit.ProcCodes = visit.ProcCodes = ConverProcToString(visit.VisitProcCodes.ToList());
+                visit.ProcCodes =  ConverProcToString(visit.VisitProcCodes.ToList());
             }
 
             _urgentCareContext.SaveChanges();

@@ -333,6 +333,8 @@
 
                 }).done(function (response) {
                     if (response.success) {
+                        $('#BulkSave').prop('disabled', false);
+                        $('#Cancel').prop('disabled', false);
                         flaggedGrid.reload();
                     }
                     flaggedGrid.reload();
