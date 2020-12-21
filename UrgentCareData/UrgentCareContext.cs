@@ -143,7 +143,7 @@ namespace UrgentCareData
 
             modelBuilder.Entity<BatchJob>(entity =>
             {
-                entity.HasKey(e => e.RecordsProcessed);
+                entity.HasKey(e => e.BatchJobId);
 
                 entity.Property(e => e.RecordsProcessed).ValueGeneratedNever();
 

@@ -1,21 +1,12 @@
 using System;
 using System.Collections.Generic;
-using System.Drawing;
-using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Net.Http;
 using System.Threading.Tasks;
-using System.Xml;
 using ExpressionBuilder.Common;
 using ExpressionBuilder.Generics;
 using ExpressionBuilder.Helpers;
-using iText.IO.Image;
-using iText.IO.Source;
-using iText.Kernel.Geom;
-using iText.Kernel.Pdf;
-using iText.Kernel.Pdf.Canvas;
 using iText.Layout;
 using MedRecordManager.Extension;
 using MedRecordManager.Models;
@@ -32,7 +23,6 @@ using Newtonsoft.Json.Linq;
 using PVAMCommon;
 using UrgentCareData;
 using UrgentCareData.Models;
-using UrgentCareData.Queries;
 
 namespace MedRecordManager.Controllers
 {
@@ -630,8 +620,27 @@ namespace MedRecordManager.Controllers
         {
             var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
             var isDevelopment = environment == EnvironmentName.Development;
-            var allclinics = _urgentCareContext.Visit.Include(x => x.VisitImpotLog).Where(x => x.ServiceDate >= startDate && x.ServiceDate <= endDate && !x.Flagged && !x.VisitImpotLog.Any()).Select(x => x.ClinicId).ToList();
+            var allclinics = _urgentCareContext.Visit.Include(x => x.VisitImpotLog).Where(x => x.ServiceDate >= startDate && x.ServiceDate <= endDate && !x.Flagged && !x.VisitImpotLog.Any()).DistinctBy(x=>x.ClinicId).Select(x => x.ClinicId).ToList();
             var officekeys = string.Join(",", _urgentCareContext.ClinicProfile.Where(x => allclinics.Contains(x.ClinicId)).DistinctBy(x => x.OfficeKey).Select(x => x.OfficeKey).ToArray());
+
+            var newBatch = new BatchJob
+            {
+                CreatedBy = User.Identity.Name,
+                CreatedDateTime = DateTime.Now,
+                JobStatus = "Started",
+                Paramters = startDate + "-" + endDate,
+                SessionId = HttpContext.Session.Id,
+                JobName = User.Identity.Name + '_' + DateTime.Now
+            };
+            _urgentCareContext.BatchJob.Add(newBatch);
+            try
+            {
+                _urgentCareContext.SaveChanges();
+            }
+            catch (DbUpdateException e)
+            {
+                e.Message.ToString();
+            }
             using (var webClient = new HttpClient())
             {
                 if (environment == EnvironmentName.Development)
@@ -645,13 +654,16 @@ namespace MedRecordManager.Controllers
                 webClient.DefaultRequestHeaders.Accept.Clear();
 
 
-                var querystring = $"officeKey={officekeys}&startTime={startDate}&endTime={endDate}";
+                var querystring = $"officeKey={officekeys}&startTime={startDate}&endTime={endDate}&batchId={newBatch.BatchJobId}";
 
                 var response = await webClient.PostAsync("cumsapi/Default/ImportToAmd?" + querystring, null);
 
                 await response.Content.ReadAsStringAsync();
 
-
+                _urgentCareContext.BatchJob.Attach(newBatch);
+                newBatch.FinishedDateTime = DateTime.Now;
+                newBatch.JobStatus = "Finished";
+                _urgentCareContext.SaveChanges();
                 return Json(new { sucess = true });
             }
         }
