@@ -319,7 +319,7 @@
                     })
 
                 });
-                console.log(bulkActions);
+                
                 var data = {};
                 data.bulkVisitIds = bulkActions,
                     data.bulkVisitIds = flaggedGrid.getSelected();
@@ -339,7 +339,7 @@
                     }
                     flaggedGrid.reload();
                 }).fail(function (response) {
-                    console.log('Error: ' + response);
+                    
                 });
             });
 

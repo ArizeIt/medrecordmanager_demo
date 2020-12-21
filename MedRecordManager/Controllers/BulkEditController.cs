@@ -68,8 +68,8 @@ namespace MedRecordManager.Controllers
                 Value = y.Id.ToString()
             }).ToList();
 
-            vm.StartDate = records.OrderBy(x => x.ServiceDate).First().ServiceDate;
-            vm.EndDate = records.OrderByDescending(x => x.ServiceDate).First().ServiceDate;
+            vm.StartDate = records.OrderBy(x => x.ServiceDate).FirstOrDefault()!= null? records.OrderBy(x => x.ServiceDate).FirstOrDefault().ServiceDate : DateTime.Today;
+            vm.EndDate = records.OrderByDescending(x => x.ServiceDate).FirstOrDefault()!=null? records.OrderBy(x => x.ServiceDate).FirstOrDefault().ServiceDate : DateTime.Today;
 
             // after loading the filter items. copy the visit to bulkVisit table
 

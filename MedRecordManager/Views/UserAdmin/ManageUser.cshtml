@@ -21,7 +21,7 @@
 
 
                 $detail.on('click', function (e) {
-                    addTab($(this).data('key'))
+                    addTab($(this).data('key'), record.email)
                 });
                 $edit.on('click', function (e) {
                     $grid.edit($(this).data('key'));
@@ -50,7 +50,7 @@
                     deleteUser($(this).data('key'))
                 });
 
-                $displayEl.empty().append($detail).append($edit).append($update).append($cancel).append($delete);
+                $displayEl.empty().append($edit)append($update).append($cancel).append($detail)..append($delete);
             };
 
             usergedGrid = $('#userTable').grid({
@@ -58,8 +58,8 @@
                 dataSource: '/UserAdmin/getusers',
                 columns: [
                     { filed: 'userId', hidden: true },
-                    { field: 'firstName', title: 'First Name' },
-                    { field: 'lastName', title: 'Last Name' },
+                    { field: 'firstName', title: 'First Name', editor: true },
+                    { field: 'lastName', title: 'Last Name', editor: true },
                     { field: 'email', title: 'User Name' },
                     { field: 'roles', title: 'Assigned Roles' },
                     { field: 'companies', title: 'Assigned Companys' },
@@ -79,9 +79,9 @@
 
             });
 
-            function addTab(id) {
+            function addTab(id, email) {
                 if ($('#detail' + id).length == 0) {
-                    $('.nav-tabs').find('li').last().after('<li><a data-toggle="tab" href="#detail' + id + '"><button type="button" class="close closeTab" aria-label="Close">&nbsp;&times;</button><b>User ' + id + '</b></a></li>');
+                    $('.nav-tabs').find('li').last().after('<li><a data-toggle="tab" href="#detail' + id + '"><button type="button" class="close closeTab" aria-label="Close">&nbsp;&times;</button><b>User ' + email + '</b></a></li>');
                     $.ajax({
                         type: "GET",
                         data: {

@@ -144,7 +144,7 @@ namespace MedRecordManager.Controllers
                 var roles = await _userManager.GetRolesAsync(user);
                 thisUser.Roles = string.Join("</br>", roles);
 
-                var companies = await _urgentCareContext.UserCompany.Where(x => x.UserId == user.Id).ToListAsync();
+                var companies = await _urgentCareContext.UserCompany.Where(x => x.UserId == user.Id).Select(x=>x.Company.DisplayName).ToListAsync();
                 thisUser.Companies = string.Join("</br>", companies);
 
                 var offices = await _urgentCareContext.UserOfficeKey.Where(x => x.UserId == user.Id).ToListAsync();
@@ -259,11 +259,9 @@ namespace MedRecordManager.Controllers
         }
 
         public async Task<IActionResult> getUserOffices(int? page, int? limit)
-        {
+        {     
 
-            var records = new List<ClinicProfile>();
-
-            records = _urgentCareContext.ClinicProfile.Where(x => x.OfficeKey != null).DistinctBy(x=>x.OfficeKey).ToList();
+           var records = await _urgentCareContext.ProgramConfig.Where(x=> x.Enabled).Select(x=> new { officeKey = x.AmdofficeKey }).ToListAsync();
            
             var total = records.Count();
 
