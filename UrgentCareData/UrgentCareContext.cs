@@ -254,7 +254,8 @@ namespace UrgentCareData
                     .WithMany(p => p.VisitICDCodes)
                     .HasForeignKey(d => d.VisitId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK_BulkVisitICDCode_BulkVisit");
+                    .HasConstraintName("FK_BulkVisitICDCode_BulkVisit")
+                    .OnDelete(DeleteBehavior.Cascade);
             });
 
 
@@ -264,11 +265,12 @@ namespace UrgentCareData
                 entity.HasKey("BulkVisitProcCodeId");
                 entity.Property(e => e.ProcCode).HasMaxLength(200);
 
-                entity.HasOne(d => d.Visit)
+                entity.HasOne(d => d.BulkVisit)
                     .WithMany(p => p.VisitProcCodes)
                     .HasForeignKey(d => d.VisitId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK_BulkVisitProcCode_BulkVisit");
+                    .HasConstraintName("FK_BulkVisitProcCode_BulkVisit")
+                    .OnDelete(DeleteBehavior.Cascade);
             });
 
             modelBuilder.Entity<Chart>(entity =>

@@ -47,7 +47,7 @@
                     //{ field: 'selected', width: 80, renderer: flagManager},
                     { field: 'patientName', Width: 300, title: 'Patient Name' },
                     { field: 'clinicName', Width: 150, title: 'Clinic Name' },
-                    //{ field: 'PhysicianId', Width: 150, title: 'Physicin' },
+                    { field: 'physicianName', Width: 150, title: 'Physicin' },
                     
                     { field: 'pvFinClass', minwidth: 100, title: 'Finacial Class' },
                     { field: 'payment', minwidth: 100, title: 'Payment $' },
@@ -319,7 +319,7 @@
                     })
 
                 });
-                console.log(bulkActions);
+              
                 var data = {};
                 data.bulkVisitIds = bulkActions,
                     data.bulkVisitIds = flaggedGrid.getSelected();
@@ -333,17 +333,50 @@
 
                 }).done(function (response) {
                     if (response.success) {
-                        $('#BulkSave').prop('disabled', false);
-                        $('#Cancel').prop('disabled', false);
+                        $('#saveBulk').prop('disabled', false);
+                        $('#cancel').prop('disabled', false);
                         flaggedGrid.reload();
                     }
                     flaggedGrid.reload();
                 }).fail(function (response) {
-                    console.log('Error: ' + response);
+         
+                });
+            });
+
+            $('#cancel').on('click', function () {
+                $.ajax({
+                    type: 'POST',
+                    url: '/BulkEdit/CancelChange',
+                    success: function (response) {
+
+                        if (response.success == true) {
+                            alert('The current page will need to be reloaded. All the changes will be removed.');
+                            window.location.href = response.url;
+                            
+                        }
+                        
+                    }
+
                 });
             });
 
 
+            $('#saveBulk').on('click', function () {
+                 $.ajax({
+                    type: 'POST',
+                    url: '/BulkEdit/BulkSave',
+                    success: function (response) {
+
+                        if (response.success == true) {
+                            alert('The current page will need to be reloaded. All the changes will be saved');
+                            window.location.href = response.url;
+                            
+                        }
+                        
+                    }
+
+                });
+            });
 
             function cleanActionTable() {
                 $('#actionDetail').find("tr:gt(1)").remove();
@@ -428,7 +461,7 @@
     <div class="col-lg-6">
         <div class="btn-toolbar" role="toolbar" aria-label="Toolbar with button groups">
             <button type="button" class="btn btn-success" disabled="disabled" id="saveBulk">Bulk Save</button>
-            <button type="button" class="btn btn-info" disabled="disabled" id="Cancel">Cancel</button>
+            <button type="button" class="btn btn-info" disabled="disabled" id="cancel">Cancel</button>
         </div>
     </div>
 </div>

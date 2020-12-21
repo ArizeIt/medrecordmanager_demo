@@ -40,7 +40,7 @@ namespace MedRecordManager.Controllers
                     Text = y.ClinicId,
                     Value = y.ClinicId,
                 }).OrderBy(r => r.Text),
-                Physicians = _urgentCareContext.Physican.Where(x=> physicianIds.Contains(x.PvPhysicanId)).Select(y => new SelectListItem
+                Physicians = _urgentCareContext.Physican.Where(x=> physicianIds.Contains(x.PvPhysicanId)).DistinctBy(x=>x.PvPhysicanId).Select(y => new SelectListItem
                 {
                     Selected = false,
                     Text = y.DisplayName,
@@ -112,7 +112,7 @@ namespace MedRecordManager.Controllers
 
                     });
                 }
-                   
+
                 else
                 {
                     var updateBulkVisit = _urgentCareContext.BulkVisit.Find(record.VisitId);
@@ -234,6 +234,7 @@ namespace MedRecordManager.Controllers
                    ProcCodes = y.ProcCodes.Replace(",|", "<br/>").Replace("|", "<br/>"),
                    IsFlagged = y.Flagged,
                    PhysicanId = y.PhysicanId,
+                   PhysicianName = _urgentCareContext.Physican.FirstOrDefault(x=>x.PvPhysicanId == y.PhysicanId).DisplayName,
                    ServiceDate = y.ServiceDate,
                    Selected = y.Selected
 
@@ -303,6 +304,65 @@ namespace MedRecordManager.Controllers
 
 
         [HttpPost]
+        
+        public async Task<IActionResult> BulkSave()
+        {
+            var bulkVisits = _urgentCareContext.BulkVisit.Where(x => x.Selected).ToList();
+
+            foreach(var bulkVisit in bulkVisits)
+            {
+                var visit = await _urgentCareContext.Visit.Include(x=>x.VisitICDCode).Include(x=>x.VisitProcCode).FirstOrDefaultAsync(x => x.VisitId == bulkVisit.VisitId);
+                _urgentCareContext.Visit.Attach(visit);
+                visit.ClinicId = bulkVisit.ClinicId;
+                visit.PhysicanId = bulkVisit.PhysicanId;
+                visit.Icdcodes = bulkVisit.Icdcodes;
+                visit.ProcCodes = bulkVisit.ProcCodes;
+
+               foreach(var icdCode in visit.VisitICDCode)
+                {
+                    _urgentCareContext.VisitIcdcode.Remove(icdCode);
+                }
+
+                foreach (var procCode in visit.VisitProcCode)
+                {
+                    _urgentCareContext.VisitProcCode.Remove(procCode);
+                }
+
+                foreach(var bulkIcd in bulkVisit.VisitICDCodes)
+                {
+                    _urgentCareContext.VisitIcdcode.Add(new VisitICDCode
+                    {
+                        ICDCode = bulkIcd.ICDCode,
+                        VisitId = bulkIcd.VisitId,
+
+                    });
+                }
+
+                foreach (var bulkProc in bulkVisit.VisitProcCodes)
+                {
+                    _urgentCareContext.VisitProcCode.Add(new VisitProcCode
+                    {
+                        Modifier = bulkProc.Modifier,
+                        VisitId = bulkProc.VisitId,
+                        ProcCode = bulkProc.ProcCode,
+                        Quantity = bulkProc.Quantity
+                    });
+                }
+            }
+
+            try
+            {
+                await _urgentCareContext.SaveChangesAsync();
+            }
+           catch(Exception ex)
+            {
+                return Json(new { success = false, message = ex.Message.ToString() });
+            }
+
+            return Json(new { success = true , url = Url.Action("BulkUpdate")});
+        }
+
+        [HttpPost]
         public IActionResult ExecuteAct(List<BulkAction> actions)
         {
             var bulkVisitIds = _urgentCareContext.BulkVisit.Where(x => x.Selected).Select(x => x.VisitId).ToList();
@@ -358,7 +418,7 @@ namespace MedRecordManager.Controllers
                             break;
 
                         case "updPhys":
-                            if (string.IsNullOrEmpty(physicianId))
+                            if (!string.IsNullOrEmpty(physicianId))
                             {
                                 UpdatePhysican(bulkVisitIds, int.Parse(physicianId));
                             }
@@ -390,6 +450,29 @@ namespace MedRecordManager.Controllers
             await _urgentCareContext.SaveChangesAsync();
 
             return Json(new { success = true });
+        }
+
+        [HttpPost]
+        public IActionResult CancelChange()
+        {
+            var bulkVisits = _urgentCareContext.BulkVisit.Where(x => x.Selected).ToList();
+            var bulkProc = _urgentCareContext.BulkVisitProcCode.Where(x => bulkVisits.Select(y => y.VisitId).Contains(x.VisitId)).ToList();
+            var bulkIcd = _urgentCareContext.BulkVisitICDCode.Where(x => bulkVisits.Select(y => y.VisitId).Contains(x.VisitId)).ToList();
+
+            _urgentCareContext.BulkVisitProcCode.RemoveRange(bulkProc);
+            _urgentCareContext.BulkVisitICDCode.RemoveRange(bulkIcd);
+            _urgentCareContext.BulkVisit.RemoveRange(bulkVisits);
+            try
+            {
+                _urgentCareContext.SaveChanges();
+
+            }
+            catch (Exception ex)
+            {
+                return Json(new { successs = false, message = ex.ToString() });
+            }
+
+            return Json(new {success= true, url= Url.Action("BulkUpdate") });
         }
         private void AddCpt(List<int> bulkVisitIds, string cptCode)
         {
@@ -430,7 +513,7 @@ namespace MedRecordManager.Controllers
         }
         private void RemoveCpt(List<int> bulkVisitIds, string cptCode)
         {
-            var bulkVisits = _urgentCareContext.BulkVisit.Include(x => x.VisitProcCodes).Where(x => bulkVisitIds.Contains(x.VisitId));
+            var bulkVisits = _urgentCareContext.BulkVisit.Include(x=>x.VisitProcCodes).Where(x => bulkVisitIds.Contains(x.VisitId));
             foreach (var visit in bulkVisits)
             {
 
@@ -440,8 +523,8 @@ namespace MedRecordManager.Controllers
                     visit.VisitProcCodes.Remove(match);
                     _urgentCareContext.BulkVisitProcCode.Remove(match);
                 }
-                       
 
+               
                 visit.ProcCodes = ConverProcToString(visit.VisitProcCodes.ToList());
             }
             _urgentCareContext.SaveChanges();

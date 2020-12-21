@@ -11,6 +11,6 @@ namespace UrgentCareData.Models
         public int BulkVisitProcCodeId { get; set; }
         public string Modifier { get; set; }
 
-        public virtual BulkVisit Visit { get; set; }
+        public virtual BulkVisit BulkVisit { get; set; }
     }
 }
