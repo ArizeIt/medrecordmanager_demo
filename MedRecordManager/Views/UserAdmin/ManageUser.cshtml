@@ -50,7 +50,7 @@
                     deleteUser($(this).data('key'))
                 });
 
-                $displayEl.empty().append($edit)append($update).append($cancel).append($detail)..append($delete);
+                $displayEl.empty().append($edit).append($update).append($cancel).append($detail).append($delete);
             };
 
             usergedGrid = $('#userTable').grid({
@@ -65,7 +65,7 @@
                     { field: 'companies', title: 'Assigned Companys' },
                     { field: 'officeKeys', title: 'Assigned Offices' },
                     { field: 'clinics', title: 'Assigned Clinics' },
-                    { field: 'Actions', minwidth: 350, renderer: editManager, align: 'center' }
+                    { field: 'Actions', width: 300, renderer: editManager, align:'right' }
                 ],
                 pager: { limit: 10, sizes: [2, 5, 10, 20] },
             });

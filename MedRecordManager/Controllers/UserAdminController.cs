@@ -144,16 +144,16 @@ namespace MedRecordManager.Controllers
                 var roles = await _userManager.GetRolesAsync(user);
                 thisUser.Roles = string.Join("</br>", roles);
 
-                var companies = await _urgentCareContext.UserCompany.Where(x => x.UserId == user.Id).Select(x=>x.Company.DisplayName).ToListAsync();
+                var companies = await _urgentCareContext.UserCompany.Include(x=>x.Company).Where(x => x.UserId == user.Id).Select(x=>x.Company.DisplayName).ToListAsync();
                 thisUser.Companies = string.Join("</br>", companies);
 
-                var offices = await _urgentCareContext.UserOfficeKey.Where(x => x.UserId == user.Id).ToListAsync();
+                var offices = await _urgentCareContext.UserOfficeKey.Where(x => x.UserId == user.Id).Select(x=> x.OfficeKey).ToListAsync();
                 thisUser.OfficeKeys = string.Join("</br>", offices);
 
                 var clinics = await _urgentCareContext.UserClinic.Where(x => x.UserId == user.Id).ToListAsync();
                 thisUser.Clinics = string.Join("</br>", clinics);
 
-
+                
                 records.Add(thisUser);
             }
 
