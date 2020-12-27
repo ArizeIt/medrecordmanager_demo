@@ -135,107 +135,116 @@ namespace MedRecordManager.Controllers
             var vm = new CodeChartVm();
             if (_urgentCareContext.Visit.Any(x => x.Flagged))
             {
-                var records = _urgentCareContext.Visit.Include(x => x.VisitProcCode).Include(x => x.Physican).Include(x => x.Chart).ThenInclude(c => c.ChartDocument).Where(x => x.Flagged);
-                var visit = records.Skip(position).Take(1).FirstOrDefault();
-
-                if (visit.Chart.ChartDocument.Any())
+                try
                 {
-                    vm.VisitId = visit.VisitId;
-                    vm.PhysicanEmail = visit.Physican.Email;
-                    vm.PhysicianName = visit.Physican.DisplayName;
-                    vm.Chart = new ChartVm
+                    var records = _urgentCareContext.Visit.Include(x => x.VisitProcCode).Include(x => x.Physican).Include(x => x.Chart).ThenInclude(c => c.ChartDocument).Where(x => x.Flagged);
+                    var visit = records.Skip(position).Take(1).FirstOrDefault();
+
+                    if (visit.Chart.ChartDocument.Any())
                     {
-                        ChartName = visit.Chart.ChartDocument.FirstOrDefault().FileName,
-                        FileBinary = visit.Chart.ChartDocument.FirstOrDefault().DocumentImage,
-                        IsFlaged = true,
-                        ChartType = System.IO.Path.GetExtension(visit.Chart.ChartDocument.FirstOrDefault().FileName)
-
-                    };
-
-
-                    if (vm.Chart.ChartType.Contains("tif"))
-                    {
-                        vm.Chart.FileBinary = Utility.CreatePDF(vm.Chart.FileBinary);
-                    }
-
-                    vm.Total = records.Count();
-                    vm.Position = position + 1;
-                }
-
-                InitiatHistory(visit.VisitId);
-                //refresh and get a clone of the icd codes
-                var originalRecs = _urgentCareContext.Visit.FirstOrDefault(x => x.VisitId == visit.VisitId).Icdcodes.ParseToList('|').Select(x => new Code
-                {
-                    CodeName = x
-                }).ToList();
-                var visitHistoryId = _urgentCareContext.Visit.Include(x => x.VisitHistory).FirstOrDefault(x => x.VisitId == visit.VisitId).VisitHistory.FirstOrDefault(x => !x.Saved).VisitHistoryId;
-
-
-                if (visitHistoryId != 0)
-                {
-                    var historyCodes = _urgentCareContext.VisitCodeHistory.Where(x => x.VisitHistoryId == visitHistoryId).ToArray();
-                    _urgentCareContext.VisitCodeHistory.RemoveRange(historyCodes);
-
-                    foreach (var orec in originalRecs)
-                    {
-                        _urgentCareContext.VisitCodeHistory.Add(new VisitCodeHistory
+                        vm.VisitId = visit.VisitId;
+                        vm.PhysicanEmail = visit.Physican.Email;
+                        vm.PhysicianName = visit.Physican.DisplayName;
+                        vm.Chart = new ChartVm
                         {
-                            VisitHistoryId = visitHistoryId,
-                            CodeType = "IcdCode",
-                            Code = orec.CodeName,
-                            ModifiedBy = HttpContext.User.Identity.Name,
-                            ModifiedTime = DateTime.UtcNow,
-                            Action = "Cloned"
-                        });
-                    }
+                            ChartName = visit.Chart.ChartDocument.FirstOrDefault().FileName,
+                            FileBinary = visit.Chart.ChartDocument.FirstOrDefault().DocumentImage,
+                            IsFlaged = true,
+                            ChartType = System.IO.Path.GetExtension(visit.Chart.ChartDocument.FirstOrDefault().FileName)
+
+                        };
 
 
-                    var oriCpt = _urgentCareContext.Visit.Include(x => x.VisitProcCode).FirstOrDefault(x => x.VisitId == visit.VisitId).VisitProcCode.ToList();
-
-                    foreach (var cpt in oriCpt)
-                    {
-                        Utility.ParseModifierCode(cpt.Modifier, out string modifier1, out string modifier2);
-                        if (cpt.ProcCode.Contains(","))
+                        if (vm.Chart.ChartType.Contains("tif"))
                         {
-                            var result = cpt.ProcCode.Split(',');
-                            cpt.ProcCode = result[0];
-                            modifier1 = result[1];
+                            vm.Chart.FileBinary = Utility.CreatePDF(vm.Chart.FileBinary);
                         }
-                        _urgentCareContext.VisitCodeHistory.Add(new VisitCodeHistory
-                        {
-                            VisitHistoryId = visitHistoryId,
-                            CodeType = "CPTCode",
-                            Code = cpt.ProcCode,
-                            Modifier = modifier1,
-                            Modifier2 = modifier2,
-                            Quantity = cpt.Quantity.GetValueOrDefault(1),
-                            ModifiedBy = HttpContext.User.Identity.Name,
-                            ModifiedTime = DateTime.UtcNow,
-                            Action = "Cloned"
-                        });
+
+                        vm.Total = records.Count();
+                        vm.Position = position + 1;
                     }
 
-                    var emcode = _urgentCareContext.Visit.Include(x => x.VisitProcCode).FirstOrDefault(x => x.VisitId == visit.VisitId).Emcode;
-
-                    Utility.ParseCptCode(emcode, out string em, out int emQuantity, out string emModifier1, out string emModifier2);
-                    
-                    //_urgentCareContext.VisitCodeHistory.Add(new VisitCodeHistory
-                    //{
-                    //    VisitHistoryId = visitHistoryId,
-                    //    CodeType = "EM_CPTCode",
-                    //    Code = em,
-                    //    Modifier = emModifier1,
-                    //    Modifier2 = emModifier2,
-                    //    Quantity = emQuantity,
-                    //    ModifiedBy = HttpContext.User.Identity.Name,
-                    //    ModifiedTime = DateTime.UtcNow,
-                    //    Action = "Cloned"
-                    //});
+                    InitiatHistory(visit.VisitId);
+                    //refresh and get a clone of the icd codes
+                    var originalRecs = _urgentCareContext.Visit.FirstOrDefault(x => x.VisitId == visit.VisitId).Icdcodes.ParseToList('|').Select(x => new Code
+                    {
+                        CodeName = x
+                    }).ToList();
+                    var visitHistoryId = _urgentCareContext.Visit.Include(x => x.VisitHistory).FirstOrDefault(x => x.VisitId == visit.VisitId).VisitHistory.FirstOrDefault(x => !x.Saved).VisitHistoryId;
 
 
+                    if (visitHistoryId != 0)
+                    {
+                        var historyCodes = _urgentCareContext.VisitCodeHistory.Where(x => x.VisitHistoryId == visitHistoryId).ToArray();
+                        _urgentCareContext.VisitCodeHistory.RemoveRange(historyCodes);
 
-                    _urgentCareContext.SaveChanges();
+                        foreach (var orec in originalRecs)
+                        {
+                            _urgentCareContext.VisitCodeHistory.Add(new VisitCodeHistory
+                            {
+                                VisitHistoryId = visitHistoryId,
+                                CodeType = "IcdCode",
+                                Code = orec.CodeName,
+                                ModifiedBy = HttpContext.User.Identity.Name,
+                                ModifiedTime = DateTime.UtcNow,
+                                Action = "Cloned"
+                            });
+                        }
+
+
+                        var oriCpt = _urgentCareContext.Visit.Include(x => x.VisitProcCode).FirstOrDefault(x => x.VisitId == visit.VisitId).VisitProcCode.ToList();
+
+                        foreach (var cpt in oriCpt)
+                        {
+                            Utility.ParseModifierCode(cpt.Modifier, out string modifier1, out string modifier2);
+                            if (cpt.ProcCode.Contains(","))
+                            {
+                                var result = cpt.ProcCode.Split(',');
+                                cpt.ProcCode = result[0];
+                                modifier1 = result[1];
+                            }
+                            _urgentCareContext.VisitCodeHistory.Add(new VisitCodeHistory
+                            {
+                                VisitHistoryId = visitHistoryId,
+                                CodeType = "CPTCode",
+                                Code = cpt.ProcCode,
+                                Modifier = modifier1,
+                                Modifier2 = modifier2,
+                                Quantity = cpt.Quantity.GetValueOrDefault(1),
+                                ModifiedBy = HttpContext.User.Identity.Name,
+                                ModifiedTime = DateTime.UtcNow,
+                                Action = "Cloned"
+                            });
+                        }
+
+                        var emcode = _urgentCareContext.Visit.Include(x => x.VisitProcCode).FirstOrDefault(x => x.VisitId == visit.VisitId).Emcode;
+
+                        Utility.ParseCptCode(emcode, out string em, out int emQuantity, out string emModifier1, out string emModifier2);
+
+                        //_urgentCareContext.VisitCodeHistory.Add(new VisitCodeHistory
+                        //{
+                        //    VisitHistoryId = visitHistoryId,
+                        //    CodeType = "EM_CPTCode",
+                        //    Code = em,
+                        //    Modifier = emModifier1,
+                        //    Modifier2 = emModifier2,
+                        //    Quantity = emQuantity,
+                        //    ModifiedBy = HttpContext.User.Identity.Name,
+                        //    ModifiedTime = DateTime.UtcNow,
+                        //    Action = "Cloned"
+                        //});
+
+
+
+                        _urgentCareContext.SaveChanges();
+                    }
                 }
+
+                catch (Exception ex)
+                {
+                    ex.Message.ToString();
+                }
+                
             }
             return View("CodeView", vm);
         }
@@ -308,7 +317,7 @@ namespace MedRecordManager.Controllers
                 }).ToList()
             };
 
-            var visitRec = _urgentCareContext.Visit.Include(x => x.PvPatient).Include(x => x.PayerInformation).Include(x => x.GuarantorPayer).Include(x => x.Chart.ChartDocument).Include(x => x.PatientDocument).SingleOrDefault(x => x.VisitId == visitId);
+            var visitRec = _urgentCareContext.Visit.Include(x => x.PvPatient).Include(x => x.PayerInformation).Include(x => x.GuarantorPayer).Include(x => x.Chart).Include(x => x.PatientDocument).SingleOrDefault(x => x.VisitId == visitId);
 
             if (visitRec != null)
             {

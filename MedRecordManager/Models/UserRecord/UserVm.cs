@@ -35,7 +35,7 @@ namespace MedRecordManager.Models.UserRecord
         [Compare("Password", ErrorMessage = "The password and confirmation password do not match.")]
         public string ConfirmPassword { get; set; }
         public string Roles { get; set; }
-        public string Companies { get; set; }
+        public string Company { get; set; }
 
         public string OfficeKeys { get; set; }
 

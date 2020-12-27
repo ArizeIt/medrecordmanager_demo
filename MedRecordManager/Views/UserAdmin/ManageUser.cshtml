@@ -65,14 +65,14 @@
                     { field: 'companies', title: 'Assigned Companys' },
                     { field: 'officeKeys', title: 'Assigned Offices' },
                     { field: 'clinics', title: 'Assigned Clinics' },
-                    { field: 'Actions', width: 300, renderer: editManager, align:'right' }
+                    { field: 'Actions', width: 300, renderer: editManager, align: 'right' }
                 ],
                 pager: { limit: 10, sizes: [2, 5, 10, 20] },
             });
 
             $(document).on('click', '.closeTab', function () {
                 var tabContentId = $(this).parent().attr("href");
-                $(this).parent().parent().remove();                
+                $(this).parent().parent().remove();
                 $(tabContentId).remove();
                 $('a[href$="#mainView"]').click();
                 usergedGrid.reload();
@@ -162,27 +162,27 @@
             $('a[href="#mainView"]').click(function () {
                 usergedGrid.reload();
             });
-           
+
             $(document).on('click', '.btnAddPerm', function (e) {
                 var parent = $(this).closest('.row');
-                var dest = parent.find('.destList');               
+                var dest = parent.find('.destList');
                 parent.find('.fromList >option:selected').appendTo(dest);
                 e.preventDefault();
             });
 
-             $(document).on('click', '.btnRemovePerm', function (e) {
+            $(document).on('click', '.btnRemovePerm', function (e) {
                 var parent = $(this).closest('.row');
-                var dest = parent.find('.fromList');               
+                var dest = parent.find('.fromList');
                 parent.find('.destList >option:selected').appendTo(dest);
                 e.preventDefault();
-             });
+            });
 
 
             $(document).on('click', '#saveUserPerm', function () {
                 var roles = [];
                 var companies = [];
                 var offices = [];
-                 var clinics = [];
+                var clinics = [];
                 var uid = $('#updUid').val();
                 var fName = $('#updFirstName').val();
                 var lName = $('#updFirstName').val();
@@ -192,11 +192,11 @@
                 });
                 $('#assignedComps > option').each(function () {
                     companies.push($(this).val());
-                 })
-                 $('#assignedOffices > option').each(function () {
+                })
+                $('#assignedOffices > option').each(function () {
                     offices.push($(this).text());
-                 })
-                 $('#assignedClinics > option').each(function () {
+                })
+                $('#assignedClinics > option').each(function () {
                     clinics.push($(this).text());
                 })
 
@@ -216,7 +216,7 @@
                     cache: false,
                     success: function (data) {
                         $('#detail' + uid).html(data);
-                       
+
                     }
                 });
             });
@@ -279,9 +279,9 @@
         </div>
         @if (@Model.HasError)
         {
-            <div class="alert alert-warning" id="globalmsg">
-                <strong>ERROR!</strong> There is some thing wrong, please go back and fix the error.
-            </div>
+        <div class="alert alert-warning" id="globalmsg">
+            <strong>ERROR!</strong> There is some thing wrong, please go back and fix the error.
+        </div>
         }
         <div class="row top-buffer">
             <div class="col-md-12">
@@ -357,14 +357,23 @@
 
                             <div class="md-form mb-5">
                                 <div class="form-group">
-                                    <label data-error="wrong" data-success="right" asp-for="ConfirmPassword">ConfirmPassword</label>
+                                    <label data-error="wrong" data-success="right" asp-for="ConfirmPassword">Confirm Password</label>
                                     <input type="password" class="form-control validate" asp-for="ConfirmPassword">
                                     <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
                                 </div>
                             </div>
+
+                            @if (User.IsInRole("SuperAdmin"))
+                            {
+                            <div class="md-form mb-5">
+                                <div class="form-group">
+                                    <label class="control-label">Available Companies</label>
+                                    <select class="form-control fromList" asp-for="@Model.Company" , asp-items="@Model.AvaliableComps" id="availableComps" ></select>
+                                </div>
+                            </div>
+                            }
                         </div>
                         <div class="modal-footer d-flex justify-content-center">
-                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
                             <button type="submit" class="btn form-control btn-primary">Add</button>
                         </div>
                     </form>
@@ -373,6 +382,6 @@
         </div>
     </div>
 </div>
-        
+
 
 

@@ -56,10 +56,17 @@
                     </a>
                     <ul class="treeview-menu">
                         <li><a href="@Url.Action("ManageUser","UserAdmin")">Manage User</a></li>
-                        <li><a href="@Url.Action("ManageRole","UserAdmin")">Manage Role</a></li>
+                        @if (User.IsInRole("SuperAdmin"))
+                        {
+                            <li><a href="@Url.Action("ManageRole","UserAdmin")">Manage Role</a></li>
+                        }
                         <li><a href="@Url.Action("ManageClinic", "UserAdmin")">Manage Clinic</a></li>
                         <li><a href="@Url.Action("ManageOffice", "UserAdmin")">Manage Office</a></li>
-                        <li><a href="@Url.Action("ManageCompany", "UserAdmin")">Manage Company</a></li>
+
+                        @if (User.IsInRole("SuperAdmin") || User.IsInRole("CompanyAdmin"))
+                        {
+                            <li><a href="@Url.Action("ManageCompany", "UserAdmin")">Manage Company</a></li>
+                        }
                     </ul>
                 </li>
             </ul>

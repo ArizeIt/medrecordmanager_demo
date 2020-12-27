@@ -80,7 +80,7 @@
                                     <div class="col-md-5">
                                         <div class="form-group">
                                             <label class="control-label">Available Companies</label>
-                                            <select class="form-control fromList" asp-for="@Model.Companies" , asp-items="@Model.AvaliableComps" id="availableComps" multiple></select>
+                                            <select class="form-control fromList" asp-for="@Model.Company" , asp-items="@Model.AvaliableComps" id="availableComps"></select>
                                         </div>
                                     </div>
                                     <div class="col-md-2 text-center">
@@ -96,7 +96,7 @@
                                     <div class="col-md-5">
                                         <div class="form-group">
                                             <label class="control-label">Assigned Companies</label>
-                                            <select class="form-control destList" asp-for="@Model.Companies" , asp-items="@Model.AssignedComps" id="assignedComps" multiple></select>
+                                            <select class="form-control destList" asp-for="@Model.Company" , asp-items="@Model.AssignedComps" id="assignedComps"></select>
                                         </div>
                                     </div>
                                 </div>
