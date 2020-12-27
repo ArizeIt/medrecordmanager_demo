@@ -296,7 +296,7 @@ namespace UrgentCareData
                     .IsRequired()
                     .HasColumnType("image");
 
-                entity.Property(e => e.DocumentImage).HasColumnType("text");
+                entity.Property(e => e.DocumentText).HasColumnType("text");
 
                 entity.Property(e => e.FileName)
                     .IsRequired()
