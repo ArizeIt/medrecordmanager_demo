@@ -327,7 +327,7 @@ namespace MedRecordManager.Controllers
         [HttpGet]
         public IActionResult CodeReviewRule()
         {
-            var ruleModel = _urgentData.CodeReviewRule.AsParallel().Select(x => new RuleModel {
+            var ruleModel = _urgentData.CodeReviewRule.Select(x => new RuleModel {
                 Id = x.Id,
                 RuleName = x.RuleName,
                 Enabled = x.Active
