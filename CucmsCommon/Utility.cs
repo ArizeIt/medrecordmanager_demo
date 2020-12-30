@@ -4,11 +4,7 @@ using iText.Kernel.Geom;
 using iText.Kernel.Pdf;
 using iText.Kernel.Pdf.Canvas;
 using iText.Layout;
-using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace PVAMCommon
 {
@@ -47,7 +43,7 @@ namespace PVAMCommon
             return returnName;
         }
 
-        public static  void ParseCptCode(string originalcode,  out string code,  out int quantity, out string modifier1, out string modifier2)
+        public static void ParseCptCode(string originalcode, out string code, out int quantity, out string modifier1, out string modifier2)
         {
             code = string.Empty;
             quantity = 1;
@@ -58,7 +54,7 @@ namespace PVAMCommon
             {
                 if (!originalcode.Contains(','))
                 {
-                     code = originalcode;
+                    code = originalcode;
                 }
                 else
                 {

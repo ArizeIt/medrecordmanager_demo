@@ -31,7 +31,7 @@ namespace AdvancedMDServiceTest
 
             if (response.GetType() == typeof(PpmLoginResponse))
             {
-               
+
                 ApiUrl = new Uri(response.Results.Usercontext.Webserver + "/xmlrpc/processrequest.asp");
                 UserContext = response.Results.Usercontext.Text;
             }
@@ -530,7 +530,7 @@ namespace AdvancedMDServiceTest
         }
 
 
-        
+
 
         [TestMethod]
         public void CanLookupDemo()
@@ -558,7 +558,7 @@ namespace AdvancedMDServiceTest
         //{
         //    var srv = new LookupService();
 
-            
+
         //    var pysicians = datasrv.GetAllPhysicians().Where(x => x.OfficeKey == "132677" && !string.IsNullOrEmpty(x.AmdCode));
         //    var clinics = datasrv.GetClinicsByOfficekey(132677);
         //    foreach (var physician in pysicians)
@@ -604,7 +604,7 @@ namespace AdvancedMDServiceTest
         //public void ReMapProfiles()
         //{
         //    var srv = new LookupService(new Uri(ApiUrl), UserContext);
-           
+
         //    var pysicians = datasrv.GetAllPhysicians().Where(x => x.OfficeKey == "136989" && !string.IsNullOrEmpty(x.AmdCode));
         //    var clinics = datasrv.GetClinicsByOfficekey(136989);
         //    foreach (var physician in pysicians)
@@ -640,7 +640,7 @@ namespace AdvancedMDServiceTest
         //{
         //    var srv = new LookupService();
 
-            
+
         //    var patientImportRecs = datasrv.GetPatientImportLogByOfficeKey("132677");
         //    var list = new List<string>();
         //    foreach (var patient in patientImportRecs)

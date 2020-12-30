@@ -1,12 +1,12 @@
-﻿using System.Diagnostics;
+﻿using MedRecordManager.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using MedRecordManager.Models;
-using UrgentCareData;
-using System.Linq;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
+using UrgentCareData;
 using UrgentCareData.Models;
-using Microsoft.AspNetCore.Authorization;
 
 namespace MedRecordManager.Controllers
 {
@@ -57,15 +57,16 @@ namespace MedRecordManager.Controllers
             {
                 var records = _urgentCareContext.SourceProcessLog
                 .Where(x => x.ProcessedDate >= DateTime.Today.AddDays(-8))
-                .Select(x => new {
+                .Select(x => new
+                {
                     processId = x.ProcessId,
                     processedDate = x.ProcessedDate.Value.ToString("yyyy-MM-dd HH:MM:ss"),
-                    sourceFileName = x.SourceFileName.Substring(x.SourceFileName.LastIndexOf("\\")+1),
+                    sourceFileName = x.SourceFileName.Substring(x.SourceFileName.LastIndexOf("\\") + 1),
                     processResult = x.ProcessResult,
                     successFlag = x.SuccessFlag
                 }).OrderByDescending(x => x.processedDate).ToList().Take(15);
 
-               
+
 
                 total = records.Count();
 
@@ -76,7 +77,7 @@ namespace MedRecordManager.Controllers
                 }
                 return Json(new { records, total });
             }
-            
+
             catch
             {
                 return Json(new { empty, total });

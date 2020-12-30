@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Xml.Serialization;
+﻿using System.Xml.Serialization;
 
 namespace AdvancedMDDomain.DTOs.Responses
 {
@@ -33,7 +28,7 @@ namespace AdvancedMDDomain.DTOs.Responses
     }
 
     [XmlRoot(ElementName = "PPMDResults")]
-    public class PpmLookupDiagCodeResponse: IPpmResponse
+    public class PpmLookupDiagCodeResponse : IPpmResponse
     {
         [XmlElement(ElementName = "Results")]
         public LookupDiagCodeResults Results { get; set; }

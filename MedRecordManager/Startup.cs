@@ -1,21 +1,19 @@
-﻿using Microsoft.AspNetCore.Builder;
+﻿using AdvancedMDInterface;
+using AdvancedMDService;
+using MedRecordManager.Data;
+using MedRecordManager.Models.UserRecord;
+using MedRecordManager.Services;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-
-using MedRecordManager.Models.UserRecord;
-using MedRecordManager.Data;
-using UrgentCareData;
-using System;
-using MedRecordManager.Services;
-using AdvancedMDInterface;
-using AdvancedMDService;
-using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Hosting;
-using Microsoft.AspNetCore.Mvc;
+using System;
+using UrgentCareData;
 
 namespace MedRecordManager
 {
@@ -38,7 +36,7 @@ namespace MedRecordManager
                 options.MinimumSameSitePolicy = SameSiteMode.None;
             });
 
-          
+
             services.AddDbContext<ApplicationDbContext>(options =>
                  options.UseSqlServer(
                  Configuration.GetConnectionString("defaultConnection")));

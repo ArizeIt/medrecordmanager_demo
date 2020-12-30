@@ -2,7 +2,6 @@
 using CucmsCommon.Models;
 using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Threading.Tasks;
 using UrgentCareData.Models;
 
@@ -99,7 +98,7 @@ namespace CucmsService.Interfaces
         /// <returns></returns>
         Task<bool> SaveCharges(Visit visitRecord, string amdPatientId, string amdVisitId, string amdFacilityId, string providerId, bool existingPantient);
 
-       
+
 
 
     }

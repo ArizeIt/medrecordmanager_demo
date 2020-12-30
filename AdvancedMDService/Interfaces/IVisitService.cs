@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 
 namespace AdvancedMDInterface
 {
-    public interface IVisitService 
+    public interface IVisitService
     {
-        Task<PpmAddVisitResponse> AddVisit(Uri apiUrl, string userContext, string clinic, string patientId, string providerId, string columHead,string visitType, string date, string timeIn, string duration);
+        Task<PpmAddVisitResponse> AddVisit(Uri apiUrl, string userContext, string clinic, string patientId, string providerId, string columHead, string visitType, string date, string timeIn, string duration);
 
         Task<IPpmResponse> SaveCharges(Uri apiUrl, string userContext, PpmSaveChargesRequest saveCharges);
 

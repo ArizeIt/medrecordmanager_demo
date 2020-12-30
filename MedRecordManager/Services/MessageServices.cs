@@ -1,7 +1,5 @@
 ﻿using PVAMCommon;
-using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace MedRecordManager.Services
@@ -13,12 +11,12 @@ namespace MedRecordManager.Services
 
     public class AuthMessageSender : IEmailSender, ISmsSender
     {
-        public  Task SendAdminEmailAsync(string email, string subject, string message)
+        public Task SendAdminEmailAsync(string email, string subject, string message)
         {
             // Plug in your email service here to send an email.
             var smtpClient = new SmtpMailer("smtp.gmail.com", 587, "webadmin@cmucs.com", "Zsxdcf12!");
 
-           return smtpClient.SendMailAsync("admin", new List<string>() { email }, null, subject, message, null);
+            return smtpClient.SendMailAsync("admin", new List<string>() { email }, null, subject, message, null);
         }
 
         public Task SendEmailAsync(string fromEmail, string toemail, string subject, string message)

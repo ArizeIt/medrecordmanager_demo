@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Xml.Serialization;
+﻿using System.Xml.Serialization;
 
 namespace AdvancedMDDomain.DTOs.Requests
 {
@@ -81,7 +76,7 @@ namespace AdvancedMDDomain.DTOs.Requests
     }
 
     [XmlRoot(ElementName = "ppmdmsg")]
-    public class PpmAddInsuranceRequest:IPpmRequest
+    public class PpmAddInsuranceRequest : IPpmRequest
     {
         [XmlElement(ElementName = "patient")]
         public InsRequestPatient Patient { get; set; }
@@ -105,5 +100,5 @@ namespace AdvancedMDDomain.DTOs.Requests
         public string Lst { get; set; }
     }
 
-   
+
 }

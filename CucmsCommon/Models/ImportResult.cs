@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace CucmsCommon.Models
 {
@@ -12,7 +10,7 @@ namespace CucmsCommon.Models
 
         public string SourceFileName { get; set; }
 
-        public int TotalRecords { get; set;}
+        public int TotalRecords { get; set; }
 
         public int ProcessedRecord { get; set; }
     }

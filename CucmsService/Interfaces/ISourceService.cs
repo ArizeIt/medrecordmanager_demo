@@ -1,7 +1,5 @@
 ﻿using PracticeVelocityDomain.DTOs;
-using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace CucmsService.Interfaces
@@ -24,5 +22,5 @@ namespace CucmsService.Interfaces
         Task<IList<string>> GetSourceFilesAsync(string filePath, string fileName);
 
         Task<IList<Log_Record>> GetPatientRecordsAsync(string filename);
-    }  
+    }
 }

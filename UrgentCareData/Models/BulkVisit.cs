@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Text;
 
 namespace UrgentCareData.Models
 {
@@ -9,7 +8,7 @@ namespace UrgentCareData.Models
     {
         public BulkVisit()
         {
-          
+
             VisitICDCodes = new HashSet<BulkVisitICDCode>();
             VisitProcCodes = new HashSet<BulkVisitProcCode>();
         }

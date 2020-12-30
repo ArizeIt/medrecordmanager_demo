@@ -1,9 +1,6 @@
 ﻿using AdvancedMDDomain.DTOs.Requests;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using PVAMCommon;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace AdvancedMDServiceTest
 {
@@ -19,7 +16,7 @@ namespace AdvancedMDServiceTest
         public string CanSerializAddVisit()
         {
             var addvisitrequest = new PpmAddVisitRequest();
-            var xml= addvisitrequest.Serialize();
+            var xml = addvisitrequest.Serialize();
             return xml;
         }
     }

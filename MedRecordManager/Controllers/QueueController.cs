@@ -1,11 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using MedRecordManager.Models.QueueRecord;
+﻿using MedRecordManager.Models.QueueRecord;
 using MedRecordManager.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Linq;
 using UrgentCareData;
 
 // For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
@@ -32,9 +29,9 @@ namespace MedRecordManager.Controllers
             {
                 Name = x.Name,
                 CreatedBy = x.CreatedBy,
-                CreatedTime = x.CreatedTime, 
+                CreatedTime = x.CreatedTime,
                 HasChild = x.ChildrenQueue.Any()
-                
+
             });
 
             return View();

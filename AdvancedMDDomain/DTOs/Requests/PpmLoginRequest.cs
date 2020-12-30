@@ -15,7 +15,7 @@ namespace AdvancedMDDomain.DTOs.Requests
         public string Msgtime { get; set; }
 
         [XmlAttribute(AttributeName = "nocookie")]
-        public int NoCooki { get; set; } 
+        public int NoCooki { get; set; }
 
         [XmlAttribute(AttributeName = "username")]
         public string Username { get; set; }

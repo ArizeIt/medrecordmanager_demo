@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 using System.Xml.Serialization;
 
 namespace AdvancedMDDomain.DTOs.Responses
@@ -64,7 +60,7 @@ namespace AdvancedMDDomain.DTOs.Responses
     }
 
     [XmlRoot(ElementName = "PPMDResults")]
-    public class PpmLookUpFinClassResponse :IPpmResponse
+    public class PpmLookUpFinClassResponse : IPpmResponse
     {
         [XmlElement(ElementName = "Results")]
         public FinClassResults Results { get; set; }
@@ -75,5 +71,5 @@ namespace AdvancedMDDomain.DTOs.Responses
         [XmlAttribute(AttributeName = "lst")]
         public string Lst { get; set; }
     }
-   
+
 }

@@ -1,7 +1,5 @@
 ﻿using MedRecordManager.Models.UserRecord;
 using Microsoft.AspNetCore.Identity;
-using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -26,7 +24,7 @@ namespace MedRecordManager.Data
             //Seed Default User
             var defaultUser = new ApplicationUser
             {
-              
+
                 Email = "Danny@gmail.com",
                 FirstName = "Danny",
                 LastName = "Li",
@@ -38,8 +36,8 @@ namespace MedRecordManager.Data
                 var user = await userManager.FindByEmailAsync(defaultUser.Email);
                 if (user == null)
                 {
-                   
-                    await userManager.AddToRoleAsync(defaultUser,Roles.ClinicAdmin.ToString());
+
+                    await userManager.AddToRoleAsync(defaultUser, Roles.ClinicAdmin.ToString());
                     await userManager.AddToRoleAsync(defaultUser, Roles.OfficeAdmin.ToString());
                     await userManager.AddToRoleAsync(defaultUser, Roles.CompanyAdmin.ToString());
                     await userManager.AddToRoleAsync(defaultUser, Roles.SuperAdmin.ToString());

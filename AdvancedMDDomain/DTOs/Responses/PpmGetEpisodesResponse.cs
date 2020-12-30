@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Xml.Serialization;
+﻿using System.Xml.Serialization;
 
 namespace AdvancedMDDomain.DTOs.Responses
 {
@@ -221,7 +216,7 @@ namespace AdvancedMDDomain.DTOs.Responses
     }
 
     [XmlRoot(ElementName = "PPMDResults")]
-    public class PpmGetEpisodesResponse :IPpmResponse
+    public class PpmGetEpisodesResponse : IPpmResponse
     {
         [XmlElement(ElementName = "Results")]
         public GetEpisodesResults Results { get; set; }
@@ -235,5 +230,5 @@ namespace AdvancedMDDomain.DTOs.Responses
         [XmlIgnore]
         public string Error { get; set; }
     }
-    
+
 }

@@ -74,7 +74,7 @@ namespace AdvancedMDDomain.DTOs.Responses
     }
 
     [XmlRoot(ElementName = "PPMDResults")]
-    public class PpmLookUpResPartyResponse: IPpmResponse
+    public class PpmLookUpResPartyResponse : IPpmResponse
     {
         [XmlElement(ElementName = "Results")]
         public RespartyResults Results { get; set; }
@@ -85,5 +85,5 @@ namespace AdvancedMDDomain.DTOs.Responses
         [XmlAttribute(AttributeName = "lst")]
         public string Lst { get; set; }
     }
-   
+
 }

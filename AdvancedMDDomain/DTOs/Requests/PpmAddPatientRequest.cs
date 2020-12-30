@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Xml.Serialization;
+﻿using System.Xml.Serialization;
 
 namespace AdvancedMDDomain.DTOs.Requests
 {
@@ -20,7 +15,7 @@ namespace AdvancedMDDomain.DTOs.Requests
         public string Address1 { get; set; }
         [XmlAttribute(AttributeName = "address2")]
         public string Address2 { get; set; }
-        [XmlAttribute(AttributeName ="countrycode")]
+        [XmlAttribute(AttributeName = "countrycode")]
         public string CountryCode { get; set; }
     }
 
@@ -120,9 +115,9 @@ namespace AdvancedMDDomain.DTOs.Requests
     }
 
     [XmlRoot(ElementName = "ppmdmsg")]
-    public class PpmAddPatientRequest :IPpmRequest
+    public class PpmAddPatientRequest : IPpmRequest
     {
-        
+
         [XmlElement(ElementName = "patientlist")]
         public RequestPatientlist RequestPatientlist { get; set; }
         [XmlElement(ElementName = "resppartylist")]

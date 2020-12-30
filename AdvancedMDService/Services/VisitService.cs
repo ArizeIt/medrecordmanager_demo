@@ -1,25 +1,21 @@
 ﻿using AdvancedMDDomain;
 using AdvancedMDDomain.DTOs.Requests;
 using AdvancedMDDomain.DTOs.Responses;
+using AdvancedMDDomain.Lookups;
 using AdvancedMDInterface;
 using PVAMCommon;
 using System;
-using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
-using System.Xml;
-using System.Xml.Linq;
-using AdvancedMDDomain.Lookups;
 using System.Threading.Tasks;
 
 namespace AdvancedMDService
 {
     public class VisitService : IVisitService
     {
-      
+
         public async Task<PpmAddVisitResponse> AddVisit(Uri apiUrl, string userContext, string clinic, string patientId, string providerId, string columnHead, string visitType, string date, string timeIn, string duration)
         {
-            
+
 
             var addVisitRequest = new PpmAddVisitRequest()
             {
@@ -54,8 +50,8 @@ namespace AdvancedMDService
             try
             {
                 var apiClient = new HttpWebClient();
-                var response = await apiClient.WebPostAsync(apiUrl, userContext, addVisitRequest.Serialize());            
-                return  response.Deserialize<PpmAddVisitResponse>();
+                var response = await apiClient.WebPostAsync(apiUrl, userContext, addVisitRequest.Serialize());
+                return response.Deserialize<PpmAddVisitResponse>();
             }
             catch (Exception ex)
             {
@@ -67,7 +63,7 @@ namespace AdvancedMDService
             }
         }
 
-        public async Task<IPpmResponse> AddVisitwNoAppt(Uri apiUrl, string userContext, string clinic, string patientId, string providerId,  string date)
+        public async Task<IPpmResponse> AddVisitwNoAppt(Uri apiUrl, string userContext, string clinic, string patientId, string providerId, string date)
         {
 
 
@@ -165,7 +161,7 @@ namespace AdvancedMDService
             var response = await apiClient.WebPostAsync(apiUrl, userContext, requestString);
             try
             {
-               return response.Deserialize<PpmGetFeesResponse>();
+                return response.Deserialize<PpmGetFeesResponse>();
 
             }
             catch (Exception ex)
@@ -184,7 +180,7 @@ namespace AdvancedMDService
             getEpisodesRequest.Action = RequestAction.GetEpisodes.Value;
             getEpisodesRequest.Class = ActionClass.Demographics.Value;
             getEpisodesRequest.Msgtime = DateTime.Now.ToString(CultureInfo.InvariantCulture);
-            
+
             var requestString = getEpisodesRequest.Serialize();
             var apiClient = new HttpWebClient();
             var response = await apiClient.WebPostAsync(apiUrl, userContext, requestString);
@@ -226,7 +222,7 @@ namespace AdvancedMDService
             }
         }
 
-        public async Task<IPpmResponse> AddPayment(Uri apiUrl, string userContext, PpmAddPaymentRequest request )
+        public async Task<IPpmResponse> AddPayment(Uri apiUrl, string userContext, PpmAddPaymentRequest request)
         {
             request.Action = RequestAction.AddPayment.Value;
             request.Class = ActionClass.Payement.Value;
@@ -239,9 +235,10 @@ namespace AdvancedMDService
                 return response.Deserialize<PpmAddPaymentResponse>();
 
             }
-            catch (Exception ex )
+            catch (Exception ex)
             {
-                return new PpmAddPaymentResponse {
+                return new PpmAddPaymentResponse
+                {
                     Error = ex.Message,
                     Results = null
                 };

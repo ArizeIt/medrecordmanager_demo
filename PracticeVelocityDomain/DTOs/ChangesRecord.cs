@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 using System.Xml.Serialization;
 
 namespace PracticeVelocityDomain.DTOs.Changes
@@ -238,5 +234,5 @@ namespace PracticeVelocityDomain.DTOs.Changes
         [XmlElement(ElementName = "Log_Record_Changes")]
         public List<Log_Record_Changes> Log_Record_Changes { get; set; }
     }
-   
+
 }

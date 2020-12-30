@@ -67,7 +67,7 @@ namespace UrgentCareData
                             {
                                 auditEntry.NewValues[propertyName] = property.CurrentValue;
                             }
-                            
+
                             break;
                         case EntityState.Deleted:
                             if (auditEntry.NewValues.GetType() != typeof(byte[]))
@@ -103,7 +103,7 @@ namespace UrgentCareData
             {
                 return Task.CompletedTask;
             }
-            
+
             foreach (var auditEntry in auditEntries)
             {
                 // Get the final value of the temporary properties

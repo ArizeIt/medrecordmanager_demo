@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Xml.Serialization;
+﻿using System.Xml.Serialization;
 
 namespace AdvancedMDDomain.DTOs.Requests
 {
@@ -94,7 +89,7 @@ namespace AdvancedMDDomain.DTOs.Requests
     }
 
     [XmlRoot(ElementName = "ppmdmsg")]
-    public class PpmUploadFileRequest :IPpmRequest
+    public class PpmUploadFileRequest : IPpmRequest
     {
         [XmlElement(ElementName = "file")]
         public RequestFile File { get; set; }
@@ -117,5 +112,5 @@ namespace AdvancedMDDomain.DTOs.Requests
         [XmlAttribute(AttributeName = "lst")]
         public string Lst { get; set; }
     }
-   
+
 }

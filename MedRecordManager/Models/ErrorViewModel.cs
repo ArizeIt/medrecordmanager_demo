@@ -1,5 +1,3 @@
-using System;
-
 namespace MedRecordManager.Models
 {
     public class ErrorViewModel

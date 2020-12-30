@@ -1,8 +1,4 @@
-﻿
-
-using AdvancedMDDomain;
-
-namespace AdvancedMDDomain.DTOs.Responses
+﻿namespace AdvancedMDDomain.DTOs.Responses
 {
     public class ErrorResponse : IPpmResponse
     {

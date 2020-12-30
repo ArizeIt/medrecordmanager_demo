@@ -2,8 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace MedRecordManager.Models.DailyRecord
 {
@@ -11,7 +9,7 @@ namespace MedRecordManager.Models.DailyRecord
     {
         public PatientChart ChartInfo { get; set; }
 
-        
+
         public int ChartId { get; set; }
         public Guarantor GuarantorInfo { get; set; }
 
@@ -19,7 +17,7 @@ namespace MedRecordManager.Models.DailyRecord
 
         public IEnumerable<Insurance> InsuranceInfo { get; set; }
 
-        public Patient PaitentInfo{ get; set; }
+        public Patient PaitentInfo { get; set; }
 
         public IEnumerable<FileDocument> PatientDoc { get; set; }
         public IList<SelectListItem> Relationship { get; set; }
@@ -59,7 +57,7 @@ namespace MedRecordManager.Models.DailyRecord
 
     public class Patient
     {
-        [Required(ErrorMessage ="First Name is Reuried")]
+        [Required(ErrorMessage = "First Name is Reuried")]
         [StringLength(50)]
         public string FirstName { get; set; }
 
@@ -67,7 +65,7 @@ namespace MedRecordManager.Models.DailyRecord
         [StringLength(50)]
         public string LastName { get; set; }
 
-        
+
         [StringLength(50)]
         public string MidName { get; set; }
 
@@ -81,7 +79,7 @@ namespace MedRecordManager.Models.DailyRecord
         public string Email { get; set; }
 
         public Address Address { get; set; }
-       
+
 
         public string CellPhone { get; set; }
 
@@ -113,7 +111,7 @@ namespace MedRecordManager.Models.DailyRecord
         public string State { get; set; }
 
         public string Zip { get; set; }
-       
+
     }
 
     public class FileDocument
@@ -137,11 +135,11 @@ namespace MedRecordManager.Models.DailyRecord
 
         public DateTime SignoffDate { get; set; }
 
-        public string SignoffBy { get;  set; }
+        public string SignoffBy { get; set; }
 
         public IEnumerable<ChartDoc> ChartDocs { get; set; }
     }
-}   
+}
 
 
 

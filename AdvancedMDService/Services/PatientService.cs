@@ -1,16 +1,13 @@
-﻿using AdvancedMDInterface;
+﻿using AdvancedMDDomain;
+using AdvancedMDDomain.DTOs.Requests;
+using AdvancedMDDomain.DTOs.Responses;
+using AdvancedMDDomain.Lookups;
+using AdvancedMDInterface;
+using PVAMCommon;
 using System;
-using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
-using AdvancedMDDomain;
-using AdvancedMDDomain.DTOs.Requests;
-using PVAMCommon;
-using AdvancedMDDomain.DTOs.Responses;
-
-using AdvancedMDDomain.Lookups;
 using System.Xml.Linq;
 
 namespace AdvancedMDService
@@ -46,12 +43,12 @@ namespace AdvancedMDService
                         if (addPatientRequest.RequestPatientlist.Patient.Ssn == "000-00-0000")
                         {
                             addPatientRequest.Force = "1";
-                            await AddPatient(apiUrl, userContext,addPatientRequest);
+                            await AddPatient(apiUrl, userContext, addPatientRequest);
                         }
                     }
                     if (error.Fault.Detail.Code.Any() && error.Fault.Detail.Description == "The patient you are adding already exists as a responsible party. Select that person in the Responsible Party Name field instead of SELF.")
                     {
-                        var respartyResponse =  (PpmLookUpResPartyResponse)LookupRespartyByName(apiUrl, userContext, addPatientRequest.RequestPatientlist.Patient.Name).Result;
+                        var respartyResponse = (PpmLookUpResPartyResponse)LookupRespartyByName(apiUrl, userContext, addPatientRequest.RequestPatientlist.Patient.Name).Result;
                         if (respartyResponse != null && respartyResponse.Results != null && respartyResponse.Results.Resppartylist.Respparty != null)
                         {
                             addPatientRequest.RequestPatientlist.Patient.Respparty = "";
@@ -138,7 +135,7 @@ namespace AdvancedMDService
             };
 
             var apiClient = new HttpWebClient();
-            var response = await  apiClient.WebPostAsync(apiUrl, userContext, lookuprquest.Serialize());
+            var response = await apiClient.WebPostAsync(apiUrl, userContext, lookuprquest.Serialize());
 
             return response.Deserialize<PpmLookUpPatientResponse>();
         }
@@ -156,7 +153,7 @@ namespace AdvancedMDService
             };
 
             var apiClient = new HttpWebClient();
-            var response = await  apiClient.WebPostAsync(apiUrl, userContext, lookuprquest.Serialize());
+            var response = await apiClient.WebPostAsync(apiUrl, userContext, lookuprquest.Serialize());
             return response.Deserialize<PpmLookUpPatientResponse>();
         }
 
@@ -188,7 +185,7 @@ namespace AdvancedMDService
             {
                 return null;
             }
-                     
+
         }
 
 

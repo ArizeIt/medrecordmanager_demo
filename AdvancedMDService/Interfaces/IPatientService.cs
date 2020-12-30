@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace AdvancedMDInterface
 {
-    public interface IPatientService 
+    public interface IPatientService
     {
         Task<IPpmResponse> AddPatient(Uri apiUrl, string userContext, PpmAddPatientRequest addPatientRequest);
         Task<IPpmResponse> UpdatePatient(Uri apiUrl, string userContext, PpmUpdatePatientRequest updatePatientRequest);

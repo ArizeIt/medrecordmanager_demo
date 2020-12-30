@@ -1,10 +1,10 @@
 ﻿#if NETSTANDARD2_0
 using Microsoft.Extensions.Configuration;
 #endif
+using ExpressionBuilder.Common;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
-using ExpressionBuilder.Common;
 
 namespace ExpressionBuilder.Configuration
 {

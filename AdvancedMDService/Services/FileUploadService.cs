@@ -1,21 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using AdvancedMDDomain;
-using AdvancedMDDomain.DTOs.Requests;
+﻿using AdvancedMDDomain.DTOs.Requests;
 using AdvancedMDDomain.DTOs.Responses;
 using AdvancedMDDomain.Lookups;
 using AdvancedMDInterface;
 using PVAMCommon;
+using System;
+using System.Globalization;
+using System.Threading.Tasks;
 
 namespace AdvancedMDService
 {
     public class FileUploadService : IFileUploadService
     {
-      
+
 
         public async Task<PpmUploadFileResponse> Upload(Uri apiUri, string userContext, PpmUploadFileRequest fileRequest)
         {
@@ -36,7 +32,7 @@ namespace AdvancedMDService
                 };
             }
 
-        }      
+        }
     }
 }
 

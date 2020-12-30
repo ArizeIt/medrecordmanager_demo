@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace UrgentCareData.Models
+﻿namespace UrgentCareData.Models
 {
     public partial class CptCodeLookup
     {

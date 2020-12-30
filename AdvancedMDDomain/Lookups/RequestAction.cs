@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace AdvancedMDDomain.Lookups
+﻿namespace AdvancedMDDomain.Lookups
 
 {
     public class RequestAction
@@ -44,13 +37,13 @@ namespace AdvancedMDDomain.Lookups
 
         public static RequestAction UploadFile => new RequestAction("uploadfile");
 
-        public static RequestAction SaveCharges=> new RequestAction("savecharges");
+        public static RequestAction SaveCharges => new RequestAction("savecharges");
 
         public static RequestAction UpdateVisitWithCharges => new RequestAction("updvisitwithnewcharges");
 
-        public static RequestAction GetFees=> new RequestAction("getfees");
+        public static RequestAction GetFees => new RequestAction("getfees");
 
-        public static  RequestAction GetEpisodes=> new RequestAction("getepisodes");
+        public static RequestAction GetEpisodes => new RequestAction("getepisodes");
 
         public static RequestAction NewBatch => new RequestAction("newbatch");
 

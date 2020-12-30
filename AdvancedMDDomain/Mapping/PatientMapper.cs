@@ -1,7 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using AdvancedMDDomain.DTOs.Requests;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
-using AdvancedMDDomain.DTOs.Requests;
 using UrgentCareData.Models;
 
 namespace AdvancedMDDomain.Mapping
@@ -42,7 +42,7 @@ namespace AdvancedMDDomain.Mapping
             newPatient.Dob = rec.PvPatient.Birthday;
             newPatient.Sex = rec.PvPatient.Sex;
             newPatient.Ssn = rec.PvPatient.Ssn;
-           
+
             newPatient.Contactinfo = new Contactinfo()
             {
                 Homephone = rec.PvPatient.HomePhone,
@@ -61,8 +61,8 @@ namespace AdvancedMDDomain.Mapping
             }
 
             newPatient.Maritalstatus = "6"; //unknow form the source
-                                        
-            
+
+
             var payerInformation = rec.PayerInformation.FirstOrDefault();
             if (payerInformation != null)
             {
@@ -74,7 +74,7 @@ namespace AdvancedMDDomain.Mapping
                     matchFin = finClasses.FirstOrDefault(x => x.AmFinClassCode == "CC");
                 }
 
-                if(matchFin == null)
+                if (matchFin == null)
                 {
                     matchFin = finClasses.FirstOrDefault(x => x.PvClassCode == payerInformation.Class);
                 }
@@ -87,15 +87,15 @@ namespace AdvancedMDDomain.Mapping
                 newPatient.Finclass = "fclass12";
             }
             newPatient.Chart = "AUTO";
-            
+
             if (rec.GuarantorPayer != null)
             {
-                if (rec.GuarantorPayer.RelationshipCode == "18" || rec.GuarantorPayer.RelationshipCode =="01")
+                if (rec.GuarantorPayer.RelationshipCode == "18" || rec.GuarantorPayer.RelationshipCode == "01")
                 {
                     newPatient.Respparty = "SELF";
                     respParty.Name = newPatient.Name;
                 }
-               
+
                 var relationshipCode = relationships.FirstOrDefault(x => x.Hipaarelationship == rec.GuarantorPayer.RelationshipCode);
                 if (relationshipCode != null)
                 {
@@ -130,7 +130,7 @@ namespace AdvancedMDDomain.Mapping
 
                 if ((rec.PayerInformation != null & rec.PayerInformation.Any()) && !(rec.GuarantorPayer.RelationshipCode == "01" || rec.GuarantorPayer.RelationshipCode == "18"))
                 {
-                    foreach( var recpayer in rec.PayerInformation)
+                    foreach (var recpayer in rec.PayerInformation)
                     {
                         recpayer.InsName = Regex.Replace(recpayer.InsName, @"\s+", "");
                         recpayer.InsName = Regex.Replace(gurantorName, @"\s+", "");
@@ -145,7 +145,7 @@ namespace AdvancedMDDomain.Mapping
                         }
                     }
                 }
-                               
+
                 respParty.City = rec.GuarantorPayer.City;
                 respParty.State = rec.GuarantorPayer.State;
                 respParty.Zip = rec.GuarantorPayer.Zip;

@@ -75,7 +75,7 @@ namespace AdvancedMDDomain.DTOs.Responses
     }
 
     [XmlRoot(ElementName = "PPMDResults")]
-    public class PpmLoginBadResponse:IPpmResponse
+    public class PpmLoginBadResponse : IPpmResponse
     {
         [XmlElement(ElementName = "Results")]
         public string Results { get; set; }

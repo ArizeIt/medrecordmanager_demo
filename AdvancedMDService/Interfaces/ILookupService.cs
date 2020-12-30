@@ -1,14 +1,11 @@
 ﻿using AdvancedMDDomain;
 using AdvancedMDDomain.DTOs.Responses;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace AdvancedMDInterface
 {
-    public interface ILookupService 
+    public interface ILookupService
     {
         Task<PpmLookUpProviderResponse> LookupProviderByName(Uri apiUrl, string userContext, string providerName);
         Task<PpmLookUpProviderResponse> LookupProviderByCode(Uri apiUrl, string userContext, string code);

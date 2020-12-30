@@ -27,13 +27,14 @@ namespace CucmsService.Services
         {
             if (string.IsNullOrEmpty(fileName))
             {
-                await Task.Run(() => {
+                await Task.Run(() =>
+                {
                     var dir = filePath;
                     var allFiles = Directory.GetFiles(dir, "*.*", SearchOption.AllDirectories)
                         .Where(s => s.EndsWith("xml") && s.Contains("new")).ToList();
                     var appPath = AppDomain.CurrentDomain.BaseDirectory + @"ProcessFileLog.txt";
                     return allFiles;
-                });               
+                });
             }
             if (File.Exists(filePath + fileName))
             {
@@ -42,26 +43,26 @@ namespace CucmsService.Services
             return new List<string>();
         }
 
-        public async Task<string> GetXmlFromFileAsync(string  filepath)
+        public async Task<string> GetXmlFromFileAsync(string filepath)
         {
             var resturnString = string.Empty;
             if (File.Exists(filepath))
             {
                 var xmlDoc = new XmlDocument();
-              
-                    await Task.Run(() =>
+
+                await Task.Run(() =>
+                {
+                    xmlDoc.Load(filepath);
+                    using (var stringWriter = new StringWriter())
                     {
-                        xmlDoc.Load(filepath);
-                        using (var stringWriter = new StringWriter())
+                        using (var xmlTextWriter = XmlWriter.Create(stringWriter))
                         {
-                            using (var xmlTextWriter = XmlWriter.Create(stringWriter))
-                            {
-                                xmlDoc.WriteTo(xmlTextWriter);
-                                xmlTextWriter.Flush();
-                                resturnString = stringWriter.GetStringBuilder().ToString();
-                            };
-                        }
-                    });                       
+                            xmlDoc.WriteTo(xmlTextWriter);
+                            xmlTextWriter.Flush();
+                            resturnString = stringWriter.GetStringBuilder().ToString();
+                        };
+                    }
+                });
             }
             return resturnString;
         }

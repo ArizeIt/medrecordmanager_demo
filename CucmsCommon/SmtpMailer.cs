@@ -7,16 +7,16 @@ using System.Threading.Tasks;
 
 namespace PVAMCommon
 {
-    public class SmtpMailer:IDisposable
+    public class SmtpMailer : IDisposable
     {
-       private string Server { get; set; }
-       private  string ClientUser { get;  set; }
+        private string Server { get; set; }
+        private string ClientUser { get; set; }
         private int Port { get; set; }
-        private string ClientPassword { get;  set; }
-      
+        private string ClientPassword { get; set; }
+
         public SmtpMailer(string smtp, int port, string username, string password)
         {
-            Server  = smtp;
+            Server = smtp;
             Port = port;
             ClientUser = username;
             ClientPassword = password;
@@ -25,7 +25,7 @@ namespace PVAMCommon
         public async Task SendExceptionEmail(string fromAddress, string techAddresses, string body)
         {
 
-            await SendMailAsync(fromAddress, new List<string> { techAddresses}, null, "Important: Integration Cought Exception(s)", body, null);
+            await SendMailAsync(fromAddress, new List<string> { techAddresses }, null, "Important: Integration Cought Exception(s)", body, null);
         }
 
         public async Task SendResultEmail(string fromAddress, List<string> toAddress, List<string> ccAddress, string body)
@@ -39,7 +39,7 @@ namespace PVAMCommon
             var mail = new MailMessage()
             {
                 To = { },
-                CC = {}    
+                CC = { }
             };
 
             var smtpClient = new SmtpClient(Server)
@@ -74,11 +74,11 @@ namespace PVAMCommon
             if (!string.IsNullOrEmpty(filePath))
             {
                 var attachment = new Attachment(filePath);
-            
+
                 mail.Attachments.Add(attachment);
-                    
+
             }
-            
+
             smtpClient.SendCompleted += (s, e) =>
              {
                  smtpClient.Dispose();
@@ -126,7 +126,7 @@ namespace PVAMCommon
             mail.Subject = subject;
             mail.Body = body;
 
-            if (fileContent.Length> 0)
+            if (fileContent.Length > 0)
             {
                 var attachment = new Attachment(new MemoryStream(fileContent), fileName);
 

@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace AdvancedMDDomain.Lookups
+﻿namespace AdvancedMDDomain.Lookups
 {
     public class ActionClass
     {
@@ -23,10 +16,10 @@ namespace AdvancedMDDomain.Lookups
 
         public static ActionClass Files => new ActionClass("files");
 
-        public static ActionClass Batches=> new ActionClass("batches");
+        public static ActionClass Batches => new ActionClass("batches");
 
-        public static ActionClass Payement=> new ActionClass("paymententry");
+        public static ActionClass Payement => new ActionClass("paymententry");
 
-        public static ActionClass MasterFile=> new ActionClass("masterfiles");
+        public static ActionClass MasterFile => new ActionClass("masterfiles");
     }
 }

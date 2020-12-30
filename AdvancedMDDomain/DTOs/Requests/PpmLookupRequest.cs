@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Xml.Serialization;
+﻿using System.Xml.Serialization;
 
 namespace AdvancedMDDomain.DTOs.Requests
 {
@@ -49,7 +44,7 @@ namespace AdvancedMDDomain.DTOs.Requests
         public string Name { get; set; }
 
         [XmlAttribute(AttributeName = "acctnum")]
-        public string Account { get; set;}
+        public string Account { get; set; }
     }
 
 
@@ -64,7 +59,7 @@ namespace AdvancedMDDomain.DTOs.Requests
     }
 
     [XmlRoot(ElementName = "ppmdmsg")]
-    public class PpmLookUpFinClassRequest :LookUpRequest
+    public class PpmLookUpFinClassRequest : LookUpRequest
     {
         [XmlAttribute(AttributeName = "code")]
         public string Code { get; set; }

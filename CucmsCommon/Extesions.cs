@@ -1,5 +1,4 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Internal;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -44,7 +43,7 @@ namespace PVAMCommon
             using (StringReader stringReader = new StringReader(xmlText))
             {
                 var serializer = new XmlSerializer(typeof(T));
-                return (T) serializer.Deserialize(stringReader);
+                return (T)serializer.Deserialize(stringReader);
             }
         }
 
@@ -70,9 +69,9 @@ namespace PVAMCommon
                         xslt.Transform(xri, xwo);
                         return xwo.ToString();
                     }
-                    
+
                 }
-               
+
             }
         }
 

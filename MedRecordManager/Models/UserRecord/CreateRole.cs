@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace MedRecordManager.Models.UserRecord
 {
@@ -15,11 +11,11 @@ namespace MedRecordManager.Models.UserRecord
 
     public enum Roles
     {
-        SuperAdmin, 
+        SuperAdmin,
         CompanyAdmin,
-        OfficeAdmin, 
-        ClinicAdmin, 
-        CompanyPowerUser, 
+        OfficeAdmin,
+        ClinicAdmin,
+        CompanyPowerUser,
         OfficePowerUser,
         ClinicPowerUser
     }

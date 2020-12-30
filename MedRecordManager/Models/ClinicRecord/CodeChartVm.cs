@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-
-namespace MedRecordManager.Models
+﻿namespace MedRecordManager.Models
 {
     public class CodeChartVm
     {
@@ -17,7 +12,7 @@ namespace MedRecordManager.Models
         public int Position { get; set; }
 
         public int Total { get; set; }
-        
+
         public string PhysicianName { get; set; }
 
         public string PhysicanEmail { get; set; }
@@ -25,7 +20,7 @@ namespace MedRecordManager.Models
 
     public class ChartVm
     {
-       public ChartVm()
+        public ChartVm()
         {
             ChartType = string.Empty;
             ChartName = string.Empty;
@@ -39,7 +34,7 @@ namespace MedRecordManager.Models
         public bool IsFlaged { get; set; }
     }
 
-       
+
 
     public class Code
     {

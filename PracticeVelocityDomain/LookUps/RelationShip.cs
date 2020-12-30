@@ -1,12 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace PracticeVelocityDomain.LookUps
+﻿namespace PracticeVelocityDomain.LookUps
 {
-   public class PVRelationShip
+    public class PVRelationShip
     {
         private PVRelationShip(string value) { Value = value; }
         public string Value { get; set; }

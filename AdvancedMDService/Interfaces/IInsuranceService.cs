@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace AdvancedMDInterface
 {
-    public interface IInsuranceService 
+    public interface IInsuranceService
     {
         Task<IPpmResponse> AddInsurance(Uri apiUri, string userContext, PpmAddInsuranceRequest request);
     }

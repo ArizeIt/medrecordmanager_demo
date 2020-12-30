@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 using System.Xml.Serialization;
 
 namespace AdvancedMDDomain.DTOs.Requests
@@ -41,7 +37,7 @@ namespace AdvancedMDDomain.DTOs.Requests
     }
 
     [XmlRoot(ElementName = "ppmdmsg")]
-    public class PpmSaveChargesRequest :IPpmRequest
+    public class PpmSaveChargesRequest : IPpmRequest
     {
         [XmlElement(ElementName = "visit")]
         public AmdVisit Visit { get; set; }

@@ -17,15 +17,15 @@ namespace MedRecordManager.Models
         public IEnumerable<SelectListItem> Clinics { get; set; }
 
         [DisplayName("Start Date Time:"), DisplayFormat(DataFormatString = "{0:dd/MM/yyyy hh:mm:ss tt}")]
-        public DateTime StartDate{get;set;}
+        public DateTime StartDate { get; set; }
 
         [DisplayName("End Date Time:"), DisplayFormat(DataFormatString = "{0:dd/MM/yyyy hh:mm:ss tt}")]
-        public DateTime EndDate{get;set;}
+        public DateTime EndDate { get; set; }
 
 
         public string Type { get; set; }
 
     }
 
-    
+
 }

@@ -1,18 +1,15 @@
-﻿using System;
-using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata;
+﻿using Microsoft.EntityFrameworkCore;
 using UrgentCareData.Models;
 
 namespace UrgentCareData
 {
-    public partial class UrgentCareContext  : DbContext
+    public partial class UrgentCareContext : DbContext
     {
-        public UrgentCareContext ()
+        public UrgentCareContext()
         {
         }
 
-        public UrgentCareContext (DbContextOptions<UrgentCareContext > options)
+        public UrgentCareContext(DbContextOptions<UrgentCareContext> options)
             : base(options)
         {
         }

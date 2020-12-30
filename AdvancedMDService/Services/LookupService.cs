@@ -1,21 +1,18 @@
-﻿using AdvancedMDInterface;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using AdvancedMDDomain;
+﻿using AdvancedMDDomain;
 using AdvancedMDDomain.DTOs.Requests;
-using AdvancedMDDomain.Lookups;
-using System.Globalization;
-using PVAMCommon;
 using AdvancedMDDomain.DTOs.Responses;
+using AdvancedMDDomain.Lookups;
+using AdvancedMDInterface;
+using PVAMCommon;
+using System;
+using System.Globalization;
+using System.Threading.Tasks;
 
 namespace AdvancedMDService
 {
     public class LookupService : ILookupService
     {
-       
+
         public async Task<PpmLookUpProviderResponse> LookupProviderByName(Uri apiUrl, string userContext, string providerName)
         {
             var lookuprquest = new PpmLookUpProviderRequest
@@ -61,7 +58,7 @@ namespace AdvancedMDService
             {
                 return response.Deserialize<PpmLookUpProviderResponse>();
             }
-            catch 
+            catch
             {
                 return new PpmLookUpProviderResponse
                 {
@@ -89,7 +86,7 @@ namespace AdvancedMDService
             {
                 return response.Deserialize<PpmLookUpProviderResponse>();
             }
-            catch 
+            catch
             {
                 return new PpmLookUpProviderResponse
                 {
@@ -246,7 +243,7 @@ namespace AdvancedMDService
                 return new PpmLookupDiagCodeResponse
                 {
                     Error = ex.Message,
-                   Results = null
+                    Results = null
                 };
             }
         }
@@ -400,6 +397,6 @@ namespace AdvancedMDService
             throw new NotImplementedException();
         }
 
-      
+
     }
 }

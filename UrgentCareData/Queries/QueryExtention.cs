@@ -1,14 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Text;
 
 namespace UrgentCareData.Queries
 {
     public static partial class QueryableExtensions
     {
-        public static Expression<Func<T, bool>> DynamicWhere<T>(this IQueryable<T> source, string pname, object value, string expression) 
+        public static Expression<Func<T, bool>> DynamicWhere<T>(this IQueryable<T> source, string pname, object value, string expression)
         {
             var param = Expression.Parameter(typeof(T), "arg");
             var memberValue = pname.Split('.').Aggregate((Expression)param, Expression.PropertyOrField);
@@ -38,6 +36,6 @@ namespace UrgentCareData.Queries
             return source.Where(predicate);
         }
 
-        
+
     }
 }

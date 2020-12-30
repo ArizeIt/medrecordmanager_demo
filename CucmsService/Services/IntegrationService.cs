@@ -13,7 +13,6 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 using UrgentCareData;
 using UrgentCareData.Models;
@@ -300,7 +299,7 @@ namespace CucmsService.Services
                             }
                             if (!string.IsNullOrEmpty(physician?.AmProviderId))
                             {
-                                var importedPatient = await  _urgentCareContext.PatientImportLog.FirstOrDefaultAsync(x => x.PvpatientId == visitRec.PvPatientId && x.OfficeKey == officeKey);
+                                var importedPatient = await _urgentCareContext.PatientImportLog.FirstOrDefaultAsync(x => x.PvpatientId == visitRec.PvPatientId && x.OfficeKey == officeKey);
 
 
                                 try
@@ -381,7 +380,7 @@ namespace CucmsService.Services
                                                     {
                                                         importFailed.Add(
                                                             string.Format(
-                                                                "Failed to add the patient document, document name: {0} , Patient Name: {1}, Pv Patient Id: {2}", 
+                                                                "Failed to add the patient document, document name: {0} , Patient Name: {1}, Pv Patient Id: {2}",
                                                                 patDoc.FileName, (visitRec.PvPatient.FirstName + "" + visitRec.PvPatient.LastName), visitRec.PvPatient.PatNum));
                                                     }
                                                 }
@@ -414,7 +413,7 @@ namespace CucmsService.Services
                                                         {
                                                             importFailed.Add(
                                                                 string.Format(
-                                                                    "Failed to add the patient chart, Chart name: {0} , Patient Name: {1}, Pv Patient Id: {2}", 
+                                                                    "Failed to add the patient chart, Chart name: {0} , Patient Name: {1}, Pv Patient Id: {2}",
                                                                     chartDoc.FileName, (visitRec.PvPatient.FirstName + "" + visitRec.PvPatient.LastName), visitRec.PvPatient.PatNum));
                                                         }
                                                     }
@@ -563,14 +562,14 @@ namespace CucmsService.Services
             return null;
         }
 
-        public  Task<string> UpdateGuarantor(int visitId, int officeKey)
+        public Task<string> UpdateGuarantor(int visitId, int officeKey)
         {
             throw new NotImplementedException();
         }
 
         public async Task<string> AddVisit(Uri apiUrl, string token, int visitId, int officekey, string amdProviderId, string amdPatientId, string facilityId, bool existingPateint)
         {
-            var visitRec = await _urgentCareContext.Visit.Include(x=>x.VisitImpotLog).FirstOrDefaultAsync(x => x.VisitId == visitId);
+            var visitRec = await _urgentCareContext.Visit.Include(x => x.VisitImpotLog).FirstOrDefaultAsync(x => x.VisitId == visitId);
 
             var newVisit = new Dictionary<string, string>
             {
@@ -595,7 +594,7 @@ namespace CucmsService.Services
                 if (advancedMdColumnHeader != null)
                 {
                     var colHeader = advancedMdColumnHeader.ColumnHeader;
-                    var visitResponse = await  _visitservice.AddVisit(apiUrl, token, visitRec.ClinicId, amdPatientId, amdProviderId, colHeader, visitType,
+                    var visitResponse = await _visitservice.AddVisit(apiUrl, token, visitRec.ClinicId, amdPatientId, amdProviderId, colHeader, visitType,
                         visitRec.ServiceDate.ToString("MM/dd/yyyy"), visitRec.TimeIn.ToString("HH:mm"), DateTime.Parse(visitRec.TimeOut.ToShortTimeString()).Subtract(DateTime.Parse(visitRec.TimeIn.ToShortTimeString())).TotalMinutes.ToString());
 
                     if (!string.IsNullOrEmpty(visitResponse?.Results?.Visit.Id))
@@ -612,7 +611,7 @@ namespace CucmsService.Services
 
                         _urgentCareContext.VisitImpotLog.Add(visitImportLog);
 
-                        var savevisitTask =_urgentCareContext.SaveChangesAsync();
+                        var savevisitTask = _urgentCareContext.SaveChangesAsync();
 
                         if (visitRec.CoPayAmount != 0)
                         {
@@ -637,7 +636,7 @@ namespace CucmsService.Services
                                 }
                             };
                             var addPaymentTask = _visitservice.AddPayment(apiUrl, token, paymentRequest);
-                           
+
                         }
 
                         //Add currentpayment amount 
@@ -663,18 +662,18 @@ namespace CucmsService.Services
                                     Depositdate = visitRec.ServiceDate.Date.AddDays(-1).ToString()
                                 }
                             };
-                            var response = await _visitservice.AddPayment(apiUrl, token, paymentRequest);                          
+                            var response = await _visitservice.AddPayment(apiUrl, token, paymentRequest);
                         }
 
                         await SaveCharges(visitRec, amdPatientId, visitImportLog.AmdvisitId, facilityId, amdProviderId, existingPateint);
-                       
+
                         return visitResponse?.Results?.Visit.Id;
                     }
                 }
             }
             else if (visitRec.VisitImpotLog.FirstOrDefault().ChargeImported == null || visitRec.VisitImpotLog.FirstOrDefault().ChargeImported == false)
             {
-                var imported = SaveCharges(visitRec,  amdPatientId, visitRec.VisitImpotLog.FirstOrDefault().AmdvisitId, facilityId, amdProviderId, existingPateint);
+                var imported = SaveCharges(visitRec, amdPatientId, visitRec.VisitImpotLog.FirstOrDefault().AmdvisitId, facilityId, amdProviderId, existingPateint);
                 visitRec.VisitImpotLog.FirstOrDefault().ChargeImported = true;
                 await _urgentCareContext.SaveChangesAsync();
             }
@@ -686,7 +685,7 @@ namespace CucmsService.Services
             throw new NotImplementedException();
         }
 
-        public Task<bool> AddCharges(Visit visitRecord,  string amdPatientId, string amdVisitId, string amdFacilityId, string batchNumber)
+        public Task<bool> AddCharges(Visit visitRecord, string amdPatientId, string amdVisitId, string amdFacilityId, string batchNumber)
         {
             throw new NotImplementedException();
         }

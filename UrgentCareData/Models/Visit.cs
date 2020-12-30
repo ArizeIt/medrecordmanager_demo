@@ -13,7 +13,7 @@ namespace UrgentCareData.Models
             VisitImpotLog = new HashSet<VisitImpotLog>();
             VisitProcCode = new HashSet<VisitProcCode>();
             VisitICDCode = new HashSet<VisitICDCode>();
-            AppliedRules  = new HashSet<VisitRuleSet>();
+            AppliedRules = new HashSet<VisitRuleSet>();
         }
 
         public DateTime ServiceDate { get; set; }

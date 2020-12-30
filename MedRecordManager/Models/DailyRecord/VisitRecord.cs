@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 
 namespace MedRecordManager.Models.DailyRecord
 {
@@ -7,23 +6,23 @@ namespace MedRecordManager.Models.DailyRecord
     {
         public string PatientName { get; set; }
 
-        public int PatientId {get;set;}
+        public int PatientId { get; set; }
 
-        public string ClinicName {get;set;}
+        public string ClinicName { get; set; }
 
-        public string PVFinClass {get;set;}
-        
-        public string DiagCode { get;set;}
+        public string PVFinClass { get; set; }
 
-        public int OfficeKey{get;set;}
+        public string DiagCode { get; set; }
 
-        public string VisitTime{get;set;}
+        public int OfficeKey { get; set; }
+
+        public string VisitTime { get; set; }
 
         public string IcdCodes { get; set; }
 
         public decimal Payment { get; set; }
 
-        public int PvRecordId {get; set;}
+        public int PvRecordId { get; set; }
 
         public string ProcCodes { get; set; }
 

@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace UrgentCareData.Models
+﻿namespace UrgentCareData.Models
 {
     public class VisitICDCode
     {

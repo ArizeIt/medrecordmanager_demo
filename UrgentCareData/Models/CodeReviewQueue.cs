@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 
 namespace UrgentCareData.Models
 {
@@ -10,7 +9,7 @@ namespace UrgentCareData.Models
 
         public int Id { get; set; }
 
-        public int? ParentId  {get;set;}
+        public int? ParentId { get; set; }
 
         public string CreatedBy { get; set; }
 

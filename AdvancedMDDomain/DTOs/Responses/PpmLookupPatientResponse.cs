@@ -1,6 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using AdvancedMDDomain;
+using System.Collections.Generic;
 using System.Xml.Serialization;
-using AdvancedMDDomain;
 
 [XmlRoot(ElementName = "address")]
 public class LookUpAddress
@@ -74,7 +74,7 @@ public class LookUpPatientResults
 }
 
 [XmlRoot(ElementName = "PPMDResults")]
-public class PpmLookUpPatientResponse: IPpmResponse
+public class PpmLookUpPatientResponse : IPpmResponse
 {
     [XmlElement(ElementName = "Results")]
     public LookUpPatientResults Results { get; set; }

@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 using System.Xml;
 using System.Xml.Serialization;
 
@@ -51,9 +47,9 @@ namespace AdvancedMDDomain.DTOs.Requests
         public string Patbalance { get; set; }
         [XmlAttribute(AttributeName = "insbalance")]
         public string Insbalance { get; set; }
-        [XmlAttribute(AttributeName= "batchnumber")]
-        public string BatchNumber { get; set;}
-      
+        [XmlAttribute(AttributeName = "batchnumber")]
+        public string BatchNumber { get; set; }
+
     }
 
     [XmlRoot(ElementName = "chargelist")]
@@ -85,7 +81,7 @@ namespace AdvancedMDDomain.DTOs.Requests
     }
 
     [XmlRoot(ElementName = "ppmdmsg")]
-    public class PpmUpdateVisitWithNewCharngeRequest :IPpmRequest
+    public class PpmUpdateVisitWithNewCharngeRequest : IPpmRequest
     {
         [XmlElement(ElementName = "visit")]
         public UpdateVisit Visit { get; set; }
@@ -102,5 +98,5 @@ namespace AdvancedMDDomain.DTOs.Requests
         [XmlAttribute(AttributeName = "approval")]
         public string Approval { get; set; }
     }
-    
+
 }

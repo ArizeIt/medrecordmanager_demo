@@ -1,27 +1,25 @@
-﻿using AdvancedMDInterface;
-using System;
-using System.Globalization;
-using AdvancedMDDomain;
-using PVAMCommon;
-using System.Linq;
-using System.Xml.Linq;
-using AdvancedMDDomain.DTOs.Requests;
+﻿using AdvancedMDDomain.DTOs.Requests;
 using AdvancedMDDomain.DTOs.Responses;
 using AdvancedMDDomain.Lookups;
+using AdvancedMDInterface;
+using PVAMCommon;
+using System;
+using System.Globalization;
+using System.Linq;
 using System.Threading.Tasks;
-using System.Net.Http;
+using System.Xml.Linq;
 
 namespace AdvancedMDService
 {
     public class LoginService : ILoginService
-    {       
+    {
         public async Task<PpmLoginResponse> ProcessLogin(Uri apiUrl, int noCooki, string username, string password, string officecode, string appname, string cookie)
         {
             var apiClient = new HttpWebClient();
 
             var loginMsg = new PpmLoginRequest
             {
-                Action = RequestAction.Login.Value, 
+                Action = RequestAction.Login.Value,
                 Class = ActionClass.Login.Value,
                 Msgtime = DateTime.Now.ToString(CultureInfo.InvariantCulture),
                 NoCooki = noCooki,
@@ -67,7 +65,7 @@ namespace AdvancedMDService
                     Error = "Login Failed"
                 };
             }
-            catch(Exception ex )
+            catch (Exception ex)
             {
                 return new PpmLoginResponse()
                 {

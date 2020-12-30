@@ -49,7 +49,7 @@ namespace ExpressionBuilder.Builders
                     expr = GetExpression(param, statement);
                 }
 
-                if(!statement.Negation)
+                if (!statement.Negation)
                 {
                     expr = Expression.Not(expr);
                 }
