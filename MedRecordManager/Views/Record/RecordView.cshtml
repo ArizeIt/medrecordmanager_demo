@@ -106,7 +106,7 @@
                         { field: 'Flag', width: 50, renderer: flagManager },
                         { filed: 'visitId', hidden: true },
                         { field: 'patientName', width: 250, title: 'Patient Name', priority: 1, sortable: true, filterable: true , headerCssClass:'gridHeader'},
-                        { field: 'clinicName', width: 200, title: 'Clinic Name', priority: 2, type: 'dropdown', editor: { dataSource: '/Record/GetClinics', valueField: 'id' }, editField: 'clinicName' },
+                        { field: 'clinicName', width: 200, title: 'Clinic Name', priority: 2, sortable: true, type: 'dropdown', editor: { dataSource: '/Record/GetClinics', valueField: 'id' }, editField: 'clinicName' },
                         //{ field: 'physicanId', width: 200, title: 'Physican Number', priority: 3, type: 'dropdown', editor: select2editor },
                         { field: 'physicianName', width: 200, title: 'Physician Name' ,sortable: true},
                         { field: 'insuranceName', width: 200, title: 'Insurance Name',sortable: true},
@@ -138,8 +138,9 @@
                 dailyGrid.on('rowDataChanged', function (e, id, record) {
                     var $alert = $('#visitGridAlert');
                     var data = $.extend(true, {}, record);
+                   
                     $.ajax({
-                        url: '/Record/UpdateVisitAsync',
+                        url: '@Url.Action("UpdateVisit","Record")',
                         data: { record: data },
                         method: 'POST',
                         cache: false,

@@ -117,7 +117,7 @@ namespace MedRecordManager.Controllers
                 Payment = y.CoPayAmount.GetValueOrDefault(0),
                 ProcCodes = y.ProcCodes.Replace(",|", "<br/>").Replace("|", "<br/>"),
                 IsFlagged = y.Flagged
-            }).ToList();
+            }).OrderBy(x=>x.PatientName).ToList();
 
             total = records.Count();
 
@@ -448,7 +448,7 @@ namespace MedRecordManager.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> UpdateVisitAsync(VisitRecordVm record)
+        public async Task<IActionResult> UpdateVisit(VisitRecordVm record)
         {
             var visit = _urgentCareContext.Visit.Include(x => x.PvPatient).FirstOrDefault(x => x.VisitId == record.VisitId);
 
