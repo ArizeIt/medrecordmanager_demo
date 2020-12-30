@@ -70,142 +70,9 @@ namespace MedRecordManager.Controllers
             }).ToList();
 
             vm.StartDate = records.OrderBy(x => x.ServiceDate).FirstOrDefault() != null ? records.OrderBy(x => x.ServiceDate).FirstOrDefault().ServiceDate : DateTime.Today;
-            vm.EndDate = records.OrderByDescending(x => x.ServiceDate).FirstOrDefault() != null ? records.OrderBy(x => x.ServiceDate).FirstOrDefault().ServiceDate : DateTime.Today;
+            vm.EndDate = records.OrderByDescending(x => x.ServiceDate).FirstOrDefault() != null ? records.OrderByDescending(x => x.ServiceDate).FirstOrDefault().ServiceDate : DateTime.Today;
 
-            // after loading the filter items. copy the visit to bulkVisit table
-
-            foreach (var record in records)
-            {
-                var patient = _urgentCareContext.PatientInformation.FirstOrDefault(x => x.PatNum == record.PvPatientId);
-                var payer = _urgentCareContext.PayerInformation.FirstOrDefault(x => x.VisitId == record.VisitId);
-                if (_urgentCareContext.BulkVisit.Find(record.VisitId) == null)
-                {
-
-                    _urgentCareContext.BulkVisit.Add(new BulkVisit
-                    {
-                        VisitId = record.VisitId,
-                        TimeIn = record.TimeIn,
-                        TimeOut = record.TimeOut,
-                        LastUpdateTime = record.LastUpdateTime,
-                        ServiceDate = record.ServiceDate,
-                        PhysicanId = record.PhysicanId,
-                        ClinicId = record.ClinicId,
-                        OfficeKey = record.OfficeKey,
-                        ProcCodes = record.ProcCodes,
-                        Emcode = record.Emcode,
-                        Icdcodes = record.Icdcodes,
-                        LastUpdateUser = record.LastUpdateUser,
-                        Flagged = record.Flagged,
-                        GuarantorPayerId = record.GuarantorPayerId,
-                        PvlogNum = record.PvlogNum,
-                        PvPatientId = record.PvPatientId,
-                        FinClass = payer != null ? payer.Class.ToString() : "0",
-                        PatientName = patient.FirstName + " " + patient.LastName,
-                        CoPayAmount = record.CoPayAmount,
-                        DiagCodes = record.DiagCodes,
-                        EmModifier = record.EmModifier,
-                        EmQuantity = record.EmQuantity,
-                        ProcQty = record.ProcQty,
-                        VisitType = record.VisitType,
-                        SourceProcessId = record.SourceProcessId
-
-                    });
-                }
-
-                else
-                {
-                    var updateBulkVisit = _urgentCareContext.BulkVisit.Find(record.VisitId);
-                    updateBulkVisit.VisitId = record.VisitId;
-                    updateBulkVisit.TimeIn = record.TimeIn;
-                    updateBulkVisit.TimeOut = record.TimeOut;
-                    updateBulkVisit.LastUpdateTime = record.LastUpdateTime;
-                    updateBulkVisit.ServiceDate = record.ServiceDate;
-                    updateBulkVisit.PhysicanId = record.PhysicanId;
-                    updateBulkVisit.ClinicId = record.ClinicId;
-                    updateBulkVisit.OfficeKey = record.OfficeKey;
-                    updateBulkVisit.ProcCodes = record.ProcCodes;
-                    updateBulkVisit.Emcode = record.Emcode;
-                    updateBulkVisit.Icdcodes = record.Icdcodes;
-                    updateBulkVisit.LastUpdateUser = record.LastUpdateUser;
-                    updateBulkVisit.Flagged = record.Flagged;
-                    updateBulkVisit.GuarantorPayerId = record.GuarantorPayerId;
-                    updateBulkVisit.PvlogNum = record.PvlogNum;
-                    updateBulkVisit.PvPatientId = record.PvPatientId;
-                    updateBulkVisit.FinClass = payer != null ? payer.Class.ToString() : "0";
-                    updateBulkVisit.PatientName = patient.FirstName + " " + patient.LastName;
-                    updateBulkVisit.CoPayAmount = record.CoPayAmount;
-                    updateBulkVisit.DiagCodes = record.DiagCodes;
-                    updateBulkVisit.EmModifier = record.EmModifier;
-                    updateBulkVisit.EmQuantity = record.EmQuantity;
-                    updateBulkVisit.ProcQty = record.ProcQty;
-                    updateBulkVisit.VisitType = record.VisitType;
-                    updateBulkVisit.SourceProcessId = record.SourceProcessId;
-                    _urgentCareContext.BulkVisit.Attach(updateBulkVisit);
-                    _urgentCareContext.Entry(updateBulkVisit).State = EntityState.Modified;
-                }
-
-                record.VisitProcCode = _urgentCareContext.VisitProcCode.Where(x => x.VisitId == record.VisitId).ToList();
-                record.VisitICDCode = _urgentCareContext.VisitIcdcode.Where(x => x.VisitId == record.VisitId).ToList();
-
-                if (_urgentCareContext.BulkVisitICDCode.Find(record.VisitId) == null)
-                {
-                    foreach (var icd in record.VisitICDCode)
-                    {
-                        if (!_urgentCareContext.BulkVisitICDCode.Any(x => x.ICDCode == icd.ICDCode))
-                        {
-                            _urgentCareContext.BulkVisitICDCode.Add(new BulkVisitICDCode
-                            {
-                                ICDCode = icd.ICDCode,
-                                VisitId = record.VisitId
-                            });
-                        }
-                    }
-                }
-                else
-                {
-                    foreach (var icd in record.VisitICDCode)
-                    {
-                        var umatch = _urgentCareContext.BulkVisitICDCode.FirstOrDefault(x => x.ICDCode == icd.ICDCode);
-                        if (umatch != null)
-                        {
-                            _urgentCareContext.BulkVisitICDCode.Remove(umatch);
-                        }
-                    }
-                }
-
-                if (_urgentCareContext.BulkVisitProcCode.Find(record.VisitId) == null)
-                {
-                    foreach (var proc in record.VisitProcCode)
-                    {
-
-                        if (!_urgentCareContext.BulkVisitProcCode.Any(x => x.ProcCode == proc.ProcCode))
-                        {
-                            _urgentCareContext.BulkVisitProcCode.Add(new BulkVisitProcCode
-                            {
-                                Modifier = proc.Modifier,
-                                ProcCode = proc.ProcCode,
-                                Quantity = proc.Quantity,
-                                VisitId = record.VisitId
-                            });
-                        }
-                    }
-                }
-                else
-                {
-                    foreach (var proc in record.VisitProcCode)
-                    {
-                        var umatch = _urgentCareContext.BulkVisitProcCode.FirstOrDefault(x => x.ProcCode == proc.ProcCode);
-                        if (umatch != null)
-                        {
-                            _urgentCareContext.BulkVisitProcCode.Remove(umatch);
-                        }
-                    }
-
-                }
-            }
-
-            _urgentCareContext.SaveChanges();
-
+                   
             return View("BulkUpdateView", vm);
         }
 
@@ -215,8 +82,8 @@ namespace MedRecordManager.Controllers
         {
             try
             {
-
-                var records = _urgentCareContext.BulkVisit.Where(x => x.Flagged && !x.UnFlagged)
+                var records = new List<VisitRecordVm>();
+                var vRecords = _urgentCareContext.Visit.Include(x=>x.PvPatient).Include(x=>x.PayerInformation).Where(x => x.Flagged)
                .Select(y => new VisitRecordVm
                {
                    VisitId = y.VisitId,
@@ -225,9 +92,9 @@ namespace MedRecordManager.Controllers
                    DiagCode = y.DiagCodes.Replace("|", "<br/>"),
                    PvRecordId = y.PvlogNum,
                    VisitTime = y.ServiceDate.ToString(),
-                   PatientName = y.PatientName,
+                   PatientName = y.PvPatient.FirstName + y.PvPatient.LastName,
                    OfficeKey = y.OfficeKey.GetValueOrDefault(),
-                   PVFinClass = y.FinClass,
+                   PVFinClass = y.PayerInformation.FirstOrDefault() != null? y.PayerInformation.FirstOrDefault().Class.ToString() : string.Empty,
                    IcdCodes = y.Icdcodes.Replace("|", "<br/>"),
                    Payment = y.CoPayAmount.GetValueOrDefault(),
                    ProcCodes = y.ProcCodes.Replace(",|", "<br/>").Replace("|", "<br/>"),
@@ -235,29 +102,29 @@ namespace MedRecordManager.Controllers
                    PhysicanId = y.PhysicanId,
                    PhysicianName = _urgentCareContext.Physican.FirstOrDefault(x => x.PvPhysicanId == y.PhysicanId).DisplayName,
                    ServiceDate = y.ServiceDate,
-                   Selected = y.Selected
+                   
 
-               }).OrderBy(x => x.VisitTime).ToList();
+               });
 
 
 
                 if (!string.IsNullOrEmpty(clinic))
                 {
                     var clinicids = clinic.Split(',').ToList();
-                    records = records.Where(x => clinicids.Contains(x.ClinicName)).ToList();
+                    vRecords = vRecords.Where(x => clinicids.Contains(x.ClinicName));
                 }
 
                 if (!string.IsNullOrEmpty(physician))
                 {
                     var physicians = physician.Split(',').Select(int.Parse).ToList();
-                    records = records.Where(x => physicians.Contains(x.PhysicanId)).ToList();
+                    vRecords = vRecords.Where(x => physicians.Contains(x.PhysicanId));
 
                 }
 
                 if (!string.IsNullOrEmpty(finclass))
                 {
                     var finclasses = finclass.Split(',').ToList();
-                    records = records.Where(x => finclasses.Contains(x.PVFinClass)).ToList();
+                    vRecords = vRecords.Where(x => finclasses.Contains(x.PVFinClass));
                 }
 
                 if (!string.IsNullOrEmpty(rule))
@@ -265,26 +132,26 @@ namespace MedRecordManager.Controllers
                     var rules = rule.Split(',').Select(int.Parse).ToList();
                     var affecedVisits = _urgentCareContext.VisitRuleSet.Where(x => rules.Contains(x.RuleSetId)).Select(y => y.VisitId).ToList();
 
-                    records = records.Where(x => affecedVisits.Contains(x.VisitId)).ToList();
+                    vRecords = vRecords.Where(x => affecedVisits.Contains(x.VisitId));
                 }
 
                 if (startDate != DateTime.MinValue)
                 {
-                    records = records.Where(x => x.ServiceDate >= startDate).ToList();
+                    vRecords = vRecords.Where(x => x.ServiceDate >= startDate);
                 }
 
                 if (endDate != DateTime.MinValue)
                 {
-                    records = records.Where(x => x.ServiceDate <= endDate).ToList();
+                    vRecords = vRecords.Where(x => x.ServiceDate <= endDate);
                 }
 
-                var total = records.Count();
+                var total = vRecords.Count();
 
                 if (page.HasValue && limit.HasValue)
                 {
                     var start = (page.Value - 1) * limit.Value;
-                    records = records.Skip(start).Take(limit.Value).ToList();
-
+                    records = vRecords.Skip(start).Take(limit.Value).OrderBy(x=>x.VisitTime).ToList();
+                    
                     foreach (var record in records)
                     {
                         var visitRules = _urgentCareContext.VisitRuleSet.Include(x => x.CodeReviewRuleSet).Where(x => x.VisitId == record.VisitId).Select(x => x.CodeReviewRuleSet.RuleName).ToList();
@@ -292,7 +159,7 @@ namespace MedRecordManager.Controllers
                     }
                 }
 
-                var allSelcted = total == records.Where(x => x.Selected).Count();
+                var allSelcted = total == _urgentCareContext.BulkVisit.Where(x => x.Selected).Count();
                 return Json(new { records, total, allSelcted });
             }
             catch (Exception ex)
@@ -429,8 +296,8 @@ namespace MedRecordManager.Controllers
                                 UpdateClinic(bulkVisitIds, clinicId);
                             }
                             break;
-                        case "Unflagg":
-
+                        case "unFlag":
+                            Unflag(bulkVisitIds);
                             break;
                     }
 
@@ -647,12 +514,20 @@ namespace MedRecordManager.Controllers
 
 
         }
-        private void UpdateClinic(List<int> bulkVisitIds, string clinicId)
+        private void UpdateClinic(IList<int> bulkVisitIds, string clinicId)
         {
             var bulkVisits = _urgentCareContext.BulkVisit.Where(x => bulkVisitIds.Contains(x.VisitId)).ToList();
             _urgentCareContext.BulkVisit.AttachRange(bulkVisits);
             bulkVisits.ForEach(x => x.ClinicId = clinicId);
 
+            _urgentCareContext.SaveChanges();
+        }
+
+        private void Unflag(IList<int> bulkVisitIds)
+        {
+            var bulkVisits = _urgentCareContext.BulkVisit.Where(x => bulkVisitIds.Contains(x.VisitId)).ToList();
+            _urgentCareContext.BulkVisit.AttachRange(bulkVisits);
+            bulkVisits.ForEach(x => x.Flagged = false);
             _urgentCareContext.SaveChanges();
         }
 

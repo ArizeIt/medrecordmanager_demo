@@ -258,14 +258,7 @@
             });
 
             $('#reset').on('click', function () {
-                $('#clinic > Option:selected').removeAttr("selected");
-
-                $('#physician > Option:selected').removeAttr("selected");
-
-                $('#rule > Option:selected').removeAttr("selected");
-
-                $('#finclass > Option:selected').removeAttr("selected");
-                filterBulkView();
+                location.reload();
             });
 
             $('#btnExecute').on('click', function () {
@@ -514,14 +507,18 @@
                             <input class="form-control date" id="endDate" type="text"  asp-for="@Model.EndDate"/>
                         </div>
                     </div>
-                    <div class="col-md-1">
+                    <div class="col-md-3">
                         <div class="form-group">
                             <div class="control-group">
                                 <div style="margin-top: 24px;">
-                                    <input type="button" value="Filter" class="btn btn-primary" id="filterButton" />
+                                    <div class="btn-toolbar" role="toolbar" aria-label="Toolbar with button groups">
+                                        <input type="button" value="Filter" class="btn btn-primary" id="filterButton" />
+                                        <button type="button" class="btn btn-default" id="reset">Reset</button>
+                                    </div>
+                                       
+                                  
+                                    
                                 </div>
-                                <button id="reset">Reset</button>
-                            </div>
                         </div>
                     </div>
                 </div>
@@ -572,6 +569,7 @@
                                         <option value="delIcd">Delete ICD</option>
                                         <option value="updPhys">Update Physicin</option>
                                         <option value="updClinic">Update Clinic</option>
+                                        <option value="unFlag">Clear Flag</option>
                                     </select>
                                 </td>
 
