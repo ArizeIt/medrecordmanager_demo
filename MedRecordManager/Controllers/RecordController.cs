@@ -1371,7 +1371,7 @@ namespace MedRecordManager.Controllers
 
         public async Task<IActionResult> MarkBulkUpdate(int? page, int? limit, string clinic, string physician, string rule, string finclass, DateTime startDate, DateTime endDate, bool ischecked)
         {
-            var records = _urgentCareContext.BulkVisit.AsQueryable();
+            var records = _urgentCareContext.Visit.Where(x => x.Flagged);
 
             if (!string.IsNullOrEmpty(clinic))
             {
@@ -1389,7 +1389,7 @@ namespace MedRecordManager.Controllers
             if (!string.IsNullOrEmpty(finclass))
             {
                 var finclasses = finclass.Split(',').ToList();
-                records = records.Where(x => finclasses.Contains(x.FinClass));
+                records = records.Where(x => x.PayerInformation.Any(y => finclasses.Contains(y.Class.ToString())));
             }
 
             if (!string.IsNullOrEmpty(rule))
@@ -1410,6 +1410,7 @@ namespace MedRecordManager.Controllers
                 records = records.Where(x => x.ServiceDate <= endDate);
             }
 
+            _urgentCareContext.Visit.AttachRange(records.ToList());
             await records.ForEachAsync(x => x.Selected = ischecked);
             try
             {

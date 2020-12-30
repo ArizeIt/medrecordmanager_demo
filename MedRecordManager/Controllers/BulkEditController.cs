@@ -102,7 +102,7 @@ namespace MedRecordManager.Controllers
                    PhysicanId = y.PhysicanId,
                    PhysicianName = _urgentCareContext.Physican.FirstOrDefault(x => x.PvPhysicanId == y.PhysicanId).DisplayName,
                    ServiceDate = y.ServiceDate,
-                   
+                   Selected = y.Selected
 
                });
 
@@ -310,7 +310,7 @@ namespace MedRecordManager.Controllers
         [HttpPost]
         public async Task<IActionResult> SelectRecord(int visitId, bool isSelected)
         {
-            var match = _urgentCareContext.BulkVisit.FirstOrDefault(x => x.VisitId == visitId);
+            var match = _urgentCareContext.Visit.FirstOrDefault(x => x.VisitId == visitId);
             _urgentCareContext.Attach(match);
             match.Selected = isSelected;
             await _urgentCareContext.SaveChangesAsync();

@@ -51,6 +51,8 @@ namespace UrgentCareData.Models
         public int? OfficeKey { get; set; }
         public int? EmQuantity { get; set; }
 
+        public bool Selected { get; set; }
+
         public virtual Chart Chart { get; set; }
         public virtual ClinicProfile Clinic { get; set; }
         public virtual GuarantorInformation GuarantorPayer { get; set; }
