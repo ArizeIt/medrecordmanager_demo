@@ -193,11 +193,11 @@ namespace UrgentCareData
                     .HasColumnName("EMCode")
                     .HasMaxLength(50);
 
-                entity.Property(e => e.EmModifier)
+                entity.Property(e => e.Emmodifier)
                     .HasColumnName("EMModifier")
                     .HasMaxLength(50);
 
-                entity.Property(e => e.EmQuantity).HasColumnName("EMQuantity");
+                entity.Property(e => e.Emquantity).HasColumnName("EMQuantity");
 
                 entity.Property(e => e.FinClass).HasMaxLength(50);
 
@@ -208,7 +208,7 @@ namespace UrgentCareData
                 entity.Property(e => e.LastUpdateTime).HasColumnType("datetime");
 
                 entity.Property(e => e.LastUpdateUser)
-                    .IsRequired()
+                    //.IsRequired()
                     .HasMaxLength(50)
                     .IsUnicode(false);
 
@@ -226,7 +226,9 @@ namespace UrgentCareData
 
                 entity.Property(e => e.PvlogNum).HasColumnName("PVLogNum");
 
-                entity.Property(e => e.ServiceDate).HasColumnType("datetime");
+                entity.Property(e => e.ServiceDate)
+                    .HasColumnType("datetime")
+                    .HasDefaultValueSql("((0))");
 
                 entity.Property(e => e.TimeIn).HasColumnType("datetime");
 
