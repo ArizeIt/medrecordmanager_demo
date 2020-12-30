@@ -159,22 +159,14 @@ namespace MedRecordManager.Controllers
 
                         if(_urgentCareContext.BulkVisit.Any(x=>x.VisitId == record.VisitId))
                         {
-                            var match = _urgentCareContext.BulkVisit.FirstOrDefault(x => x.VisitId == record.VisitId);
-                            record.Selected = match.Selected;
-
-
+                            var match = _urgentCareContext.BulkVisit.FirstOrDefault(x => x.VisitId == record.VisitId);                        
                             record.PhysicanId = match.PhysicanId;
                             record.ClinicName = match.ClinicId;
                             record.OfficeKey = match.OfficeKey.GetValueOrDefault();
-                            record.ProcCodes = match.ProcCodes;
-                           
-                            record.IcdCodes = match.Icdcodes;
-                          
-                            record.IsFlagged = match.Flagged;
-                         
-                            record.PatientId = match.PvPatientId;
-                     
-                           
+                            record.ProcCodes = match.ProcCodes;                         
+                            record.IcdCodes = match.Icdcodes;                         
+                            record.IsFlagged = match.Flagged;                        
+                            record.PatientId = match.PvPatientId;                        
                         }
                     }
                 }
@@ -291,8 +283,9 @@ namespace MedRecordManager.Controllers
                             Emquantity = record.EmQuantity,
                             ProcQty = record.ProcQty,
                             VisitType = record.VisitType,
-                            SourceProcessId = record.SourceProcessId
-
+                            SourceProcessId = record.SourceProcessId,
+                            Selected = record.Selected
+                            
                         });
                     }
 
@@ -324,6 +317,8 @@ namespace MedRecordManager.Controllers
                         updateBulkVisit.ProcQty = record.ProcQty;
                         updateBulkVisit.VisitType = record.VisitType;
                         updateBulkVisit.SourceProcessId = record.SourceProcessId;
+                        updateBulkVisit.Selected = record.Selected;
+
                         _urgentCareContext.BulkVisit.Attach(updateBulkVisit);
                         _urgentCareContext.Entry(updateBulkVisit).State = EntityState.Modified;
                     }
