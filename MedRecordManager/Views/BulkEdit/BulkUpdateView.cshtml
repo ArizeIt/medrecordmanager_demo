@@ -338,31 +338,24 @@
                 });
 
                 if (valValidated) {
-                    var data = {};
+                    $.ajax({
+                        type: "POST",
+                        url: "/BulkEdit/ExecuteAct",
+                        data: {
+                            actions: bulkActions
+                        },
 
-                    if (flaggedGrid.getSelected() == null) {
-                        alert('You must select at least one record.')
-                    }
-                    else {
-                        $.ajax({
-                            type: "POST",
-                            url: "/BulkEdit/ExecuteAct",
-                            data: {
-                                bulkVisitIds: flaggedGrid.getSelected(),
-                                actions: bulkActions
-                            },
-
-                        }).done(function (response) {
-                            if (response.success) {
-                                $('#saveBulk').prop('disabled', false);
-                                $('#cancel').prop('disabled', false);
-                                flaggedGrid.reload();
-                            }
+                    }).done(function (response) {
+                        if (response.success) {
+                            $('#saveBulk').prop('disabled', false);
+                            $('#cancel').prop('disabled', false);
                             flaggedGrid.reload();
-                        }).fail(function (response) {
-                            alert("Something went wrong, the bulk action did not excute properly.")
-                        });
-                    }
+                        }
+                        flaggedGrid.reload();
+                    }).fail(function (response) {
+                        alert("Something went wrong, the bulk action did not excute properly.")
+                    });
+                    
                 }
                 else {
                     alert("Please privide value for an action.")

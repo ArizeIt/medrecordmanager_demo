@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using PVAMCommon;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -244,19 +245,22 @@ namespace MedRecordManager.Controllers
         [HttpPost]
         public IActionResult ExecuteAct(List<BulkAction> actions)
         {
+            var records = _urgentCareContext.Visit.Where(x => x.Selected);
             var bulkVisitIds = _urgentCareContext.Visit.Where(x => x.Selected).Select(x => x.VisitId).ToList();
             if (actions.Any() && bulkVisitIds.Any())
             {
 
-                foreach (var record in _urgentCareContext.Visit.Where(x => x.Selected).ToList())
+                foreach (var record in records)
                 {
                     var patient = _urgentCareContext.PatientInformation.FirstOrDefault(x => x.PatNum == record.PvPatientId);
                     var payer = _urgentCareContext.PayerInformation.FirstOrDefault(x => x.VisitId == record.VisitId);
                     var exisitingBulk = _urgentCareContext.BulkVisit.FirstOrDefault(x => x.VisitId == record.VisitId);
-                     
+
+                    record.VisitProcCode = _urgentCareContext.VisitProcCode.Where(x => x.VisitId == record.VisitId).ToList();
+                    record.VisitICDCode = _urgentCareContext.VisitIcdcode.Where(x => x.VisitId == record.VisitId).ToList();
+
                     if (exisitingBulk == null)
                     {
-
                         _urgentCareContext.BulkVisit.Add(new BulkVisit
                         {
                             VisitId = record.VisitId,
@@ -285,74 +289,95 @@ namespace MedRecordManager.Controllers
                             VisitType = record.VisitType,
                             SourceProcessId = record.SourceProcessId,
                             Selected = record.Selected
-                            
+
                         });
                     }
 
-                    else
+                    if (!record.VisitICDCode.Any())
                     {
-                        var updateBulkVisit = _urgentCareContext.BulkVisit.FirstOrDefault(x=>x.VisitId == record.VisitId);
-                        updateBulkVisit.VisitId = record.VisitId;
-                        updateBulkVisit.TimeIn = record.TimeIn;
-                        updateBulkVisit.TimeOut = record.TimeOut;
-                        updateBulkVisit.LastUpdateTime = record.LastUpdateTime;
-                        updateBulkVisit.ServiceDate = record.ServiceDate;
-                        updateBulkVisit.PhysicanId = record.PhysicanId;
-                        updateBulkVisit.ClinicId = record.ClinicId;
-                        updateBulkVisit.OfficeKey = record.OfficeKey;
-                        updateBulkVisit.ProcCodes = record.ProcCodes;
-                        updateBulkVisit.Emcode = record.Emcode;
-                        updateBulkVisit.Icdcodes = record.Icdcodes;
-                        updateBulkVisit.LastUpdateUser = record.LastUpdateUser;
-                        updateBulkVisit.Flagged = record.Flagged;
-                        updateBulkVisit.GuarantorPayerId = record.GuarantorPayerId;
-                        updateBulkVisit.PvlogNum = record.PvlogNum;
-                        updateBulkVisit.PvPatientId = record.PvPatientId;
-                        updateBulkVisit.FinClass = payer != null ? payer.Class.ToString() : "0";
-                        updateBulkVisit.PatientName = patient.FirstName + " " + patient.LastName;
-                        updateBulkVisit.CoPayAmount = record.CoPayAmount;
-                        updateBulkVisit.DiagCodes = record.DiagCodes;
-                        updateBulkVisit.Emmodifier = record.EmModifier;
-                        updateBulkVisit.Emquantity = record.EmQuantity;
-                        updateBulkVisit.ProcQty = record.ProcQty;
-                        updateBulkVisit.VisitType = record.VisitType;
-                        updateBulkVisit.SourceProcessId = record.SourceProcessId;
-                        updateBulkVisit.Selected = record.Selected;
-
-                        _urgentCareContext.BulkVisit.Attach(updateBulkVisit);
-                        _urgentCareContext.Entry(updateBulkVisit).State = EntityState.Modified;
-                    }
-
-                    record.VisitProcCode = _urgentCareContext.VisitProcCode.Where(x => x.VisitId == record.VisitId).ToList();
-                    record.VisitICDCode = _urgentCareContext.VisitIcdcode.Where(x => x.VisitId == record.VisitId).ToList();
-
-                    if (_urgentCareContext.BulkVisitICDCode.Find(record.VisitId) == null)
-                    {
-                        foreach (var icd in record.VisitICDCode)
+                        if (!string.IsNullOrEmpty(record.Icdcodes))
                         {
-                            if (!_urgentCareContext.BulkVisitICDCode.Any(x => x.ICDCode == icd.ICDCode))
+                            var icdList = record.Icdcodes.ParseToList('|');
+                            if (icdList.Any())
                             {
-                                _urgentCareContext.BulkVisitICDCode.Add(new BulkVisitICDCode
+                                foreach (var icd in icdList)
                                 {
-                                    ICDCode = icd.ICDCode,
-                                    VisitId = record.VisitId
-                                });
+                                    if (!string.IsNullOrEmpty(icd))
+                                    {
+                                       
+                                        record.VisitICDCode.Add(new VisitICDCode
+                                        {
+                                            VisitId = record.VisitId,
+                                            ICDCode = icd
+                                        });
+                                    }
+                                }
                             }
-                        }
+                        }                      
                     }
-                    else
+
+                    if (!_urgentCareContext.BulkVisitICDCode.Any(x => x.VisitId == record.VisitId))
                     {
                         foreach (var icd in record.VisitICDCode)
                         {
-                            var umatch = _urgentCareContext.BulkVisitICDCode.FirstOrDefault(x => x.ICDCode == icd.ICDCode);
-                            if (umatch != null)
+
+                            _urgentCareContext.BulkVisitICDCode.Add(new BulkVisitICDCode
                             {
-                                _urgentCareContext.BulkVisitICDCode.Remove(umatch);
+                                ICDCode = icd.ICDCode,
+                                VisitId = record.VisitId
+                            });
+                        }
+                    }
+
+
+                    if (!record.VisitProcCode.Any())
+                    {
+                        var procList = record.ProcCodes.ParseToList('|');
+                        if (procList.Any())
+                        {
+                            foreach (var proc in procList)
+                            {
+                                if (!string.IsNullOrEmpty(proc))
+                                {
+                                    var fullcode = string.Empty;
+                                    var modifider = string.Empty;
+                                    var procCode = string.Empty;
+
+                                    var procInfo = proc.Split(new[] { ',' }, 2);
+                                    if (procInfo[1].EndsWith(","))
+                                    {
+                                        fullcode = procInfo[1].TrimEnd(new char[] { ',' });
+                                    }
+                                    else
+                                    {
+                                        fullcode = procInfo[1];
+                                    }
+
+                                    if (fullcode.Contains(","))
+                                    {
+                                        var result = fullcode.Split(new[] { ',' }, 2);
+                                        procCode = result[0];
+                                        modifider = result[1];
+                                    }
+                                    else
+                                    {
+                                        procCode = fullcode;
+                                    }
+                                   
+                                    record.VisitProcCode.Add(new VisitProcCode
+                                    {
+                                        VisitId = record.VisitId,
+                                        Quantity = int.Parse(procInfo[0]),
+                                        ProcCode = procCode,
+                                        Modifier = modifider
+                                    });
+                                }
                             }
                         }
                     }
 
-                    if (_urgentCareContext.BulkVisitProcCode.Find(record.VisitId) == null)
+
+                    if (!_urgentCareContext.BulkVisitProcCode.Any(x => x.VisitId == record.VisitId))
                     {
                         foreach (var proc in record.VisitProcCode)
                         {
@@ -369,23 +394,11 @@ namespace MedRecordManager.Controllers
                             }
                         }
                     }
-                    else
-                    {
-                        foreach (var proc in record.VisitProcCode)
-                        {
-                            var umatch = _urgentCareContext.BulkVisitProcCode.FirstOrDefault(x => x.ProcCode == proc.ProcCode);
-                            if (umatch != null)
-                            {
-                                _urgentCareContext.BulkVisitProcCode.Remove(umatch);
-                            }
-                        }
 
-                    }
                 }
                 try
                 {
                     _urgentCareContext.SaveChanges();
-
                 }
 
                 catch(Exception ex)
@@ -520,7 +533,7 @@ namespace MedRecordManager.Controllers
             return Json(new { success = true });
         }
 
-        private void AddCpt(List<int> bulkVisitIds, string cptCode)
+        private void AddCpt(IList<int> bulkVisitIds, string cptCode)
         {
             var bulkVisits = _urgentCareContext.BulkVisit.Include(x => x.VisitProcCodes).Where(x => bulkVisitIds.Contains(x.VisitId));
             foreach (var visit in bulkVisits)
@@ -654,8 +667,6 @@ namespace MedRecordManager.Controllers
                             upd.Modifier += "," + modifier;
                         }
                     }
-                    
-
                     bvisit.ProcCodes = ConverProcToString(bvisit.VisitProcCodes.ToList());
                 }
                 _urgentCareContext.SaveChanges();
