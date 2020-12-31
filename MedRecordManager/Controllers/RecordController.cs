@@ -553,7 +553,7 @@ namespace MedRecordManager.Controllers
                    ClinicName = y.ClinicId,
                    DiagCode = y.DiagCodes.Replace("|", "<br/>"),
                    PvRecordId = y.PvlogNum,
-                   VisitTime = y.ServiceDate.ToString(),
+                   VisitTime = y.ServiceDate.Date.ToString(),
                    PatientName = y.PvPatient.FirstName + " " + y.PvPatient.LastName,
                    OfficeKey = y.Physican.OfficeKey,
                    PVFinClass = y.PayerInformation.FirstOrDefault().Class.ToString(),
@@ -562,7 +562,7 @@ namespace MedRecordManager.Controllers
                    ProcCodes = y.ProcCodes.Replace(",|", "<br/>").Replace("|", "<br/>"),
                    IsFlagged = y.Flagged,
                    PhysicanId = y.PhysicanId,
-                   ServiceDate = y.ServiceDate
+                   ServiceDate = y.ServiceDate.Date
 
                }).OrderBy(x => x.VisitTime).ToList();
 

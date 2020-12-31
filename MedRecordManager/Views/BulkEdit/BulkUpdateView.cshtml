@@ -155,7 +155,7 @@
                 }
             });
 
-            $('.actionSelector').on('change', function () {
+            $('.actionSelector').on('change', function () {              
                 var tId = $(this).closest('.tr_clone').attr('id');
                 var $newMod = $('#codeTemp').clone();
                 var $newIcd = $('#icdTemp').clone();
@@ -258,11 +258,19 @@
             });
 
             $('#reset').on('click', function () {
-                location.reload();
+                if(confirm("Reset filter will also de-select all the records, are you sure?"))
+                $.ajax({
+                    type: 'POST',
+                    url: '@Url.Action("ResetFilter","BulkEdit")',
+                    success: function () {
+                        location.reload();
+                    }
+                });                
             });
 
             $('#btnExecute').on('click', function () {
                 var bulkActions = [];
+                var valValidated = true;
                 $('tr.tr_clone').each(function (i, action) {
                     var stp = [];
                     var actName = $(action).find('.dplAction').val();
@@ -271,17 +279,33 @@
                     var value1 = $(action).find('.actionInput').val();
                     var value2 = $(action).find('.actionInput2').val();
                     var dlpVal = $(action).find('.dplInput').val();
+
                     if (field == 'codeName') {
-                        stp.push({
-                            key: 'CPT',
-                            value: value1
-                        });
+                        if (value1 == null || value1 == '') {
+                            valValidated = false;
+                            $(action).find('.codeName').addClass('has-error')
+                        }
+                        else {
+                            stp.push({
+                                key: 'CPT',
+                                value: value1
+                            });
+
+                        }
+                        
                     }
                     if (field2 == 'modifier') {
-                        stp.push({
-                            key: 'Mofifier',
-                            value: value2
-                        });
+                        if (value2 == null || value2 == '') {
+                            valValidated = false;
+                            $(action).find('.modifier').addClass('has-error')
+                        }
+                        else {
+                            stp.push({
+                                key: 'Mofifier',
+                                value: value2
+                            });
+                        }
+                       
                     }
                     if (field == 'icdCodeName') {
                         stp.push({
@@ -312,28 +336,37 @@
                     })
 
                 });
-              
-                var data = {};
-                data.bulkVisitIds = bulkActions,
-                    data.bulkVisitIds = flaggedGrid.getSelected();
-                $.ajax({
-                    type: "POST",
-                    url: "/BulkEdit/ExecuteAct",
-                    data: {
-                        bulkVisitIds: flaggedGrid.getSelected(),
-                        actions: bulkActions
-                    },
 
-                }).done(function (response) {
-                    if (response.success) {
-                        $('#saveBulk').prop('disabled', false);
-                        $('#cancel').prop('disabled', false);
-                        flaggedGrid.reload();
+                if (valValidated) {
+                    var data = {};
+
+                    if (flaggedGrid.getSelected() == null) {
+                        alert('You must select at least one record.')
                     }
-                    flaggedGrid.reload();
-                }).fail(function (response) {
-         
-                });
+                    else {
+                        $.ajax({
+                            type: "POST",
+                            url: "/BulkEdit/ExecuteAct",
+                            data: {
+                                bulkVisitIds: flaggedGrid.getSelected(),
+                                actions: bulkActions
+                            },
+
+                        }).done(function (response) {
+                            if (response.success) {
+                                $('#saveBulk').prop('disabled', false);
+                                $('#cancel').prop('disabled', false);
+                                flaggedGrid.reload();
+                            }
+                            flaggedGrid.reload();
+                        }).fail(function (response) {
+                            alert("Something went wrong, the bulk action did not excute properly.")
+                        });
+                    }
+                }
+                else {
+                    alert("Please privide value for an action.")
+                }
             });
 
             $('#cancel').on('click', function () {
@@ -344,8 +377,7 @@
 
                         if (response.success == true) {
                             alert('The current page will need to be reloaded. All the changes will be removed.');
-                            window.location.href = response.url;
-                            
+                            window.location.href = response.url;                           
                         }
                         
                     }
@@ -362,8 +394,7 @@
 
                         if (response.success == true) {
                             alert('The current page will need to be reloaded. All the changes will be saved');
-                            window.location.href = response.url;
-                            
+                            window.location.href = response.url;                           
                         }
                         
                     }
@@ -618,19 +649,19 @@
 
 <div id="codeTemp" class="row" hidden>
     <div class="col-md-5 row codeName">
-        <div class="col-xs-2">
+        <div class="col-xs-3">
             <label data-error="wrong" data-success="right" for="actionInput">Code Name</label>
         </div>
-        <div class="col-xs-10">
+        <div class="col-xs-9">
             <input type="text" class="form-control actionInput" name="codeName" required>
         </div>
     </div>
 
     <div class="col-md-5 row modifier">
-        <div class="col-xs-2">
+        <div class="col-xs-3">
             <label data-error="wrong" data-success="right" for="actionInput">Modifier</label>
         </div>
-        <div class="col-xs-10">
+        <div class="col-xs-9">
             <input type="text" class="form-control actionInput2" name="modifier" required>
         </div>
     </div>
@@ -639,10 +670,10 @@
 
 <div id="dplTemp" class="row" hidden>
     <div class="col-md-5 row">
-        <div class="col-xs-2">
+        <div class="col-xs-3">
             <label data-error="wrong" data-success="right" class="dplCap"></label>
         </div>
-        <div class="col-xs-10">
+        <div class="col-xs-9">
             <select class="form-control dpl dplInput">
             </select>
         </div>
