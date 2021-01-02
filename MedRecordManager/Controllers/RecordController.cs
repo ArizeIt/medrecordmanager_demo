@@ -650,49 +650,55 @@ namespace MedRecordManager.Controllers
             var allclinics = _urgentCareContext.Visit.Include(x => x.VisitImpotLog).Where(x => x.ServiceDate >= startDate && x.ServiceDate <= endDate && !x.Flagged && !x.VisitImpotLog.Any()).DistinctBy(x => x.ClinicId).Select(x => x.ClinicId).ToList();
             var officekeys = string.Join(",", _urgentCareContext.ClinicProfile.Where(x => allclinics.Contains(x.ClinicId)).DistinctBy(x => x.OfficeKey).Select(x => x.OfficeKey).ToArray());
 
-            var newBatch = new BatchJob
-            {
-                CreatedBy = User.Identity.Name,
-                CreatedDateTime = DateTime.Now,
-                JobStatus = "Started",
-                Paramters = startDate + "-" + endDate,
-                SessionId = HttpContext.Session.Id,
-                JobName = User.Identity.Name + '_' + DateTime.Now
-            };
-            _urgentCareContext.BatchJob.Add(newBatch);
             try
             {
+                var newBatch = new BatchJob
+                {
+                    CreatedBy = User.Identity.Name,
+                    CreatedDateTime = DateTime.Now,
+                    JobStatus = "Started",
+                    Paramters = startDate + "-" + endDate,
+                    SessionId = Guid.NewGuid().ToString(),
+                    JobName = User.Identity.Name + '_' + DateTime.Now
+                };
+                _urgentCareContext.BatchJob.Add(newBatch);
                 _urgentCareContext.SaveChanges();
+
+                using (var webClient = new HttpClient())
+                {
+                    if (environment == EnvironmentName.Development)
+                    {
+                        webClient.BaseAddress = new Uri("http://localhost:65094/");
+                    }
+                    else
+                    {
+                        webClient.BaseAddress = new Uri("http://172.31.22.98/");
+                    }
+                    webClient.DefaultRequestHeaders.Accept.Clear();
+
+
+                    var querystring = $"officeKey={officekeys}&startTime={startDate}&endTime={endDate}&batchId={newBatch.BatchJobId}";
+
+                    var response = await webClient.PostAsync("cumsapi/Default/ImportToAmd?" + querystring, null);
+
+                    await response.Content.ReadAsStringAsync();
+
+                    _urgentCareContext.BatchJob.Attach(newBatch);
+                    newBatch.FinishedDateTime = DateTime.Now;
+                    newBatch.JobStatus = "Finished";
+                    _urgentCareContext.SaveChanges();
+                  
+                }
             }
             catch (DbUpdateException e)
             {
                 e.Message.ToString();
             }
-            using (var webClient = new HttpClient())
+            catch(Exception e)
             {
-                if (environment == EnvironmentName.Development)
-                {
-                    webClient.BaseAddress = new Uri("http://localhost:65094/");
-                }
-                else
-                {
-                    webClient.BaseAddress = new Uri("http://172.31.22.98/");
-                }
-                webClient.DefaultRequestHeaders.Accept.Clear();
-
-
-                var querystring = $"officeKey={officekeys}&startTime={startDate}&endTime={endDate}&batchId={newBatch.BatchJobId}";
-
-                var response = await webClient.PostAsync("cumsapi/Default/ImportToAmd?" + querystring, null);
-
-                await response.Content.ReadAsStringAsync();
-
-                _urgentCareContext.BatchJob.Attach(newBatch);
-                newBatch.FinishedDateTime = DateTime.Now;
-                newBatch.JobStatus = "Finished";
-                _urgentCareContext.SaveChanges();
-                return Json(new { sucess = true });
+                return Json(new { success = false, message = "Failed to run the batch" });
             }
+            return Json(new { success = true });
         }
 
         [HttpGet]
