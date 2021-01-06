@@ -1384,62 +1384,62 @@ namespace MedRecordManager.Controllers
         }
 
 
-        //[HttpPost]
-        //public async Task<IActionResult> MarkBulkUpdate(int? page, int? limit, string clinic, string physician, string rule, string finclass, DateTime startDate, DateTime endDate, bool ischecked)
-        //{
-        //    var records = _urgentCareContext.Visit.Where(x => x.Flagged);
+        [HttpPost]
+        public async Task<IActionResult> MarkBulkUpdate(int? page, int? limit, string clinic, string physician, string rule, string finclass, DateTime startDate, DateTime endDate, bool ischecked)
+        {
+            var records = _urgentCareContext.Visit.Where(x => x.Flagged);
 
-        //    if (!string.IsNullOrEmpty(clinic))
-        //    {
-        //        var clinicids = clinic.Split(',').ToList();
-        //        records = records.Where(x => clinicids.Contains(x.ClinicId));
-        //    }
+            if (!string.IsNullOrEmpty(clinic))
+            {
+                var clinicids = clinic.Split(',').ToList();
+                records = records.Where(x => clinicids.Contains(x.ClinicId));
+            }
 
-        //    if (!string.IsNullOrEmpty(physician))
-        //    {
-        //        var physicians = physician.Split(',').Select(int.Parse).ToList();
-        //        records = records.Where(x => physicians.Contains(x.PhysicanId));
+            if (!string.IsNullOrEmpty(physician))
+            {
+                var physicians = physician.Split(',').Select(int.Parse).ToList();
+                records = records.Where(x => physicians.Contains(x.PhysicanId));
 
-        //    }
+            }
 
-        //    if (!string.IsNullOrEmpty(finclass))
-        //    {
-        //        var finclasses = finclass.Split(',').ToList();
-        //        records = records.Where(x => x.PayerInformation.Any(y => finclasses.Contains(y.Class.ToString())));
-        //    }
+            if (!string.IsNullOrEmpty(finclass))
+            {
+                var finclasses = finclass.Split(',').ToList();
+                records = records.Where(x => x.PayerInformation.Any(y => finclasses.Contains(y.Class.ToString())));
+            }
 
-        //    if (!string.IsNullOrEmpty(rule))
-        //    {
-        //        var rules = rule.Split(',').Select(int.Parse).ToList();
-        //        var affecedVisits = _urgentCareContext.VisitRuleSet.Where(x => rules.Contains(x.RuleSetId)).Select(y => y.VisitId).ToList();
+            if (!string.IsNullOrEmpty(rule))
+            {
+                var rules = rule.Split(',').Select(int.Parse).ToList();
+                var affecedVisits = _urgentCareContext.VisitRuleSet.Where(x => rules.Contains(x.RuleSetId)).Select(y => y.VisitId).ToList();
 
-        //        records = records.Where(x => affecedVisits.Contains(x.VisitId));
-        //    }
+                records = records.Where(x => affecedVisits.Contains(x.VisitId));
+            }
 
-        //    if (startDate != DateTime.MinValue)
-        //    {
-        //        records = records.Where(x => x.ServiceDate >= startDate);
-        //    }
+            if (startDate != DateTime.MinValue)
+            {
+                records = records.Where(x => x.ServiceDate >= startDate);
+            }
 
-        //    if (endDate != DateTime.MinValue)
-        //    {
-        //        records = records.Where(x => x.ServiceDate <= endDate);
-        //    }
+            if (endDate != DateTime.MinValue)
+            {
+                records = records.Where(x => x.ServiceDate <= endDate);
+            }
 
-        //    _urgentCareContext.Visit.AttachRange(records.ToList());
-        //    await records.ForEachAsync(x => x.Selected = ischecked);
-        //    try
-        //    {
-        //        await _urgentCareContext.SaveChangesAsync();
-        //    }
-        //    catch
-        //    {
-        //        return Json(new { success = false });
-        //    }
+            _urgentCareContext.Visit.AttachRange(records.ToList());
+            await records.ForEachAsync(x => x.Selected = ischecked);
+            try
+            {
+                await _urgentCareContext.SaveChangesAsync();
+            }
+            catch
+            {
+                return Json(new { success = false });
+            }
 
-        //    return Json(new { success = true });
+            return Json(new { success = true });
 
-        //}
+        }
 
         private IEnumerable<SelectListItem> GetAvaliableOfficeKeys()
         {
