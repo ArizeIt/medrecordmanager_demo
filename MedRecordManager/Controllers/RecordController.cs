@@ -93,40 +93,56 @@ namespace MedRecordManager.Controllers
             if (!string.IsNullOrEmpty(office) && startDate != DateTime.MinValue && endDate != DateTime.MinValue)
             {
                 var officekeys = office.Split(',').ToList();
-                query = _urgentCareContext.Visit.Include(x => x.VisitImpotLog).Include(x => x.Physican).Where(x => officekeys.Contains(x.Physican.OfficeKey.ToString()) && x.ServiceDate >= startDate && x.ServiceDate <= endDate && !x.VisitImpotLog.Any());
+             
+                query = _urgentCareContext.Visit.Where(x => officekeys.Contains(x.OfficeKey.ToString()) && x.ServiceDate >= startDate && x.ServiceDate <= endDate);
+                query = query.Where(x => _urgentCareContext.VisitImpotLog.FirstOrDefault(y=>y.VisitId == x.VisitId) == null);
             }
             else
             {
                 query = _urgentCareContext.Visit.Take(0);
             }
-            var records = query.Select(y => new VisitRecordVm()
-            {
-                VisitId = y.VisitId,
-                PatientId = y.PvPatientId,
-                ClinicName = y.ClinicId,
-                PhysicianName = y.Physican.DisplayName,
-                InsuranceName = y.PayerInformation.FirstOrDefault().Insurance.PrimaryName,
-                PhysicanId = y.Physican.PvPhysicanId,
-                DiagCode = y.DiagCodes.Replace("|", "<br/>"),
-                PvRecordId = y.PvlogNum,
-                VisitTime = y.ServiceDate.ToShortDateString(),
-                PatientName = y.PvPatient.FirstName + " " + y.PvPatient.LastName,
-                OfficeKey = y.Physican.OfficeKey,
-                PVFinClass = y.PayerInformation.FirstOrDefault().Class.ToString(),
-                IcdCodes = y.Icdcodes.Replace("|", "<br/>"),
-                Payment = y.CoPayAmount.GetValueOrDefault(0),
-                ProcCodes = y.ProcCodes.Replace(",|", "<br/>").Replace("|", "<br/>"),
-                IsFlagged = y.Flagged
-            }).OrderBy(x=>x.PatientName).ToList();
 
-            total = records.Count();
+            try {
 
-            if (page.HasValue && limit.HasValue)
-            {
-                var start = (page.Value - 1) * limit.Value;
-                records = records.Skip(start).Take(limit.Value).OrderBy(x => x.VisitTime).ToList();
+                var records = new List<VisitRecordVm>();
+                total = query.Count();
+
+                if (page.HasValue && limit.HasValue)
+                {
+                    var start = (page.Value - 1) * limit.Value;
+                    query = query.Skip(start).Take(limit.Value);
+
+
+                    records = query.Select(y => new VisitRecordVm()
+                    {
+                        VisitId = y.VisitId,
+                        PatientId = y.PvPatientId,
+                        ClinicName = y.ClinicId,
+                        PhysicianName = y.Physican.DisplayName,
+                        InsuranceName = y.PayerInformation.FirstOrDefault().Insurance.PrimaryName,
+                        PhysicanId = y.Physican.PvPhysicanId,
+                        DiagCode = y.DiagCodes.Replace("|", "<br/>"),
+                        PvRecordId = y.PvlogNum,
+                        VisitTime = y.ServiceDate.ToShortDateString(),
+                        PatientName = y.PvPatient.FirstName + " " + y.PvPatient.LastName,
+                        OfficeKey = y.Physican.OfficeKey,
+                        PVFinClass = y.PayerInformation.FirstOrDefault().Class.ToString(),
+                        IcdCodes = y.Icdcodes.Replace("|", "<br/>"),
+                        Payment = y.CoPayAmount.GetValueOrDefault(0),
+                        ProcCodes = y.ProcCodes.Replace(",|", "<br/>").Replace("|", "<br/>"),
+                        IsFlagged = y.Flagged
+                    }).OrderBy(x => x.PatientName).ToList();
+                }
+                return Json(new { records, total });
+
             }
-            return Json(new { records, total });
+            
+            catch (Exception ex) 
+            
+            {
+                return Json(new { success=false, message = ex.ToString() });
+            }
+           
         }
 
         [HttpGet]
@@ -709,10 +725,21 @@ namespace MedRecordManager.Controllers
             {
 
 
-                var visits = _urgentCareContext.Visit.Include(x => x.VisitImpotLog).Where(x => x.ServiceDate >= startDate && x.ServiceDate <= endDate && x.IsModified && !x.VisitImpotLog.Any()).ToList();
-                var Keys = visits.Select(x => "{\"VisitId\":" + x.VisitId + "}").ToList();
+                var visits = _urgentCareContext.Visit.Where(x => x.ServiceDate >= startDate && x.ServiceDate <= endDate && x.IsModified);
+                visits = visits.Where(x => _urgentCareContext.VisitImpotLog.FirstOrDefault(y => y.VisitId == x.VisitId) == null);
+                var Keys = visits.Select(x => "{\"VisitId\":" + x.VisitId + "}");
 
-                var records = _urgentCareContext.Audit.Where(x => Keys.Contains(x.KeyValues)).Select(x => new
+                var query = _urgentCareContext.Audit.Where(x => Keys.Contains(x.KeyValues));
+
+                total = query.Count();
+
+                if (page.HasValue && limit.HasValue)
+                {
+                    var start = (page.Value - 1) * limit.Value;
+                    query = query.Skip(start).Take(limit.Value);
+                }
+
+                var records = query.Select(x => new
                 {
 
                     modifiedBy = x.ModifiedBy,
@@ -720,15 +747,8 @@ namespace MedRecordManager.Controllers
                     newValues = x.NewValues,
                     oldValues = x.OldValues,
                     id = x.KeyValues
-                }).ToList();
+                });
 
-                total = records.Count();
-
-                if (page.HasValue && limit.HasValue)
-                {
-                    var start = (page.Value - 1) * limit.Value;
-                    records = records.Skip(start).Take(limit.Value).ToList();
-                }
                 return Json(new { records, total });
             }
             else

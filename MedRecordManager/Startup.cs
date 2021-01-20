@@ -48,7 +48,7 @@ namespace MedRecordManager
             services.AddRazorPages();
 
 
-            services.AddDbContext<UrgentCareContext>(options => options.UseSqlServer(Configuration.GetConnectionString("defaultConnection")));
+            services.AddDbContext<UrgentCareContext>(options => options.UseSqlServer(Configuration.GetConnectionString("defaultConnection"), sqlServerOptions => sqlServerOptions.CommandTimeout(180)));
 
             services.ConfigureApplicationCookie(options =>
             {

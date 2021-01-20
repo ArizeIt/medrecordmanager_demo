@@ -12,6 +12,7 @@ namespace UrgentCareData
         public UrgentCareContext(DbContextOptions<UrgentCareContext> options)
             : base(options)
         {
+            
         }
 
         public virtual DbSet<AdvanceMdimportLog> AdvanceMdimportLog { get; set; }
