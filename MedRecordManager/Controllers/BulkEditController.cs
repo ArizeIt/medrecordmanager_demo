@@ -17,6 +17,7 @@ namespace MedRecordManager.Controllers
 {
 
     [Authorize]
+    [ResponseCache(NoStore = true, Duration = 0)]
     public class BulkEditController : Controller
     {
         private readonly UrgentCareContext _urgentCareContext;
@@ -84,48 +85,28 @@ namespace MedRecordManager.Controllers
             try
             {
                 var records = new List<VisitRecordVm>();
-                var vRecords = _urgentCareContext.Visit.Include(x=>x.PvPatient).Include(x=>x.PayerInformation).Where(x => x.Flagged)
-               .Select(y => new VisitRecordVm
-               {
-                   VisitId = y.VisitId,
-                   PatientId = y.PvPatientId,
-                   ClinicName = y.ClinicId,
-                   DiagCode = y.DiagCodes.Replace("|", "<br/>"),
-                   PvRecordId = y.PvlogNum,
-                   VisitTime = y.ServiceDate.Date.ToString(),
-                   PatientName = y.PvPatient.FirstName + y.PvPatient.LastName,
-                   OfficeKey = y.OfficeKey.GetValueOrDefault(),
-                   PVFinClass = y.PayerInformation.FirstOrDefault() != null? y.PayerInformation.FirstOrDefault().Class.ToString() : string.Empty,
-                   IcdCodes = y.Icdcodes.Replace("|", "<br/>"),
-                   Payment = y.CoPayAmount.GetValueOrDefault(),
-                   ProcCodes = y.ProcCodes.Replace(",|", "<br/>").Replace("|", "<br/>"),
-                   IsFlagged = y.Flagged,
-                   PhysicanId = y.PhysicanId,
-                   PhysicianName = _urgentCareContext.Physican.FirstOrDefault(x => x.PvPhysicanId == y.PhysicanId).DisplayName,
-                   ServiceDate = y.ServiceDate.Date,
-                   Selected = y.Selected
-
-               }).OrderBy(x=>x.VisitTime);
+                var vRecords = _urgentCareContext.Visit.Where(x => x.Flagged);
+              
 
 
 
                 if (!string.IsNullOrEmpty(clinic))
                 {
                     var clinicids = clinic.Split(',').ToList();
-                    vRecords = vRecords.Where(x => clinicids.Contains(x.ClinicName)).OrderBy(x => x.VisitTime);
+                    vRecords = vRecords.Where(x => clinicids.Contains(x.ClinicId));
                 }
 
                 if (!string.IsNullOrEmpty(physician))
                 {
                     var physicians = physician.Split(',').Select(int.Parse).ToList();
-                    vRecords = vRecords.Where(x => physicians.Contains(x.PhysicanId)).OrderBy(x => x.VisitTime);
+                    vRecords = vRecords.Where(x => physicians.Contains(x.PhysicanId));
 
                 }
 
                 if (!string.IsNullOrEmpty(finclass))
                 {
                     var finclasses = finclass.Split(',').ToList();
-                    vRecords = vRecords.Where(x => finclasses.Contains(x.PVFinClass)).OrderBy(x => x.VisitTime);
+                    vRecords = vRecords.Where(x => finclasses.Contains(_urgentCareContext.PayerInformation.FirstOrDefault(y=> y.VisitId == x.VisitId).Class.ToString()));
                 }
 
                 if (!string.IsNullOrEmpty(rule))
@@ -133,17 +114,17 @@ namespace MedRecordManager.Controllers
                     var rules = rule.Split(',').Select(int.Parse).ToList();
                     var affecedVisits = _urgentCareContext.VisitRuleSet.Where(x => rules.Contains(x.RuleSetId)).Select(y => y.VisitId).ToList();
 
-                    vRecords = vRecords.Where(x => affecedVisits.Contains(x.VisitId)).OrderBy(x => x.VisitTime);
+                    vRecords = vRecords.Where(x => affecedVisits.Contains(x.VisitId));
                 }
 
                 if (startDate != DateTime.MinValue)
                 {
-                    vRecords = vRecords.Where(x => x.ServiceDate >= startDate).OrderBy(x => x.VisitTime);
+                    vRecords = vRecords.Where(x => x.ServiceDate >= startDate);
                 }
 
                 if (endDate != DateTime.MinValue)
                 {
-                    vRecords = vRecords.Where(x => x.ServiceDate <= endDate).OrderBy(x => x.VisitTime);
+                    vRecords = vRecords.Where(x => x.ServiceDate <= endDate);
                 }
 
                 var total = vRecords.Count();
@@ -151,7 +132,27 @@ namespace MedRecordManager.Controllers
                 if (page.HasValue && limit.HasValue)
                 {
                     var start = (page.Value - 1) * limit.Value;
-                    records = vRecords.Skip(start).Take(limit.Value).OrderBy(x=>x.VisitTime).ToList();
+                    records = vRecords.OrderBy(x=>x.TimeIn).Skip(start).Take(limit.Value).Select(y => new VisitRecordVm
+                    {
+                        VisitId = y.VisitId,
+                        PatientId = y.PvPatientId,
+                        ClinicName = y.ClinicId,
+                        DiagCode = y.DiagCodes.Replace("|", "<br/>"),
+                        PvRecordId = y.PvlogNum,
+                        VisitTime = y.ServiceDate.Date.ToString(),
+                        PatientName = y.PvPatient.FirstName + y.PvPatient.LastName,
+                        OfficeKey = y.OfficeKey.GetValueOrDefault(),
+                        PVFinClass = _urgentCareContext.PayerInformation.FirstOrDefault(x=>x.VisitId == y.VisitId) != null ? _urgentCareContext.PayerInformation.FirstOrDefault(x => x.VisitId == y.VisitId).Class.ToString() : string.Empty,
+                        IcdCodes = y.Icdcodes.Replace("|", "<br/>"),
+                        Payment = y.CoPayAmount.GetValueOrDefault(),
+                        ProcCodes = y.ProcCodes.Replace(",|", "<br/>").Replace("|", "<br/>"),
+                        IsFlagged = y.Flagged,
+                        PhysicanId = y.PhysicanId,
+                        PhysicianName = _urgentCareContext.Physican.FirstOrDefault(x => x.PvPhysicanId == y.PhysicanId).DisplayName,
+                        ServiceDate = y.ServiceDate.Date,
+                        Selected = y.Selected
+
+                    }).ToList();
                     
                     foreach (var record in records)
                     {
@@ -493,9 +494,10 @@ namespace MedRecordManager.Controllers
         [HttpPost]
         public IActionResult CancelChange()
         {
-            var bulkVisits = _urgentCareContext.BulkVisit.Where(x => x.Selected).ToList();
-            var bulkProc = _urgentCareContext.BulkVisitProcCode.Where(x => bulkVisits.Select(y => y.VisitId).Contains(x.VisitId)).ToList();
-            var bulkIcd = _urgentCareContext.BulkVisitICDCode.Where(x => bulkVisits.Select(y => y.VisitId).Contains(x.VisitId)).ToList();
+            var visitIds = _urgentCareContext.Visit.Where(x => x.Selected).Select(x => x.VisitId).ToList();
+            var bulkVisits = _urgentCareContext.BulkVisit.Where(x => visitIds.Contains(x.VisitId)).ToList();
+            var bulkProc = _urgentCareContext.BulkVisitProcCode.Where(x => visitIds.Contains(x.VisitId)).ToList();
+            var bulkIcd = _urgentCareContext.BulkVisitICDCode.Where(x => visitIds.Contains(x.VisitId)).ToList();
 
             _urgentCareContext.BulkVisitProcCode.RemoveRange(bulkProc);
             _urgentCareContext.BulkVisitICDCode.RemoveRange(bulkIcd);

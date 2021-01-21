@@ -347,11 +347,9 @@
 
                     }).done(function (response) {
                         if (response.success) {
-                            $('#saveBulk').prop('disabled', false);
-                            $('#cancel').prop('disabled', false);
-                            flaggedGrid.reload();
+                            $('#saveBulk').prop('disabled', false);                          
                         }
-                        flaggedGrid.reload();
+                        
                     }).fail(function (response) {
                         alert("Something went wrong, the bulk action did not excute properly.")
                     });
@@ -360,6 +358,7 @@
                 else {
                     alert("Please privide value for an action.")
                 }
+                flaggedGrid.reload();
             });
 
             $('#cancel').on('click', function () {
@@ -478,7 +477,7 @@
     <div class="col-lg-6">
         <div class="btn-toolbar" role="toolbar" aria-label="Toolbar with button groups">
             <button type="button" class="btn btn-success" disabled="disabled" id="saveBulk">Bulk Save</button>
-            <button type="button" class="btn btn-info" disabled="disabled" id="cancel">Cancel</button>
+            <button type="button" class="btn btn-info" id="cancel">Cancel</button>
         </div>
     </div>
 </div>
@@ -522,13 +521,13 @@
                     <div class="col-md-3">
                         <div class="form-group">
                             <label asp-for="StartDate" class="control-label">Visit Start Date</label>
-                            <input class="form-control date" id="startDate" type="text"  asp-for="@Model.StartDate"/>
+                            <input class="form-control date" id="startDate" type="text" asp-for="@Model.StartDate" />
                         </div>
                     </div>
                     <div class="col-md-3">
                         <div class="form-group">
                             <label asp-for="EndDate" class="control-label">Visit End Date</label>
-                            <input class="form-control date" id="endDate" type="text"  asp-for="@Model.EndDate"/>
+                            <input class="form-control date" id="endDate" type="text" asp-for="@Model.EndDate" />
                         </div>
                     </div>
                     <div class="col-md-3">
@@ -539,10 +538,8 @@
                                         <input type="button" value="Filter" class="btn btn-primary" id="filterButton" />
                                         <button type="button" class="btn btn-default" id="reset">Reset</button>
                                     </div>
-                                       
-                                  
-                                    
                                 </div>
+                            </div>
                         </div>
                     </div>
                 </div>
