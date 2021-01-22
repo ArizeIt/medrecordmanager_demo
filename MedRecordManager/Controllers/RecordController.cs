@@ -663,8 +663,8 @@ namespace MedRecordManager.Controllers
         {
             var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
             var isDevelopment = environment == EnvironmentName.Development;
-            var allclinics = _urgentCareContext.Visit.Include(x => x.VisitImpotLog).Where(x => x.ServiceDate >= startDate && x.ServiceDate <= endDate && !x.Flagged && !x.VisitImpotLog.Any()).DistinctBy(x => x.ClinicId).Select(x => x.ClinicId).ToList();
-            var officekeys = string.Join(",", _urgentCareContext.ClinicProfile.Where(x => allclinics.Contains(x.ClinicId)).DistinctBy(x => x.OfficeKey).Select(x => x.OfficeKey).ToArray());
+          
+            var officekeys = string.Join(",", _urgentCareContext.Visit.Where(x => x.ServiceDate >= startDate && x.ServiceDate <= endDate && !x.Flagged).DistinctBy(x => x.OfficeKey).Select(x => x.OfficeKey).ToArray());
 
             try
             {

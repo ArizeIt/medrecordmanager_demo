@@ -20,6 +20,16 @@
                 return "You have unsaved changes on this page. Do you want to leave this page and discard your changes or stay on this page?";
             }
         }
+
+        //$(document).ajaxStart(function () {
+        //        $loading.show();
+        //    })
+        //        .ajaxStop(function () {
+        //            $loading.hide();
+        //        });
+
+
+
         $(document).ready(function () {
             var regex = /^(.*)(\d)+$/i;
 
@@ -36,6 +46,7 @@
                 $displayEl.empty().append($checkBox);
             };
 
+            
             flaggedGrid = $('#flaggedVisitTable').grid({
                 primaryKey: 'visitId',
                 dataSource: '/BulkEdit/GetBulkVisit',
