@@ -42,7 +42,7 @@ namespace MedRecordManager.Controllers
 
         [HttpGet]
         public IActionResult Review()
-        {
+        {           
             var vm = new SearchInputs()
             {
                 Type = "Daily",
@@ -1463,7 +1463,15 @@ namespace MedRecordManager.Controllers
 
         private IEnumerable<SelectListItem> GetAvaliableOfficeKeys()
         {
-            return _urgentCareContext.ProgramConfig.Where(x => !x.AmdSync).DistinctBy(x => x.AmdofficeKey)
+            if(User.IsInRole("SuperAdmin"))
+            {
+
+            }
+            else
+            {
+               
+            }
+            return _urgentCareContext.ProgramConfig.Where(x => x.Enabled).DistinctBy(x => x.AmdofficeKey)
                  .Select(y =>
                       new SelectListItem
                       {

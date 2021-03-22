@@ -64,7 +64,7 @@ namespace MedRecordManager.Controllers
                     sourceFileName = x.SourceFileName.Substring(x.SourceFileName.LastIndexOf("\\") + 1),
                     processResult = x.ProcessResult,
                     successFlag = x.SuccessFlag
-                }).OrderByDescending(x => x.processedDate).ToList().Take(15);
+                }).ToList().Take(15);
 
 
 
@@ -73,12 +73,12 @@ namespace MedRecordManager.Controllers
                 if (page.HasValue && limit.HasValue)
                 {
                     var start = (page.Value - 1) * limit.Value;
-                    records = records.Skip(start).Take(limit.Value).ToList();
+                    records = records.Skip(start).Take(limit.Value).OrderByDescending(x=>x.processedDate).ToList();
                 }
                 return Json(new { records, total });
             }
 
-            catch
+            catch (Exception ex)
             {
                 return Json(new { empty, total });
             }

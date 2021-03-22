@@ -21,18 +21,16 @@ namespace MedRecordManager.Controllers
     [Authorize]
     public class UserAdminController : Controller
     {
-        private readonly RoleManager<IdentityRole> _roleManager;
-        private readonly ApplicationDbContext _userContext;
+        private readonly RoleManager<IdentityRole> _roleManager;        
         private readonly UrgentCareContext _urgentCareContext;
         private readonly UserManager<ApplicationUser> _userManager;
-        private readonly IViewRenderService _viewRenderService;
-        public UserAdminController(RoleManager<IdentityRole> roleManager, UserManager<ApplicationUser> userManager, UrgentCareContext _urgentCareContext, ApplicationDbContext _userContext, IViewRenderService viewRenderService)
+       
+        public UserAdminController(RoleManager<IdentityRole> roleManager, UserManager<ApplicationUser> userManager, UrgentCareContext _urgentCareContext)
         {
             _roleManager = roleManager;
             _userManager = userManager;
             this._urgentCareContext = _urgentCareContext;
-            this._userContext = _userContext;
-            _viewRenderService = viewRenderService;
+                       
         }
 
 
@@ -48,42 +46,28 @@ namespace MedRecordManager.Controllers
 
         public IActionResult ManageUser()
         {
-
             var userId = _userManager.GetUserId(User);
-            var vm = new UserVm
+            var vm = new UserVm();
+            if(User.IsInRole("SuperAdmin"))
             {
-                //Clinics = users.DistinctBy(x => x.ClinicId).Select(y => new SelectListItem
-                //{
-                //    Selected = false,
-                //    Text = y.ClinicId,
-                //    Value = y.ClinicId,
-                //}).OrderBy(r => r.Text),
-                //Physicians = users.DistinctBy(x => x.PhysicanId).Select(y => new SelectListItem
-                //{
-                //    Selected = false,
-                //    Text = y.Physican.DisplayName,
-                //    Value = y.PhysicanId.ToString(),
-                //}).OrderBy(r => r.Text),
-                //FinClasses = records.DistinctBy(x => x.PayerInformation.Select(y => y.Class)).Select(y => new SelectListItem
-                //{
-                //    Selected = false,
-                //    Text = y.PayerInformation.FirstOrDefault() != null ? y.PayerInformation.FirstOrDefault().Class.ToString() : "None",
-                //    Value = y.PayerInformation.FirstOrDefault() != null ? y.PayerInformation.FirstOrDefault().Class.ToString() : "None"
-                //}).DistinctBy(z => z.Text).OrderByDescending(r => r.Text),
-
-                AvaliableComps = _urgentCareContext.CompanyProfile.Select(x => new SelectListItem
+                vm.AvaliableComps = _urgentCareContext.CompanyProfile.Select(x => new SelectListItem
                 {
                     Text = x.CompanyName,
                     Value = x.Id.ToString()
-                }),
+                });
 
-                Filter = new FilterUser
+                vm.Filter = new FilterUser
                 {
                     Clinic = string.Empty,
                     OfficeKey = string.Empty,
                     Company = string.Empty,
-                },
-            };
+                };
+
+               
+            }
+
+          
+            
             return View("ManageUser", vm);
         }
 
@@ -92,7 +76,6 @@ namespace MedRecordManager.Controllers
         {
             if (ModelState.IsValid)
             {
-
                 var appUser = new ApplicationUser
                 {
                     UserName = user.Email,
@@ -102,7 +85,7 @@ namespace MedRecordManager.Controllers
                 };
 
                 IdentityResult result = await _userManager.CreateAsync(appUser, user.Password);
-                if (User.IsInRole("SuperAdmin"))
+                if (User.IsInRole("SuperAdmin") && !result.Errors.Any())
                 {
                     _urgentCareContext.UserCompany.Add(new UserCompany
                     {
@@ -121,7 +104,6 @@ namespace MedRecordManager.Controllers
                     RedirectToAction("ManageUser");
                 }
 
-
                 foreach (var error in result.Errors)
                 {
                     ModelState.AddModelError(string.Empty, error.Description);
@@ -136,7 +118,6 @@ namespace MedRecordManager.Controllers
                 OfficeKey = string.Empty,
                 Company = string.Empty,
             };
-
             return View("ManageUser", user);
         }
 
