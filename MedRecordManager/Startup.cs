@@ -11,9 +11,11 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
 using System;
 using UrgentCareData;
+using UrgentCareData.Models;
 
 namespace MedRecordManager
 {
@@ -41,6 +43,9 @@ namespace MedRecordManager
                  options.UseSqlServer(
                  Configuration.GetConnectionString("defaultConnection")));
 
+            services.AddDbContext<ConnectionDataContext>(options => 
+            options.UseSqlServer(Configuration.GetConnectionString("defaultConnection")));
+
             services.AddIdentity<ApplicationUser, IdentityRole>()
                   .AddEntityFrameworkStores<ApplicationDbContext>()
                   .AddDefaultTokenProviders();
@@ -48,7 +53,11 @@ namespace MedRecordManager
             services.AddRazorPages();
 
 
-            services.AddDbContext<UrgentCareContext>(options => options.UseSqlServer(Configuration.GetConnectionString("defaultConnection"), sqlServerOptions => sqlServerOptions.CommandTimeout(180)));
+            //services.AddDbContext<UrgentCareContext>(options => options.UseSqlServer(Configuration.GetConnectionString("defaultConnection"), sqlServerOptions => sqlServerOptions.CommandTimeout(180)));
+            services.AddScoped<ISqlConnectionContext, SqlConnectionContext>();
+            services.AddDbContext<UrgentCareContext>((sp, builder) =>
+                builder.UseSqlServer(sp.GetRequiredService<ISqlConnectionContext>().GetConnectionString()));
+
 
             services.ConfigureApplicationCookie(options =>
             {
@@ -101,14 +110,12 @@ namespace MedRecordManager
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
-            app.UseHttpsRedirection();
+            app.UseHttpsRedirection();         
             app.UseStaticFiles();
-
             app.UseRouting();
-
             app.UseAuthentication();
             app.UseAuthorization();
-
+            app.UseMiddleware<DbIdentifier>();
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllerRoute(
@@ -118,46 +125,6 @@ namespace MedRecordManager
             });
         }
 
-        //private void CreateRoles(IServiceProvider serviceProvider)
-        //{
-
-        //    var roleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole>>();
-        //    var userManager = serviceProvider.GetRequiredService<UserManager<ApplicationUser>>();
-        //    Task<IdentityResult> roleResult;
-        //    string email = "Danny.x.li@gmail.com";
-
-        //    //Check that there is an Administrator role and create if not
-        //    Task<bool> hasAdminRole = roleManager.RoleExistsAsync("Administrator");
-        //    hasAdminRole.Wait();
-
-        //    if (!hasAdminRole.Result)
-        //    {
-        //        roleResult = roleManager.CreateAsync(new IdentityRole("Administrator"));
-        //        roleResult.Wait();
-        //    }
-
-        //    //Check if the admin user exists and create it if not
-        //    //Add to the Administrator role
-
-        //    Task<ApplicationUser> testUser = userManager.FindByEmailAsync(email);
-        //    testUser.Wait();
-
-        //    if (testUser.Result == null)
-        //    {
-        //        ApplicationUser administrator = new ApplicationUser();
-        //        administrator.Email = email;
-        //        administrator.UserName = email;
-
-        //        Task<IdentityResult> newUser = userManager.CreateAsync(administrator, "Danny.x.li@gmail.com");
-        //        newUser.Wait();
-
-        //        if (newUser.Result.Succeeded)
-        //        {
-        //            Task<IdentityResult> newUserRole = userManager.AddToRoleAsync(administrator, "Administrator");
-        //            newUserRole.Wait();
-        //        }
-        //    }
-
-        //}
+        
     }
 }

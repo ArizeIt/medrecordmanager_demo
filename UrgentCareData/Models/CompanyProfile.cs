@@ -24,6 +24,10 @@ namespace UrgentCareData.Models
         public string Email { get; set; }
         public string DisplayName { get; set; }
 
+        public string DbConnection { get; set; }
+
+        public string WebApiUri { get; set; }
+
         public virtual ICollection<CompanyClinic> CompanyClinics { get; set; }
         public virtual ICollection<UserCompany> UserCompanies { get; set; }
     }
