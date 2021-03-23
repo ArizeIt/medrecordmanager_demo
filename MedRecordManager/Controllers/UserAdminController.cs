@@ -90,7 +90,8 @@ namespace MedRecordManager.Controllers
                     _urgentCareContext.UserCompany.Add(new UserCompany
                     {
                         CompanyId = Int32.Parse(user.Company),
-                        UserId = appUser.UserName
+                        UserId = appUser.Id,
+                        UserName = appUser.UserName
                     });
                 }
                 else
@@ -380,7 +381,8 @@ namespace MedRecordManager.Controllers
                     _urgentCareContext.UserCompany.Add(new UserCompany
                     {
                         UserId = userId,
-                        CompanyId = int.Parse(comp)
+                        CompanyId = int.Parse(comp),
+                        UserName = appUser.UserName
                     });
                 }
 

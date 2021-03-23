@@ -25,7 +25,7 @@ namespace MedRecordManager
             {
                 return company.DbConnection;
             }
-            return _config.GetConnectionString("DefaultConnection");
+            return _config.GetConnectionString("DefaultConnection").Replace("{userId}", "remoteUser").Replace("{password}", "Sm@llfish12");
         }
     }
 }

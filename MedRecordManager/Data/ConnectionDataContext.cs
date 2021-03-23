@@ -66,6 +66,12 @@ namespace MedRecordManager.Data
                 entity.Property(e => e.Zip)
                     .HasMaxLength(10)
                     .IsUnicode(false);
+
+                entity.Property(e => e.WebApiUri)
+                   .HasMaxLength(500);
+
+                entity.Property(e => e.DbConnection)
+                    .HasMaxLength(500);
             });
 
             modelBuilder.Entity<UserCompany>(entity =>
@@ -75,6 +81,8 @@ namespace MedRecordManager.Data
                     .IsUnique();
 
                 entity.Property(e => e.UserId).IsRequired();
+
+                entity.Property(e => e.UserName).IsRequired();
 
                 entity.HasOne(d => d.Company)
                     .WithMany(p => p.UserCompanies)

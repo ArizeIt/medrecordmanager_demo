@@ -39,12 +39,11 @@ namespace MedRecordManager
             });
 
 
-            services.AddDbContext<ApplicationDbContext>(options =>
-                 options.UseSqlServer(
-                 Configuration.GetConnectionString("defaultConnection")));
+            services.AddDbContext<ApplicationDbContext>((sp, builder) =>
+                builder.UseSqlServer(sp.GetRequiredService<ISqlConnectionContext>().GetConnectionString()));
 
-            services.AddDbContext<ConnectionDataContext>(options => 
-            options.UseSqlServer(Configuration.GetConnectionString("defaultConnection")));
+            services.AddDbContext<ConnectionDataContext>((sp, builder) =>
+                builder.UseSqlServer(sp.GetRequiredService<ISqlConnectionContext>().GetConnectionString()));
 
             services.AddIdentity<ApplicationUser, IdentityRole>()
                   .AddEntityFrameworkStores<ApplicationDbContext>()
@@ -53,7 +52,7 @@ namespace MedRecordManager
             services.AddRazorPages();
 
 
-            //services.AddDbContext<UrgentCareContext>(options => options.UseSqlServer(Configuration.GetConnectionString("defaultConnection"), sqlServerOptions => sqlServerOptions.CommandTimeout(180)));
+       
             services.AddScoped<ISqlConnectionContext, SqlConnectionContext>();
             services.AddDbContext<UrgentCareContext>((sp, builder) =>
                 builder.UseSqlServer(sp.GetRequiredService<ISqlConnectionContext>().GetConnectionString()));
