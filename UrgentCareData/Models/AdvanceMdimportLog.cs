@@ -10,7 +10,7 @@ namespace UrgentCareData.Models
             ChartImportLog = new HashSet<ChartImportLog>();
             PatientImportLog = new HashSet<PatientImportLog>();
             PayerImportLog = new HashSet<PayerImportLog>();
-            VisitImpotLog = new HashSet<VisitImpotLog>();
+            VisitImportLog = new HashSet<VisitImportLog>();
         }
 
         public int Id { get; set; }
@@ -21,6 +21,6 @@ namespace UrgentCareData.Models
         public virtual ICollection<ChartImportLog> ChartImportLog { get; set; }
         public virtual ICollection<PatientImportLog> PatientImportLog { get; set; }
         public virtual ICollection<PayerImportLog> PayerImportLog { get; set; }
-        public virtual ICollection<VisitImpotLog> VisitImpotLog { get; set; }
+        public virtual ICollection<VisitImportLog> VisitImportLog { get; set; }
     }
 }

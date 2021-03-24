@@ -95,7 +95,7 @@ namespace MedRecordManager.Controllers
                 var officekeys = office.Split(',').ToList();
              
                 query = _urgentCareContext.Visit.Where(x => officekeys.Contains(x.OfficeKey.ToString()) && x.ServiceDate >= startDate && x.ServiceDate <= endDate);
-                query = query.Where(x => _urgentCareContext.VisitImpotLog.FirstOrDefault(y=>y.VisitId == x.VisitId) == null);
+                query = query.Where(x => _urgentCareContext.VisitImportLog.FirstOrDefault(y=>y.VisitId == x.VisitId) == null);
             }
             else
             {
@@ -726,7 +726,7 @@ namespace MedRecordManager.Controllers
 
 
                 var visits = _urgentCareContext.Visit.Where(x => x.ServiceDate >= startDate && x.ServiceDate <= endDate && x.IsModified);
-                visits = visits.Where(x => _urgentCareContext.VisitImpotLog.FirstOrDefault(y => y.VisitId == x.VisitId) == null);
+                visits = visits.Where(x => _urgentCareContext.VisitImportLog.FirstOrDefault(y => y.VisitId == x.VisitId) == null);
                 var Keys = visits.Select(x => "{\"VisitId\":" + x.VisitId + "}");
 
                 var query = _urgentCareContext.Audit.Where(x => Keys.Contains(x.KeyValues));
@@ -766,12 +766,12 @@ namespace MedRecordManager.Controllers
         public IActionResult LoadImported(int? page, int? limit, string sortBy, string direction, string office, DateTime startDate, DateTime endDate)
         {
 
-            IQueryable<VisitImpotLog> query;
+            IQueryable<VisitImportLog> query;
             var total = 0;
             if (!string.IsNullOrEmpty(office) && startDate != DateTime.MinValue && endDate != DateTime.MinValue)
             {
                 var officekeys = office.Split(',').ToList();
-                query = _urgentCareContext.VisitImpotLog.Include(x => x.Visit).ThenInclude(x => x.Physican)
+                query = _urgentCareContext.VisitImportLog.Include(x => x.Visit).ThenInclude(x => x.Physican)
                     .Where(x =>
                     officekeys.Contains(x.Visit.Physican.OfficeKey.ToString())
                     && x.Visit.ServiceDate >= startDate
@@ -779,7 +779,7 @@ namespace MedRecordManager.Controllers
             }
             else
             {
-                query = _urgentCareContext.VisitImpotLog.Take(0);
+                query = _urgentCareContext.VisitImportLog.Take(0);
             }
             var records = query.Select(y => new VisitRecordVm()
             {
@@ -1265,7 +1265,7 @@ namespace MedRecordManager.Controllers
 
             var officekeys = officekey.Split(',').ToList();
             var activeRules = _urgentCareContext.CodeReviewRule.Where(x => x.Active);
-            var baseQuery = _urgentCareContext.Visit.Where(x => officekeys.Contains(x.OfficeKey.ToString()) && x.ServiceDate >= startDate && x.ServiceDate <= endDate && !x.Flagged && !x.VisitImpotLog.Any());
+            var baseQuery = _urgentCareContext.Visit.Where(x => officekeys.Contains(x.OfficeKey.ToString()) && x.ServiceDate >= startDate && x.ServiceDate <= endDate && !x.Flagged && !x.VisitImportLog.Any());
             var operationHelper = new OperationHelper();
             var results = new List<Visit>();
             var problemRuleNames = new List<string>();

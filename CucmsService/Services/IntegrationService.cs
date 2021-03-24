@@ -569,7 +569,7 @@ namespace CucmsService.Services
 
         public async Task<string> AddVisit(Uri apiUrl, string token, int visitId, int officekey, string amdProviderId, string amdPatientId, string facilityId, bool existingPateint)
         {
-            var visitRec = await _urgentCareContext.Visit.Include(x => x.VisitImpotLog).FirstOrDefaultAsync(x => x.VisitId == visitId);
+            var visitRec = await _urgentCareContext.Visit.Include(x => x.VisitImportLog).FirstOrDefaultAsync(x => x.VisitId == visitId);
 
             var newVisit = new Dictionary<string, string>
             {
@@ -583,7 +583,7 @@ namespace CucmsService.Services
                 { "132677", "ap_type2548" },
                 { "136989", "ap_type1" }
             };
-            if (!visitRec.VisitImpotLog.Any())
+            if (!visitRec.VisitImportLog.Any())
             {
                 var visitType = newVisit.FirstOrDefault(x => x.Key == officekey.ToString()).Value;
                 if (visitRec.VisitType == "m" || existingPateint)
@@ -599,7 +599,7 @@ namespace CucmsService.Services
 
                     if (!string.IsNullOrEmpty(visitResponse?.Results?.Visit.Id))
                     {
-                        var visitImportLog = new VisitImpotLog
+                        var visitImportLog = new VisitImportLog
                         {
                             ImportedDate = DateTime.Now,
                             OfficeKey = officekey.ToString(),
@@ -609,7 +609,7 @@ namespace CucmsService.Services
                             Status = "Added"
                         };
 
-                        _urgentCareContext.VisitImpotLog.Add(visitImportLog);
+                        _urgentCareContext.VisitImportLog.Add(visitImportLog);
 
                         var savevisitTask = _urgentCareContext.SaveChangesAsync();
 
@@ -671,10 +671,10 @@ namespace CucmsService.Services
                     }
                 }
             }
-            else if (visitRec.VisitImpotLog.FirstOrDefault().ChargeImported == null || visitRec.VisitImpotLog.FirstOrDefault().ChargeImported == false)
+            else if (visitRec.VisitImportLog.FirstOrDefault().ChargeImported == null || visitRec.VisitImportLog.FirstOrDefault().ChargeImported == false)
             {
-                var imported = SaveCharges(visitRec, amdPatientId, visitRec.VisitImpotLog.FirstOrDefault().AmdvisitId, facilityId, amdProviderId, existingPateint);
-                visitRec.VisitImpotLog.FirstOrDefault().ChargeImported = true;
+                var imported = SaveCharges(visitRec, amdPatientId, visitRec.VisitImportLog.FirstOrDefault().AmdvisitId, facilityId, amdProviderId, existingPateint);
+                visitRec.VisitImportLog.FirstOrDefault().ChargeImported = true;
                 await _urgentCareContext.SaveChangesAsync();
             }
             return string.Empty;

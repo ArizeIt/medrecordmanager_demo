@@ -62,7 +62,7 @@ namespace UrgentCareData
         public virtual DbSet<VisitCodeHistory> VisitCodeHistory { get; set; }
         public virtual DbSet<VisitHistory> VisitHistory { get; set; }
         public virtual DbSet<VisitICDCode> VisitIcdcode { get; set; }
-        public virtual DbSet<VisitImpotLog> VisitImpotLog { get; set; }
+        public virtual DbSet<VisitImportLog> VisitImportLog { get; set; }
         public virtual DbSet<VisitProcCode> VisitProcCode { get; set; }
         public virtual DbSet<VisitRuleSet> VisitRuleSet { get; set; }
 
@@ -615,7 +615,6 @@ namespace UrgentCareData
                     .IsUnicode(false);
 
                 entity.Property(e => e.PrimaryPhone)
-                    .IsRequired()
                     .HasMaxLength(50)
                     .IsUnicode(false);
 
@@ -1319,7 +1318,7 @@ namespace UrgentCareData
             });
 
 
-            modelBuilder.Entity<VisitImpotLog>(entity =>
+            modelBuilder.Entity<VisitImportLog>(entity =>
             {
                 entity.Property(e => e.AmdimportLogId).HasColumnName("AMDImportLogId");
 
@@ -1341,16 +1340,16 @@ namespace UrgentCareData
                     .IsUnicode(false);
 
                 entity.HasOne(d => d.AmdimportLog)
-                    .WithMany(p => p.VisitImpotLog)
+                    .WithMany(p => p.VisitImportLog)
                     .HasForeignKey(d => d.AmdimportLogId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK_VisitImpotLog_AdvanceMDImportLog");
+                    .HasConstraintName("FK_VisitImportLog_AdvanceMDImportLog");
 
                 entity.HasOne(d => d.Visit)
-                    .WithMany(p => p.VisitImpotLog)
+                    .WithMany(p => p.VisitImportLog)
                     .HasForeignKey(d => d.VisitId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK_VisitImpotLog_Visit");
+                    .HasConstraintName("FK_VisitImportLog_Visit");
             });
 
             modelBuilder.Entity<VisitProcCode>(entity =>

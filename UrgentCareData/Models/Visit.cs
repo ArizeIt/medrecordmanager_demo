@@ -10,7 +10,7 @@ namespace UrgentCareData.Models
             PatientDocument = new HashSet<PatientDocument>();
             PayerInformation = new HashSet<PayerInformation>();
             VisitHistory = new HashSet<VisitHistory>();
-            VisitImpotLog = new HashSet<VisitImpotLog>();
+            VisitImportLog = new HashSet<VisitImportLog>();
             VisitProcCode = new HashSet<VisitProcCode>();
             VisitICDCode = new HashSet<VisitICDCode>();
             AppliedRules = new HashSet<VisitRuleSet>();
@@ -61,7 +61,7 @@ namespace UrgentCareData.Models
         public virtual ICollection<PatientDocument> PatientDocument { get; set; }
         public virtual ICollection<PayerInformation> PayerInformation { get; set; }
         public virtual ICollection<VisitHistory> VisitHistory { get; set; }
-        public virtual ICollection<VisitImpotLog> VisitImpotLog { get; set; }
+        public virtual ICollection<VisitImportLog> VisitImportLog { get; set; }
         public virtual ICollection<VisitProcCode> VisitProcCode { get; set; }
         public virtual ICollection<VisitICDCode> VisitICDCode { get; set; }
 

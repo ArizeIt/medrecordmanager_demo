@@ -2,7 +2,7 @@
 
 namespace UrgentCareData.Models
 {
-    public partial class VisitImpotLog
+    public partial class VisitImportLog
     {
         public int Id { get; set; }
         public string Status { get; set; }
