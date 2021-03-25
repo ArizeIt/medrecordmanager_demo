@@ -62,7 +62,7 @@
                     { field: 'lastName', title: 'Last Name', editor: true },
                     { field: 'email', title: 'User Name' },
                     { field: 'roles', title: 'Assigned Roles' },
-                    { field: 'companies', title: 'Assigned Companys' },
+                    { field: 'company', title: 'Assigned Companies' },
                     { field: 'officeKeys', title: 'Assigned Offices' },
                     { field: 'clinics', title: 'Assigned Clinics' },
                     { field: 'Actions', width: 300, renderer: editManager, align: 'right' }
@@ -105,7 +105,7 @@
                 var uid = $("#userEmail").val();
                 var fistName = $('#userFirstName').val();
                 var lastName = $('#userLasttName').val();
-
+                var company = $('#availableComps').val();
                 if (uid != 0) {
                     $.ajax({
                         url: '/UserAdmin/AddNewUser',
@@ -113,7 +113,8 @@
                         data: {
                             email: uid,
                             firstname: fistName,
-                            lastname: lastName
+                            lastname: lastName,
+                            company: company
                         },
                         dataType: "json",
                         success: function (response) {
@@ -277,12 +278,12 @@
                 </div>
             </div>
         </div>
-        @if (@Model.HasError)
+        @*@if (@Model.HasError)
         {
         <div class="alert alert-warning" id="globalmsg">
             <strong>ERROR!</strong> There is some thing wrong, please go back and fix the error.
         </div>
-        }
+        }*@
         <div class="row top-buffer">
             <div class="col-md-12">
                 <div class="box box-warning">
@@ -363,7 +364,7 @@
                                 </div>
                             </div>
 
-                            @if (User.IsInRole("SuperAdmin"))
+                            @if (User.IsInRole("SuperAdmin") || User.IsInRole("CompanyAdmin"))
                             {
                             <div class="md-form mb-5">
                                 <div class="form-group">
