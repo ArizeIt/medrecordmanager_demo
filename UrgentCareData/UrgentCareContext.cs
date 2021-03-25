@@ -5,9 +5,11 @@ namespace UrgentCareData
 {
     public partial class UrgentCareContext : DbContext
     {
-        private readonly CompanyProfile _company;
-        public UrgentCareContext()
+       
+
+        public UrgentCareContext(string connectionString) : base(GetOptions(connectionString))
         {
+
         }
 
         public UrgentCareContext(DbContextOptions<UrgentCareContext> options)
@@ -66,11 +68,10 @@ namespace UrgentCareData
         public virtual DbSet<VisitProcCode> VisitProcCode { get; set; }
         public virtual DbSet<VisitRuleSet> VisitRuleSet { get; set; }
 
-        //protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        //{
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
 
-           
-        //}
+        }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -411,79 +412,6 @@ namespace UrgentCareData
                 entity.Property(e => e.RuleName)
                     .IsRequired()
                     .HasMaxLength(255);
-            });
-
-            modelBuilder.Entity<CompanyClinic>(entity =>
-            {
-                entity.HasIndex(e => new { e.ClinicId, e.CompanyId })
-                    .HasName("uq_CompanyClinic")
-                    .IsUnique();
-
-                entity.Property(e => e.ClinicId)
-                    .IsRequired()
-                    .HasMaxLength(50);
-
-                entity.HasOne(d => d.Clinic)
-                    .WithMany(p => p.CompanyClinics)
-                    .HasForeignKey(d => d.ClinicId)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK_CompanyClinic_ClinicProfile");
-
-                entity.HasOne(d => d.Company)
-                    .WithMany(p => p.CompanyClinics)
-                    .HasForeignKey(d => d.CompanyId)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK_CompanyClinic_CompanyProfile");
-            });
-
-            modelBuilder.Entity<CompanyProfile>(entity =>
-            {
-                entity.Property(e => e.Address1)
-                    .HasMaxLength(100)
-                    .IsUnicode(false);
-
-                entity.Property(e => e.Address2)
-                    .HasMaxLength(100)
-                    .IsUnicode(false);
-
-                entity.Property(e => e.City)
-                    .HasMaxLength(100)
-                    .IsUnicode(false);
-
-                entity.Property(e => e.CompanyName)
-                    .IsRequired()
-                    .HasMaxLength(100)
-                    .IsUnicode(false);
-
-                entity.Property(e => e.DisplayName)
-                    .HasMaxLength(100)
-                    .IsUnicode(false);
-
-                entity.Property(e => e.Email)
-                    .HasMaxLength(100)
-                    .IsUnicode(false);
-
-                entity.Property(e => e.Fax)
-                    .HasMaxLength(100)
-                    .IsUnicode(false);
-
-                entity.Property(e => e.Phone)
-                    .HasMaxLength(100)
-                    .IsUnicode(false);
-
-                entity.Property(e => e.State)
-                    .HasMaxLength(50)
-                    .IsUnicode(false);
-
-                entity.Property(e => e.Zip)
-                    .HasMaxLength(10)
-                    .IsUnicode(false);
-
-                entity.Property(e => e.WebApiUri)
-                    .HasMaxLength(500);
-
-                entity.Property(e => e.DbConnection)
-                    .HasMaxLength(500);
             });
 
             modelBuilder.Entity<CptCodeLookup>(entity =>
@@ -1038,53 +966,7 @@ namespace UrgentCareData
                     .HasForeignKey(d => d.UserId);
             });
 
-            modelBuilder.Entity<UserClinic>(entity =>
-            {
-                entity.HasIndex(e => new { e.UserId, e.ClinicId })
-                    .HasName("uq_UserClinic")
-                    .IsUnique();
-
-                entity.Property(e => e.ClinicId)
-                    .IsRequired()
-                    .HasMaxLength(50);
-
-                entity.Property(e => e.UserId).IsRequired();
-
-                entity.HasOne(d => d.Clinic)
-                    .WithMany(p => p.UserClinics)
-                    .HasForeignKey(d => d.ClinicId)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK_UserClinic_ClinicProfile");
-
-                entity.HasOne(d => d.User)
-                    .WithMany(p => p.UserClinics)
-                    .HasForeignKey(d => d.UserId)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK_UserClinic_User");
-            });
-
-            modelBuilder.Entity<UserCompany>(entity =>
-            {
-                entity.HasIndex(e => new { e.UserId, e.CompanyId })
-                    .HasName("uq_UserCompany")
-                    .IsUnique();
-
-                entity.Property(e => e.UserId).IsRequired();
-
-                entity.Property(e => e.UserName).IsRequired();
-
-                entity.HasOne(d => d.Company)
-                    .WithMany(p => p.UserCompanies)
-                    .HasForeignKey(d => d.CompanyId)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK_UserCompany_CompanyProfile");
-
-                entity.HasOne(d => d.User)
-                    .WithMany(p => p.UserCompanies)
-                    .HasForeignKey(d => d.UserId)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK_UserCompany_User");
-            });
+              
 
             modelBuilder.Entity<UserLogin>(entity =>
             {
@@ -1101,21 +983,7 @@ namespace UrgentCareData
                     .HasForeignKey(d => d.UserId);
             });
 
-            modelBuilder.Entity<UserOfficeKey>(entity =>
-            {
-                entity.HasIndex(e => new { e.UserId, e.OfficeKey })
-                    .HasName("uq_UserOfficeKey")
-                    .IsUnique();
-
-                entity.Property(e => e.UserId).IsRequired();
-
-                entity.HasOne(d => d.User)
-                    .WithMany(p => p.UserOfficeKeys)
-                    .HasForeignKey(d => d.UserId)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK_UserOfficeKey_User");
-            });
-
+           
             modelBuilder.Entity<UserRole>(entity =>
             {
                 entity.HasKey(e => new { e.UserId, e.RoleId });
@@ -1387,6 +1255,11 @@ namespace UrgentCareData
         }
 
         partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
+
+        private static DbContextOptions GetOptions(string connectionString)
+        {
+            return SqlServerDbContextOptionsExtensions.UseSqlServer(new DbContextOptionsBuilder(), connectionString).Options;
+        }
     }
 }
 

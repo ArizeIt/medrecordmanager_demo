@@ -7,6 +7,8 @@ namespace MedRecordManager
     public interface ISqlConnectionContext
     {
         string GetConnectionString();
+        string GetDefaultConnectionString();
+        string BuildConnectionString(string connectionString);
     }
 
     public class SqlConnectionContext : ISqlConnectionContext
@@ -25,7 +27,17 @@ namespace MedRecordManager
             {
                 return company.DbConnection;
             }
-            return _config.GetConnectionString("DefaultConnection").Replace("{userId}", "remoteUser").Replace("{password}", "Sm@llfish12");
+            return GetDefaultConnectionString();
+        }
+
+        public string GetDefaultConnectionString()
+        {
+           return BuildConnectionString(_config.GetConnectionString("DefaultConnection"));
+        }
+
+        public string BuildConnectionString(string connectionString)
+        {
+            return connectionString.Replace("{userId}", "remoteUser").Replace("{password}", "Sm@llfish12");
         }
     }
 }

@@ -25,7 +25,7 @@ namespace MedRecordManager.Controllers
         private readonly UrgentCareContext _urgentCareContext;
         private readonly UserManager<ApplicationUser> _userManager;
        
-        public UserAdminController(RoleManager<IdentityRole> roleManager, UserManager<ApplicationUser> userManager, UrgentCareContext _urgentCareContext)
+        public UserAdminController(RoleManager<IdentityRole> roleManager, UserManager<ApplicationUser> userManager, UrgentCareContext _urgentCareContext, Appadmin)
         {
             _roleManager = roleManager;
             _userManager = userManager;
@@ -154,14 +154,14 @@ namespace MedRecordManager.Controllers
                 var roles = await _userManager.GetRolesAsync(user);
                 thisUser.Roles = string.Join("</br>", roles);
 
-                var companies = await _urgentCareContext.UserCompany.Include(x => x.Company).Where(x => x.UserId == user.Id).Select(x => x.Company.DisplayName).ToListAsync();
-                thisUser.Company = string.Join("</br>", companies);
+                //var companies = await _urgentCareContext.UserCompany.Include(x => x.Company).Where(x => x.UserId == user.Id).Select(x => x.Company.DisplayName).ToListAsync();
+                //thisUser.Company = string.Join("</br>", companies);
 
-                var offices = await _urgentCareContext.UserOfficeKey.Where(x => x.UserId == user.Id).Select(x => x.OfficeKey).ToListAsync();
-                thisUser.OfficeKeys = string.Join("</br>", offices);
+                //var offices = await _urgentCareContext.UserOfficeKey.Where(x => x.UserId == user.Id).Select(x => x.OfficeKey).ToListAsync();
+                //thisUser.OfficeKeys = string.Join("</br>", offices);
 
-                var clinics = await _urgentCareContext.UserClinic.Where(x => x.UserId == user.Id).ToListAsync();
-                thisUser.Clinics = string.Join("</br>", clinics);
+                //var clinics = await _urgentCareContext.UserClinic.Where(x => x.UserId == user.Id).ToListAsync();
+                //thisUser.Clinics = string.Join("</br>", clinics);
 
                 records.Add(thisUser);
             }
@@ -327,12 +327,12 @@ namespace MedRecordManager.Controllers
                 Value = x.Id.ToString()
             }).ToListAsync();
 
-            currentUser.AssignedComps = await _urgentCareContext.UserCompany.Include(x => x.Company).Where(x => x.UserId == currentUser.UserId).Select(x => new SelectListItem
-            {
-                Text = x.Company.CompanyName,
-                Value = x.CompanyId.ToString()
+            //currentUser.AssignedComps = await _urgentCareContext.UserCompany.Include(x => x.Company).Where(x => x.UserId == currentUser.UserId).Select(x => new SelectListItem
+            //{
+            //    Text = x.Company.CompanyName,
+            //    Value = x.CompanyId.ToString()
 
-            }).ToListAsync();
+            //}).ToListAsync();
 
             currentUser.AvaliableOffices = _urgentCareContext.ClinicProfile.Where(x => x.OfficeKey != null).DistinctBy(x => x.OfficeKey).Select(x => new SelectListItem
             {

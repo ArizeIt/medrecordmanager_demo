@@ -5,7 +5,5 @@
         public string UserId { get; set; }
         public int OfficeKey { get; set; }
         public int Id { get; set; }
-
-        public virtual User User { get; set; }
     }
 }

@@ -38,30 +38,28 @@ namespace MedRecordManager
                 options.MinimumSameSitePolicy = SameSiteMode.None;
             });
 
+            services.AddTransient<ISqlConnectionContext, SqlConnectionContext>();
 
             services.AddDbContext<ApplicationDbContext>((sp, builder) =>
-                builder.UseSqlServer(sp.GetRequiredService<ISqlConnectionContext>().GetConnectionString()));
-
-            services.AddDbContext<ConnectionDataContext>((sp, builder) =>
-                builder.UseSqlServer(sp.GetRequiredService<ISqlConnectionContext>().GetConnectionString()));
+                builder.UseSqlServer(sp.GetRequiredService<ISqlConnectionContext>().GetDefaultConnectionString()));
+            
+            services.AddDbContext<AppAdminContext>((sp, builder) =>
+                builder.UseSqlServer(sp.GetRequiredService<ISqlConnectionContext>().GetDefaultConnectionString()));
+            
+            services.AddDbContext<UrgentCareContext>((sp, builder) =>
+             builder.UseSqlServer(sp.GetRequiredService<ISqlConnectionContext>().GetConnectionString()));
 
             services.AddIdentity<ApplicationUser, IdentityRole>()
                   .AddEntityFrameworkStores<ApplicationDbContext>()
                   .AddDefaultTokenProviders();
+            
             services.AddControllersWithViews();
+            
             services.AddRazorPages();
-
-
-       
-            services.AddScoped<ISqlConnectionContext, SqlConnectionContext>();
-            services.AddDbContext<UrgentCareContext>((sp, builder) =>
-                builder.UseSqlServer(sp.GetRequiredService<ISqlConnectionContext>().GetConnectionString()));
-
 
             services.ConfigureApplicationCookie(options =>
             {
                 options.Cookie.HttpOnly = true;
-
                 options.ExpireTimeSpan = TimeSpan.FromMinutes(60);
                 options.LoginPath = "/Identity/Account/Login";
                 options.LogoutPath = "/Identity/Account/Logout";

@@ -5,8 +5,5 @@
         public string UserId { get; set; }
         public string ClinicId { get; set; }
         public int Id { get; set; }
-
-        public virtual ClinicProfile Clinic { get; set; }
-        public virtual User User { get; set; }
     }
 }

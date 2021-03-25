@@ -8,8 +8,7 @@ namespace UrgentCareData.Models
     {
         public CompanyProfile()
         {
-            CompanyClinics = new HashSet<CompanyClinic>();
-            UserCompanies = new HashSet<UserCompany>();
+            UserCompany = new HashSet<UserCompany>();
         }
 
         public string CompanyName { get; set; }
@@ -23,12 +22,9 @@ namespace UrgentCareData.Models
         public string Fax { get; set; }
         public string Email { get; set; }
         public string DisplayName { get; set; }
-
         public string DbConnection { get; set; }
-
         public string WebApiUri { get; set; }
 
-        public virtual ICollection<CompanyClinic> CompanyClinics { get; set; }
-        public virtual ICollection<UserCompany> UserCompanies { get; set; }
+        public virtual ICollection<UserCompany> UserCompany { get; set; }
     }
 }
