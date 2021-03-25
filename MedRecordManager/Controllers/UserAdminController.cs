@@ -23,14 +23,15 @@ namespace MedRecordManager.Controllers
     {
         private readonly RoleManager<IdentityRole> _roleManager;        
         private readonly UrgentCareContext _urgentCareContext;
+        private readonly AppAdminContext _appAdminContext;
         private readonly UserManager<ApplicationUser> _userManager;
        
-        public UserAdminController(RoleManager<IdentityRole> roleManager, UserManager<ApplicationUser> userManager, UrgentCareContext _urgentCareContext, Appadmin)
+        public UserAdminController(RoleManager<IdentityRole> roleManager, UserManager<ApplicationUser> userManager, UrgentCareContext urgentCareContext, AppAdminContext appAdminContext)
         {
             _roleManager = roleManager;
             _userManager = userManager;
-            this._urgentCareContext = _urgentCareContext;
-                       
+            _urgentCareContext = urgentCareContext;
+            _appAdminContext = appAdminContext;
         }
 
 
