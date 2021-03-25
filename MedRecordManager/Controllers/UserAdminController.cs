@@ -51,7 +51,7 @@ namespace MedRecordManager.Controllers
             var vm = new UserVm();
             if(User.IsInRole("SuperAdmin"))
             {
-                vm.AvaliableComps = _urgentCareContext.CompanyProfile.Select(x => new SelectListItem
+                vm.AvaliableComps = _appAdminContext.CompanyProfile.Select(x => new SelectListItem
                 {
                     Text = x.CompanyName,
                     Value = x.Id.ToString()
@@ -62,9 +62,7 @@ namespace MedRecordManager.Controllers
                     Clinic = string.Empty,
                     OfficeKey = string.Empty,
                     Company = string.Empty,
-                };
-
-               
+                };              
             }
 
           
@@ -88,7 +86,7 @@ namespace MedRecordManager.Controllers
                 IdentityResult result = await _userManager.CreateAsync(appUser, user.Password);
                 if (User.IsInRole("SuperAdmin") && !result.Errors.Any())
                 {
-                    _urgentCareContext.UserCompany.Add(new UserCompany
+                    _appAdminContext.UserCompany.Add(new UserCompany
                     {
                         CompanyId = Int32.Parse(user.Company),
                         UserId = appUser.Id,
@@ -133,39 +131,40 @@ namespace MedRecordManager.Controllers
         {
             var userId = _userManager.GetUserId(User);
             var users = _userManager.Users.ToList();
+            var records = new List<UserVm>();
             if (User.IsInRole("CompanyAdmin"))
             {
-                var companyId = _urgentCareContext.UserCompany.FirstOrDefault(x => x.UserId == userId).CompanyId;
-                var companyUsers = _urgentCareContext.UserCompany.Where(x => x.CompanyId == companyId).Select(x => x.UserId);
+                var companyIds = await _appAdminContext.UserCompany.Where(x => x.UserId == userId).Select(x=> x.CompanyId).ToListAsync();
+                var companyUsers = await _appAdminContext.UserCompany.Where(x => companyIds.Contains(x.CompanyId)).Select(x => x.UserId).ToListAsync();
                 users = users.Where(x => companyUsers.Contains(x.Id)).ToList();
-            }
 
-
-            var records = new List<UserVm>();
-            foreach (var user in users)
-            {
-                var thisUser = new UserVm
+                foreach (var user in users)
                 {
-                    UserId = user.Id,
-                    FirstName = user.FirstName,
-                    Email = user.Email,
-                    LastName = user.LastName
-                };
+                    var thisUser = new UserVm
+                    {
+                        UserId = user.Id,
+                        FirstName = user.FirstName,
+                        Email = user.Email,
+                        LastName = user.LastName
+                    };
 
-                var roles = await _userManager.GetRolesAsync(user);
-                thisUser.Roles = string.Join("</br>", roles);
+                    var roles = await _userManager.GetRolesAsync(user);
+                    thisUser.Roles = string.Join("</br>", roles);
 
-                //var companies = await _urgentCareContext.UserCompany.Include(x => x.Company).Where(x => x.UserId == user.Id).Select(x => x.Company.DisplayName).ToListAsync();
-                //thisUser.Company = string.Join("</br>", companies);
 
-                //var offices = await _urgentCareContext.UserOfficeKey.Where(x => x.UserId == user.Id).Select(x => x.OfficeKey).ToListAsync();
-                //thisUser.OfficeKeys = string.Join("</br>", offices);
+                    var companies = await _appAdminContext.CompanyProfile.Where(x => companyIds.Contains(x.Id)).Select(x => x.DisplayName).ToListAsync();
+                    thisUser.Company = string.Join("</br>", companies);
 
-                //var clinics = await _urgentCareContext.UserClinic.Where(x => x.UserId == user.Id).ToListAsync();
-                //thisUser.Clinics = string.Join("</br>", clinics);
+                    var offices = await _appAdminContext.UserOfficeKey.Where(x => x.UserId == user.Id).Select(x => x.OfficeKey).ToListAsync();
+                    thisUser.OfficeKeys = string.Join("</br>", offices);
 
-                records.Add(thisUser);
+                    var clinics = await _appAdminContext.UserClinic.Where(x => x.UserId == user.Id).ToListAsync();
+                    thisUser.Clinics = string.Join("</br>", clinics);
+
+                    records.Add(thisUser);
+                }
             }
+    
 
             var total = records.Count();
 
@@ -227,10 +226,19 @@ namespace MedRecordManager.Controllers
 
         public async Task<IActionResult> GetUserCompanies(int? page, int? limit)
         {
-
             var records = new List<CompanyProfile>();
+            if (User.IsInRole("SuperAdmin"))
+            {
+                records = await _appAdminContext.CompanyProfile.ToListAsync();
+            }
+            else if(User.IsInRole("CompanyAdmin"))
+            {
+                var companies = await _appAdminContext.UserCompany.Where(x => x.UserName == User.Identity.Name).Select(x => x.CompanyId).ToListAsync();
+                records = await _appAdminContext.CompanyProfile.Where(x => companies.Contains(x.Id)).ToListAsync();
+            }
+            
 
-            records = await _urgentCareContext.CompanyProfile.ToListAsync();
+           
             var total = records.Count();
 
             if (page.HasValue && limit.HasValue)
@@ -245,7 +253,6 @@ namespace MedRecordManager.Controllers
 
         public async Task<IActionResult> getUserClinics(int? page, int? limit)
         {
-
             var records = new List<ClinicProfile>();
             if (User.IsInRole("SuperAdmin"))
             {
@@ -253,7 +260,9 @@ namespace MedRecordManager.Controllers
             }
             else if (User.IsInRole("CompanyAdmin"))
             {
-
+                var companyIds = await _appAdminContext.UserCompany.Where(x => x.UserName == User.Identity.Name).Select(x => x.CompanyId).ToListAsync();
+                var clincIds = await _urgentCareContext.CompanyClinic.Where(x => companyIds.Contains(x.CompanyId)).Select(x => x.ClinicId).ToListAsync();
+                records = await _urgentCareContext.ClinicProfile.Where(x=> clincIds.Contains(x.ClinicId)).ToListAsync();
             }
             records.ForEach(x => x.ClinicName = x.ClinicId);
             var total = records.Count();
@@ -292,6 +301,7 @@ namespace MedRecordManager.Controllers
             var user = await _userManager.FindByIdAsync(userId);
             var aRoles = await _userManager.GetRolesAsync(user);
             var sRoles = await _roleManager.Roles.ToListAsync();
+            
 
             if (user != null)
             {
@@ -322,18 +332,19 @@ namespace MedRecordManager.Controllers
 
             }).ToListAsync();
 
-            currentUser.AvaliableComps = await _urgentCareContext.CompanyProfile.Select(x => new SelectListItem
+            currentUser.AvaliableComps = await _appAdminContext.CompanyProfile.Select(x => new SelectListItem
             {
                 Text = x.CompanyName,
                 Value = x.Id.ToString()
             }).ToListAsync();
 
-            //currentUser.AssignedComps = await _urgentCareContext.UserCompany.Include(x => x.Company).Where(x => x.UserId == currentUser.UserId).Select(x => new SelectListItem
-            //{
-            //    Text = x.Company.CompanyName,
-            //    Value = x.CompanyId.ToString()
+            var companyIds = await _appAdminContext.UserCompany.Where(x => x.UserId == currentUser.UserId).Select(x => x.CompanyId).ToListAsync();
+            currentUser.AssignedComps = await _appAdminContext.UserCompany.Where(x => companyIds.Contains(x.CompanyId)).Select(x => new SelectListItem
+            {
+                Text = x.Company.CompanyName,
+                Value = x.CompanyId.ToString()
 
-            //}).ToListAsync();
+            }).ToListAsync();
 
             currentUser.AvaliableOffices = _urgentCareContext.ClinicProfile.Where(x => x.OfficeKey != null).DistinctBy(x => x.OfficeKey).Select(x => new SelectListItem
             {
@@ -341,7 +352,7 @@ namespace MedRecordManager.Controllers
                 Value = x.OfficeKey.ToString()
             }).ToList();
 
-            currentUser.AssignedOffices = await _urgentCareContext.UserOfficeKey.Where(x => x.UserId == currentUser.UserId).Select(x => new SelectListItem
+            currentUser.AssignedOffices = await _appAdminContext.UserOfficeKey.Where(x => x.UserId == currentUser.UserId).Select(x => new SelectListItem
             {
                 Text = x.OfficeKey.ToString(),
                 Value = x.OfficeKey.ToString()
@@ -354,7 +365,7 @@ namespace MedRecordManager.Controllers
                 Value = x.ClinicId
             }).ToList();
 
-            currentUser.AssignedClinics = await _urgentCareContext.UserClinic.Where(x => x.UserId == currentUser.UserId).Select(x => new SelectListItem
+            currentUser.AssignedClinics = await _appAdminContext.UserClinic.Where(x => x.UserId == currentUser.UserId).Select(x => new SelectListItem
             {
                 Text = x.ClinicId,
                 Value = x.ClinicId
@@ -375,11 +386,11 @@ namespace MedRecordManager.Controllers
                 await _userManager.RemoveFromRolesAsync(appUser, currentRoles);
                 await _userManager.AddToRolesAsync(appUser, assignedRoles);
 
-                var oldComps = await _urgentCareContext.UserCompany.Where(x => x.UserId == userId).ToListAsync();
-                _urgentCareContext.UserCompany.RemoveRange(oldComps);
+                var oldComps = await _appAdminContext.UserCompany.Where(x => x.UserId == userId).ToListAsync();
+                _appAdminContext.UserCompany.RemoveRange(oldComps);
                 foreach (var comp in assignedComps)
                 {
-                    _urgentCareContext.UserCompany.Add(new UserCompany
+                    _appAdminContext.UserCompany.Add(new UserCompany
                     {
                         UserId = userId,
                         CompanyId = int.Parse(comp),
@@ -387,22 +398,22 @@ namespace MedRecordManager.Controllers
                     });
                 }
 
-                var oldOffices = await _urgentCareContext.UserOfficeKey.Where(x => x.UserId == userId).ToListAsync();
-                _urgentCareContext.UserOfficeKey.RemoveRange(oldOffices);
+                var oldOffices = await _appAdminContext.UserOfficeKey.Where(x => x.UserId == userId).ToListAsync();
+                _appAdminContext.UserOfficeKey.RemoveRange(oldOffices);
                 foreach (var office in assignedOffices)
                 {
-                    _urgentCareContext.UserOfficeKey.Add(new UserOfficeKey
+                    _appAdminContext.UserOfficeKey.Add(new UserOfficeKey
                     {
                         UserId = userId,
                         OfficeKey = int.Parse(office)
                     });
                 }
 
-                var oldClinics = await _urgentCareContext.UserClinic.Where(x => x.UserId == userId).ToListAsync();
-                _urgentCareContext.UserClinic.RemoveRange(oldClinics);
+                var oldClinics = await _appAdminContext.UserClinic.Where(x => x.UserId == userId).ToListAsync();
+                _appAdminContext.UserClinic.RemoveRange(oldClinics);
                 foreach (var clinic in assignedClinics)
                 {
-                    _urgentCareContext.UserClinic.Add(new UserClinic
+                    _appAdminContext.UserClinic.Add(new UserClinic
                     {
                         UserId = userId,
                         ClinicId = clinic

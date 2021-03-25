@@ -42,11 +42,16 @@
                 <h3 class="box-title">Company profile Records</h3>
             </div>
             <div class="box-body">
-                <div class="row">
-                    <div class="col-xs-12">
-                        <button type="button" class="btn btn-success pull-right" id="btnAddCompany" data-toggle="modal" data-target="#modalUser">Add Company</button>
+                @if (User.IsInRole("SuperAdmin"))
+                {
+
+                    <div class="row">
+                        <div class="col-xs-12">
+                            <button type="button" class="btn btn-success pull-right" id="btnAddCompany" data-toggle="modal" data-target="#modalUser">Add Company</button>
+                        </div>
                     </div>
-                </div>
+                }
+                               
                 <div class="row" style="margin-top: 10px">
                     <div class="col-xs-12">
                         <div class="table-responsive">

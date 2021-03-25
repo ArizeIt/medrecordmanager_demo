@@ -34,7 +34,6 @@ namespace UrgentCareData
         public virtual DbSet<CodeReviewQueue> CodeReviewQueue { get; set; }
         public virtual DbSet<CodeReviewRule> CodeReviewRule { get; set; }
         public virtual DbSet<CompanyClinic> CompanyClinic { get; set; }
-        public virtual DbSet<CompanyProfile> CompanyProfile { get; set; }
         public virtual DbSet<CptCodeLookup> CptCodeLookup { get; set; }
         public virtual DbSet<FinClass> FinClass { get; set; }
         public virtual DbSet<GuarantorImportLog> GuarantorImportLog { get; set; }
@@ -54,10 +53,7 @@ namespace UrgentCareData
         public virtual DbSet<SourceProcessLog> SourceProcessLog { get; set; }
         public virtual DbSet<User> User { get; set; }
         public virtual DbSet<UserClaim> UserClaims { get; set; }
-        public virtual DbSet<UserClinic> UserClinic { get; set; }
-        public virtual DbSet<UserCompany> UserCompany { get; set; }
         public virtual DbSet<UserLogin> UserLogins { get; set; }
-        public virtual DbSet<UserOfficeKey> UserOfficeKey { get; set; }
         public virtual DbSet<UserRole> UserRoles { get; set; }
         public virtual DbSet<UserToken> UserTokens { get; set; }
         public virtual DbSet<Visit> Visit { get; set; }
