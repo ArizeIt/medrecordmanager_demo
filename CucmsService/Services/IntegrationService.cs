@@ -287,7 +287,7 @@ namespace CucmsService.Services
                         }
                         else
                         {
-                            var physician = await _urgentCareContext.Physican.FirstOrDefaultAsync(x => x.PvPhysicanId == visitRec.PhysicanId && x.OfficeKey == officeKey);
+                            var physician = await _urgentCareContext.Physician.FirstOrDefaultAsync(x => x.PvPhysicianId == visitRec.PhysicianId && x.OfficeKey == officeKey);
                             if (physician != null)
                             {
                                 var provider = await LocateProvider(apiUrl, token, physician);
@@ -800,13 +800,13 @@ namespace CucmsService.Services
                 }
 
                 var physicianId = int.Parse(pvRecord.Physican_ID);
-                var matchingPhysican = await _urgentCareContext.Physican.FirstOrDefaultAsync(x => x.PvPhysicanId == physicianId && x.OfficeKey == officekey);
+                var matchingPhysican = await _urgentCareContext.Physician.FirstOrDefaultAsync(x => x.PvPhysicianId == physicianId && x.OfficeKey == officekey);
 
                 if (matchingPhysican == null)
                 {
-                    oVisit.Physican = new Physican
+                    oVisit.Physician = new Physician
                     {
-                        PvPhysicanId = int.Parse(pvRecord.Physican_ID),
+                        PvPhysicianId = int.Parse(pvRecord.Physican_ID),
                         FirstName = pvRecord.Physican.ParseToList(',')[1],
                         LastName = pvRecord.Physican.ParseToList(',')[0],
                         DisplayName = pvRecord.Physican,
@@ -816,7 +816,7 @@ namespace CucmsService.Services
                 }
                 else
                 {
-                    oVisit.Physican = matchingPhysican;
+                    oVisit.Physician = matchingPhysican;
                 }
 
 
@@ -1007,7 +1007,7 @@ namespace CucmsService.Services
             }
         }
 
-        private async Task<Profile> LocateProvider(Uri apiUrl, string token, Physican physician)
+        private async Task<Profile> LocateProvider(Uri apiUrl, string token, Physician physician)
         {
             var amdPhysician = new Profile();
             if (string.IsNullOrEmpty(physician.AmProviderId))

@@ -31,7 +31,7 @@ namespace MedRecordManager.Controllers
         public IActionResult BulkUpdate(int? page, int? limit)
         {
             var records = _urgentCareContext.Visit.Where(x => x.Flagged).ToList();
-            var physicianIds = records.DistinctBy(x => x.PhysicanId).Select(x => x.PhysicanId);
+            var physicianIds = records.DistinctBy(x => x.PhysicianId).Select(x => x.PhysicianId);
 
             var vm = new FilterRecord
             {
@@ -41,11 +41,11 @@ namespace MedRecordManager.Controllers
                     Text = y.ClinicId,
                     Value = y.ClinicId,
                 }).OrderBy(r => r.Text),
-                Physicians = _urgentCareContext.Physican.Where(x => physicianIds.Contains(x.PvPhysicanId)).DistinctBy(x => x.PvPhysicanId).Select(y => new SelectListItem
+                Physicians = _urgentCareContext.Physician.Where(x => physicianIds.Contains(x.PvPhysicianId)).DistinctBy(x => x.PvPhysicianId).Select(y => new SelectListItem
                 {
                     Selected = false,
                     Text = y.DisplayName,
-                    Value = y.PvPhysicanId.ToString(),
+                    Value = y.PvPhysicianId.ToString(),
                 }).OrderBy(r => r.Text),
 
                 FinClasses = _urgentCareContext.PayerInformation.Where(x => records.Select(y => y.VisitId).Contains(x.VisitId)).DistinctBy(x => x.Class).Select(y => new SelectListItem
@@ -99,7 +99,7 @@ namespace MedRecordManager.Controllers
                 if (!string.IsNullOrEmpty(physician))
                 {
                     var physicians = physician.Split(',').Select(int.Parse).ToList();
-                    vRecords = vRecords.Where(x => physicians.Contains(x.PhysicanId));
+                    vRecords = vRecords.Where(x => physicians.Contains(x.PhysicianId));
 
                 }
 
@@ -147,8 +147,8 @@ namespace MedRecordManager.Controllers
                         Payment = y.CoPayAmount.GetValueOrDefault(),
                         ProcCodes = y.ProcCodes.Replace(",|", "<br/>").Replace("|", "<br/>"),
                         IsFlagged = y.Flagged,
-                        PhysicanId = y.PhysicanId,
-                        PhysicianName = _urgentCareContext.Physican.FirstOrDefault(x => x.PvPhysicanId == y.PhysicanId).DisplayName,
+                        PhysicianId = y.PhysicianId,
+                        PhysicianName = _urgentCareContext.Physician.FirstOrDefault(x => x.PvPhysicianId == y.PhysicianId).DisplayName,
                         ServiceDate = y.ServiceDate.Date,
                         Selected = y.Selected
 
@@ -162,7 +162,7 @@ namespace MedRecordManager.Controllers
                         if(_urgentCareContext.BulkVisit.Any(x=>x.VisitId == record.VisitId))
                         {
                             var match = _urgentCareContext.BulkVisit.FirstOrDefault(x => x.VisitId == record.VisitId);                        
-                            record.PhysicanId = match.PhysicanId;
+                            record.PhysicianId = match.PhysicianId;
                             record.ClinicName = match.ClinicId;
                             record.OfficeKey = match.OfficeKey.GetValueOrDefault();
                             record.ProcCodes = match.ProcCodes.Replace(",|", "<br/>").Replace("|", "<br/>");                         
@@ -194,7 +194,7 @@ namespace MedRecordManager.Controllers
                 var visit = await _urgentCareContext.Visit.Include(x => x.VisitICDCode).Include(x => x.VisitProcCode).FirstOrDefaultAsync(x => x.VisitId == bulkVisit.VisitId);
                 _urgentCareContext.Visit.Attach(visit);
                 visit.ClinicId = bulkVisit.ClinicId;
-                visit.PhysicanId = bulkVisit.PhysicanId;
+                visit.PhysicianId = bulkVisit.PhysicianId;
                 visit.Icdcodes = bulkVisit.Icdcodes;
                 visit.ProcCodes = bulkVisit.ProcCodes;
                 visit.Flagged = bulkVisit.Flagged;
@@ -269,7 +269,7 @@ namespace MedRecordManager.Controllers
                             TimeOut = record.TimeOut,
                             LastUpdateTime = record.LastUpdateTime,
                             ServiceDate = record.ServiceDate,
-                            PhysicanId = record.PhysicanId,
+                            PhysicianId = record.PhysicianId,
                             ClinicId = record.ClinicId,
                             OfficeKey = record.OfficeKey,
                             ProcCodes = record.ProcCodes,
@@ -717,7 +717,7 @@ namespace MedRecordManager.Controllers
         {
             var bulkVisits = _urgentCareContext.BulkVisit.Where(x => bulkVisitIds.Contains(x.VisitId)).ToList();
             _urgentCareContext.BulkVisit.AttachRange(bulkVisits);
-            bulkVisits.ForEach(x => x.PhysicanId = physicanId);
+            bulkVisits.ForEach(x => x.PhysicianId = physicanId);
             _urgentCareContext.SaveChanges();
         }
 

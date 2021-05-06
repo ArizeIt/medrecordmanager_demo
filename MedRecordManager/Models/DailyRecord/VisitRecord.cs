@@ -30,7 +30,7 @@ namespace MedRecordManager.Models.DailyRecord
 
         public bool IsFlagged { get; set; }
 
-        public int PhysicanId { get; set; }
+        public int PhysicianId { get; set; }
 
         public string PhysicianName { get; set; }
 

@@ -45,7 +45,7 @@ namespace UrgentCareData
         public virtual DbSet<PatientInformation> PatientInformation { get; set; }
         public virtual DbSet<PayerImportLog> PayerImportLog { get; set; }
         public virtual DbSet<PayerInformation> PayerInformation { get; set; }
-        public virtual DbSet<Physican> Physican { get; set; }
+        public virtual DbSet<Physician> Physician { get; set; }
         public virtual DbSet<ProgramConfig> ProgramConfig { get; set; }
         public virtual DbSet<Relationship> Relationship { get; set; }
         public virtual DbSet<Role> Role { get; set; }
@@ -743,12 +743,12 @@ namespace UrgentCareData
                     .HasConstraintName("FK_PayerInformation_Visit");
             });
 
-            modelBuilder.Entity<Physican>(entity =>
+            modelBuilder.Entity<Physician>(entity =>
             {
-                entity.HasKey(e => new { e.PvPhysicanId, e.OfficeKey })
+                entity.HasKey(e => new { e.PvPhysicianId, e.OfficeKey })
                     .HasName("PK_Physican_1");
 
-                entity.Property(e => e.PvPhysicanId).HasColumnName("PV_PhysicanId");
+                entity.Property(e => e.PvPhysicianId).HasColumnName("PV_PhysicianId");
 
                 entity.Property(e => e.AmProviderId)
                     .HasColumnName("AM_ProviderId")
@@ -1092,9 +1092,9 @@ namespace UrgentCareData
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_Visit_Patient_Information");
 
-                entity.HasOne(d => d.Physican)
+                entity.HasOne(d => d.Physician)
                     .WithMany(p => p.Visit)
-                    .HasForeignKey(d => new { d.PhysicanId, d.OfficeKey })
+                    .HasForeignKey(d => new { d.PhysicianId, d.OfficeKey })
                     .HasConstraintName("FK_Visit_Physician");
             });
 

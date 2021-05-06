@@ -2,14 +2,14 @@
 
 namespace UrgentCareData.Models
 {
-    public partial class Physican
+    public partial class Physician
     {
-        public Physican()
+        public Physician()
         {
             Visit = new HashSet<Visit>();
         }
 
-        public int PvPhysicanId { get; set; }
+        public int PvPhysicianId { get; set; }
         public string FirstName { get; set; }
         public string LastName { get; set; }
         public string MiddleName { get; set; }

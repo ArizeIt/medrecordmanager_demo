@@ -15,7 +15,7 @@
 
         public string PhysicianName { get; set; }
 
-        public string PhysicanEmail { get; set; }
+        public string PhysicianEmail { get; set; }
     }
 
     public class ChartVm

@@ -27,7 +27,7 @@ namespace UrgentCareData.Models
         public string VisitType { get; set; }
         public string Emcode { get; set; }
         public string EmModifier { get; set; }
-        public int PhysicanId { get; set; }
+        public int PhysicianId { get; set; }
         public decimal? CoPayAmount { get; set; }
         public string CopayType { get; set; }
         public string CopayNote { get; set; }
@@ -56,7 +56,7 @@ namespace UrgentCareData.Models
         public virtual Chart Chart { get; set; }
         public virtual ClinicProfile Clinic { get; set; }
         public virtual GuarantorInformation GuarantorPayer { get; set; }
-        public virtual Physican Physican { get; set; }
+        public virtual Physician Physician { get; set; }
         public virtual PatientInformation PvPatient { get; set; }
         public virtual ICollection<PatientDocument> PatientDocument { get; set; }
         public virtual ICollection<PayerInformation> PayerInformation { get; set; }

@@ -173,14 +173,14 @@ namespace MedRecordManager.Controllers
             if (officeKey != 0)
             {
                 var vm = new List<PhysicianVm>();
-                vm = _urgentData.Physican.Where(x => x.OfficeKey == officeKey && x.Active).Select(x => new PhysicianVm()
+                vm = _urgentData.Physician.Where(x => x.OfficeKey == officeKey && x.Active).Select(x => new PhysicianVm()
                 {
                     AmdDisplayName = x.DisplayName,
                     AmdProfileId = x.AmProviderId,
                     AmdProviderCode = x.AmdCode,
                     pvFirstName = x.FirstName,
                     pvLastName = x.LastName,
-                    pvPhysicianId = x.PvPhysicanId,
+                    pvPhysicianId = x.PvPhysicianId,
                 }).ToList();
                 return PartialView("_MappedPhysician", vm);
             }
@@ -212,12 +212,12 @@ namespace MedRecordManager.Controllers
         public async Task<IActionResult> EditPhyisican(int pvPhysicianId, string officeKey)
         {
             int.TryParse(officeKey, out int numOfficeKey);
-            var existingPh = _urgentData.Physican.FirstOrDefault(x => x.PvPhysicanId == pvPhysicianId && x.OfficeKey == numOfficeKey);
+            var existingPh = _urgentData.Physician.FirstOrDefault(x => x.PvPhysicianId == pvPhysicianId && x.OfficeKey == numOfficeKey);
             var vm = new PhysicianVm
             {
                 pvFirstName = existingPh.FirstName,
                 pvLastName = existingPh.LastName,
-                pvPhysicianId = existingPh.PvPhysicanId
+                pvPhysicianId = existingPh.PvPhysicianId
             };
             try
             {
@@ -268,11 +268,11 @@ namespace MedRecordManager.Controllers
                 {
 
 
-                    if (!_urgentData.Physican.Any(x => x.PvPhysicanId == pvPhyId && x.OfficeKey == officeKey))
+                    if (!_urgentData.Physician.Any(x => x.PvPhysicianId == pvPhyId && x.OfficeKey == officeKey))
                     {
-                        _urgentData.Physican.Add(new Physican
+                        _urgentData.Physician.Add(new Physician
                         {
-                            PvPhysicanId = physician.pvPhysicianId ?? default(int),
+                            PvPhysicianId = physician.pvPhysicianId ?? default(int),
                             AmProviderId = physician.AmdDisplayName,
                             FirstName = physician.pvFirstName,
                             LastName = physician.pvLastName,
@@ -288,10 +288,10 @@ namespace MedRecordManager.Controllers
                     {
                         try
                         {
-                            _urgentData.Physican.Any(x => x.PvPhysicanId == pvPhyId);
+                            _urgentData.Physician.Any(x => x.PvPhysicianId == pvPhyId);
 
-                            var exitingPhy = _urgentData.Physican.FirstOrDefault(x => x.PvPhysicanId == pvPhyId); ;
-                            exitingPhy.PvPhysicanId = physician.pvPhysicianId ?? default(int);
+                            var exitingPhy = _urgentData.Physician.FirstOrDefault(x => x.PvPhysicianId == pvPhyId); ;
+                            exitingPhy.PvPhysicianId = physician.pvPhysicianId ?? default(int);
                             exitingPhy.AmProviderId = physician.AmdDisplayName;
                             exitingPhy.FirstName = physician.pvFirstName;
                             exitingPhy.LastName = physician.pvLastName;
@@ -316,10 +316,10 @@ namespace MedRecordManager.Controllers
         [HttpPost]
         public IActionResult DeletePhyisican(int pvPhysicianId, int officeKey)
         {
-            var match = _urgentData.Set<Physican>().FirstOrDefault(x => x.PvPhysicanId == pvPhysicianId && x.OfficeKey == officeKey);
+            var match = _urgentData.Set<Physician>().FirstOrDefault(x => x.PvPhysicianId == pvPhysicianId && x.OfficeKey == officeKey);
             if (match != null)
             {
-                _urgentData.Set<Physican>().Remove(match);
+                _urgentData.Set<Physician>().Remove(match);
                 _urgentData.SaveChanges();
             }
 

@@ -141,14 +141,14 @@ namespace MedRecordManager.Controllers
                         VisitId = y.VisitId,
                         PatientId = y.PvPatientId,
                         ClinicName = y.ClinicId,
-                        PhysicianName = y.Physican.DisplayName,
+                        PhysicianName = y.Physician.DisplayName,
                         InsuranceName = y.PayerInformation.FirstOrDefault().Insurance.PrimaryName,
-                        PhysicanId = y.Physican.PvPhysicanId,
+                        PhysicianId = y.Physician.PvPhysicianId,
                         DiagCode = y.DiagCodes.Replace("|", "<br/>"),
                         PvRecordId = y.PvlogNum,
                         VisitTime = y.ServiceDate.ToShortDateString(),
                         PatientName = y.PvPatient.FirstName + " " + y.PvPatient.LastName,
-                        OfficeKey = y.Physican.OfficeKey,
+                        OfficeKey = y.Physician.OfficeKey,
                         PVFinClass = y.PayerInformation.FirstOrDefault().Class.ToString(),
                         IcdCodes = y.Icdcodes.Replace("|", "<br/>"),
                         Payment = y.CoPayAmount.GetValueOrDefault(0),
@@ -176,14 +176,14 @@ namespace MedRecordManager.Controllers
             {
                 try
                 {
-                    var records = _urgentCareContext.Visit.Include(x => x.VisitProcCode).Include(x => x.Physican).Include(x => x.Chart).ThenInclude(c => c.ChartDocument).Where(x => x.Flagged);
+                    var records = _urgentCareContext.Visit.Include(x => x.VisitProcCode).Include(x => x.Physician).Include(x => x.Chart).ThenInclude(c => c.ChartDocument).Where(x => x.Flagged);
                     var visit = records.Skip(position).Take(1).FirstOrDefault();
 
                     if (visit.Chart.ChartDocument.Any())
                     {
                         vm.VisitId = visit.VisitId;
-                        vm.PhysicanEmail = visit.Physican.Email;
-                        vm.PhysicianName = visit.Physican.DisplayName;
+                        vm.PhysicianEmail = visit.Physician.Email;
+                        vm.PhysicianName = visit.Physician.DisplayName;
                         vm.Chart = new ChartVm
                         {
                             ChartName = visit.Chart.ChartDocument.FirstOrDefault().FileName,
@@ -475,14 +475,14 @@ namespace MedRecordManager.Controllers
         [HttpGet]
         public async Task<IActionResult> GetPhysicians(string clinicId)
         {
-            var physicians = await _urgentCareContext.Physican.Where(x => x.Clinic == clinicId).Select(x => new { id = x.PvPhysicanId, text = x.PvPhysicanId }).ToListAsync();
+            var physicians = await _urgentCareContext.Physician.Where(x => x.Clinic == clinicId).Select(x => new { id = x.PvPhysicianId, text = x.PvPhysicianId }).ToListAsync();
             return Json(physicians);
         }
 
         [HttpGet]
         public IActionResult GetAllPhysicians()
         {
-            var physicians = _urgentCareContext.Physican.Where(x => !string.IsNullOrEmpty(x.DisplayName)).OrderBy(x => x.DisplayName).Select(x => new { id = x.PvPhysicanId, text = x.DisplayName }).DistinctBy(x => x.id).ToList();
+            var physicians = _urgentCareContext.Physician.Where(x => !string.IsNullOrEmpty(x.DisplayName)).OrderBy(x => x.DisplayName).Select(x => new { id = x.PvPhysicianId, text = x.DisplayName }).DistinctBy(x => x.id).ToList();
             return Json(physicians);
         }
 
@@ -496,11 +496,11 @@ namespace MedRecordManager.Controllers
                 if (visit.ClinicId != record.ClinicName)
                 {
                     var newfficeKey = _urgentCareContext.ClinicProfile.FirstOrDefault(x => x.ClinicId == record.ClinicName).OfficeKey;
-                    var physicians = _urgentCareContext.Physican.Where(x => x.PvPhysicanId == visit.PhysicanId && x.OfficeKey == newfficeKey);
+                    var physicians = _urgentCareContext.Physician.Where(x => x.PvPhysicianId == visit.PhysicianId && x.OfficeKey == newfficeKey);
 
                     if (!physicians.Any())
                     {
-                        visit.PhysicanId = _urgentCareContext.Physican.FirstOrDefault(x => x.OfficeKey == newfficeKey && x.IsDefault).PvPhysicanId;
+                        visit.PhysicianId = _urgentCareContext.Physician.FirstOrDefault(x => x.OfficeKey == newfficeKey && x.IsDefault).PvPhysicianId;
                     }
 
                     visit.ClinicId = record.ClinicName;
@@ -516,9 +516,9 @@ namespace MedRecordManager.Controllers
                     }
                 }
 
-                else if (visit.PhysicanId != record.PhysicanId)
+                else if (visit.PhysicianId != record.PhysicianId)
                 {
-                    visit.PhysicanId = record.PhysicanId;
+                    visit.PhysicianId = record.PhysicianId;
                     visit.IsModified = true;
                     _urgentCareContext.Visit.Attach(visit);
                     var saved = await _urgentCareContext.SaveChangesAsyncWithAudit(User.Identity.Name);
@@ -609,13 +609,13 @@ namespace MedRecordManager.Controllers
                    PvRecordId = y.PvlogNum,
                    VisitTime = y.ServiceDate.Date.ToString(),
                    PatientName = y.PvPatient.FirstName + " " + y.PvPatient.LastName,
-                   OfficeKey = y.Physican.OfficeKey,
+                   OfficeKey = y.Physician.OfficeKey,
                    PVFinClass = y.PayerInformation.FirstOrDefault().Class.ToString(),
                    IcdCodes = y.Icdcodes.Replace("|", "<br/>"),
                    Payment = y.CoPayAmount.GetValueOrDefault(),
                    ProcCodes = y.ProcCodes.Replace(",|", "<br/>").Replace("|", "<br/>"),
                    IsFlagged = y.Flagged,
-                   PhysicanId = y.PhysicanId,
+                   PhysicianId = y.PhysicianId,
                    ServiceDate = y.ServiceDate.Date
 
                }).OrderBy(x => x.VisitTime).ToList();
@@ -631,7 +631,7 @@ namespace MedRecordManager.Controllers
                 if (!string.IsNullOrEmpty(physician))
                 {
                     var physicians = physician.Split(',').Select(int.Parse).ToList();
-                    records = records.Where(x => physicians.Contains(x.PhysicanId)).ToList();
+                    records = records.Where(x => physicians.Contains(x.PhysicianId)).ToList();
 
                 }
 
@@ -794,9 +794,9 @@ namespace MedRecordManager.Controllers
             if (!string.IsNullOrEmpty(office) && startDate != DateTime.MinValue && endDate != DateTime.MinValue)
             {
                 var officekeys = office.Split(',').ToList();
-                query = _urgentCareContext.VisitImportLog.Include(x => x.Visit).ThenInclude(x => x.Physican)
+                query = _urgentCareContext.VisitImportLog.Include(x => x.Visit).ThenInclude(x => x.Physician)
                     .Where(x =>
-                    officekeys.Contains(x.Visit.Physican.OfficeKey.ToString())
+                    officekeys.Contains(x.Visit.Physician.OfficeKey.ToString())
                     && x.Visit.ServiceDate >= startDate
                     && x.Visit.ServiceDate <= endDate);
             }
@@ -809,7 +809,7 @@ namespace MedRecordManager.Controllers
                 VisitId = y.VisitId,
                 PatientId = y.Visit.PvPatientId,
                 ClinicName = y.Visit.ClinicId,
-                PhysicianName = _urgentCareContext.Physican.FirstOrDefault(x=>x.PvPhysicanId == y.Visit.PhysicanId).DisplayName,
+                PhysicianName = _urgentCareContext.Physician.FirstOrDefault(x=>x.PvPhysicianId == y.Visit.PhysicianId).DisplayName,
                 InsuranceName = _urgentCareContext.PayerInformation.FirstOrDefault(x=>x.VisitId == y.VisitId).Insurance.PrimaryName,
                 VisitTime = y.Visit.ServiceDate.ToShortDateString(),
                 PatientName = _urgentCareContext.PatientInformation.Where(x=>x.PatNum == y.Visit.PvPatientId).Select( x=> new string (x.FirstName + " " +x.FirstName)).First(),
@@ -1441,7 +1441,7 @@ namespace MedRecordManager.Controllers
             if (!string.IsNullOrEmpty(physician))
             {
                 var physicians = physician.Split(',').Select(int.Parse).ToList();
-                records = records.Where(x => physicians.Contains(x.PhysicanId));
+                records = records.Where(x => physicians.Contains(x.PhysicianId));
 
             }
 
