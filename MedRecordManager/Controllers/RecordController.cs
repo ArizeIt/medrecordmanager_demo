@@ -85,6 +85,29 @@ namespace MedRecordManager.Controllers
             return View("RecordView", vm);
         }
 
+
+        [HttpGet]
+        public IActionResult GetProblemRecord()
+        {
+            var vm = new SearchInputs()
+            {
+                Type = "Exception",
+
+                OfficeKeys = GetAvaliableOfficeKeys(),
+
+                Clinics = _urgentCareContext.ClinicProfile.DistinctBy(x => x.ClinicId).Select(y =>
+                    new SelectListItem
+                    {
+                        Selected = false,
+                        Text = y.ClinicId,
+                        Value = y.ClinicId
+                    })
+            };
+
+            return View("RecordView", vm);
+        }
+
+
         [HttpGet]
         public IActionResult LoadDaily(int? page, int? limit, string sortBy, string direction, string office, DateTime startDate, DateTime endDate)
         {
@@ -779,21 +802,21 @@ namespace MedRecordManager.Controllers
             }
             else
             {
-                query = _urgentCareContext.VisitImportLog.Take(0);
+                query = _urgentCareContext.VisitImportLog.Include(x=>x.Visit).Take(0);
             }
             var records = query.Select(y => new VisitRecordVm()
             {
                 VisitId = y.VisitId,
                 PatientId = y.Visit.PvPatientId,
                 ClinicName = y.Visit.ClinicId,
-                PhysicianName = y.Visit.Physican.DisplayName,
-                InsuranceName = y.Visit.PayerInformation.FirstOrDefault().Insurance.PrimaryName,
+                PhysicianName = _urgentCareContext.Physican.FirstOrDefault(x=>x.PvPhysicanId == y.Visit.PhysicanId).DisplayName,
+                InsuranceName = _urgentCareContext.PayerInformation.FirstOrDefault(x=>x.VisitId == y.VisitId).Insurance.PrimaryName,
                 VisitTime = y.Visit.ServiceDate.ToShortDateString(),
-                PatientName = y.Visit.PvPatient.FirstName + " " + y.Visit.PvPatient.LastName,
-                OfficeKey = y.Visit.Physican.OfficeKey,
+                PatientName = _urgentCareContext.PatientInformation.Where(x=>x.PatNum == y.Visit.PvPatientId).Select( x=> new string (x.FirstName + " " +x.FirstName)).First(),
+                OfficeKey = y.Visit.OfficeKey.GetValueOrDefault(),
                 ImportedDate = y.ImportedDate.ToString("MM/dd/yyyy HH:mm:ss"),
                 ChargeImported = y.ChargeImported != null ? "Yes" : "No",
-                PatDocImported = y.Visit.PatientDocument.Any(x => !string.IsNullOrEmpty(x.AmdFileId)) ? "Yes" : "NO",
+                PatDocImported = _urgentCareContext.PatientDocument.Any(x => !string.IsNullOrEmpty(x.AmdFileId) && x.VisitId == y.VisitId) ? "Yes" : "NO",
                 PatChartImported = _urgentCareContext.ChartImportLog.Any(x => x.PvChartDocId == y.Visit.ChartId) ? "Yes" : "No"
 
             }).OrderBy(x => x.ImportedDate).ToList();

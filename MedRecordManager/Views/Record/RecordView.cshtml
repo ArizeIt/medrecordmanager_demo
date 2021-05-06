@@ -1,6 +1,8 @@
 @model MedRecordManager.Models.SearchInputs
 @{
     ViewData["Title"] = "Record Manager - Daily Review";
+    
+    
 }
 
 
@@ -480,7 +482,8 @@
             </div>
         </div>
     </div>
-    <h1>Daily Record View</h1>
+
+    <h1>@Model.Type Record View</h1>
     <ul class="nav nav-tabs" role="tablist">
         @{
             if (Model.Type == "Daily")

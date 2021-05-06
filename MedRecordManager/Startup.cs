@@ -87,7 +87,7 @@ namespace MedRecordManager
             // Add application services.
             services.AddTransient<IEmailSender, AuthMessageSender>();
             services.AddTransient<ISmsSender, AuthMessageSender>();
-
+            services.AddSingleton<ILoggerManager, LoggerManager>();
             services.AddScoped<IViewRenderService, ViewRenderService>();
             services.AddScoped<ILookupService, LookupService>();
             services.AddScoped<ILoginService, LoginService>();

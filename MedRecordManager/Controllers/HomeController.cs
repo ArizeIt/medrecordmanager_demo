@@ -56,7 +56,7 @@ namespace MedRecordManager.Controllers
             try
             {
                 var records = _urgentCareContext.SourceProcessLog
-                .Where(x => x.ProcessedDate >= DateTime.Today.AddDays(-8))
+                .OrderByDescending(x=>x.ProcessedDate)
                 .Select(x => new
                 {
                     processId = x.ProcessId,
