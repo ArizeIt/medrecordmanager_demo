@@ -2,6 +2,7 @@ using ExpressionBuilder.Common;
 using ExpressionBuilder.Generics;
 using ExpressionBuilder.Helpers;
 using iText.Layout;
+using MedRecordManager.Data;
 using MedRecordManager.Extension;
 using MedRecordManager.Models;
 using MedRecordManager.Models.DailyRecord;
@@ -31,11 +32,13 @@ namespace MedRecordManager.Controllers
     public class RecordController : Controller
     {
         private readonly UrgentCareContext _urgentCareContext;
+        private readonly AppAdminContext _appAdminContext;
         private readonly IViewRenderService _viewRenderService;
         private readonly IEmailSender _emailSrv;
-        public RecordController(UrgentCareContext urgentData, IViewRenderService viewRenderService, IEmailSender mailerSrv)
+        public RecordController(UrgentCareContext urgentData, AppAdminContext appAdminContext, IViewRenderService viewRenderService, IEmailSender mailerSrv)
         {
             _urgentCareContext = urgentData;
+            _appAdminContext = appAdminContext;
             _viewRenderService = viewRenderService;
             _emailSrv = mailerSrv;
         }
@@ -684,6 +687,7 @@ namespace MedRecordManager.Controllers
         [HttpPost]
         public async Task<IActionResult> RunBatch(DateTime startDate, DateTime endDate)
         {
+           
             var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
             var isDevelopment = environment == EnvironmentName.Development;
           
@@ -705,13 +709,20 @@ namespace MedRecordManager.Controllers
 
                 using (var webClient = new HttpClient())
                 {
+                    var userCompany = _appAdminContext.UserCompany.FirstOrDefault(x => x.UserName == User.Identity.Name);
+                    var webUrl = "http://172.31.22.98/";
+                    if (userCompany != null)
+                    {
+                        webUrl = _appAdminContext.CompanyProfile.FirstOrDefault(x => x.Id == userCompany.CompanyId).WebApiUri;
+                    }
+
                     if (environment == EnvironmentName.Development)
                     {
                         webClient.BaseAddress = new Uri("http://localhost:65094/");
                     }
                     else
                     {
-                        webClient.BaseAddress = new Uri("http://172.31.22.98/");
+                        webClient.BaseAddress = new Uri(webUrl);
                     }
                     webClient.DefaultRequestHeaders.Accept.Clear();
 
