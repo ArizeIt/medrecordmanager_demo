@@ -107,18 +107,16 @@
                         //{ field: 'pvRecordId', width:100, title: 'PV RecordId' },
                         { field: 'Flag', width: 50, renderer: flagManager },
                         { filed: 'visitId', hidden: true },
-                        { field: 'patientName', width: 250, title: 'Patient Name', priority: 1, sortable: true, filterable: true , headerCssClass:'gridHeader'},
-                        { field: 'clinicName', width: 200, title: 'Clinic Name', priority: 2, sortable: true, type: 'dropdown', editor: { dataSource: '/Record/GetClinics', valueField: 'id' }, editField: 'clinicName' },
-                        //{ field: 'physicanId', width: 200, title: 'Physican Number', priority: 3, type: 'dropdown', editor: select2editor },
-                        { field: 'physicianName', width: 200, title: 'Physician Name' ,sortable: true},
-                        { field: 'insuranceName', width: 200, title: 'Insurance Name',sortable: true},
-                        { field: 'pvFinClass', minWidth: 100, title: 'Finacial Class',sortable: true},
-                        { field: 'payment', minWidth: 100, title: 'Payment', /*renderer: function (value, record) {  value }*/ },
-                        //{ field: 'diagCode', width: 150,title: 'Diag Codes' },
-                        //{ field: 'icdCodes', width: 150,title: 'Icd Codes' },
-                        { field: 'procCodes', minWidth: 80, title: 'Proc Codes', priority: 3 },
-                        { field: 'visitTime', minWidth: 80, title: 'Visit Date' , sortable: true},
-                        //{ field: 'Action', width: 100, renderer: detailButtonRender },
+                        { field: 'patientName', width: 200, title: 'Patient Name', priority: 1, sortable: true, filterable: true, headerCssClass: 'gridHeader' },
+                        { field: 'clinicName', width: 180, title: 'Clinic', priority: 2, sortable: true, type: 'dropdown', editor: { dataSource: '/Record/GetClinics', valueField: 'id' }, editField: 'clinicName' },
+                        { field: 'officeKey', width: 100, title: 'AMD OfficeKey', priority: 3, sortable: true, type: 'dropdown', editor: { dataSource: '/Record/GetOfficeKeys', valueField: 'id'}, editField: 'officeKey' },
+                        { field: 'physicianName', width: 160, title: 'Physician' ,sortable: true},
+                        { field: 'insuranceName', width: 140, title: 'Insurance',sortable: true},
+                        { field: 'pvFinClass', width: 80, title: 'Class', sortable: true},
+                        { field: 'payment', width: 80, title: 'Payment', /*renderer: function (value, record) {  value }*/ },
+                        { field: 'procCodes', width: 80, title: 'Proc Codes' },
+                        { field: 'visitTime', width: 80, title: 'Visit Date' , sortable: true},
+                        
                         { field: 'Actions', width: 200, renderer: editManager, align: 'center' }
                     ],
                     pager: { limit: 10, sizes: [2, 5, 10, 20] },
@@ -433,34 +431,34 @@
                 dailyGrid.clear()
             }
 
-            function select2editor($editorContainer, value, record) {
-                var select = $('<select><option value="' + value + '">' + value + '</option></select>');
-                $editorContainer.append(select);
-                select.select2({
-                    width: '150px',
-                    minimumResultsForSearch: -1,
-                    ajax: {
-                        url: '/Record/GetPhysicians',
-                        data: function () {
-                            return {
-                                clinicId: record.clinicName
-                            };
-                        },
-                        processResults: function (data) {
+            //function select2editor($editorContainer, value, record) {
+            //    var select = $('<select><option value="' + value + '">' + value + '</option></select>');
+            //    $editorContainer.append(select);
+            //    select.select2({
+            //        width: '150px',
+            //        minimumResultsForSearch: -1,
+            //        ajax: {
+            //            url: '/Record/GetPhysicians',
+            //            data: function () {
+            //                return {
+            //                    clinicId: record.clinicName
+            //                };
+            //            },
+            //            processResults: function (data) {
 
-                            return {
-                                results: $.map(data, function (item) {
-                                    return {
-                                        text: item.text,
-                                        id: item.id,
-                                        data: item
-                                    };
-                                })
-                            };
-                        }
-                    }
-                });
-            }
+            //                return {
+            //                    results: $.map(data, function (item) {
+            //                        return {
+            //                            text: item.text,
+            //                            id: item.id,
+            //                            data: item
+            //                        };
+            //                    })
+            //                };
+            //            }
+            //        }
+            //    });
+            //}
         });
 
     </script>

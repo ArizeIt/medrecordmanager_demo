@@ -141,7 +141,7 @@ namespace MedRecordManager.Controllers
                         PvRecordId = y.PvlogNum,
                         VisitTime = y.ServiceDate.Date.ToString(),
                         PatientName = y.PvPatient.FirstName + y.PvPatient.LastName,
-                        OfficeKey = y.OfficeKey.GetValueOrDefault(),
+                        OfficeKey = y.OfficeKey.GetValueOrDefault().ToString(),
                         PVFinClass = _urgentCareContext.PayerInformation.FirstOrDefault(x=>x.VisitId == y.VisitId) != null ? _urgentCareContext.PayerInformation.FirstOrDefault(x => x.VisitId == y.VisitId).Class.ToString() : string.Empty,
                         IcdCodes = y.Icdcodes.Replace("|", "<br/>"),
                         Payment = y.CoPayAmount.GetValueOrDefault(),
@@ -164,7 +164,7 @@ namespace MedRecordManager.Controllers
                             var match = _urgentCareContext.BulkVisit.FirstOrDefault(x => x.VisitId == record.VisitId);                        
                             record.PhysicianId = match.PhysicianId;
                             record.ClinicName = match.ClinicId;
-                            record.OfficeKey = match.OfficeKey.GetValueOrDefault();
+                            record.OfficeKey = match.OfficeKey.GetValueOrDefault().ToString();
                             record.ProcCodes = match.ProcCodes.Replace(",|", "<br/>").Replace("|", "<br/>");                         
                             record.IcdCodes = match.Icdcodes.Replace("|", "<br/>");                         
                             record.IsFlagged = match.Flagged;                        

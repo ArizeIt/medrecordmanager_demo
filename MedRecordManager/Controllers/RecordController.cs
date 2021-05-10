@@ -144,6 +144,7 @@ namespace MedRecordManager.Controllers
                         VisitId = y.VisitId,
                         PatientId = y.PvPatientId,
                         ClinicName = y.ClinicId,
+                        OfficeKey = y.OfficeKey.GetValueOrDefault().ToString(),
                         PhysicianName = y.Physician.DisplayName,
                         InsuranceName = y.PayerInformation.FirstOrDefault().Insurance.PrimaryName,
                         PhysicianId = y.Physician.PvPhysicianId,
@@ -151,7 +152,6 @@ namespace MedRecordManager.Controllers
                         PvRecordId = y.PvlogNum,
                         VisitTime = y.ServiceDate.ToShortDateString(),
                         PatientName = y.PvPatient.FirstName + " " + y.PvPatient.LastName,
-                        OfficeKey = y.Physician.OfficeKey,
                         PVFinClass = y.PayerInformation.FirstOrDefault().Class.ToString(),
                         IcdCodes = y.Icdcodes.Replace("|", "<br/>"),
                         Payment = y.CoPayAmount.GetValueOrDefault(0),
@@ -467,6 +467,14 @@ namespace MedRecordManager.Controllers
         }
 
         [HttpGet]
+
+        public async Task<IActionResult> GetOfficeKeys()
+        {                     
+            var records =await  _urgentCareContext.ProgramConfig.Where(x=>x.Enabled).Select(x => new { id = x.AmdofficeKey.ToString(), text = x.AmdofficeKey.ToString() }).ToListAsync();
+            return Json(records);        
+        }
+
+        [HttpGet]
         public async Task<IActionResult> GetModifiers()
         {
             var records = await _urgentCareContext.Modifier.Select(x => new { id = x.ModifierCode, text = x.ModifierCode }).ToListAsync();
@@ -496,37 +504,33 @@ namespace MedRecordManager.Controllers
 
             if (visit != null)
             {
-                if (visit.ClinicId != record.ClinicName)
+                if (visit.ClinicId != record.ClinicName || visit.OfficeKey.ToString() != record.OfficeKey || visit.PhysicianId != record.PhysicianId)
                 {
-                    var newfficeKey = _urgentCareContext.ClinicProfile.FirstOrDefault(x => x.ClinicId == record.ClinicName).OfficeKey;
-                    var physicians = _urgentCareContext.Physician.Where(x => x.PvPhysicianId == visit.PhysicianId && x.OfficeKey == newfficeKey);
+                    if (_urgentCareContext.AdvancedMdcolumnHeader.Any(x => x.Clinic == record.ClinicName && x.OfficeKey.ToString() == record.OfficeKey))
+                    {    
+                        if (!_urgentCareContext.Physician.Any(x => x.PvPhysicianId == record.PhysicianId && x.OfficeKey.ToString() == record.OfficeKey))
+                        {
+                            visit.PhysicianId = _urgentCareContext.Physician.FirstOrDefault(x => x.OfficeKey.ToString() == record.OfficeKey && x.IsDefault).PvPhysicianId;
+                        }
 
-                    if (!physicians.Any())
-                    {
-                        visit.PhysicianId = _urgentCareContext.Physician.FirstOrDefault(x => x.OfficeKey == newfficeKey && x.IsDefault).PvPhysicianId;
+                        visit.ClinicId = record.ClinicName;
+                        visit.OfficeKey = int.Parse(record.OfficeKey);
+                        visit.IsModified = true;
+                        _urgentCareContext.Visit.Attach(visit);
+
+                        var saved = await _urgentCareContext.SaveChangesAsyncWithAudit(User.Identity.Name);
+
+                        if (saved < 0)
+                        {
+                            return Json(new { success = false, message = "Can not save this record." });
+                        }
+                        else
+                        {
+                            return Json(new { success = true, message = $"Visit number {0} is updated.", record.VisitId });
+                        }
+
                     }
-
-                    visit.ClinicId = record.ClinicName;
-                    visit.OfficeKey = newfficeKey;
-                    visit.IsModified = true;
-                    _urgentCareContext.Visit.Attach(visit);
-
-                    var saved = await _urgentCareContext.SaveChangesAsyncWithAudit(User.Identity.Name);
-
-                    if (saved < 0)
-                    {
-                        return Json(new { success = false, message = "Can not save this record." });
-                    }
-                }
-
-                else if (visit.PhysicianId != record.PhysicianId)
-                {
-                    visit.PhysicianId = record.PhysicianId;
-                    visit.IsModified = true;
-                    _urgentCareContext.Visit.Attach(visit);
-                    var saved = await _urgentCareContext.SaveChangesAsyncWithAudit(User.Identity.Name);
-
-                    if (saved < 0)
+                    else
                     {
                         return Json(new { success = false, message = "Can not save this record." });
                     }
@@ -534,9 +538,9 @@ namespace MedRecordManager.Controllers
                 }
                 else
                 {
-                    return Json(new { success = false, message = "Value is unchanged" });
+                    return Json(new { success = false, message = "No change detected, record is not saved." });
                 }
-                return Json(new { success = true, message = $"Visit number {0} is updated.", record.VisitId });
+             
             }
             else
             {
@@ -612,7 +616,7 @@ namespace MedRecordManager.Controllers
                    PvRecordId = y.PvlogNum,
                    VisitTime = y.ServiceDate.Date.ToString(),
                    PatientName = y.PvPatient.FirstName + " " + y.PvPatient.LastName,
-                   OfficeKey = y.Physician.OfficeKey,
+                   OfficeKey = y.OfficeKey.ToString(),
                    PVFinClass = y.PayerInformation.FirstOrDefault().Class.ToString(),
                    IcdCodes = y.Icdcodes.Replace("|", "<br/>"),
                    Payment = y.CoPayAmount.GetValueOrDefault(),
@@ -824,7 +828,7 @@ namespace MedRecordManager.Controllers
                 InsuranceName = _urgentCareContext.PayerInformation.FirstOrDefault(x=>x.VisitId == y.VisitId).Insurance.PrimaryName,
                 VisitTime = y.Visit.ServiceDate.ToShortDateString(),
                 PatientName = _urgentCareContext.PatientInformation.Where(x=>x.PatNum == y.Visit.PvPatientId).Select( x=> new string (x.FirstName + " " +x.FirstName)).First(),
-                OfficeKey = y.Visit.OfficeKey.GetValueOrDefault(),
+                OfficeKey = y.Visit.OfficeKey.ToString(),
                 ImportedDate = y.ImportedDate.ToString("MM/dd/yyyy HH:mm:ss"),
                 ChargeImported = y.ChargeImported != null ? "Yes" : "No",
                 PatDocImported = _urgentCareContext.PatientDocument.Any(x => !string.IsNullOrEmpty(x.AmdFileId) && x.VisitId == y.VisitId) ? "Yes" : "NO",

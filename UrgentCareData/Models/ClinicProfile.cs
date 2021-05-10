@@ -18,6 +18,8 @@ namespace UrgentCareData.Models
         public string AmdcodePrefix { get; set; }
         public int? OfficeKey { get; set; }
 
+        public bool Enabled { get; set; }
+
         [NotMapped]
         public string ClinicName { get; set; }
 

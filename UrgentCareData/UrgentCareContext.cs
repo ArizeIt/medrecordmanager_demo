@@ -368,6 +368,10 @@ namespace UrgentCareData
                 entity.Property(e => e.ClinicFullName)
                     .HasMaxLength(150)
                     .IsUnicode(false);
+                
+                entity.Property(e => e.Enabled)
+                    .HasColumnName("Enabled");
+
             });
 
             modelBuilder.Entity<CodeReviewQueue>(entity =>
