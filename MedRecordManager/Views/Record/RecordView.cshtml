@@ -108,8 +108,8 @@
                         { field: 'Flag', width: 50, renderer: flagManager },
                         { filed: 'visitId', hidden: true },
                         { field: 'patientName', width: 200, title: 'Patient Name', priority: 1, sortable: true, filterable: true, headerCssClass: 'gridHeader' },
-                        { field: 'clinicName', width: 180, title: 'Clinic', priority: 2, sortable: true, type: 'dropdown', editor: { dataSource: '/Record/GetClinics', valueField: 'id' }, editField: 'clinicName' },
-                        { field: 'officeKey', width: 100, title: 'AMD OfficeKey', priority: 3, sortable: true, type: 'dropdown', editor: { dataSource: '/Record/GetOfficeKeys', valueField: 'id'}, editField: 'officeKey' },
+                        { field: 'clinicName', width: 180, title: 'Clinic', priority: 2, sortable: true, type: 'dropdown', editor: clinicEditor},
+                        { field: 'officeKey', width: 150, title: 'AMD OfficeKey', priority: 3, sortable: true, type: 'dropdown', editor: officeEditor },
                         { field: 'physicianName', width: 160, title: 'Physician' ,sortable: true},
                         { field: 'insuranceName', width: 140, title: 'Insurance',sortable: true},
                         { field: 'pvFinClass', width: 80, title: 'Class', sortable: true},
@@ -431,34 +431,59 @@
                 dailyGrid.clear()
             }
 
-            //function select2editor($editorContainer, value, record) {
-            //    var select = $('<select><option value="' + value + '">' + value + '</option></select>');
-            //    $editorContainer.append(select);
-            //    select.select2({
-            //        width: '150px',
-            //        minimumResultsForSearch: -1,
-            //        ajax: {
-            //            url: '/Record/GetPhysicians',
-            //            data: function () {
-            //                return {
-            //                    clinicId: record.clinicName
-            //                };
-            //            },
-            //            processResults: function (data) {
+           
 
-            //                return {
-            //                    results: $.map(data, function (item) {
-            //                        return {
-            //                            text: item.text,
-            //                            id: item.id,
-            //                            data: item
-            //                        };
-            //                    })
-            //                };
-            //            }
-            //        }
-            //    });
-            //}
+            function officeEditor($editorContainer, value, record) {
+                var select = $('<select><option value="' + value + '">' + value + '</option></select>');
+                $editorContainer.append(select);
+                select.select2({
+                    width: '110px',
+                    minimumResultsForSearch: -1,
+                    ajax: {
+                        url: '/Record/GetOfficeKeys',
+                        data: function () {
+                            return {
+                                clinicId: record.clinicName
+                            };
+                        },
+                        processResults: function (data) {
+                            return {
+                                results: $.map(data, function (item) {
+                                    return {
+                                        text: item.text,
+                                        id: item.id,
+                                        data: item
+                                    };
+                                })
+                            };
+                        }
+                    }
+                });
+            }
+
+            function clinicEditor($editorContainer, value) {
+                var select = $('<select><option value="' + value + '">' + value + '</option></select>');
+                $editorContainer.append(select);
+                select.select2({
+                    width: '140px',
+                    minimumResultsForSearch: -1,
+                    ajax: {
+                        url: '/Record/GetClinics',                     
+                        processResults: function (data) {
+                            return {
+                                results: $.map(data, function (item) {
+                                    return {
+                                        text: item.text,
+                                        id: item.id,
+                                        data: item
+                                    };
+                                })
+                            };
+                        }
+                    }
+                });
+            }
+
         });
 
     </script>

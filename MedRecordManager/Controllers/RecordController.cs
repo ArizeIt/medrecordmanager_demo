@@ -468,9 +468,9 @@ namespace MedRecordManager.Controllers
 
         [HttpGet]
 
-        public async Task<IActionResult> GetOfficeKeys()
+        public async Task<IActionResult> GetOfficeKeys( string clinicId)
         {                     
-            var records =await  _urgentCareContext.ProgramConfig.Where(x=>x.Enabled).Select(x => new { id = x.AmdofficeKey.ToString(), text = x.AmdofficeKey.ToString() }).ToListAsync();
+            var records =await  _urgentCareContext.AdvancedMdcolumnHeader.Where(x=>x.Clinic == clinicId).Select(x => new { id = x.OfficeKey.ToString(), text = x.OfficeKey.ToString() }).ToListAsync();
             return Json(records);        
         }
 
