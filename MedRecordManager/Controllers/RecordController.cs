@@ -526,7 +526,7 @@ namespace MedRecordManager.Controllers
                         }
                         else
                         {
-                            return Json(new { success = true, message = $"Visit number {0} is updated.", record.VisitId });
+                            return Json(new { success = true, message = $"Visit number {record.VisitId} is updated." });
                         }
 
                     }
