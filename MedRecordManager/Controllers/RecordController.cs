@@ -818,6 +818,9 @@ namespace MedRecordManager.Controllers
             {
                 query = _urgentCareContext.VisitImportLog.Include(x=>x.Visit).Take(0);
             }
+
+            query = query.OrderBy(x => x.Visit);
+
             var records = query.Select(y => new VisitRecordVm()
             {
                 VisitId = y.VisitId,
