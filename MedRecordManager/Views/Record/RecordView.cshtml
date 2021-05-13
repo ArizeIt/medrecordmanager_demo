@@ -341,13 +341,18 @@
                 
             });
 
-            $('#btnRun').on('click',function () {
+            $('#btnRun').on('click', function () {
+                var keys = [];
                 $('#btnRun').attr('disabled', true);
+                $('#officeKey > Option:selected').each(function () {
+                        keys.push(this.value);
+                    });
                 $.ajax({
                     url: '/Record/RunBatch',
                     data: {
                         startDate: $('#startDate').val(),
-                        endDate: $('#endDate').val()
+                        endDate: $('#endDate').val(),
+                        officeKey: keys.join(',')
                     },
                     type: 'POST',
 

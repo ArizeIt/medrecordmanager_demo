@@ -689,14 +689,13 @@ namespace MedRecordManager.Controllers
 
 
         [HttpPost]
-        public async Task<IActionResult> RunBatch(DateTime startDate, DateTime endDate)
+        public async Task<IActionResult> RunBatch(DateTime startDate, DateTime endDate, string officekey)
         {
            
             var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
             var isDevelopment = environment == EnvironmentName.Development;
           
-            var officekeys = string.Join(",", _urgentCareContext.Visit.Where(x => x.ServiceDate >= startDate && x.ServiceDate <= endDate && !x.Flagged).DistinctBy(x => x.OfficeKey).Select(x => x.OfficeKey).ToArray());
-
+          
             try
             {
                 var newBatch = new BatchJob
@@ -731,7 +730,7 @@ namespace MedRecordManager.Controllers
                     webClient.DefaultRequestHeaders.Accept.Clear();
 
 
-                    var querystring = $"officeKey={officekeys}&startTime={startDate}&endTime={endDate}&batchId={newBatch.BatchJobId}";
+                    var querystring = $"officeKey={officekey}&startTime={startDate}&endTime={endDate}&batchId={newBatch.BatchJobId}";
 
                     var response = await webClient.PostAsync("cumsapi/Default/ImportToAmd?" + querystring, null);
 
