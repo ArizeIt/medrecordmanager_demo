@@ -132,7 +132,7 @@ namespace MedRecordManager.Controllers
 
                 var records = new List<VisitRecordVm>();
                 total = query.Count();
-
+                query = query.OrderBy(x => x.VisitId);
                 if (page.HasValue && limit.HasValue)
                 {
                     var start = (page.Value - 1) * limit.Value;
@@ -157,7 +157,7 @@ namespace MedRecordManager.Controllers
                         Payment = y.CoPayAmount.GetValueOrDefault(0),
                         ProcCodes = y.ProcCodes.Replace(",|", "<br/>").Replace("|", "<br/>"),
                         IsFlagged = y.Flagged
-                    }).OrderBy(x => x.PatientName).ToList();
+                    }).ToList();
                 }
                 return Json(new { records, total });
 
