@@ -145,7 +145,7 @@ namespace MedRecordManager.Controllers
                         PatientId = y.PvPatientId,
                         ClinicName = y.ClinicId,
                         OfficeKey = y.OfficeKey.GetValueOrDefault().ToString(),
-                        PhysicianName = y.Physician.DisplayName,
+                        PhysicianName = _urgentCareContext.Physician.FirstOrDefault(x=>x.PvPhysicianId == y.PhysicianId).DisplayName,
                         InsuranceName = y.PayerInformation.FirstOrDefault().Insurance.PrimaryName,
                         PhysicianId = y.Physician.PvPhysicianId,
                         DiagCode = y.DiagCodes.Replace("|", "<br/>"),
