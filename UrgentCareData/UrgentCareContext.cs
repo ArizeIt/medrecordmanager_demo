@@ -1036,6 +1036,9 @@ namespace UrgentCareData
                     .HasColumnName("EMCode")
                     .HasMaxLength(50);
 
+                entity.Property(e => e.FinClass)
+                   .HasColumnName("FinClass")
+                   .HasMaxLength(50);
                 entity.Property(e => e.EmModifier)
                     .HasColumnName("EMModifier")
                     .HasMaxLength(50);

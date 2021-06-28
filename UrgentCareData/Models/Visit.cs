@@ -50,7 +50,7 @@ namespace UrgentCareData.Models
         public bool IsModified { get; set; }
         public int? OfficeKey { get; set; }
         public int? EmQuantity { get; set; }
-
+        public string FinClass { get; set; }
         public bool Selected { get; set; }
 
         public virtual Chart Chart { get; set; }

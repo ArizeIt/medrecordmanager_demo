@@ -1391,7 +1391,7 @@ namespace MedRecordManager.Controllers
                         }
 
                     }
-                    catch
+                    catch(Exception ex)
                     {
                         return Json(new { success = false, message = "Failed to apply the rules, please try again." });
                     }
