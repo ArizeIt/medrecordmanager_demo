@@ -116,14 +116,23 @@ namespace MedRecordManager.Controllers
         {
             IQueryable<Visit> query;
             var total = 0;
-            if (!string.IsNullOrEmpty(office) && startDate != DateTime.MinValue && endDate != DateTime.MinValue)
+            if (startDate != DateTime.MinValue && endDate != DateTime.MinValue)
             {
-                var officekeys = office.Split(',').ToList();
+                var officekeys = new List<string>();
+                if (!string.IsNullOrEmpty(office))
+                {
+                    officekeys = office.Split(',').ToList();
+                }
+                else
+                {
+
+                    officekeys = _urgentCareContext.ProgramConfig.Where(x => x.Enabled).Select(x => x.AmdofficeKey.ToString()).ToList();
+                }
              
                 query = _urgentCareContext.Visit.Where(x => officekeys.Contains(x.OfficeKey.ToString()) && x.ServiceDate >= startDate && x.ServiceDate <= endDate);
                 query = query.Where(x => _urgentCareContext.VisitImportLog.FirstOrDefault(y=>y.VisitId == x.VisitId) == null);
             }
-            else
+            else 
             {
                 query = _urgentCareContext.Visit.Take(0);
             }
@@ -1302,8 +1311,16 @@ namespace MedRecordManager.Controllers
         [HttpPost]
         public IActionResult ScrubRecord(string officekey, DateTime startDate, DateTime endDate)
         {
-
-            var officekeys = officekey.Split(',').ToList();
+            var officekeys = new List<string>();
+            if (!string.IsNullOrEmpty(officekey))
+            {
+                officekeys = officekey.Split(',').ToList();
+            }
+            else
+            {
+                officekeys = _urgentCareContext.ProgramConfig.Where(x => x.Enabled).Select(x => x.AmdofficeKey.ToString()).ToList();
+            }
+            
             var activeRules = _urgentCareContext.CodeReviewRule.Where(x => x.Active);
             var baseQuery = _urgentCareContext.Visit.Where(x => officekeys.Contains(x.OfficeKey.ToString()) && x.ServiceDate >= startDate && x.ServiceDate <= endDate && !x.Flagged && !x.VisitImportLog.Any());
             var operationHelper = new OperationHelper();

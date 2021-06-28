@@ -3,6 +3,7 @@ using AdvancedMDService;
 using MedRecordManager.Data;
 using MedRecordManager.Models.UserRecord;
 using MedRecordManager.Services;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -86,6 +87,7 @@ namespace MedRecordManager
 
             // Add application services.
             services.AddTransient<IEmailSender, AuthMessageSender>();
+            //services.AddTransient<IClaimsTransformation, ClaimsTransformer>();
             services.AddTransient<ISmsSender, AuthMessageSender>();
             services.AddSingleton<ILoggerManager, LoggerManager>();
             services.AddScoped<IViewRenderService, ViewRenderService>();
