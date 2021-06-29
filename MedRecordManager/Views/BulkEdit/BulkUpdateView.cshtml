@@ -246,7 +246,7 @@
                     $newDpl.attr('id', officekey)
                     $newDpl.attr('id', 'actionOfficeKey')
                     $newDpl.appendTo($(this).closest('.tr_clone').find('.actionContent'));
-                    $newDpl.find('.dplCap').text('Office Keys')
+                    $newDpl.find('.dplCap').text('OfficeKeys')
                     $newDpl.show();
                     $.ajax({
                         type: "GET",
@@ -361,6 +361,14 @@
                             value: dlpVal
                         });
                     }
+
+                     if ($(action).find('.dplCap').text() == 'OfficeKeys') {
+
+                        stp.push({
+                            key: 'UpdateOfficeKey',
+                            value: dlpVal
+                        });
+                    }
                     bulkActions.push({
 
                         actionName: actName,
@@ -378,7 +386,6 @@
                         },
 
                     }).done(function (response) {
-                        alert(response.success);
                         if (response.success) {
                             $('#saveBulk').prop('disabled', false);                          
                         }

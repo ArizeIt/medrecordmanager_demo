@@ -210,6 +210,7 @@ namespace MedRecordManager.Controllers
                 visit.Icdcodes = bulkVisit.Icdcodes;
                 visit.ProcCodes = bulkVisit.ProcCodes;
                 visit.Flagged = bulkVisit.Flagged;
+                visit.OfficeKey = bulkVisit.OfficeKey;
 
                 foreach (var icdCode in visit.VisitICDCode)
                 {
@@ -422,6 +423,88 @@ namespace MedRecordManager.Controllers
                         return Json(new { success = false, message = "something wrong no action have been applied to the records." });
                     }
 
+                    
+                //    foreach (var action in actions)
+                //    {
+                //        var modifier = action.ActionSteps != null ? action.ActionSteps.FirstOrDefault(x => x.Key == "Mofifier").Value : string.Empty;
+                //        var cptCode = action.ActionSteps != null ? action.ActionSteps.FirstOrDefault(x => x.Key == "CPT").Value : string.Empty;
+                //        var IcdCode = action.ActionSteps != null ? action.ActionSteps.FirstOrDefault(x => x.Key == "ICD").Value : string.Empty;
+                //        var physicianId = action.ActionSteps != null ? action.ActionSteps.FirstOrDefault(x => x.Key == "UpdatePhysician").Value : string.Empty;
+                //        var clinicId = action.ActionSteps != null ? action.ActionSteps.FirstOrDefault(x => x.Key == "UpdateClinic").Value : string.Empty;
+                //        var officeKey = action.ActionSteps != null ? action.ActionSteps.FirstOrDefault(x => x.Key == "UpdateOfficeKey").Value : string.Empty;
+                //        switch (action.ActionName)
+                //        {
+                //            case "addCpt":
+
+                //                if (!string.IsNullOrEmpty(cptCode))
+                //                {
+                //                    AddCpt(bulkVisitIds, cptCode);
+                //                }
+                //                break;
+
+                //            case "delCpt":
+                //                if (!string.IsNullOrEmpty(cptCode))
+                //                    RemoveCpt(bulkVisitIds, cptCode);
+                //                break;
+
+                //            case "addIcd":
+                //                if (!string.IsNullOrEmpty(IcdCode))
+                //                {
+                //                    AddIcd(bulkVisitIds, IcdCode);
+                //                }
+                //                break;
+
+                //            case "delIcd":
+                //                if (!string.IsNullOrEmpty(IcdCode))
+                //                {
+                //                    RemoveIcd(bulkVisitIds, IcdCode);
+                //                }
+                //                break;
+
+                //            case "addMod":
+
+                //                AddModifier(bulkVisitIds, cptCode, modifier);
+                //                break;
+
+                //            case "delMod":
+                //                if (!string.IsNullOrEmpty(modifier))
+                //                {
+                //                    RemoveModifier(bulkVisitIds, cptCode, modifier);
+                //                }
+                //                break;
+
+                //            case "updPhys":
+                //                if (!string.IsNullOrEmpty(physicianId))
+                //                {
+                //                    UpdatePhysican(bulkVisitIds, int.Parse(physicianId));
+                //                }
+                //                break;
+
+                //            case "updClinic":
+                //                if (!string.IsNullOrEmpty(clinicId))
+                //                {
+                //                    UpdateClinic(bulkVisitIds, clinicId);
+                //                }
+                //                break;
+                //            case "updOfficeKey":
+                //                if (!string.IsNullOrEmpty(officeKey))
+                //                {
+                //                    var phyId = int.Parse(physicianId);
+                //                    if(! _urgentCareContext.Physician.Any(x => x.OfficeKey == officeKey && x.PvPhysicianId == phyId))
+                //                    {
+                //                        var newPhyId= _urgentCareContext.Physician.FirstOrDefault(x => x.OfficeKey == officeKey && x.IsDefault).PvPhysicianId;
+                //                        UpdatePhysican(bulkVisitIds, newPhyId);
+                //                    }
+                //                    UpdateOfficeKey(bulkVisitIds, officeKey);
+                //                }
+                //                break;
+                //            case "unFlag":
+                //                Unflag(bulkVisitIds);
+                //                break;
+                //        }
+
+                        
+                //}
                     /// apply action
                     foreach (var action in actions)
                     {
@@ -488,7 +571,21 @@ namespace MedRecordManager.Controllers
                             case "updOfficeKey":
                                 if (!string.IsNullOrEmpty(officeKey))
                                 {
-                                    UpdateOfficeKey(bulkVisitIds, clinicId);
+                                    var disPhysicans = _urgentCareContext.BulkVisit.Where(x => bulkVisitIds.Contains(x.VisitId)).DistinctBy(y => y.PhysicianId).Select(z => z.PhysicianId).ToList();
+                                 
+                                  
+                                        foreach (var phyId in disPhysicans)
+                                        {
+                                        if(!_urgentCareContext.Physician.Any(x=> x.PvPhysicianId == phyId && x.OfficeKey == officeKey))
+                                        {
+                                            _urgentCareContext.Physician.Add(new Physician { PvPhysicianId = phyId, OfficeKey = officeKey });
+                                            }
+                                            
+                                        }
+
+                                        _urgentCareContext.SaveChanges();
+                                    
+                                    UpdateOfficeKey(bulkVisitIds, officeKey);
                                 }
                                 break;
                             case "unFlag":

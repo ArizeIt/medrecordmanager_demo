@@ -632,9 +632,10 @@ namespace MedRecordManager.Controllers
                    ProcCodes = y.ProcCodes.Replace(",|", "<br/>").Replace("|", "<br/>"),
                    IsFlagged = y.Flagged,
                    PhysicianId = y.PhysicianId,
-                   ServiceDate = y.ServiceDate.Date
+                   ServiceDate = y.ServiceDate.Date,
+                   InsuranceName = _urgentCareContext.InsuranceInformation.FirstOrDefault(x=> x.InsuranceId == y.PayerInformation.FirstOrDefault().InsuranceId).PrimaryName
 
-               }).OrderBy(x => x.VisitTime).ToList();
+               }).OrderBy(x=> x.VisitId).ToList();
 
 
 
@@ -684,7 +685,7 @@ namespace MedRecordManager.Controllers
 
                     foreach (var record in records)
                     {
-                        var visitRules = _urgentCareContext.VisitRuleSet.Include(x => x.CodeReviewRuleSet).Where(x => x.VisitId == record.VisitId).Select(x => x.CodeReviewRuleSet.RuleName);
+                        var visitRules = _urgentCareContext.VisitRuleSet.Include(x => x.CodeReviewRuleSet).Where(x => x.VisitId == record.VisitId).DistinctBy(z=>z.RuleSetId).Select(x => x.CodeReviewRuleSet.RuleName);
                         record.AppliedRules = string.Join("<br/>", visitRules);
                     }
                 }
@@ -1521,7 +1522,7 @@ namespace MedRecordManager.Controllers
         [HttpGet]
         public IActionResult GetAvailOfficekeys()
         {
-           var oKeys =  GetAvaliableOfficeKeys().Select(x=> new { id=x.Text, value=x.Value}).ToList();
+           var oKeys =  GetAvaliableOfficeKeys().Select(x=> new { id=x.Value, text =x.Text}).ToList();
 
             return Json(oKeys);
         }
