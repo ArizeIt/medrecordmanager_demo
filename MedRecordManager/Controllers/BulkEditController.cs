@@ -91,7 +91,7 @@ namespace MedRecordManager.Controllers
             try
             {
                 var records = new List<VisitRecordVm>();
-                var vRecords = _urgentCareContext.Visit.Where(x => x.Flagged);
+                var vRecords = _urgentCareContext.Visit.Include(x=>x.PayerInformation).Where(x => x.Flagged);
               
 
 
@@ -155,12 +155,14 @@ namespace MedRecordManager.Controllers
                         PatientName = y.PvPatient.FirstName + y.PvPatient.LastName,
                         OfficeKey = y.OfficeKey,
                         PVFinClass = _urgentCareContext.PayerInformation.FirstOrDefault(x=>x.VisitId == y.VisitId) != null ? _urgentCareContext.PayerInformation.FirstOrDefault(x => x.VisitId == y.VisitId).Class.ToString() : string.Empty,
+  
                         IcdCodes = y.Icdcodes.Replace("|", "<br/>"),
                         Payment = y.CoPayAmount.GetValueOrDefault(),
                         ProcCodes = y.ProcCodes.Replace(",|", "<br/>").Replace("|", "<br/>"),
                         IsFlagged = y.Flagged,
                         PhysicianId = y.PhysicianId,
                         PhysicianName = _urgentCareContext.Physician.FirstOrDefault(x => x.PvPhysicianId == y.PhysicianId).DisplayName,
+                        InsuranceName = _urgentCareContext.InsuranceInformation.FirstOrDefault(x=>x.InsuranceId == y.PayerInformation.FirstOrDefault().InsuranceId).PrimaryName,
                         ServiceDate = y.ServiceDate.Date,
                         Selected = y.Selected
 

@@ -36,6 +36,7 @@ namespace MedRecordManager.Models.DailyRecord
 
         public string InsuranceName { get; set; }
 
+        public int InsuranaceId { get; set; }
         public string ImportedDate { get; set; }
 
         public string ChargeImported { get; set; }
