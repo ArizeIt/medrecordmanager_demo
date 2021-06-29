@@ -44,7 +44,7 @@ namespace UrgentCareData.Models
         public int? SourceProcessId { get; set; }
         public bool Flagged { get; set; }
         public bool IsModified { get; set; }
-        public int? OfficeKey { get; set; }
+        public string OfficeKey { get; set; }
         public string Emmodifier { get; set; }
         public int? Emquantity { get; set; }
         public string PatientName { get; set; }

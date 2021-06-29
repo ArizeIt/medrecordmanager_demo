@@ -246,7 +246,7 @@ namespace CucmsService.Services
         }
 
 
-        public async Task<IList<ImportResult>> BatchImportAsync(BatchJob job, int officeKey, DateTime startDate, DateTime endDate)
+        public async Task<IList<ImportResult>> BatchImportAsync(BatchJob job, string officeKey, DateTime startDate, DateTime endDate)
         {
             var errors = new List<string>();
             var importFailed = new List<string>();
@@ -562,12 +562,12 @@ namespace CucmsService.Services
             return null;
         }
 
-        public Task<string> UpdateGuarantor(int visitId, int officeKey)
+        public Task<string> UpdateGuarantor(int visitId, string officeKey)
         {
             throw new NotImplementedException();
         }
 
-        public async Task<string> AddVisit(Uri apiUrl, string token, int visitId, int officekey, string amdProviderId, string amdPatientId, string facilityId, bool existingPateint)
+        public async Task<string> AddVisit(Uri apiUrl, string token, int visitId, string officeKey, string amdProviderId, string amdPatientId, string facilityId, bool existingPateint)
         {
             var visitRec = await _urgentCareContext.Visit.Include(x => x.VisitImportLog).FirstOrDefaultAsync(x => x.VisitId == visitId);
 
@@ -585,10 +585,10 @@ namespace CucmsService.Services
             };
             if (!visitRec.VisitImportLog.Any())
             {
-                var visitType = newVisit.FirstOrDefault(x => x.Key == officekey.ToString()).Value;
+                var visitType = newVisit.FirstOrDefault(x => x.Key == officeKey).Value.ToString();
                 if (visitRec.VisitType == "m" || existingPateint)
                 {
-                    visitType = oldVisit.FirstOrDefault(x => x.Key == officekey.ToString()).Value;
+                    visitType = oldVisit.FirstOrDefault(x => x.Key == officeKey).Value.ToString();
                 }
                 var advancedMdColumnHeader = await _urgentCareContext.AdvancedMdcolumnHeader.FirstOrDefaultAsync(x => x.Clinic == visitRec.ClinicId);
                 if (advancedMdColumnHeader != null)
@@ -602,7 +602,7 @@ namespace CucmsService.Services
                         var visitImportLog = new VisitImportLog
                         {
                             ImportedDate = DateTime.Now,
-                            OfficeKey = officekey.ToString(),
+                            OfficeKey = officeKey,
                             VisitId = visitId,
                             //AmdimportLogId = importLogId,
                             AmdvisitId = visitResponse?.Results?.Visit.Id,
@@ -690,7 +690,7 @@ namespace CucmsService.Services
             throw new NotImplementedException();
         }
 
-        private async Task<bool> SavePvXmlRecord(Log_Record pvRecord, int sourceProcessId, int officekey, string filePath, bool additionalCharge)
+        private async Task<bool> SavePvXmlRecord(Log_Record pvRecord, int sourceProcessId, string officeKey, string filePath, bool additionalCharge)
         {
             var pvLogNum = int.Parse(pvRecord.Log_Num);
 
@@ -800,7 +800,7 @@ namespace CucmsService.Services
                 }
 
                 var physicianId = int.Parse(pvRecord.Physican_ID);
-                var matchingPhysican = await _urgentCareContext.Physician.FirstOrDefaultAsync(x => x.PvPhysicianId == physicianId && x.OfficeKey == officekey);
+                var matchingPhysican = await _urgentCareContext.Physician.FirstOrDefaultAsync(x => x.PvPhysicianId == physicianId && x.OfficeKey == officeKey);
 
                 if (matchingPhysican == null)
                 {
@@ -811,7 +811,7 @@ namespace CucmsService.Services
                         LastName = pvRecord.Physican.ParseToList(',')[0],
                         DisplayName = pvRecord.Physican,
                         Clinic = pvRecord.Clinic,
-                        OfficeKey = officekey,
+                        OfficeKey = officeKey,
                     };
                 }
                 else

@@ -10,7 +10,7 @@ namespace UrgentCareData.Models
         public int AmdimportId { get; set; }
         public string Status { get; set; }
         public DateTime ImportedDate { get; set; }
-        public int OfficeKey { get; set; }
+        public string OfficeKey { get; set; }
 
         public virtual AdvanceMdimportLog Amdimport { get; set; }
     }

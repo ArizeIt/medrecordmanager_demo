@@ -2,7 +2,7 @@
 {
     public partial class ProgramConfig
     {
-        public int AmdofficeKey { get; set; }
+        public string AmdofficeKey { get; set; }
         public string ApiuserName { get; set; }
         public string Apipassword { get; set; }
         public string Apiuri { get; set; }

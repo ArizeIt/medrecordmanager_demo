@@ -21,6 +21,10 @@ namespace MedRecordManager.Models
         public string FinClass { get; set; }
         public IEnumerable<SelectListItem> FinClasses { get; set; }
 
+        [Display(Name = "Office Key")]
+        public string OfficeKey { get; set; }
+        public IEnumerable<SelectListItem> OfficeKeys { get; set; }
+
         public string FlaggedRule { get; set; }
 
         [Display(Name = "Flagged Rule")]

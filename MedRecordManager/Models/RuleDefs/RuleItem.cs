@@ -36,6 +36,8 @@ namespace MedRecordManager.Models
         public string Field { get; set; }
 
         public string FieldValue { get; set; }
+
+        public string FieldType { get; set; }
     }
 }
 

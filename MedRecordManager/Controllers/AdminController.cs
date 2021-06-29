@@ -76,12 +76,12 @@ namespace MedRecordManager.Controllers
 
         public IActionResult Clinic()
         {
-            var mappedClinics = _urgentData.ClinicProfile.Where(x => x.OfficeKey.HasValue).Select(x =>
+            var mappedClinics = _urgentData.ClinicProfile.Where(x => !string.IsNullOrEmpty(x.OfficeKey)).Select(x =>
 
                  new ClinicVm
                  {
                      ClinicId = x.ClinicId,
-                     OfficeKey = x.OfficeKey.GetValueOrDefault().ToString(),
+                     OfficeKey = x.OfficeKey,
                      AmdFacility = x.AmdcodeName,
 
                  });
@@ -93,12 +93,12 @@ namespace MedRecordManager.Controllers
         [HttpGet]
         public IActionResult MappedClinic()
         {
-            var mappedClinics = _urgentData.ClinicProfile.Where(x => x.OfficeKey.HasValue).Select(x =>
+            var mappedClinics = _urgentData.ClinicProfile.Where(x => !string.IsNullOrEmpty(x.OfficeKey)).Select(x =>
 
                  new ClinicVm
                  {
                      ClinicId = x.ClinicId,
-                     OfficeKey = x.OfficeKey.GetValueOrDefault().ToString(),
+                     OfficeKey = x.OfficeKey,
                      AmdFacility = x.AmdcodeName,
 
                  });
@@ -107,7 +107,7 @@ namespace MedRecordManager.Controllers
         }
 
         [HttpPost]
-        public IActionResult SaveClinic(string clinicId, int officeKey, string amdCodeName)
+        public IActionResult SaveClinic(string clinicId, string officeKey, string amdCodeName)
         {
             var existingCp = _urgentData.ClinicProfile.FirstOrDefault(x => x.ClinicId == clinicId);
             _urgentData.ClinicProfile.Attach(existingCp);
@@ -167,10 +167,10 @@ namespace MedRecordManager.Controllers
 
 
         [HttpGet]
-        public IActionResult getMapedPh(int officeKey)
+        public IActionResult getMapedPh(string officeKey)
         {
 
-            if (officeKey != 0)
+            if (!string.IsNullOrEmpty(officeKey))
             {
                 var vm = new List<PhysicianVm>();
                 vm = _urgentData.Physician.Where(x => x.OfficeKey == officeKey && x.Active).Select(x => new PhysicianVm()
@@ -211,8 +211,7 @@ namespace MedRecordManager.Controllers
         [HttpPost]
         public async Task<IActionResult> EditPhyisican(int pvPhysicianId, string officeKey)
         {
-            int.TryParse(officeKey, out int numOfficeKey);
-            var existingPh = _urgentData.Physician.FirstOrDefault(x => x.PvPhysicianId == pvPhysicianId && x.OfficeKey == numOfficeKey);
+            var existingPh = _urgentData.Physician.FirstOrDefault(x => x.PvPhysicianId == pvPhysicianId && x.OfficeKey == officeKey);
             var vm = new PhysicianVm
             {
                 pvFirstName = existingPh.FirstName,
@@ -314,7 +313,7 @@ namespace MedRecordManager.Controllers
         }
 
         [HttpPost]
-        public IActionResult DeletePhyisican(int pvPhysicianId, int officeKey)
+        public IActionResult DeletePhyisican(int pvPhysicianId, string officeKey)
         {
             var match = _urgentData.Set<Physician>().FirstOrDefault(x => x.PvPhysicianId == pvPhysicianId && x.OfficeKey == officeKey);
             if (match != null)
@@ -442,9 +441,7 @@ namespace MedRecordManager.Controllers
         }
         private async Task<IList<SelectListItem>> GetAmdProviderList(string officeKey)
         {
-            int.TryParse(officeKey, out int numOfficeKey);
-
-            var config = _urgentData.ProgramConfig.FirstOrDefault(x => x.AmdofficeKey == numOfficeKey);
+            var config = _urgentData.ProgramConfig.FirstOrDefault(x => x.AmdofficeKey == officeKey);
             var apiUri = new Uri(config.Apiuri);
 
             if (string.IsNullOrEmpty(HttpContext.Session.GetString("apiContext")) || string.IsNullOrEmpty(HttpContext.Session.GetString("redirectUrl")) || string.IsNullOrEmpty(HttpContext.Session.GetString("officekey")) || HttpContext.Session.GetString("officekey") != officeKey)

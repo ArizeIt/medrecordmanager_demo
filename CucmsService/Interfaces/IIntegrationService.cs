@@ -25,7 +25,7 @@ namespace CucmsService.Interfaces
         /// <param name="startDate"></param>
         /// <param name="endDate"></param>
         /// <returns></returns>
-        Task<IList<ImportResult>> BatchImportAsync(BatchJob job, int officeKey, DateTime startDate, DateTime endDate);
+        Task<IList<ImportResult>> BatchImportAsync(BatchJob job, string officeKey, DateTime startDate, DateTime endDate);
 
         /// <summary>
         /// 
@@ -65,7 +65,7 @@ namespace CucmsService.Interfaces
         /// <param name="facilityId"></param>
         /// <param name="existingPateint"></param>
         /// <returns></returns>
-        Task<string> AddVisit(Uri apiUrl, string token, int visitId, int officekey, string amdProviderId, string amdPatientId, string facilityId, bool existingPateint);
+        Task<string> AddVisit(Uri apiUrl, string token, int visitId, string officeKey, string amdProviderId, string amdPatientId, string facilityId, bool existingPateint);
 
         /// <summary>
         /// 
@@ -84,7 +84,7 @@ namespace CucmsService.Interfaces
         /// <param name="visitId"></param>
         /// <param name="officeKey"></param>
         /// <returns></returns>
-        Task<string> UpdateGuarantor(int visitId, int officeKey);
+        Task<string> UpdateGuarantor(int visitId, string officeKey);
 
         /// <summary>
         /// 

@@ -126,10 +126,10 @@ namespace MedRecordManager.Controllers
                 else
                 {
 
-                    officekeys = _urgentCareContext.ProgramConfig.Where(x => x.Enabled).Select(x => x.AmdofficeKey.ToString()).ToList();
+                    officekeys = _urgentCareContext.ProgramConfig.Where(x => x.Enabled).Select(x => x.AmdofficeKey).ToList();
                 }
              
-                query = _urgentCareContext.Visit.Where(x => officekeys.Contains(x.OfficeKey.ToString()) && x.ServiceDate >= startDate && x.ServiceDate <= endDate);
+                query = _urgentCareContext.Visit.Where(x => officekeys.Contains(x.OfficeKey) && x.ServiceDate >= startDate && x.ServiceDate <= endDate);
                 query = query.Where(x => _urgentCareContext.VisitImportLog.FirstOrDefault(y=>y.VisitId == x.VisitId) == null);
             }
             else 
@@ -153,7 +153,7 @@ namespace MedRecordManager.Controllers
                         VisitId = y.VisitId,
                         PatientId = y.PvPatientId,
                         ClinicName = y.ClinicId,
-                        OfficeKey = y.OfficeKey.GetValueOrDefault().ToString(),
+                        OfficeKey = y.OfficeKey,
                         PhysicianName = _urgentCareContext.Physician.FirstOrDefault(x=>x.PvPhysicianId == y.PhysicianId).DisplayName,
                         InsuranceName = y.PayerInformation.FirstOrDefault().Insurance.PrimaryName,
                         PhysicianId = y.Physician.PvPhysicianId,
@@ -479,7 +479,7 @@ namespace MedRecordManager.Controllers
 
         public async Task<IActionResult> GetOfficeKeys( string clinicId)
         {                     
-            var records =await  _urgentCareContext.AdvancedMdcolumnHeader.Where(x=>x.Clinic == clinicId).Select(x => new { id = x.OfficeKey.ToString(), text = x.OfficeKey.ToString() }).ToListAsync();
+            var records =await  _urgentCareContext.AdvancedMdcolumnHeader.Where(x=>x.Clinic == clinicId).Select(x => new { id = x.OfficeKey, text = x.OfficeKey }).ToListAsync();
             return Json(records);        
         }
 
@@ -523,7 +523,7 @@ namespace MedRecordManager.Controllers
                         }
 
                         visit.ClinicId = record.ClinicName;
-                        visit.OfficeKey = int.Parse(record.OfficeKey);
+                        visit.OfficeKey = record.OfficeKey;
                         visit.IsModified = true;
                         _urgentCareContext.Visit.Attach(visit);
 
@@ -1318,11 +1318,11 @@ namespace MedRecordManager.Controllers
             }
             else
             {
-                officekeys = _urgentCareContext.ProgramConfig.Where(x => x.Enabled).Select(x => x.AmdofficeKey.ToString()).ToList();
+                officekeys = _urgentCareContext.ProgramConfig.Where(x => x.Enabled).Select(x => x.AmdofficeKey).ToList();
             }
             
             var activeRules = _urgentCareContext.CodeReviewRule.Where(x => x.Active);
-            var baseQuery = _urgentCareContext.Visit.Where(x => officekeys.Contains(x.OfficeKey.ToString()) && x.ServiceDate >= startDate && x.ServiceDate <= endDate && !x.Flagged && !x.VisitImportLog.Any());
+            var baseQuery = _urgentCareContext.Visit.Where(x => officekeys.Contains(x.OfficeKey) && x.ServiceDate >= startDate && x.ServiceDate <= endDate && !x.Flagged && !x.VisitImportLog.Any());
             var operationHelper = new OperationHelper();
             var results = new List<Visit>();
             var problemRuleNames = new List<string>();
@@ -1516,6 +1516,14 @@ namespace MedRecordManager.Controllers
 
             return Json(new { success = true });
 
+        }
+
+        [HttpGet]
+        public IActionResult GetAvailOfficekeys()
+        {
+           var oKeys =  GetAvaliableOfficeKeys().Select(x=> new { id=x.Text, value=x.Value}).ToList();
+
+            return Json(oKeys);
         }
 
         private IEnumerable<SelectListItem> GetAvaliableOfficeKeys()

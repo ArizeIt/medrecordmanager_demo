@@ -412,7 +412,7 @@ namespace MedRecordManager.Controllers
                     _appAdminContext.UserOfficeKey.Add(new UserOfficeKey
                     {
                         UserId = userId,
-                        OfficeKey = int.Parse(office)
+                        OfficeKey = office
                     });
                 }
 

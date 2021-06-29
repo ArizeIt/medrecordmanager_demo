@@ -171,6 +171,7 @@
                 var $newMod = $('#codeTemp').clone();
                 var $newIcd = $('#icdTemp').clone();
                 var $newDpl = $('#dplTemp').clone();
+
                 var $actionContent = $(this).closest('.tr_clone').find('.actionContent');
 
                 $actionContent.empty();
@@ -240,7 +241,27 @@
                         }
                     });
                 }
+                if (this.value == 'updOfficeKey') {
+                    var officekey = 'dplok_' + tId
+                    $newDpl.attr('id', officekey)
+                    $newDpl.attr('id', 'actionOfficeKey')
+                    $newDpl.appendTo($(this).closest('.tr_clone').find('.actionContent'));
+                    $newDpl.find('.dplCap').text('Office Keys')
+                    $newDpl.show();
+                    $.ajax({
+                        type: "GET",
+                        url: "/record/getAvailOfficekeys",
+                        data: "{}",
+                        success: function (data) {
+                            var s = '<option value="-1">Please Select an Office key</option>';
+                            for (var i = 0; i < data.length; i++) {
+                                s += '<option value="' + data[i].text + '">' + data[i].id + '</option>';
+                            }
+                            $newDpl.find('.dpl').html(s);
+                        }
+                    });
 
+                }
             });
 
             $('button.tr_clone_remove').on('click', function () {
@@ -357,12 +378,15 @@
                         },
 
                     }).done(function (response) {
+                        alert(response.success);
                         if (response.success) {
                             $('#saveBulk').prop('disabled', false);                          
                         }
-                        
+                        if (response.success = false) {
+                            alert(response.message);
+                        }
                     }).fail(function (response) {
-                        alert("Something went wrong, the bulk action did not excute properly.")
+                        alert(response.message);
                     });
                     
                 }
@@ -435,10 +459,13 @@
                 var physicians = [];
                 var rules = [];
                 var finclasses = [];
+                var officeKeys = []
                 $('#clinic > Option:selected').each(function () {
                     clinics.push(this.value);
                 });
-
+                 $('#officeKey > Option:selected').each(function () {
+                    officeKeys.push(this.value);
+                });
                 $('#physician > Option:selected').each(function () {
                     physicians.push(this.value);
                 });
@@ -456,6 +483,7 @@
                         finclass: finclasses.join(','),
                         startDate: $('#startDate').val(),
                         endDate: $('#endDate').val(),
+                        officeKey: officeKeys.join(',')
                     });
             }
 
@@ -521,6 +549,13 @@
                             <select class="form-control" asp-for="FlaggedRule" , asp-items="@Model.FlaggedRules" id="rule" multiple></select>
                         </div>
                     </div>
+
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label asp-for="OfficeKey" class="control-label"> Office Key</label>
+                            <select class="form-control" asp-for="OfficeKey" , asp-items="@Model.OfficeKeys" id="officeKey" multiple></select>
+                        </div>
+                    </div>
                 </div>
                 <div class="row">
                     <div class="col-md-3">
@@ -583,7 +618,7 @@
                     <table class="table table-borderless" id="actionDetail" hidden>
                         <thead>
                             <tr>
-                                <th scope="col" class="col-md-1">Action</th>
+                                <th scope="col" class="col-md-2">Action</th>
                                 <th scope="col" class="col-md-1"></th>
                                 <th scope="col" class="col-md-10"></th>
                             </tr>
@@ -601,6 +636,7 @@
                                         <option value="delIcd">Delete ICD</option>
                                         <option value="updPhys">Update Physicin</option>
                                         <option value="updClinic">Update Clinic</option>
+                                        <option value="updOfficeKey">Update OfficeKey</option>
                                         <option value="unFlag">Clear Flag</option>
                                     </select>
                                 </td>
@@ -656,21 +692,21 @@
     </div>
 </div>
 
-<div id="codeTemp" class="row" hidden>
-    <div class="col-md-5 row codeName">
-        <div class="col-xs-3">
+<div id="codeTemp" class="row col-md-12" hidden>
+    <div class="col-md-6 row codeName">
+        <div class="col-md-3">
             <label data-error="wrong" data-success="right" for="actionInput">Code Name</label>
         </div>
-        <div class="col-xs-9">
+        <div class="col-md-8">
             <input type="text" class="form-control actionInput" name="codeName" required>
         </div>
     </div>
 
-    <div class="col-md-5 row modifier">
-        <div class="col-xs-3">
+    <div class="col-md-6 row modifier">
+        <div class="col-md-3">
             <label data-error="wrong" data-success="right" for="actionInput">Modifier</label>
         </div>
-        <div class="col-xs-9">
+        <div class="col-md-8">
             <input type="text" class="form-control actionInput2" name="modifier" required>
         </div>
     </div>
@@ -678,11 +714,11 @@
 
 
 <div id="dplTemp" class="row" hidden>
-    <div class="col-md-5 row">
-        <div class="col-xs-3">
+    <div class="col-md-9 row">
+        <div class="col-md-3">
             <label data-error="wrong" data-success="right" class="dplCap"></label>
         </div>
-        <div class="col-xs-9">
+        <div class="col-md-6">
             <select class="form-control dpl dplInput">
             </select>
         </div>
@@ -690,11 +726,11 @@
 </div>
 
 <div id="icdTemp" class="row" hidden>
-    <div class="col-md-5 row">
-        <div class="col-xs-2">
+    <div class="col-md-9 row">
+        <div class="col-md-3">
             <label data-error="wrong" data-success="right" >Code name</label>
         </div>
-        <div class="col-xs-10">
+        <div class="col-md-6">
             <input type="text" class="form-control actionInput" name="icdCodeName" required>
         </div>
     </div>

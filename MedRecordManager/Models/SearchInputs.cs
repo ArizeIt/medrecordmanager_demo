@@ -9,7 +9,7 @@ namespace MedRecordManager.Models
     public class SearchInputs
     {
         [Display(Name = "Office Key")]
-        public int OfficeKey { get; set; }
+        public string OfficeKey { get; set; }
         public IEnumerable<SelectListItem> OfficeKeys { get; set; }
 
         [Display(Name = "Clinic Name")]
