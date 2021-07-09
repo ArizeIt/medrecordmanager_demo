@@ -513,13 +513,13 @@ namespace MedRecordManager.Controllers
 
             if (visit != null)
             {
-                if (visit.ClinicId != record.ClinicName || visit.OfficeKey.ToString() != record.OfficeKey || visit.PhysicianId != record.PhysicianId)
+                if (visit.ClinicId != record.ClinicName || visit.OfficeKey != record.OfficeKey || visit.PhysicianId != record.PhysicianId)
                 {
-                    if (_urgentCareContext.AdvancedMdcolumnHeader.Any(x => x.Clinic == record.ClinicName && x.OfficeKey.ToString() == record.OfficeKey))
+                    if (_urgentCareContext.AdvancedMdcolumnHeader.Any(x => x.Clinic == record.ClinicName && x.OfficeKey == record.OfficeKey))
                     {    
-                        if (!_urgentCareContext.Physician.Any(x => x.PvPhysicianId == record.PhysicianId && x.OfficeKey.ToString() == record.OfficeKey))
+                        if (!_urgentCareContext.Physician.Any(x => x.PvPhysicianId == record.PhysicianId && x.OfficeKey == record.OfficeKey))
                         {
-                            visit.PhysicianId = _urgentCareContext.Physician.FirstOrDefault(x => x.OfficeKey.ToString() == record.OfficeKey && x.IsDefault).PvPhysicianId;
+                            visit.PhysicianId = _urgentCareContext.Physician.FirstOrDefault(x => x.OfficeKey == record.OfficeKey && x.IsDefault).PvPhysicianId;
                         }
 
                         visit.ClinicId = record.ClinicName;
