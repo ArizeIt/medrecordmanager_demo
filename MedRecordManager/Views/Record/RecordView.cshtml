@@ -374,7 +374,13 @@
                     type: 'POST',
 
                     success: function (response) {
-                        $('#btnRun').attr('disabled', false);
+                        if (response.success) {
+                            alert('You will be redirected.');
+                            window.location.href ='@Url.Action("batchconfirmation", "record")'
+                        }
+                        else {
+                            alert('There is something wrong when trying to run the batch, please try it again.');
+                        }
                     },
                     dataType: 'json'
                 })

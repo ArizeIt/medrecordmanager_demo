@@ -45,7 +45,7 @@ namespace MedRecordManager.Controllers
 
         [HttpGet]
         public IActionResult Review()
-        {           
+        {
             var vm = new SearchInputs()
             {
                 Type = "Daily",
@@ -128,11 +128,11 @@ namespace MedRecordManager.Controllers
 
                     officekeys = _urgentCareContext.ProgramConfig.Where(x => x.Enabled).Select(x => x.AmdofficeKey).ToList();
                 }
-             
+
                 query = _urgentCareContext.Visit.Where(x => officekeys.Contains(x.OfficeKey) && x.ServiceDate >= startDate && x.ServiceDate <= endDate);
-                query = query.Where(x => _urgentCareContext.VisitImportLog.FirstOrDefault(y=>y.VisitId == x.VisitId) == null);
+                query = query.Where(x => _urgentCareContext.VisitImportLog.FirstOrDefault(y => y.VisitId == x.VisitId) == null);
             }
-            else 
+            else
             {
                 query = _urgentCareContext.Visit.Take(0);
             }
@@ -154,7 +154,7 @@ namespace MedRecordManager.Controllers
                         PatientId = y.PvPatientId,
                         ClinicName = y.ClinicId,
                         OfficeKey = y.OfficeKey,
-                        PhysicianName = _urgentCareContext.Physician.FirstOrDefault(x=>x.PvPhysicianId == y.PhysicianId).DisplayName,
+                        PhysicianName = _urgentCareContext.Physician.FirstOrDefault(x => x.PvPhysicianId == y.PhysicianId).DisplayName,
                         InsuranceName = y.PayerInformation.FirstOrDefault().Insurance.PrimaryName,
                         PhysicianId = y.Physician.PvPhysicianId,
                         DiagCode = y.DiagCodes.Replace("|", "<br/>"),
@@ -171,13 +171,13 @@ namespace MedRecordManager.Controllers
                 return Json(new { records, total });
 
             }
-            
-            catch (Exception ex) 
-            
+
+            catch (Exception ex)
+
             {
-                return Json(new { success=false, message = ex.ToString() });
+                return Json(new { success = false, message = ex.ToString() });
             }
-           
+
         }
 
         [HttpGet]
@@ -477,10 +477,10 @@ namespace MedRecordManager.Controllers
 
         [HttpGet]
 
-        public async Task<IActionResult> GetOfficeKeys( string clinicId)
-        {                     
-            var records =await  _urgentCareContext.AdvancedMdcolumnHeader.Where(x=>x.Clinic == clinicId).Select(x => new { id = x.OfficeKey, text = x.OfficeKey }).ToListAsync();
-            return Json(records);        
+        public async Task<IActionResult> GetOfficeKeys(string clinicId)
+        {
+            var records = await _urgentCareContext.AdvancedMdcolumnHeader.Where(x => x.Clinic == clinicId).Select(x => new { id = x.OfficeKey, text = x.OfficeKey }).ToListAsync();
+            return Json(records);
         }
 
         [HttpGet]
@@ -516,7 +516,7 @@ namespace MedRecordManager.Controllers
                 if (visit.ClinicId != record.ClinicName || visit.OfficeKey != record.OfficeKey || visit.PhysicianId != record.PhysicianId)
                 {
                     if (_urgentCareContext.AdvancedMdcolumnHeader.Any(x => x.Clinic == record.ClinicName && x.OfficeKey == record.OfficeKey))
-                    {    
+                    {
                         if (!_urgentCareContext.Physician.Any(x => x.PvPhysicianId == record.PhysicianId && x.OfficeKey == record.OfficeKey))
                         {
                             visit.PhysicianId = _urgentCareContext.Physician.FirstOrDefault(x => x.OfficeKey == record.OfficeKey && x.IsDefault).PvPhysicianId;
@@ -549,7 +549,7 @@ namespace MedRecordManager.Controllers
                 {
                     return Json(new { success = false, message = "No change detected, record is not saved." });
                 }
-             
+
             }
             else
             {
@@ -566,7 +566,7 @@ namespace MedRecordManager.Controllers
             if (visit != null)
             {
                 visit.Flagged = flag;
-                
+
                 //remove flag will remove all flag rules
                 if (!flag)
                 {
@@ -581,7 +581,7 @@ namespace MedRecordManager.Controllers
 
                     }
 
-                    if(bulkVisits.Any())
+                    if (bulkVisits.Any())
                     {
                         var bulkIcd = _urgentCareContext.BulkVisitICDCode.Where(x => x.VisitId == visitId);
                         _urgentCareContext.BulkVisitICDCode.RemoveRange(bulkIcd);
@@ -633,9 +633,9 @@ namespace MedRecordManager.Controllers
                    IsFlagged = y.Flagged,
                    PhysicianId = y.PhysicianId,
                    ServiceDate = y.ServiceDate.Date,
-                   InsuranceName = _urgentCareContext.InsuranceInformation.FirstOrDefault(x=> x.InsuranceId == y.PayerInformation.FirstOrDefault().InsuranceId).PrimaryName
+                   InsuranceName = _urgentCareContext.InsuranceInformation.FirstOrDefault(x => x.InsuranceId == y.PayerInformation.FirstOrDefault().InsuranceId).PrimaryName
 
-               }).OrderBy(x=> x.VisitId).ToList();
+               }).OrderBy(x => x.VisitId).ToList();
 
 
 
@@ -685,7 +685,7 @@ namespace MedRecordManager.Controllers
 
                     foreach (var record in records)
                     {
-                        var visitRules = _urgentCareContext.VisitRuleSet.Include(x => x.CodeReviewRuleSet).Where(x => x.VisitId == record.VisitId).DistinctBy(z=>z.RuleSetId).Select(x => x.CodeReviewRuleSet.RuleName);
+                        var visitRules = _urgentCareContext.VisitRuleSet.Include(x => x.CodeReviewRuleSet).Where(x => x.VisitId == record.VisitId).DistinctBy(z => z.RuleSetId).Select(x => x.CodeReviewRuleSet.RuleName);
                         record.AppliedRules = string.Join("<br/>", visitRules);
                     }
                 }
@@ -699,70 +699,46 @@ namespace MedRecordManager.Controllers
 
 
         [HttpPost]
-        public async Task<IActionResult> RunBatch(DateTime startDate, DateTime endDate, string officekey)
+        public  IActionResult RunBatch(DateTime startDate, DateTime endDate, string officekey)
         {
-           
+
             var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
             var isDevelopment = environment == EnvironmentName.Development;
-          
-          
+
+
+
+            var newBatch = new BatchJob
+            {
+                CreatedBy = User.Identity.Name,
+                CreatedDateTime = DateTime.Now,
+                JobStatus = "Started",
+                Paramters = startDate + "-" + endDate,
+                SessionId = Guid.NewGuid().ToString(),
+                JobName = User.Identity.Name + '_' + DateTime.Now
+            };
+            _urgentCareContext.BatchJob.Add(newBatch);
+            _urgentCareContext.SaveChanges();
+
+
             try
             {
-                var newBatch = new BatchJob
-                {
-                    CreatedBy = User.Identity.Name,
-                    CreatedDateTime = DateTime.Now,
-                    JobStatus = "Started",
-                    Paramters = startDate + "-" + endDate,
-                    SessionId = Guid.NewGuid().ToString(),
-                    JobName = User.Identity.Name + '_' + DateTime.Now
-                };
-                _urgentCareContext.BatchJob.Add(newBatch);
-                _urgentCareContext.SaveChanges();
-
-                using (var webClient = new HttpClient())
-                {
-                    var userCompany = _appAdminContext.UserCompany.FirstOrDefault(x => x.UserName == User.Identity.Name);
-                    var webUrl = "http://172.31.22.98/";
-                    if (userCompany != null)
-                    {
-                        webUrl = _appAdminContext.CompanyProfile.FirstOrDefault(x => x.Id == userCompany.CompanyId).WebApiUri;
-                    }
-
-                    if (environment == EnvironmentName.Development)
-                    {
-                        webClient.BaseAddress = new Uri("http://localhost:65094/");
-                    }
-                    else
-                    {
-                        webClient.BaseAddress = new Uri(webUrl);
-                    }
-                    webClient.DefaultRequestHeaders.Accept.Clear();
-
-
-                    var querystring = $"officeKey={officekey}&startTime={startDate}&endTime={endDate}&batchId={newBatch.BatchJobId}";
-
-                    var response = await webClient.PostAsync("cumsapi/Default/ImportToAmd?" + querystring, null);
-
-                    await response.Content.ReadAsStringAsync();
-
-                    _urgentCareContext.BatchJob.Attach(newBatch);
-                    newBatch.FinishedDateTime = DateTime.Now;
-                    newBatch.JobStatus = "Finished";
-                    _urgentCareContext.SaveChanges();
-                  
-                }
+               PostBatchAPI(officekey, startDate, endDate, newBatch.BatchJobId, EnvironmentName.Development).ConfigureAwait(false);
             }
-            catch (DbUpdateException e)
+            catch(Exception)
             {
-                e.Message.ToString();
+                return Json(new { success = false });
             }
-            catch(Exception e)
-            {
-                return Json(new { success = false, message = "Failed to run the batch" });
-            }
-            return Json(new { success = true });
+
+            return Json(new {success=true });
+
         }
+
+        public IActionResult BatchConfirmation()
+        {
+            return View("BatchConfirmation");
+        }
+
+
 
         [HttpGet]
         public IActionResult GetModifiedRecord(int? page, int? limit, DateTime startDate, DateTime endDate)
@@ -826,7 +802,7 @@ namespace MedRecordManager.Controllers
             }
             else
             {
-                query = _urgentCareContext.VisitImportLog.Include(x=>x.Visit).Take(0);
+                query = _urgentCareContext.VisitImportLog.Include(x => x.Visit).Take(0);
             }
 
             query = query.OrderBy(x => x.Visit);
@@ -836,10 +812,10 @@ namespace MedRecordManager.Controllers
                 VisitId = y.VisitId,
                 PatientId = y.Visit.PvPatientId,
                 ClinicName = y.Visit.ClinicId,
-                PhysicianName = _urgentCareContext.Physician.FirstOrDefault(x=>x.PvPhysicianId == y.Visit.PhysicianId).DisplayName,
-                InsuranceName = _urgentCareContext.PayerInformation.FirstOrDefault(x=>x.VisitId == y.VisitId).Insurance.PrimaryName,
+                PhysicianName = _urgentCareContext.Physician.FirstOrDefault(x => x.PvPhysicianId == y.Visit.PhysicianId).DisplayName,
+                InsuranceName = _urgentCareContext.PayerInformation.FirstOrDefault(x => x.VisitId == y.VisitId).Insurance.PrimaryName,
                 VisitTime = y.Visit.ServiceDate.ToShortDateString(),
-                PatientName = _urgentCareContext.PatientInformation.Where(x=>x.PatNum == y.Visit.PvPatientId).Select( x=> new string (x.FirstName + " " +x.FirstName)).First(),
+                PatientName = _urgentCareContext.PatientInformation.Where(x => x.PatNum == y.Visit.PvPatientId).Select(x => new string(x.FirstName + " " + x.FirstName)).First(),
                 OfficeKey = y.Visit.OfficeKey.ToString(),
                 ImportedDate = y.ImportedDate.ToString("MM/dd/yyyy HH:mm:ss"),
                 ChargeImported = y.ChargeImported != null ? "Yes" : "No",
@@ -1321,7 +1297,7 @@ namespace MedRecordManager.Controllers
             {
                 officekeys = _urgentCareContext.ProgramConfig.Where(x => x.Enabled).Select(x => x.AmdofficeKey).ToList();
             }
-            
+
             var activeRules = _urgentCareContext.CodeReviewRule.Where(x => x.Active);
             var baseQuery = _urgentCareContext.Visit.Where(x => officekeys.Contains(x.OfficeKey) && x.ServiceDate >= startDate && x.ServiceDate <= endDate && !x.Flagged && !x.VisitImportLog.Any());
             var operationHelper = new OperationHelper();
@@ -1392,7 +1368,7 @@ namespace MedRecordManager.Controllers
                         }
 
                     }
-                    catch(Exception ex)
+                    catch (Exception ex)
                     {
                         return Json(new { success = false, message = "Failed to apply the rules, please try again." });
                     }
@@ -1522,20 +1498,20 @@ namespace MedRecordManager.Controllers
         [HttpGet]
         public IActionResult GetAvailOfficekeys()
         {
-           var oKeys =  GetAvaliableOfficeKeys().Select(x=> new { id=x.Value, text =x.Text}).ToList();
+            var oKeys = GetAvaliableOfficeKeys().Select(x => new { id = x.Value, text = x.Text }).ToList();
 
             return Json(oKeys);
         }
 
         private IEnumerable<SelectListItem> GetAvaliableOfficeKeys()
         {
-            if(User.IsInRole("SuperAdmin"))
+            if (User.IsInRole("SuperAdmin"))
             {
 
             }
             else
             {
-               
+
             }
             return _urgentCareContext.ProgramConfig.Where(x => x.Enabled).DistinctBy(x => x.AmdofficeKey)
                  .Select(y =>
@@ -1597,6 +1573,52 @@ namespace MedRecordManager.Controllers
         }
 
 
+
+        private async Task PostBatchAPI(string officekey, DateTime startDate, DateTime endDate, int batchJobId, string environment)
+        {
+            using (var webClient = new HttpClient())
+            {
+                try
+                {
+                    var userCompany = _appAdminContext.UserCompany.FirstOrDefault(x => x.UserName == User.Identity.Name);
+                    var webUrl = "http://172.31.22.98/";
+                    if (userCompany != null)
+                    {
+                        webUrl = _appAdminContext.CompanyProfile.FirstOrDefault(x => x.Id == userCompany.CompanyId).WebApiUri;
+                    }
+
+                    if (environment == EnvironmentName.Development)
+                    {
+                        webClient.BaseAddress = new Uri("http://localhost:65094/");
+                    }
+                    else
+                    {
+                        webClient.BaseAddress = new Uri(webUrl);
+                    }
+                    webClient.DefaultRequestHeaders.Accept.Clear();
+
+
+                    var querystring = $"officeKey={officekey}&startTime={startDate}&endTime={endDate}&batchId={batchJobId}";
+
+                    var response = await webClient.PostAsync("cumsapi/Default/ImportToAmd?" + querystring, null);
+                    if(response.StatusCode == System.Net.HttpStatusCode.OK)
+                    {
+                        return;
+                    }
+                    else
+                    {
+                        response.EnsureSuccessStatusCode();
+                        await response.Content.ReadAsStringAsync();
+                    }
+                   
+                }
+                catch (HttpRequestException)
+                {
+
+                }
+                //_urgentCareContext.BatchJob.Attach(newBatch);
+            }
+        }
 
     }
 }
