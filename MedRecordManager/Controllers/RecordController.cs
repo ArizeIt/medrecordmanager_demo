@@ -701,12 +701,7 @@ namespace MedRecordManager.Controllers
         [HttpPost]
         public  IActionResult RunBatch(DateTime startDate, DateTime endDate, string officekey)
         {
-
-            var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
-            var isDevelopment = environment == EnvironmentName.Development;
-
-
-
+            var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");           
             var newBatch = new BatchJob
             {
                 CreatedBy = User.Identity.Name,
@@ -722,7 +717,7 @@ namespace MedRecordManager.Controllers
 
             try
             {
-               PostBatchAPI(officekey, startDate, endDate, newBatch.BatchJobId, EnvironmentName.Development).ConfigureAwait(false);
+               PostBatchAPI(officekey, startDate, endDate, newBatch.BatchJobId, environment).ConfigureAwait(false);
             }
             catch(Exception)
             {
@@ -1587,19 +1582,15 @@ namespace MedRecordManager.Controllers
                         webUrl = _appAdminContext.CompanyProfile.FirstOrDefault(x => x.Id == userCompany.CompanyId).WebApiUri;
                     }
 
+                    webClient.BaseAddress = new Uri(webUrl);
+
                     if (environment == EnvironmentName.Development)
                     {
                         webClient.BaseAddress = new Uri("http://localhost:65094/");
                     }
-                    else
-                    {
-                        webClient.BaseAddress = new Uri(webUrl);
-                    }
+                   
                     webClient.DefaultRequestHeaders.Accept.Clear();
-
-
                     var querystring = $"officeKey={officekey}&startTime={startDate}&endTime={endDate}&batchId={batchJobId}";
-
                     var response = await webClient.PostAsync("cumsapi/Default/ImportToAmd?" + querystring, null);
                     if(response.StatusCode == System.Net.HttpStatusCode.OK)
                     {
