@@ -137,11 +137,14 @@ namespace MedRecordManager.Controllers
                 query = _urgentCareContext.Visit.Take(0);
             }
 
-            try {
+            try
+            {
 
                 var records = new List<VisitRecordVm>();
                 total = query.Count();
                 query = query.OrderBy(x => x.VisitId);
+                query = SortByField(sortBy, direction, query);
+
                 if (page.HasValue && limit.HasValue)
                 {
                     var start = (page.Value - 1) * limit.Value;
@@ -178,6 +181,40 @@ namespace MedRecordManager.Controllers
                 return Json(new { success = false, message = ex.ToString() });
             }
 
+        }
+
+        private static IQueryable<Visit> SortByField(string sortBy, string direction, IQueryable<Visit> query)
+        {
+            if (!string.IsNullOrEmpty(direction) && !string.IsNullOrEmpty(sortBy))
+            {
+                if (direction == "asc")
+                {
+                    if (sortBy == "physicianName") query = query.OrderBy(x => x.Physician.DisplayName);
+                    if (sortBy == "clinicName") query = query.OrderBy(x => x.Clinic.ClinicId);
+                    if (sortBy == "patientName") query = query.OrderBy(x => x.PvPatient.FirstName + " " + x.PvPatient.LastName);
+                    if (sortBy == "officeKey") query = query.OrderBy(x => x.OfficeKey);
+                    // timeout error
+                    //if (sortBy == "insuranceName") query = query.OrderBy(x => x.PayerInformation.FirstOrDefault().Insurance.PrimaryName);
+                    //if (sortBy == "pvFinClass") query = query.OrderBy(x => x.PayerInformation.FirstOrDefault().Class);
+                    if (sortBy == "visitTime") query = query.OrderBy(x => x.ServiceDate);
+                    if (sortBy == "payment") query = query.OrderBy(x => x.CoPayAmount);
+                }
+                if (direction == "desc")
+                {
+                    if (sortBy == "physicianName") query = query.OrderByDescending(x => x.Physician.DisplayName);
+                    if (sortBy == "clinicName") query = query.OrderByDescending(x => x.Clinic.ClinicId);
+                    if (sortBy == "patientName") query = query.OrderByDescending(x => x.PvPatient.FirstName + " " + x.PvPatient.LastName);
+                    if (sortBy == "officeKey") query = query.OrderByDescending(x => x.OfficeKey);
+                    //if (sortBy == "insuranceName") query = query.OrderByDescending(x => x.PayerInformation.FirstOrDefault().Insurance.PrimaryName);
+                    //if (sortBy == "pvFinClass") query = query.OrderByDescending(x => x.PayerInformation.FirstOrDefault().Class);
+                    if (sortBy == "visitTime") query = query.OrderByDescending(x => x.ServiceDate);
+                    if (sortBy == "payment") query = query.OrderByDescending(x => x.CoPayAmount);
+                }
+            }
+            
+
+
+            return query;
         }
 
         [HttpGet]
