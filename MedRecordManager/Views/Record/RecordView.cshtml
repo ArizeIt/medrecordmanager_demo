@@ -8,6 +8,7 @@
     var user = await UserManager.GetUserAsync(User);
 
     var roles = await UserManager.GetRolesAsync(user);
+    var classes = new List<string> { "2","3","4","5","7","9","11","12","13","14","15","17","18","21","23","50","99" };
 }
 
 @section scripts{
@@ -177,6 +178,11 @@
                 dailyGrid.on('pageChanging', function () {
                     dailyGrid.clear();
                 });
+
+                dailyGrid.on('sortChanged', function () {
+                    alert('ss')
+                    dailyGrid.clear();
+                });
             }
             else if (type == 'Callback') {
                 dailyGrid = $('#visitTable').grid({
@@ -293,7 +299,12 @@
                             }
                            
                         }
-                        dailyGrid.reload({ office: keys.join(','), startDate: $('#startDate').val(), endDate: $('#endDate').val() });
+       
+                        classesSelected = $.map( $('#classes-multi-filter').select2('data'), function( val, i ) {
+                          return val.text;
+                        });
+
+                        dailyGrid.reload({ office: keys.join(','), startDate: $('#startDate').val(), endDate: $('#endDate').val() , classes: classesSelected.join(',')});
                     }
                 
 
@@ -409,6 +420,8 @@
                 }
 
             });
+
+            $('#classes-multi-filter').select2();
 
 
             $(document).on('click', '.closeTab', function () {
@@ -590,6 +603,22 @@
                             <div class="form-group">
                                 <label asp-for="EndDate" class="control-label">Visit End Date</label>
                                 <input class="form-control date" id="endDate" type="text" value="@DateTime.Today.ToShortDateString()" />
+                            </div>
+
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label asp-for="EndDate" class="control-label">Class</label> <br />
+                                <select placeholder="All" id="classes-multi-filter" class="select2-hidden-accessible" name="states[]" multiple="" tabindex="-1" aria-hidden="true" style="width: 200px;">
+                                    @{
+                                        foreach(var _class in classes)
+                                        {
+                                                  <option value="@_class">@_class</option>
+                                        }
+                                    }
+                          
+     
+                                </select>
                             </div>
 
                         </div>

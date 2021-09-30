@@ -112,7 +112,7 @@ namespace MedRecordManager.Controllers
 
 
         [HttpGet]
-        public IActionResult LoadDaily(int? page, int? limit, string sortBy, string direction, string office, DateTime startDate, DateTime endDate)
+        public IActionResult LoadDaily(int? page, int? limit, string sortBy, string direction, string office, DateTime startDate, DateTime endDate,string classes)
         {
             IQueryable<Visit> query;
             var total = 0;
@@ -125,12 +125,28 @@ namespace MedRecordManager.Controllers
                 }
                 else
                 {
-
                     officekeys = _urgentCareContext.ProgramConfig.Where(x => x.Enabled).Select(x => x.AmdofficeKey).ToList();
                 }
+                //classes filter
+                var classesArr = new List<string>();
+                if (!string.IsNullOrEmpty(classes))
+                {
+                    classesArr = classes.Split(',').ToList();
+                }
+                if(classesArr.Count> 0)
+                {
+                    query = _urgentCareContext.Visit.Where(x => classesArr.Contains(x.PayerInformation.FirstOrDefault().Class.ToString()) && officekeys.Contains(x.OfficeKey) && x.ServiceDate >= startDate && x.ServiceDate <= endDate);
+                }
+                else
+                {
+                    query = _urgentCareContext.Visit.Where(x => officekeys.Contains(x.OfficeKey) && x.ServiceDate >= startDate && x.ServiceDate <= endDate);
+                }
 
-                query = _urgentCareContext.Visit.Where(x => officekeys.Contains(x.OfficeKey) && x.ServiceDate >= startDate && x.ServiceDate <= endDate);
                 query = query.Where(x => _urgentCareContext.VisitImportLog.FirstOrDefault(y => y.VisitId == x.VisitId) == null);
+
+                
+
+
             }
             else
             {
