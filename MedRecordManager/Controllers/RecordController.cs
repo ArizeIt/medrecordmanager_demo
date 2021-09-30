@@ -133,14 +133,12 @@ namespace MedRecordManager.Controllers
                 {
                     classesArr = classes.Split(',').ToList();
                 }
-                if(classesArr.Count> 0)
-                {
-                    query = _urgentCareContext.Visit.Where(x => classesArr.Contains(x.PayerInformation.FirstOrDefault().Class.ToString()) && officekeys.Contains(x.OfficeKey) && x.ServiceDate >= startDate && x.ServiceDate <= endDate);
-                }
-                else
-                {
-                    query = _urgentCareContext.Visit.Where(x => officekeys.Contains(x.OfficeKey) && x.ServiceDate >= startDate && x.ServiceDate <= endDate);
-                }
+
+                query = _urgentCareContext.Visit.Where(x =>
+                (classesArr.Count == 0 ? true: classesArr.Contains(x.PayerInformation.FirstOrDefault().Class.ToString())) && 
+                officekeys.Contains(x.OfficeKey) && x.ServiceDate >= startDate && x.ServiceDate <= endDate);
+                
+    
 
                 query = query.Where(x => _urgentCareContext.VisitImportLog.FirstOrDefault(y => y.VisitId == x.VisitId) == null);
 
