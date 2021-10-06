@@ -4,12 +4,33 @@ using iText.Kernel.Geom;
 using iText.Kernel.Pdf;
 using iText.Kernel.Pdf.Canvas;
 using iText.Layout;
+using Microsoft.Extensions.Logging;
+using System;
 using System.Linq;
 
 namespace PVAMCommon
 {
     public static class Utility
     {
+
+        static ILoggerFactory _loggerFactory;
+
+        public static void ConfigureLogger(ILoggerFactory loggerFactory)
+        {
+            _loggerFactory = loggerFactory;
+        }
+
+
+        public static ILogger CreateLogger<T>()
+        {
+            if (_loggerFactory == null)
+            {
+                throw new InvalidOperationException($"{nameof(ILogger)} is not configured. {nameof(ConfigureLogger)} must be called before use");
+                //_loggerFactory = new LoggerFactory().AddConsole().AddDebug();
+            }
+
+            return _loggerFactory.CreateLogger<T>();
+        }
         public static byte[] CreatePDF(byte[] source)
         {
             var baos = new ByteArrayOutputStream();
