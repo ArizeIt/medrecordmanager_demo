@@ -126,8 +126,9 @@ namespace MedRecordManager
                     pattern: "{controller=Home}/{action=Index}/{id?}");
                 endpoints.MapRazorPages();
             });
-
-            loggerFactory.AddContext(LogLevel.Debug, Configuration.GetConnectionString("MrmLog"));
+            var connectionString = Configuration.GetConnectionString("DefaultConnection");
+            connectionString = connectionString.Replace("{userId}", "remoteUser").Replace("{password}", "Sm@llfish12");
+            loggerFactory.AddContext(LogLevel.Trace, connectionString);
             Utility.ConfigureLogger(loggerFactory);
         }
 

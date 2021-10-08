@@ -80,7 +80,7 @@ namespace MedRecordManager.Areas.Identity.Pages.Account
                 var result = await _signInManager.PasswordSignInAsync(Input.Email, Input.Password, Input.RememberMe, lockoutOnFailure: false);
                 if (result.Succeeded)
                 {
-                    _logger.LogDebug("User logged in.");
+                    _logger.LogDebug(Input.Email + " logged in.");
                     return LocalRedirect(returnUrl);
                 }
                 if (result.RequiresTwoFactor)
@@ -94,6 +94,7 @@ namespace MedRecordManager.Areas.Identity.Pages.Account
                 }
                 else
                 {
+                    _logger.LogDebug(Input.Email + " - Invalid login attempt.");
                     ModelState.AddModelError(string.Empty, "Invalid login attempt.");
                     return Page();
                 }
