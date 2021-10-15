@@ -1346,6 +1346,11 @@ namespace MedRecordManager.Controllers
 
             var activeRules = _urgentCareContext.CodeReviewRule.Where(x => x.Active);
             var baseQuery = _urgentCareContext.Visit.Where(x => officekeys.Contains(x.OfficeKey) && x.ServiceDate >= startDate && x.ServiceDate <= endDate && !x.Flagged && !x.VisitImportLog.Any());
+            var count = baseQuery.Count();
+
+            var baseQuery2 = _urgentCareContext.Visit.Where(x =>  x.ServiceDate >= startDate && x.ServiceDate <= endDate && !x.Flagged && !x.VisitImportLog.Any());
+            var count2 = baseQuery.Count();
+
             var operationHelper = new OperationHelper();
             var results = new List<Visit>();
             var problemRuleNames = new List<string>();
@@ -1410,6 +1415,9 @@ namespace MedRecordManager.Controllers
                     {
                         if (!ruleError)
                         {
+                            //filter.Statements = new List<List<ExpressionBuilder.Interfaces.IFilterStatement>>();
+                            var count3 = baseQuery.Count();
+                             var aa =baseQuery.ToList();
                             records = baseQuery.Where(filter).ToList();
                         }
 
@@ -1488,7 +1496,11 @@ namespace MedRecordManager.Controllers
         public async Task<IActionResult> MarkBulkUpdate(int? page, int? limit, string clinic, string physician, string rule, string finclass, DateTime startDate, DateTime endDate, bool ischecked)
         {
             var records = _urgentCareContext.Visit.Where(x => x.Flagged);
-
+            if (ischecked)
+            {
+                //clear all checked first
+                await records.ForEachAsync(r => r.Selected = false);
+            }
             if (!string.IsNullOrEmpty(clinic))
             {
                 var clinicids = clinic.Split(',').ToList();
@@ -1518,16 +1530,13 @@ namespace MedRecordManager.Controllers
 
             if (startDate != DateTime.MinValue)
             {
-                records = records.Where(x => x.ServiceDate >= startDate);
+                records = records.Where(x => x.ServiceDate >= startDate && x.ServiceDate <= endDate);
             }
 
-            if (endDate != DateTime.MinValue)
-            {
-                records = records.Where(x => x.ServiceDate <= endDate);
-            }
+            var recordsList = records.ToList();
+            _urgentCareContext.Visit.AttachRange(recordsList);
 
-            _urgentCareContext.Visit.AttachRange(records.ToList());
-            await records.ForEachAsync(x => x.Selected = ischecked);
+             recordsList.ForEach(x => x.Selected = ischecked);
             try
             {
                 await _urgentCareContext.SaveChangesAsync();
