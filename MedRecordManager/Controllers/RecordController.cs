@@ -1348,8 +1348,8 @@ namespace MedRecordManager.Controllers
             var baseQuery = _urgentCareContext.Visit.Where(x => officekeys.Contains(x.OfficeKey) && x.ServiceDate >= startDate && x.ServiceDate <= endDate && !x.Flagged && !x.VisitImportLog.Any());
             var count = baseQuery.Count();
 
-            var baseQuery2 = _urgentCareContext.Visit.Where(x =>  x.ServiceDate >= startDate && x.ServiceDate <= endDate && !x.Flagged && !x.VisitImportLog.Any());
-            var count2 = baseQuery.Count();
+            //var baseQuery2 = _urgentCareContext.Visit.Where(x =>  x.ServiceDate >= startDate && x.ServiceDate <= endDate && !x.Flagged && !x.VisitImportLog.Any());
+            //var count2 = baseQuery.Count();
 
             var operationHelper = new OperationHelper();
             var results = new List<Visit>();
@@ -1416,8 +1416,8 @@ namespace MedRecordManager.Controllers
                         if (!ruleError)
                         {
                             //filter.Statements = new List<List<ExpressionBuilder.Interfaces.IFilterStatement>>();
-                            var count3 = baseQuery.Count();
-                             var aa =baseQuery.ToList();
+                            //var count3 = baseQuery.Count();
+                            // var aa =baseQuery.ToList();
                             records = baseQuery.Where(filter).ToList();
                         }
 
