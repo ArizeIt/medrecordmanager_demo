@@ -664,29 +664,111 @@ namespace MedRecordManager.Controllers
         [HttpGet]
         public IActionResult GetFlaggedVisit(int? page, int? limit, string clinic, string physician, string rule, string finclass, DateTime startDate, DateTime endDate)
         {
+
+            
+
             try
             {
-                var records = _urgentCareContext.Visit.Where(x => x.Flagged)
-               .Select(y => new VisitRecordVm
-               {
-                   VisitId = y.VisitId,
-                   PatientId = y.PvPatientId,
-                   ClinicName = y.ClinicId,
-                   DiagCode = y.DiagCodes.Replace("|", "<br/>"),
-                   PvRecordId = y.PvlogNum,
-                   VisitTime = y.ServiceDate.Date.ToString(),
-                   PatientName = y.PvPatient.FirstName + " " + y.PvPatient.LastName,
-                   OfficeKey = y.OfficeKey.ToString(),
-                   PVFinClass = y.PayerInformation.FirstOrDefault().Class.ToString(),
-                   IcdCodes = y.Icdcodes.Replace("|", "<br/>"),
-                   Payment = y.CoPayAmount.GetValueOrDefault(),
-                   ProcCodes = y.ProcCodes.Replace(",|", "<br/>").Replace("|", "<br/>"),
-                   IsFlagged = y.Flagged,
-                   PhysicianId = y.PhysicianId,
-                   ServiceDate = y.ServiceDate.Date,
-                   InsuranceName = _urgentCareContext.InsuranceInformation.FirstOrDefault(x => x.InsuranceId == y.PayerInformation.FirstOrDefault().InsuranceId).PrimaryName
 
-               }).OrderBy(x => x.VisitId).ToList();
+
+
+                var records = _urgentCareContext.Visit.Where(x => x.Flagged).Select(y => new VisitRecordVm
+                {
+                    VisitId = y.VisitId,
+                    FinClass= y.FinClass,
+                    PatientId = y.PvPatientId,
+                    ClinicName = y.ClinicId,
+                    DiagCode = y.DiagCodes.Replace("|", "<br/>"),
+                    PvRecordId = y.PvlogNum,
+                    VisitTime = y.ServiceDate.Date.ToString(),
+                    PatientName = y.PvPatient.FirstName + " " + y.PvPatient.LastName,
+                    OfficeKey = y.OfficeKey.ToString(),
+                    PVFinClass = y.FinClass, //y.PayerInformation.FirstOrDefault().Class.ToString(),
+                    IcdCodes = y.Icdcodes.Replace("|", "<br/>"),
+                    Payment = y.CoPayAmount.GetValueOrDefault(),
+                    ProcCodes = y.ProcCodes.Replace(",|", "<br/>").Replace("|", "<br/>"),
+                    IsFlagged = y.Flagged,
+                    PhysicianId = y.PhysicianId,
+                    ServiceDate = y.ServiceDate.Date,
+                    InsuranceName = _urgentCareContext.InsuranceInformation.FirstOrDefault(x => x.InsuranceId == y.PayerInformation.FirstOrDefault().InsuranceId).PrimaryName
+
+                }).OrderBy(x => x.VisitId).ToList(); ;
+                //List<VisitRecordVm> records = null;
+
+                //     var filter = new Filter<VisitRecordVm>();
+
+                //var operationHelper = new OperationHelper();
+                //var activeCodeReviewRules = _urgentCareContext.CodeReviewRule.Where(a => a.Active);
+                //var ruleError = false;
+                //foreach (var ruleSet in activeCodeReviewRules)
+                //{
+
+                //    //Filter
+                //    var ruleDetail = !string.IsNullOrEmpty(ruleSet.RuleJsonString)
+                //    ? JsonConvert.DeserializeObject<List<RuleItem>>(ruleSet.RuleJsonString)
+                //    : new List<RuleItem>();
+                //    foreach (var item in ruleDetail)
+                //    {
+                //        try
+                //        {
+                //            if (!string.IsNullOrEmpty(item.Openparenthese))
+                //            {
+                //                var groups = item.Openparenthese.ToCharArray().Count(a => a == '(');
+                //                filter.StartGroup();
+                //            }
+
+                //            var negation = true;
+                //            // this means the field is collectable 
+                //            if (item.Field.Contains("[") && item.Field.Contains("[") && item.Operator.ToLower() == "DoesNotContain".ToLower())
+                //            {
+                //                item.Operator = "Contains";
+                //                negation = false;
+                //            }
+
+                //            if (item.Field.Contains("[") && item.Field.Contains("[") && item.Operator.ToLower() == "NotEqualTo".ToLower())
+                //            {
+                //                item.Operator = "EqualTo";
+                //                negation = false;
+                //            }
+
+                //            if (item.LogicOperator != null)
+                //            {
+                //                var connector = (Connector)Enum.Parse(typeof(Connector), item.LogicOperator);
+                //                filter.By(item.Field, operationHelper.GetOperationByName(item.Operator), item.FieldValue, connector, negation);
+                //            }
+                //            else
+                //            {
+                //                filter.By(item.Field, operationHelper.GetOperationByName(item.Operator), item.FieldValue, negation);
+                //            }
+                //        }
+                //        catch
+                //        {
+                //            ruleError = true;
+                //            //problemRuleNames.Add(ruleSet.RuleName);
+                //            //break;
+                //        }
+
+
+                //    }
+                //    try
+                //    {
+                //        if (!ruleError)
+                //        {
+                //            //filter.Statements = new List<List<ExpressionBuilder.Interfaces.IFilterStatement>>();
+                //            //var count3 = baseQuery.Count();
+                //            // var aa =baseQuery.ToList();
+                //            records = baseQuery.Where(filter).ToList();
+
+                //            var test = baseQuery.Where(x => x.FinClass != "15" || x.FinClass != "18").ToList();
+                //        }
+
+                //    }
+                //    catch (Exception ex)
+                //    {
+                //        return Json(new { success = false, message = "Failed to apply the rules, please try again." });
+                //    }
+
+                //}
 
 
 
@@ -729,6 +811,8 @@ namespace MedRecordManager.Controllers
 
                 var total = records.Count();
 
+             
+
                 if (page.HasValue && limit.HasValue)
                 {
                     var start = (page.Value - 1) * limit.Value;
@@ -736,10 +820,20 @@ namespace MedRecordManager.Controllers
 
                     foreach (var record in records)
                     {
-                        var visitRules = _urgentCareContext.VisitRuleSet.Include(x => x.CodeReviewRuleSet).Where(x => x.VisitId == record.VisitId).DistinctBy(z => z.RuleSetId).Select(x => x.CodeReviewRuleSet.RuleName);
-                        record.AppliedRules = string.Join("<br/>", visitRules);
+                        var visitRules = _urgentCareContext.VisitRuleSet.Include(x => x.CodeReviewRuleSet).Where(x => x.VisitId == record.VisitId).DistinctBy(z => z.RuleSetId).Select(x => x.CodeReviewRuleSet);
+
+                        record.AppliedRules = string.Join("<br/>", visitRules.Select(a=>a.RuleName));
                     }
+
+                    //var filter = new Filter<Visit>();
+
+                    
                 }
+
+            
+               
+
+
                 return Json(new { records, total });
             }
             catch (Exception ex)

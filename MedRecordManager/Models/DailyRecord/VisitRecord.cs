@@ -51,6 +51,8 @@ namespace MedRecordManager.Models.DailyRecord
 
         public bool Selected { get; set; }
 
+        public string FinClass { get; set; }
+
     }
 
     public class PatientVisitVM
