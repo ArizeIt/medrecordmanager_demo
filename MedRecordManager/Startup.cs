@@ -80,6 +80,7 @@ namespace MedRecordManager
             //         options.Conventions.AuthorizeAreaFolder("Identity", "/Account/Manage");
             //         options.Conventions.AuthorizeAreaPage("Identity", "/Account/Logout");
             //     });
+            services.AddMvc().AddNewtonsoftJson();
 
             services.AddDistributedMemoryCache();
             services.AddSession(opts =>

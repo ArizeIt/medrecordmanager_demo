@@ -1,0 +1,328 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+}
+
+@section scripts{
+
+        <style>
+            #import-report-view table {
+                width: 100%;
+                border-collapse: collapse;
+            }
+
+            #import-report-view table, th, td {
+                border: 1px solid black;
+            }
+
+
+            #import-report-view td {
+                padding: 5px 15px;
+            }
+
+            #import-report-view .sortable:after {
+                border-right: 5px solid transparent;
+                border-left: 5px solid transparent;
+                content: "";
+                /*display: inline-block;*/
+                vertical-align: middle;
+                margin-left: 15px;
+            }
+
+            #import-report-view .asc:after {
+                border-top: 5px solid #fff;
+            }
+
+            #import-report-view .desc:after {
+                border-bottom: 5px solid #fff;
+            }
+
+            #import-report-view .pagination {
+                text-align: center;
+                margin-top: 10px;
+            }
+
+                #import-report-view .pagination ul, li, a {
+                    padding: 0;
+                    margin: 0;
+                    display: inline-block;
+                    vertical-align: middle;
+                }
+
+                #import-report-view .pagination li {
+                    list-style-type: none;
+                }
+
+                #import-report-view .pagination a {
+                    color: #fff;
+                    text-decoration: underline;
+                    padding: 10px;
+                }
+
+                    #import-report-view .pagination a.disabled,
+                    #import-report-view .pagination li.active a {
+                        text-decoration: none;
+                        color: #666;
+                    }
+
+                    #import-report-view .pagination a.disabled {
+                        cursor: default;
+                    }
+
+                #import-report-view .pagination li.active a {
+                    background: #fff;
+                }
+        </style>
+
+    <script type="text/javascript">
+
+        var self;
+
+        var apiIpAddress = "http://172.31.22.98:8081/";
+
+        // Here's my data model
+        var ViewModel = function (first, last) {
+            this.firstName = ko.observable(first);
+            this.lastName = ko.observable(last);
+
+             self = this;
+
+            this.fullName = ko.pureComputed(function () {
+                // Knockout tracks dependencies automatically. It knows that fullName depends on firstName and lastName, because these get called when evaluating fullName.
+                return this.firstName() + " " + this.lastName();
+            }, this);
+
+            self.pagedResult = ko.observable({});
+            self.previousPage = function () {
+                if (self.pagedResult() && self.pagedResult().CurrentPage > 0) {
+                    self.pagedResult().CurrentPage -=1
+                }
+            },
+
+                $.getJSON(`${apiIpAddress}cumsapi/Default/GetVisitsProcessedIn?page=1&pageSize=20`, function (data) {
+                // Now use this data to update your view models, 
+                // and Knockout will update your UI automatically 
+                self.pagedResult(data);
+                console.log(self.pagedResult())
+            })
+
+        };
+
+
+
+        ko.applyBindings(new ViewModel("Planet", "Earth")); // This makes Knockout get to work
+
+
+        $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
+            var target = $(e.target).attr("href") // activated tab
+
+            if (target == "#ProcessedIn") {
+                self.pagedResult({});
+                $.getJSON(`${apiIpAddress}cumsapi/Default/GetVisitsProcessedIn?page=1&pageSize=20`, function (data) {
+                    // Now use this data to update your view models, 
+                    // and Knockout will update your UI automatically 
+                    self.pagedResult(data);
+                    console.log(self.pagedResult())
+                })
+            }
+            if (target == "#Queued") {
+                self.pagedResult({});
+                $.getJSON(`/Record/GetVisitsByStatus?status=QUEUED&page=1&pageSize=20`, function (data) {
+                    // Now use this data to update your view models, 
+                    // and Knockout will update your UI automatically 
+                    self.pagedResult(data);
+                    console.log(self.pagedResult())
+                })
+            }
+            if (target == "#Processing") {
+                self.pagedResult({});
+                $.getJSON(`${apiIpAddress}cumsapi/Default/GetVisitsByStatus?status=PROCESSING&page=1&pageSize=20`, function (data) {
+                    // Now use this data to update your view models, 
+                    // and Knockout will update your UI automatically 
+                    self.pagedResult(data);
+                    console.log(self.pagedResult())
+                })
+            }
+            if (target == "#ProcessedOut") {
+                self.pagedResult({});
+                $.getJSON(`${apiIpAddress}cumsapi/Default/GetVisitsByStatus?status=DONE&page=1&pageSize=20`, function (data) {
+                    // Now use this data to update your view models, 
+                    // and Knockout will update your UI automatically 
+                    self.pagedResult(data);
+                    console.log(self.pagedResult())
+                })
+            }
+        });
+
+    </script>
+}
+
+@*<p>First name: <input data-bind="value: firstName" /></p>
+<p>Last name: <input data-bind="value: lastName" /></p>
+<h2>Hello, <span data-bind="text: fullName"> </span>!</h2>*@
+
+
+<ul class="nav nav-tabs">
+    <li class="active"><a data-toggle="tab" href="#ProcessedIn">Processed In</a></li>
+    <li><a data-toggle="tab" href="#Queued">Queued</a></li>
+    <li><a data-toggle="tab" href="#Processing">Processing</a></li>
+    <li><a data-toggle="tab" href="#ProcessedOut">Processed Out</a></li>
+</ul>
+
+<div class="tab-content" id="import-report-view">
+    <div id="processedIn" class="tab-pane fade in active">
+        <h3>Processed In Visits</h3>
+        <div>
+            <table border="1">
+                <thead>
+                    <tr>
+                        <th>TimeIn</th>
+                        <th>ClinicId</th>
+                        <th>PatId</th>
+                        <th>FinClass</th>
+                        @*<th>Imported Date</th>
+                        <th>Charge Imported</th>
+                        <th>Office Key</th>*@
+                    </tr>
+                </thead>
+                <tbody data-bind="foreach: pagedResult().Results">
+                    <tr>
+                        <td data-bind="text:TimeIn"></td>
+                        <td data-bind="text:ClinicId"></td>
+                        <td data-bind="text:PvPatientId"></td>
+                        <td data-bind="text:FinClass"></td>
+                        @*<td data-bind="text:VisitImportLogs[0].ImportedDate"></td>
+                        <td data-bind="text:VisitImportLogs[0].ChargeImported"></td>
+                        <td data-bind="text:VisitImportLogs[0].OfficeKey"></td>*@
+                    </tr>
+                </tbody>
+            </table>
+            <div class="pagination" data-bind="if: pagedResult()">
+                <a href="#" data-bind="click: previousPage, css: {'disabled': pagedResult().CurrentPage <= 0}">Previous</a>
+                <ul data-bind="foreach:new Array(pagedResult().PageCount)">
+                    <li>
+                        <a href="#" data-bind="text:$index() + 1">0</a>
+                    </li>
+                    @*<li data-bind="css: {'active': $index() ==  pagedResult().CurrentPage}">
+                            <a href="#" data-bind="text:$index() + 1">0</a>
+                        </li>*@
+                </ul>
+                @*<a href="#" data-bind="click: nextPage, css: {'disabled': pagedResult().CurrentPage >= pagedResult().PageCount}">Next</a>*@
+            </div>
+        </div>
+    </div>
+    <div id="Queued" class="tab-pane fade">
+        <h3>Queued Visits</h3>
+        <div>
+            <table border="1">
+                <thead>
+                    <tr>
+                        <th>TimeIn</th>
+                        <th>ClinicId</th>
+                        <th>PatId</th>
+                        <th>FinClass</th>
+
+                    </tr>
+                </thead>
+                <tbody data-bind="foreach: pagedResult().Results">
+                    <tr>
+                        <td data-bind="text:TimeIn"></td>
+                        <td data-bind="text:ClinicId"></td>
+                        <td data-bind="text:PvPatientId"></td>
+                        <td data-bind="text:FinClass"></td>
+
+                    </tr>
+                </tbody>
+            </table>
+            <div class="pagination" data-bind="if: pagedResult()">
+                <a href="#" data-bind="click: previousPage, css: {'disabled': pagedResult().CurrentPage <= 0}">Previous</a>
+                <ul data-bind="foreach:new Array(pagedResult().PageCount)">
+                    <li>
+                        <a href="#" data-bind="text:$index() + 1">0</a>
+                    </li>
+                    @*<li data-bind="css: {'active': $index() ==  pagedResult().CurrentPage}">
+                        <a href="#" data-bind="text:$index() + 1">0</a>
+                    </li>*@
+                </ul>
+                @*<a href="#" data-bind="click: nextPage, css: {'disabled': pagedResult().CurrentPage >= pagedResult().PageCount}">Next</a>*@
+            </div>
+        </div>
+    </div>
+    <div id="Processing" class="tab-pane fade">
+        <h3>Processing Visits</h3>
+        <div>
+            <table border="1">
+                <thead>
+                    <tr>
+                        <th>TimeIn</th>
+                        <th>ClinicId</th>
+                        <th>PatId</th>
+                        <th>FinClass</th>
+
+                    </tr>
+                </thead>
+                <tbody data-bind="foreach: pagedResult().Results">
+                    <tr>
+                        <td data-bind="text:TimeIn"></td>
+                        <td data-bind="text:ClinicId"></td>
+                        <td data-bind="text:PvPatientId"></td>
+                        <td data-bind="text:FinClass"></td>
+
+                    </tr>
+                </tbody>
+            </table>
+            <div class="pagination" data-bind="if: pagedResult()">
+                <a href="#" data-bind="click: previousPage, css: {'disabled': pagedResult().CurrentPage <= 0}">Previous</a>
+                <ul data-bind="foreach:new Array(pagedResult().PageCount)">
+                    <li>
+                        <a href="#" data-bind="text:$index() + 1">0</a>
+                    </li>
+                    @*<li data-bind="css: {'active': $index() ==  pagedResult().CurrentPage}">
+                        <a href="#" data-bind="text:$index() + 1">0</a>
+                    </li>*@
+                </ul>
+                @*<a href="#" data-bind="click: nextPage, css: {'disabled': pagedResult().CurrentPage >= pagedResult().PageCount}">Next</a>*@
+            </div>
+        </div>
+    </div>
+    <div id="ProcessedOut" class="tab-pane fade">
+        <h3>Processed Out Visits</h3>
+        <div>
+            <table border="1">
+                <thead>
+                    <tr>
+                        <th>ClinicId</th>
+                        <th>PatId</th>
+                        <th>FinClass</th>
+                        @*<th>Imported Date</th>
+                        <th>Charge Imported</th>
+                        <th>Office Key</th>*@
+                    </tr>
+                </thead>
+                <tbody data-bind="foreach: pagedResult().Results">
+                    <tr>
+                        <td data-bind="text:ClinicId"></td>
+                        <td data-bind="text:PvPatientId"></td>
+                        <td data-bind="text:FinClass"></td>
+                        @*<td data-bind="text:VisitImportLogs[0].ImportedDate"></td>
+                        <td data-bind="text:VisitImportLogs[0].ChargeImported"></td>
+                        <td data-bind="text:VisitImportLogs[0].OfficeKey"></td>*@
+                    </tr>
+                </tbody>
+            </table>
+            <div class="pagination" data-bind="if: pagedResult()">
+                <a href="#" data-bind="click: previousPage, css: {'disabled': pagedResult().CurrentPage <= 0}">Previous</a>
+                <ul data-bind="foreach:new Array(pagedResult().PageCount)">
+                    <li>
+                        <a href="#" data-bind="text:$index() + 1">0</a>
+                    </li>
+                    @*<li data-bind="css: {'active': $index() ==  pagedResult().CurrentPage}">
+                        <a href="#" data-bind="text:$index() + 1">0</a>
+                    </li>*@
+                </ul>
+                @*<a href="#" data-bind="click: nextPage, css: {'disabled': pagedResult().CurrentPage >= pagedResult().PageCount}">Next</a>*@
+            </div>
+        </div>
+    </div>
+</div>

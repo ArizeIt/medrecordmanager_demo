@@ -16,6 +16,7 @@ using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using PVAMCommon;
+using RestSharp;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -110,6 +111,28 @@ namespace MedRecordManager.Controllers
             return View("RecordView", vm);
         }
 
+
+
+        [HttpGet]
+        public IActionResult ImportReport()
+        {
+            var vm = new SearchInputs()
+            {
+            //    Type = "Exception",
+
+            //    OfficeKeys = GetAvaliableOfficeKeys(),
+
+            //    Clinics = _urgentCareContext.ClinicProfile.DistinctBy(x => x.ClinicId).Select(y =>
+            //        new SelectListItem
+            //        {
+            //            Selected = false,
+            //            Text = y.ClinicId,
+            //            Value = y.ClinicId
+            //        })
+            };
+
+            return View("ImportReportView", vm);
+        }
 
         [HttpGet]
         public IActionResult LoadDaily(int? page, int? limit, string sortBy, string direction, string office, DateTime startDate, DateTime endDate,string classes)
@@ -1765,5 +1788,17 @@ namespace MedRecordManager.Controllers
             }
         }
 
+        [HttpGet]
+        public async Task<IActionResult> GetVisitsByStatus([FromQuery]string status, [FromQuery] int page , [FromQuery] int pageSize)
+        {
+            var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
+            var url = environment == EnvironmentName.Development ? "http://localhost:65094/" : "http://172.31.22.98:8081/";
+            url += $@"cumsapi/Default/GetVisitsByStatus?status={status}&page={page}&pageSize={pageSize}";
+            RestClient client = new RestClient(url);
+            RestRequest request = new RestRequest(Method.GET);
+            var res = client.Execute(request);
+           var jobject= JObject.Parse(res.Content);
+            return Ok(jobject);
+        }
     }
 }
