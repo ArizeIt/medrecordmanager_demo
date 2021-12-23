@@ -13,6 +13,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using PVAMCommon;
@@ -36,12 +37,14 @@ namespace MedRecordManager.Controllers
         private readonly AppAdminContext _appAdminContext;
         private readonly IViewRenderService _viewRenderService;
         private readonly IEmailSender _emailSrv;
-        public RecordController(UrgentCareContext urgentData, AppAdminContext appAdminContext, IViewRenderService viewRenderService, IEmailSender mailerSrv)
+        private IConfiguration _configuration;
+        public RecordController(UrgentCareContext urgentData, AppAdminContext appAdminContext, IViewRenderService viewRenderService, IEmailSender mailerSrv, IConfiguration configuration)
         {
             _urgentCareContext = urgentData;
             _appAdminContext = appAdminContext;
             _viewRenderService = viewRenderService;
             _emailSrv = mailerSrv;
+            _configuration = configuration;
         }
 
         [HttpGet]
@@ -546,6 +549,13 @@ namespace MedRecordManager.Controllers
         public async Task<IActionResult> GetClinics()
         {
             var records = await _urgentCareContext.ClinicProfile.Select(x => new { id = x.ClinicId, text = x.ClinicId }).ToListAsync();
+            return Json(records);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetFinClasses()
+        {
+            var records = await _urgentCareContext.FinClass.Where(a=> a.PvClassCode.HasValue).Select(x => new { id = x.Id, text = x.PvClassCode }).ToListAsync();
             return Json(records);
         }
 
@@ -1791,8 +1801,9 @@ namespace MedRecordManager.Controllers
         [HttpGet]
         public async Task<IActionResult> GetVisitsByStatus([FromQuery]string status, [FromQuery] int page , [FromQuery] int pageSize)
         {
+            
             var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
-            var url = environment == EnvironmentName.Development ? "http://localhost:65094/" : "http://172.31.22.98:8081/";
+            var url = environment == EnvironmentName.Development ? "http://localhost:65094/" : _configuration["cmucAPI"];
             url += $@"cumsapi/Default/GetVisitsByStatus?status={status}&page={page}&pageSize={pageSize}";
             RestClient client = new RestClient(url);
             RestRequest request = new RestRequest(Method.GET);
@@ -1800,5 +1811,36 @@ namespace MedRecordManager.Controllers
            var jobject= JObject.Parse(res.Content);
             return Ok(jobject);
         }
+
+
+        [HttpPost]
+        public async Task<IActionResult> GetVisitsProcessedIn([FromQuery] int page, [FromQuery] int pageSize,[FromBody] VisitFilter visitFilter)
+        {
+
+            var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
+            var url = environment == EnvironmentName.Development ? "http://localhost:65094/" : _configuration["cmucAPI"];
+            url += $@"cumsapi/Default/GetVisitsProcessedIn?page={page}&pageSize={pageSize}";
+            RestClient client = new RestClient(url);
+            RestRequest request = new RestRequest(Method.POST);
+            request.AddParameter("application/json", JsonConvert.SerializeObject(visitFilter), ParameterType.RequestBody);
+            var res = client.Execute(request);
+            var jobject = JObject.Parse(res.Content);
+            return Ok(jobject);
+        }
+
+        //[HttpGet]
+        //public async Task<IActionResult> GetClinics()
+        //{
+        //    var r=  this._urgentCareContext.ClinicProfile.Where(c=>c.Enabled).ToList();
+        //    return Ok(r);
+
+        //}
+    }
+
+    public class VisitFilter
+    {
+        public List<string> ClinicIds { get; set; }
+
+        public List<int> FinClassIds { get; set; }
     }
 }
