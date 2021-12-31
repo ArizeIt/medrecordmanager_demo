@@ -11,7 +11,7 @@
     <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
     <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
     <![endif]-->
-
+    <base href="/">
     <environment names="Development">
         <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.css" />
         @*<link rel="stylesheet" href="~/css/site.css" />*@
@@ -38,6 +38,8 @@
         <link rel="stylesheet" href="~/lib/fontawesome/css/fontawesome.min.css" />
         <link rel="stylesheet" href="~/css/funky.css" />
     </environment>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons"
+          rel="stylesheet">
     @if (IsSectionDefined("AddToHead"))
     {
         @RenderSection("AddToHead", required: false)
@@ -47,28 +49,26 @@
     {
         @RenderSection("Styles", required: false)
     }
-    <script src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
-    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/knockout/3.5.1/knockout-latest.js" integrity="sha512-2AL/VEauKkZqQU9BHgnv48OhXcJPx9vdzxN1JrKDVc4FPU/MEE/BZ6d9l0mP7VmvLsjtYwqiYQpDskK9dG8KBA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
 </head>
 <body class="hold-transition skin-blue sidebar-mini">
     <div class="wrapper">
         <Partial name="_Header" />
         @if (User.Identity.IsAuthenticated)
         {
-            <Partial name="_Sidebar" />
+        <Partial name="_Sidebar" />
         }
         <div class="content-wrapper">
-             <section class="content">
-                    @RenderBody()
-           </section>
-         </div>
-            @if (User.Identity.IsAuthenticated)
+            <section class="content">
+                @RenderBody()
+            </section>
+        </div>
+        @if (User.Identity.IsAuthenticated)
             {
-                @*<Partial name="_ControlSidebar" />*@
+        @*<Partial name="_ControlSidebar" />*@
 
             }
-        </div>
+    </div>
 
     <environment names="Development">
         <script src="~/lib/jquery/dist/jquery.js"></script>
@@ -107,7 +107,16 @@
         <script src="~/js/adminlte.js"></script>
         <script src="~/lib/select2/dist/js/select2.min.js"></script>
         <script src="~/lib/Zoomer/jquery.fs.zoomer.min.js"></script>
+
+
+
+
     </environment>
+    <script type="text/javascript" src="~/Scripts/libs/runtime.js"></script>
+    <script type="text/javascript" src="~/Scripts/libs/polyfills.js"></script>
+    <link rel="stylesheet" href="~/Scripts/libs/styles.css" />
+    <script type="text/javascript" src="~/Scripts/libs/vendor.js"></script>
+    <script type="text/javascript" src="~/Scripts/libs/main.js"></script>
 
     @RenderSection("Scripts", required: false)
 </body>

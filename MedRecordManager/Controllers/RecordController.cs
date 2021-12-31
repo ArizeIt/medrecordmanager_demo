@@ -1,3 +1,4 @@
+using CsvHelper;
 using ExpressionBuilder.Common;
 using ExpressionBuilder.Generics;
 using ExpressionBuilder.Helpers;
@@ -7,6 +8,7 @@ using MedRecordManager.Extension;
 using MedRecordManager.Models;
 using MedRecordManager.Models.DailyRecord;
 using MedRecordManager.Services;
+using MedRecordManager.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -1763,11 +1765,11 @@ namespace MedRecordManager.Controllers
                 try
                 {
                     var userCompany = _appAdminContext.UserCompany.FirstOrDefault(x => x.UserName == User.Identity.Name);
-                    var webUrl = "http://172.31.22.98/";
-                    if (userCompany != null)
-                    {
-                        webUrl = _appAdminContext.CompanyProfile.FirstOrDefault(x => x.Id == userCompany.CompanyId).WebApiUri;
-                    }
+                    var webUrl = _configuration["cmucAPI"];
+                    //if (userCompany != null)
+                    //{
+                    //    webUrl = _appAdminContext.CompanyProfile.FirstOrDefault(x => x.Id == userCompany.CompanyId).WebApiUri;
+                    //}
 
                     webClient.BaseAddress = new Uri(webUrl);
 
@@ -1798,43 +1800,98 @@ namespace MedRecordManager.Controllers
             }
         }
 
-        [HttpGet]
-        public async Task<IActionResult> GetVisitsByStatus([FromQuery]string status, [FromQuery] int page , [FromQuery] int pageSize)
+        [HttpPost]
+        public async Task<IActionResult> GetVisitsByStatus([FromQuery]string status, [FromQuery] int page , [FromQuery] int pageSize, [FromBody] VisitFilter visitFilter)
         {
             
             var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
             var url = environment == EnvironmentName.Development ? "http://localhost:65094/" : _configuration["cmucAPI"];
             url += $@"cumsapi/Default/GetVisitsByStatus?status={status}&page={page}&pageSize={pageSize}";
             RestClient client = new RestClient(url);
-            RestRequest request = new RestRequest(Method.GET);
+            RestRequest request = new RestRequest(Method.POST);
+            request.AddParameter("application/json", JsonConvert.SerializeObject(visitFilter), ParameterType.RequestBody);
             var res = client.Execute(request);
            var jobject= JObject.Parse(res.Content);
             return Ok(jobject);
+        }
+
+        [HttpPost]
+        public IActionResult GetVisitsByStatus4Report([FromQuery] string status, [FromBody] VisitFilter visitFilter)
+        {
+            var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
+            var url = environment == EnvironmentName.Development ? "http://localhost:65094/" : _configuration["cmucAPI"];
+            url += $@"cumsapi/Default/GetVisitsByStatus4Report?status={status}";
+            RestClient client = new RestClient(url);
+            RestRequest request = new RestRequest(Method.POST);
+            request.AddParameter("application/json", JsonConvert.SerializeObject(visitFilter), ParameterType.RequestBody);
+            var res = client.Execute<List<VisitViewModel>>(request);
+
+
+            List<VisitViewModel> reportCSVModels = res.Data != null ? res.Data : JsonConvert.DeserializeObject<List<VisitViewModel>>(res.Content);
+
+
+
+            var stream = new MemoryStream();
+            using (var writeFile = new StreamWriter(stream, leaveOpen: true))
+            {
+                var csv = new CsvWriter(writeFile, System.Globalization.CultureInfo.CurrentCulture, true);
+                // csv.Configuration.RegisterClassMap<GroupReportCSVMap>();
+                csv.WriteRecords(reportCSVModels);
+            }
+            stream.Position = 0; //reset stream
+            return File(stream, "application/octet-stream", "Reports.csv");
         }
 
 
         [HttpPost]
         public async Task<IActionResult> GetVisitsProcessedIn([FromQuery] int page, [FromQuery] int pageSize,[FromBody] VisitFilter visitFilter)
         {
+            try
+            {
+                var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
+                var url = environment == EnvironmentName.Development ? "http://localhost:65094/" : _configuration["cmucAPI"];
+                url += $@"cumsapi/Default/GetVisitsProcessedIn?page={page}&pageSize={pageSize}";
+                RestClient client = new RestClient(url);
+                RestRequest request = new RestRequest(Method.POST);
+                request.AddParameter("application/json", JsonConvert.SerializeObject(visitFilter), ParameterType.RequestBody);
+                var res = client.Execute(request);
+                var jobject = JObject.Parse(res.Content);
+                return Ok(jobject);
+            }
+            catch(Exception ex)
+            {
+                return BadRequest(ex);
+            }
+        }
 
+        [HttpPost]
+        public IActionResult GetVisitsProcessedIn4Report([FromBody] VisitFilter visitFilter)
+        {
             var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
             var url = environment == EnvironmentName.Development ? "http://localhost:65094/" : _configuration["cmucAPI"];
-            url += $@"cumsapi/Default/GetVisitsProcessedIn?page={page}&pageSize={pageSize}";
+            url += $@"cumsapi/Default/GetVisitsProcessedIn4Report";
             RestClient client = new RestClient(url);
             RestRequest request = new RestRequest(Method.POST);
             request.AddParameter("application/json", JsonConvert.SerializeObject(visitFilter), ParameterType.RequestBody);
-            var res = client.Execute(request);
-            var jobject = JObject.Parse(res.Content);
-            return Ok(jobject);
+            var res = client.Execute<List<VisitViewModel>>(request);
+
+            
+               List<VisitViewModel> reportCSVModels = res.Data != null ? res.Data :  JsonConvert.DeserializeObject<List<VisitViewModel>>(res.Content);
+            
+         
+
+            var stream = new MemoryStream();
+            using (var writeFile = new StreamWriter(stream, leaveOpen: true))
+            {
+                var csv = new CsvWriter(writeFile,System.Globalization.CultureInfo.CurrentCulture, true);
+               // csv.Configuration.RegisterClassMap<GroupReportCSVMap>();
+                csv.WriteRecords(reportCSVModels);
+            }
+            stream.Position = 0; //reset stream
+            return File(stream, "application/octet-stream", "Reports.csv");
         }
 
-        //[HttpGet]
-        //public async Task<IActionResult> GetClinics()
-        //{
-        //    var r=  this._urgentCareContext.ClinicProfile.Where(c=>c.Enabled).ToList();
-        //    return Ok(r);
 
-        //}
     }
 
     public class VisitFilter
@@ -1842,5 +1899,11 @@ namespace MedRecordManager.Controllers
         public List<string> ClinicIds { get; set; }
 
         public List<int> FinClassIds { get; set; }
+
+        public DateTime VisitStartDate { get; set; }
+
+        public DateTime VisitEndDate { get; set; }
+
+        public string PatSearch { get; set; }
     }
 }
