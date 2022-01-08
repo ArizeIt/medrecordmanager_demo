@@ -54,44 +54,49 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.ImportRecordComponent = void 0;
 var api_service_1 = __webpack_require__(/*! ../../services/api.service */ "hD8V");
 var moment = __webpack_require__(/*! moment */ "wd/R");
+var _ = __webpack_require__(/*! lodash */ "LvDl");
+var dialog_1 = __webpack_require__(/*! @angular/material/dialog */ "0IaG");
+var import_logs_component_1 = __webpack_require__(/*! ../import-logs/import-logs.component */ "b5bQ");
 var i0 = __webpack_require__(/*! @angular/core */ "fXoL");
 var i1 = __webpack_require__(/*! ../../services/api.service */ "hD8V");
-var i2 = __webpack_require__(/*! @angular/material/tabs */ "wZkO");
-var i3 = __webpack_require__(/*! @angular/material/form-field */ "kmnG");
-var i4 = __webpack_require__(/*! @angular/material/input */ "qFsG");
-var i5 = __webpack_require__(/*! @angular/material/datepicker */ "iadO");
-var i6 = __webpack_require__(/*! @angular/forms */ "3Pt+");
-var i7 = __webpack_require__(/*! @angular/material/select */ "d3UM");
-var i8 = __webpack_require__(/*! @angular/common */ "ofXK");
-var i9 = __webpack_require__(/*! @angular/material/button */ "bTqV");
-var i10 = __webpack_require__(/*! @swimlane/ngx-datatable */ "lDzL");
-var i11 = __webpack_require__(/*! @angular/material/core */ "FKr1");
-var i12 = __webpack_require__(/*! @angular/material/icon */ "NFeN");
-var i13 = __webpack_require__(/*! @angular/material/checkbox */ "bSwM");
+var i2 = __webpack_require__(/*! @angular/material/dialog */ "0IaG");
+var i3 = __webpack_require__(/*! @angular/material/tabs */ "wZkO");
+var i4 = __webpack_require__(/*! @angular/material/form-field */ "kmnG");
+var i5 = __webpack_require__(/*! @angular/material/input */ "qFsG");
+var i6 = __webpack_require__(/*! @angular/material/datepicker */ "iadO");
+var i7 = __webpack_require__(/*! @angular/forms */ "3Pt+");
+var i8 = __webpack_require__(/*! @angular/material/select */ "d3UM");
+var i9 = __webpack_require__(/*! @angular/common */ "ofXK");
+var i10 = __webpack_require__(/*! @angular/material/button */ "bTqV");
+var i11 = __webpack_require__(/*! @swimlane/ngx-datatable */ "lDzL");
+var i12 = __webpack_require__(/*! @angular/material/core */ "FKr1");
+var i13 = __webpack_require__(/*! @angular/material/icon */ "NFeN");
+var i14 = __webpack_require__(/*! @angular/material/checkbox */ "bSwM");
+var i15 = __webpack_require__(/*! @angular/material/tooltip */ "Qu3c");
 function ImportRecordComponent_mat_option_21_Template(rf, ctx) { if (rf & 1) {
-    i0.ɵɵelementStart(0, "mat-option", 30);
+    i0.ɵɵelementStart(0, "mat-option", 31);
     i0.ɵɵtext(1);
     i0.ɵɵelementEnd();
 } if (rf & 2) {
-    var c_r35 = ctx.$implicit;
-    i0.ɵɵproperty("value", c_r35.id);
+    var c_r40 = ctx.$implicit;
+    i0.ɵɵproperty("value", c_r40.id);
     i0.ɵɵadvance(1);
-    i0.ɵɵtextInterpolate(c_r35.text);
+    i0.ɵɵtextInterpolate(c_r40.text);
 } }
 function ImportRecordComponent_mat_option_26_Template(rf, ctx) { if (rf & 1) {
-    i0.ɵɵelementStart(0, "mat-option", 30);
+    i0.ɵɵelementStart(0, "mat-option", 31);
     i0.ɵɵtext(1);
     i0.ɵɵelementEnd();
 } if (rf & 2) {
-    var c_r36 = ctx.$implicit;
-    i0.ɵɵproperty("value", c_r36.text);
+    var c_r41 = ctx.$implicit;
+    i0.ɵɵproperty("value", c_r41.text);
     i0.ɵɵadvance(1);
-    i0.ɵɵtextInterpolate(c_r36.text);
+    i0.ɵɵtextInterpolate(c_r41.text);
 } }
 function ImportRecordComponent_button_34_Template(rf, ctx) { if (rf & 1) {
-    var _r38 = i0.ɵɵgetCurrentView();
+    var _r43 = i0.ɵɵgetCurrentView();
     i0.ɵɵelementStart(0, "button", 10);
-    i0.ɵɵlistener("click", function ImportRecordComponent_button_34_Template_button_click_0_listener() { i0.ɵɵrestoreView(_r38); var ctx_r37 = i0.ɵɵnextContext(); return ctx_r37.downloadCSV(0); });
+    i0.ɵɵlistener("click", function ImportRecordComponent_button_34_Template_button_click_0_listener() { i0.ɵɵrestoreView(_r43); var ctx_r42 = i0.ɵɵnextContext(); return ctx_r42.downloadCSV(0); });
     i0.ɵɵelementStart(1, "mat-icon");
     i0.ɵɵtext(2, "arrow_circle_down");
     i0.ɵɵelementEnd();
@@ -99,7 +104,7 @@ function ImportRecordComponent_button_34_Template(rf, ctx) { if (rf & 1) {
     i0.ɵɵelementEnd();
 } }
 function ImportRecordComponent_span_35_Template(rf, ctx) { if (rf & 1) {
-    i0.ɵɵelementStart(0, "span", 31);
+    i0.ɵɵelementStart(0, "span", 32);
     i0.ɵɵtext(1, "generating and downloading your csv..");
     i0.ɵɵelementEnd();
 } }
@@ -107,26 +112,26 @@ function ImportRecordComponent_ng_template_39_Template(rf, ctx) { if (rf & 1) {
     i0.ɵɵtext(0);
     i0.ɵɵpipe(1, "date");
 } if (rf & 2) {
-    var row_r39 = ctx.row;
-    i0.ɵɵtextInterpolate1(" ", i0.ɵɵpipeBind2(1, 1, row_r39.TimeIn, "MMM dd yyyy, HH:mm"), " ");
+    var row_r44 = ctx.row;
+    i0.ɵɵtextInterpolate1(" ", i0.ɵɵpipeBind2(1, 1, row_r44.TimeIn, "MMM dd yyyy, HH:mm"), " ");
 } }
 function ImportRecordComponent_ng_template_41_Template(rf, ctx) { if (rf & 1) {
     i0.ɵɵtext(0);
 } if (rf & 2) {
-    var row_r40 = ctx.row;
-    i0.ɵɵtextInterpolate1(" ", row_r40.ClinicId, " ");
+    var row_r45 = ctx.row;
+    i0.ɵɵtextInterpolate1(" ", row_r45.ClinicId, " ");
 } }
 function ImportRecordComponent_ng_template_43_Template(rf, ctx) { if (rf & 1) {
     i0.ɵɵtext(0);
 } if (rf & 2) {
-    var row_r41 = ctx.row;
-    i0.ɵɵtextInterpolate1(" ", row_r41.FinClass, " ");
+    var row_r46 = ctx.row;
+    i0.ɵɵtextInterpolate1(" ", row_r46.FinClass, " ");
 } }
 function ImportRecordComponent_ng_template_45_Template(rf, ctx) { if (rf & 1) {
     i0.ɵɵtext(0);
 } if (rf & 2) {
-    var row_r42 = ctx.row;
-    i0.ɵɵtextInterpolate1(" ", row_r42.OfficeKey, " ");
+    var row_r47 = ctx.row;
+    i0.ɵɵtextInterpolate1(" ", row_r47.OfficeKey, " ");
 } }
 function ImportRecordComponent_ng_template_47_Template(rf, ctx) { if (rf & 1) {
     i0.ɵɵtext(0);
@@ -134,35 +139,35 @@ function ImportRecordComponent_ng_template_47_Template(rf, ctx) { if (rf & 1) {
     i0.ɵɵtext(2);
     i0.ɵɵelement(3, "br");
 } if (rf & 2) {
-    var row_r43 = ctx.row;
-    i0.ɵɵtextInterpolate2(" ", row_r43.PatientInformation.FirstName, " ", row_r43.PatientInformation.LastName, " ");
+    var row_r48 = ctx.row;
+    i0.ɵɵtextInterpolate2(" ", row_r48.PatientInformation.FirstName, " ", row_r48.PatientInformation.LastName, " ");
     i0.ɵɵadvance(2);
-    i0.ɵɵtextInterpolate2(" ", row_r43.PatientInformation.Address1, ", ", row_r43.PatientInformation.City, " ");
+    i0.ɵɵtextInterpolate2(" ", row_r48.PatientInformation.Address1, ", ", row_r48.PatientInformation.City, " ");
 } }
 function ImportRecordComponent_mat_option_68_Template(rf, ctx) { if (rf & 1) {
-    i0.ɵɵelementStart(0, "mat-option", 30);
+    i0.ɵɵelementStart(0, "mat-option", 31);
     i0.ɵɵtext(1);
     i0.ɵɵelementEnd();
 } if (rf & 2) {
-    var c_r44 = ctx.$implicit;
-    i0.ɵɵproperty("value", c_r44.id);
+    var c_r49 = ctx.$implicit;
+    i0.ɵɵproperty("value", c_r49.id);
     i0.ɵɵadvance(1);
-    i0.ɵɵtextInterpolate(c_r44.text);
+    i0.ɵɵtextInterpolate(c_r49.text);
 } }
 function ImportRecordComponent_mat_option_73_Template(rf, ctx) { if (rf & 1) {
-    i0.ɵɵelementStart(0, "mat-option", 30);
+    i0.ɵɵelementStart(0, "mat-option", 31);
     i0.ɵɵtext(1);
     i0.ɵɵelementEnd();
 } if (rf & 2) {
-    var c_r45 = ctx.$implicit;
-    i0.ɵɵproperty("value", c_r45.text);
+    var c_r50 = ctx.$implicit;
+    i0.ɵɵproperty("value", c_r50.text);
     i0.ɵɵadvance(1);
-    i0.ɵɵtextInterpolate(c_r45.text);
+    i0.ɵɵtextInterpolate(c_r50.text);
 } }
 function ImportRecordComponent_button_81_Template(rf, ctx) { if (rf & 1) {
-    var _r47 = i0.ɵɵgetCurrentView();
+    var _r52 = i0.ɵɵgetCurrentView();
     i0.ɵɵelementStart(0, "button", 10);
-    i0.ɵɵlistener("click", function ImportRecordComponent_button_81_Template_button_click_0_listener() { i0.ɵɵrestoreView(_r47); var ctx_r46 = i0.ɵɵnextContext(); return ctx_r46.downloadCSV(1); });
+    i0.ɵɵlistener("click", function ImportRecordComponent_button_81_Template_button_click_0_listener() { i0.ɵɵrestoreView(_r52); var ctx_r51 = i0.ɵɵnextContext(); return ctx_r51.downloadCSV(1); });
     i0.ɵɵelementStart(1, "mat-icon");
     i0.ɵɵtext(2, "arrow_circle_down");
     i0.ɵɵelementEnd();
@@ -170,125 +175,265 @@ function ImportRecordComponent_button_81_Template(rf, ctx) { if (rf & 1) {
     i0.ɵɵelementEnd();
 } }
 function ImportRecordComponent_span_82_Template(rf, ctx) { if (rf & 1) {
-    i0.ɵɵelementStart(0, "span", 31);
+    i0.ɵɵelementStart(0, "span", 32);
     i0.ɵɵtext(1, "generating and downloading your csv..");
     i0.ɵɵelementEnd();
 } }
-function ImportRecordComponent_ng_template_85_Template(rf, ctx) { if (rf & 1) {
-    i0.ɵɵelement(0, "mat-checkbox");
+function ImportRecordComponent_button_84_Template(rf, ctx) { if (rf & 1) {
+    var _r54 = i0.ɵɵgetCurrentView();
+    i0.ɵɵelementStart(0, "button", 10);
+    i0.ɵɵlistener("click", function ImportRecordComponent_button_84_Template_button_click_0_listener() { i0.ɵɵrestoreView(_r54); var ctx_r53 = i0.ɵɵnextContext(); return ctx_r53.unqueue(); });
+    i0.ɵɵelementStart(1, "mat-icon");
+    i0.ɵɵtext(2, "warning");
+    i0.ɵɵelementEnd();
+    i0.ɵɵtext(3, "Unqueue selected");
+    i0.ɵɵelementEnd();
+} }
+function ImportRecordComponent_span_85_Template(rf, ctx) { if (rf & 1) {
+    i0.ɵɵelementStart(0, "span", 32);
+    i0.ɵɵtext(1, "unqueuing..");
+    i0.ɵɵelementEnd();
+} }
+function ImportRecordComponent_button_87_Template(rf, ctx) { if (rf & 1) {
+    var _r56 = i0.ɵɵgetCurrentView();
+    i0.ɵɵelementStart(0, "button", 10);
+    i0.ɵɵlistener("click", function ImportRecordComponent_button_87_Template_button_click_0_listener() { i0.ɵɵrestoreView(_r56); var ctx_r55 = i0.ɵɵnextContext(); return ctx_r55.rerunImport(); });
+    i0.ɵɵelementStart(1, "mat-icon");
+    i0.ɵɵtext(2, "warning");
+    i0.ɵɵelementEnd();
+    i0.ɵɵtext(3, "Rerun import selected");
+    i0.ɵɵelementEnd();
+} }
+function ImportRecordComponent_span_88_Template(rf, ctx) { if (rf & 1) {
+    i0.ɵɵelementStart(0, "span", 32);
+    i0.ɵɵtext(1, "reruning..");
+    i0.ɵɵelementEnd();
+} }
+function ImportRecordComponent_ng_template_91_Template(rf, ctx) { if (rf & 1) {
+    i0.ɵɵelementStart(0, "mat-checkbox", 33);
+    i0.ɵɵlistener("ngModelChange", function ImportRecordComponent_ng_template_91_Template_mat_checkbox_ngModelChange_0_listener($event) { var row_r57 = ctx.row; return row_r57.checked = $event; });
+    i0.ɵɵelementEnd();
     i0.ɵɵtext(1);
     i0.ɵɵpipe(2, "date");
 } if (rf & 2) {
-    var row_r48 = ctx.row;
+    var row_r57 = ctx.row;
+    i0.ɵɵproperty("ngModel", row_r57.checked);
     i0.ɵɵadvance(1);
-    i0.ɵɵtextInterpolate1(" ", i0.ɵɵpipeBind2(2, 1, row_r48.TimeIn, "MMM dd yyyy, HH:mm"), " ");
-} }
-function ImportRecordComponent_ng_template_87_Template(rf, ctx) { if (rf & 1) {
-    i0.ɵɵtext(0);
-} if (rf & 2) {
-    var row_r49 = ctx.row;
-    i0.ɵɵtextInterpolate1(" ", row_r49.ClinicId, " ");
-} }
-function ImportRecordComponent_ng_template_89_Template(rf, ctx) { if (rf & 1) {
-    i0.ɵɵtext(0);
-} if (rf & 2) {
-    var row_r50 = ctx.row;
-    i0.ɵɵtextInterpolate1(" ", row_r50.FinClass, " ");
-} }
-function ImportRecordComponent_ng_template_91_Template(rf, ctx) { if (rf & 1) {
-    i0.ɵɵtext(0);
-} if (rf & 2) {
-    var row_r51 = ctx.row;
-    i0.ɵɵtextInterpolate1(" ", row_r51.OfficeKey, " ");
+    i0.ɵɵtextInterpolate1(" ", i0.ɵɵpipeBind2(2, 2, row_r57.TimeIn, "MMM dd yyyy, HH:mm"), " ");
 } }
 function ImportRecordComponent_ng_template_93_Template(rf, ctx) { if (rf & 1) {
     i0.ɵɵtext(0);
 } if (rf & 2) {
-    var row_r52 = ctx.row;
-    i0.ɵɵtextInterpolate2(" ", row_r52.PatientInformation.FirstName, " ", row_r52.PatientInformation.LastName, " ");
+    var row_r59 = ctx.row;
+    i0.ɵɵtextInterpolate1(" ", row_r59.ClinicId, " ");
 } }
 function ImportRecordComponent_ng_template_95_Template(rf, ctx) { if (rf & 1) {
     i0.ɵɵtext(0);
 } if (rf & 2) {
-    var row_r53 = ctx.row;
-    i0.ɵɵtextInterpolate1(" ", row_r53.ImportStatusDate, " ");
+    var row_r60 = ctx.row;
+    i0.ɵɵtextInterpolate1(" ", row_r60.FinClass, " ");
 } }
-function ImportRecordComponent_mat_option_116_Template(rf, ctx) { if (rf & 1) {
-    i0.ɵɵelementStart(0, "mat-option", 30);
+function ImportRecordComponent_ng_template_97_Template(rf, ctx) { if (rf & 1) {
+    i0.ɵɵtext(0);
+} if (rf & 2) {
+    var row_r61 = ctx.row;
+    i0.ɵɵtextInterpolate1(" ", row_r61.OfficeKey, " ");
+} }
+function ImportRecordComponent_ng_template_99_Template(rf, ctx) { if (rf & 1) {
+    i0.ɵɵtext(0);
+} if (rf & 2) {
+    var row_r62 = ctx.row;
+    i0.ɵɵtextInterpolate2(" ", row_r62.PatientInformation.FirstName, " ", row_r62.PatientInformation.LastName, " ");
+} }
+function ImportRecordComponent_ng_template_101_Template(rf, ctx) { if (rf & 1) {
+    i0.ɵɵtext(0);
+} if (rf & 2) {
+    var row_r63 = ctx.row;
+    i0.ɵɵtextInterpolate1(" ", row_r63.ImportStatusDate, " ");
+} }
+function ImportRecordComponent_ng_template_103_mat_icon_0_Template(rf, ctx) { if (rf & 1) {
+    i0.ɵɵelementStart(0, "mat-icon", 37);
+    i0.ɵɵtext(1, "warning");
+    i0.ɵɵelementEnd();
+} if (rf & 2) {
+    var row_r64 = i0.ɵɵnextContext().row;
+    i0.ɵɵpropertyInterpolate("matTooltip", row_r64.VisitImportLogs[0] == null ? null : row_r64.VisitImportLogs[0].ResponseRaw);
+} }
+function ImportRecordComponent_ng_template_103_mat_icon_1_Template(rf, ctx) { if (rf & 1) {
+    i0.ɵɵelementStart(0, "mat-icon");
+    i0.ɵɵtext(1, "check");
+    i0.ɵɵelementEnd();
+} }
+function ImportRecordComponent_ng_template_103_mat_icon_6_Template(rf, ctx) { if (rf & 1) {
+    i0.ɵɵelementStart(0, "mat-icon", 37);
+    i0.ɵɵtext(1, "warning");
+    i0.ɵɵelementEnd();
+} if (rf & 2) {
+    var row_r64 = i0.ɵɵnextContext().row;
+    i0.ɵɵpropertyInterpolate("matTooltip", row_r64.PatientImportLogs[0] == null ? null : row_r64.PatientImportLogs[0].ResponseRaw);
+} }
+function ImportRecordComponent_ng_template_103_mat_icon_7_Template(rf, ctx) { if (rf & 1) {
+    i0.ɵɵelementStart(0, "mat-icon");
+    i0.ɵɵtext(1, "check");
+    i0.ɵɵelementEnd();
+} }
+function ImportRecordComponent_ng_template_103_Template(rf, ctx) { if (rf & 1) {
+    var _r72 = i0.ɵɵgetCurrentView();
+    i0.ɵɵtemplate(0, ImportRecordComponent_ng_template_103_mat_icon_0_Template, 2, 1, "mat-icon", 34);
+    i0.ɵɵtemplate(1, ImportRecordComponent_ng_template_103_mat_icon_1_Template, 2, 0, "mat-icon", 35);
+    i0.ɵɵelementStart(2, "a", 36);
+    i0.ɵɵlistener("click", function ImportRecordComponent_ng_template_103_Template_a_click_2_listener() { i0.ɵɵrestoreView(_r72); var row_r64 = ctx.row; var ctx_r71 = i0.ɵɵnextContext(); return ctx_r71.viewLogs(row_r64.VisitImportLogs); });
+    i0.ɵɵtext(3, "View detail");
+    i0.ɵɵelementEnd();
+    i0.ɵɵtext(4, " Visit-Import ");
+    i0.ɵɵelement(5, "br");
+    i0.ɵɵtemplate(6, ImportRecordComponent_ng_template_103_mat_icon_6_Template, 2, 1, "mat-icon", 34);
+    i0.ɵɵtemplate(7, ImportRecordComponent_ng_template_103_mat_icon_7_Template, 2, 0, "mat-icon", 35);
+    i0.ɵɵelementStart(8, "a", 36);
+    i0.ɵɵlistener("click", function ImportRecordComponent_ng_template_103_Template_a_click_8_listener() { i0.ɵɵrestoreView(_r72); var row_r64 = ctx.row; var ctx_r73 = i0.ɵɵnextContext(); return ctx_r73.viewLogs(row_r64.PatientImportLogs); });
+    i0.ɵɵtext(9, "View detail");
+    i0.ɵɵelementEnd();
+    i0.ɵɵtext(10, " Patient-Import ");
+    i0.ɵɵelement(11, "br");
+} if (rf & 2) {
+    var row_r64 = ctx.row;
+    i0.ɵɵproperty("ngIf", !(row_r64.VisitImportLogs[0] == null ? null : row_r64.VisitImportLogs[0].IsSuccess));
+    i0.ɵɵadvance(1);
+    i0.ɵɵproperty("ngIf", row_r64.VisitImportLogs[0] == null ? null : row_r64.VisitImportLogs[0].IsSuccess);
+    i0.ɵɵadvance(5);
+    i0.ɵɵproperty("ngIf", !(row_r64.PatientImportLogs[0] == null ? null : row_r64.PatientImportLogs[0].IsSuccess));
+    i0.ɵɵadvance(1);
+    i0.ɵɵproperty("ngIf", row_r64.PatientImportLogs[0] == null ? null : row_r64.PatientImportLogs[0].IsSuccess);
+} }
+function ImportRecordComponent_mat_option_124_Template(rf, ctx) { if (rf & 1) {
+    i0.ɵɵelementStart(0, "mat-option", 31);
     i0.ɵɵtext(1);
     i0.ɵɵelementEnd();
 } if (rf & 2) {
-    var c_r54 = ctx.$implicit;
-    i0.ɵɵproperty("value", c_r54.id);
+    var c_r74 = ctx.$implicit;
+    i0.ɵɵproperty("value", c_r74.id);
     i0.ɵɵadvance(1);
-    i0.ɵɵtextInterpolate(c_r54.text);
+    i0.ɵɵtextInterpolate(c_r74.text);
 } }
-function ImportRecordComponent_mat_option_121_Template(rf, ctx) { if (rf & 1) {
-    i0.ɵɵelementStart(0, "mat-option", 30);
+function ImportRecordComponent_mat_option_129_Template(rf, ctx) { if (rf & 1) {
+    i0.ɵɵelementStart(0, "mat-option", 31);
     i0.ɵɵtext(1);
     i0.ɵɵelementEnd();
 } if (rf & 2) {
-    var c_r55 = ctx.$implicit;
-    i0.ɵɵproperty("value", c_r55.text);
+    var c_r75 = ctx.$implicit;
+    i0.ɵɵproperty("value", c_r75.text);
     i0.ɵɵadvance(1);
-    i0.ɵɵtextInterpolate(c_r55.text);
+    i0.ɵɵtextInterpolate(c_r75.text);
 } }
-function ImportRecordComponent_button_129_Template(rf, ctx) { if (rf & 1) {
-    var _r57 = i0.ɵɵgetCurrentView();
+function ImportRecordComponent_button_137_Template(rf, ctx) { if (rf & 1) {
+    var _r77 = i0.ɵɵgetCurrentView();
     i0.ɵɵelementStart(0, "button", 10);
-    i0.ɵɵlistener("click", function ImportRecordComponent_button_129_Template_button_click_0_listener() { i0.ɵɵrestoreView(_r57); var ctx_r56 = i0.ɵɵnextContext(); return ctx_r56.downloadCSV(2); });
+    i0.ɵɵlistener("click", function ImportRecordComponent_button_137_Template_button_click_0_listener() { i0.ɵɵrestoreView(_r77); var ctx_r76 = i0.ɵɵnextContext(); return ctx_r76.downloadCSV(2); });
     i0.ɵɵelementStart(1, "mat-icon");
     i0.ɵɵtext(2, "arrow_circle_down");
     i0.ɵɵelementEnd();
     i0.ɵɵtext(3, "Download csv");
     i0.ɵɵelementEnd();
 } }
-function ImportRecordComponent_span_130_Template(rf, ctx) { if (rf & 1) {
-    i0.ɵɵelementStart(0, "span", 31);
+function ImportRecordComponent_span_138_Template(rf, ctx) { if (rf & 1) {
+    i0.ɵɵelementStart(0, "span", 32);
     i0.ɵɵtext(1, "generating and downloading your csv..");
     i0.ɵɵelementEnd();
 } }
-function ImportRecordComponent_ng_template_133_Template(rf, ctx) { if (rf & 1) {
+function ImportRecordComponent_ng_template_141_Template(rf, ctx) { if (rf & 1) {
     i0.ɵɵtext(0);
     i0.ɵɵpipe(1, "date");
 } if (rf & 2) {
-    var row_r58 = ctx.row;
-    i0.ɵɵtextInterpolate1(" ", i0.ɵɵpipeBind2(1, 1, row_r58.TimeIn, "MMM dd yyyy, HH:mm"), " ");
-} }
-function ImportRecordComponent_ng_template_135_Template(rf, ctx) { if (rf & 1) {
-    i0.ɵɵtext(0);
-} if (rf & 2) {
-    var row_r59 = ctx.row;
-    i0.ɵɵtextInterpolate1(" ", row_r59.ClinicId, " ");
-} }
-function ImportRecordComponent_ng_template_137_Template(rf, ctx) { if (rf & 1) {
-    i0.ɵɵtext(0);
-} if (rf & 2) {
-    var row_r60 = ctx.row;
-    i0.ɵɵtextInterpolate1(" ", row_r60.FinClass, " ");
-} }
-function ImportRecordComponent_ng_template_139_Template(rf, ctx) { if (rf & 1) {
-    i0.ɵɵtext(0);
-} if (rf & 2) {
-    var row_r61 = ctx.row;
-    i0.ɵɵtextInterpolate1(" ", row_r61.OfficeKey, " ");
-} }
-function ImportRecordComponent_ng_template_141_Template(rf, ctx) { if (rf & 1) {
-    i0.ɵɵtext(0);
-} if (rf & 2) {
-    var row_r62 = ctx.row;
-    i0.ɵɵtextInterpolate2(" ", row_r62.PatientInformation.FirstName, " ", row_r62.PatientInformation.LastName, " ");
+    var row_r78 = ctx.row;
+    i0.ɵɵtextInterpolate1(" ", i0.ɵɵpipeBind2(1, 1, row_r78.TimeIn, "MMM dd yyyy, HH:mm"), " ");
 } }
 function ImportRecordComponent_ng_template_143_Template(rf, ctx) { if (rf & 1) {
     i0.ɵɵtext(0);
 } if (rf & 2) {
-    var row_r63 = ctx.row;
-    i0.ɵɵtextInterpolate1(" ", row_r63.ImportStatusDate, " ");
+    var row_r79 = ctx.row;
+    i0.ɵɵtextInterpolate1(" ", row_r79.ClinicId, " ");
+} }
+function ImportRecordComponent_ng_template_145_Template(rf, ctx) { if (rf & 1) {
+    i0.ɵɵtext(0);
+} if (rf & 2) {
+    var row_r80 = ctx.row;
+    i0.ɵɵtextInterpolate1(" ", row_r80.FinClass, " ");
+} }
+function ImportRecordComponent_ng_template_147_Template(rf, ctx) { if (rf & 1) {
+    i0.ɵɵtext(0);
+} if (rf & 2) {
+    var row_r81 = ctx.row;
+    i0.ɵɵtextInterpolate1(" ", row_r81.OfficeKey, " ");
+} }
+function ImportRecordComponent_ng_template_149_Template(rf, ctx) { if (rf & 1) {
+    i0.ɵɵtext(0);
+} if (rf & 2) {
+    var row_r82 = ctx.row;
+    i0.ɵɵtextInterpolate2(" ", row_r82.PatientInformation.FirstName, " ", row_r82.PatientInformation.LastName, " ");
+} }
+function ImportRecordComponent_ng_template_151_mat_icon_2_Template(rf, ctx) { if (rf & 1) {
+    i0.ɵɵelementStart(0, "mat-icon", 37);
+    i0.ɵɵtext(1, "warning");
+    i0.ɵɵelementEnd();
+} if (rf & 2) {
+    var row_r83 = i0.ɵɵnextContext().row;
+    i0.ɵɵpropertyInterpolate("matTooltip", row_r83.VisitImportLogs[0] == null ? null : row_r83.VisitImportLogs[0].ResponseRaw);
+} }
+function ImportRecordComponent_ng_template_151_mat_icon_3_Template(rf, ctx) { if (rf & 1) {
+    i0.ɵɵelementStart(0, "mat-icon");
+    i0.ɵɵtext(1, "check");
+    i0.ɵɵelementEnd();
+} }
+function ImportRecordComponent_ng_template_151_mat_icon_8_Template(rf, ctx) { if (rf & 1) {
+    i0.ɵɵelementStart(0, "mat-icon", 37);
+    i0.ɵɵtext(1, "warning");
+    i0.ɵɵelementEnd();
+} if (rf & 2) {
+    var row_r83 = i0.ɵɵnextContext().row;
+    i0.ɵɵpropertyInterpolate("matTooltip", row_r83.PatientImportLogs[0] == null ? null : row_r83.PatientImportLogs[0].ResponseRaw);
+} }
+function ImportRecordComponent_ng_template_151_mat_icon_9_Template(rf, ctx) { if (rf & 1) {
+    i0.ɵɵelementStart(0, "mat-icon");
+    i0.ɵɵtext(1, "check");
+    i0.ɵɵelementEnd();
+} }
+function ImportRecordComponent_ng_template_151_Template(rf, ctx) { if (rf & 1) {
+    var _r91 = i0.ɵɵgetCurrentView();
+    i0.ɵɵtext(0);
+    i0.ɵɵelement(1, "br");
+    i0.ɵɵtemplate(2, ImportRecordComponent_ng_template_151_mat_icon_2_Template, 2, 1, "mat-icon", 34);
+    i0.ɵɵtemplate(3, ImportRecordComponent_ng_template_151_mat_icon_3_Template, 2, 0, "mat-icon", 35);
+    i0.ɵɵelementStart(4, "a", 36);
+    i0.ɵɵlistener("click", function ImportRecordComponent_ng_template_151_Template_a_click_4_listener() { i0.ɵɵrestoreView(_r91); var row_r83 = ctx.row; var ctx_r90 = i0.ɵɵnextContext(); return ctx_r90.viewLogs(row_r83.VisitImportLogs); });
+    i0.ɵɵtext(5, "View detail");
+    i0.ɵɵelementEnd();
+    i0.ɵɵtext(6, " Visit-Import ");
+    i0.ɵɵelement(7, "br");
+    i0.ɵɵtemplate(8, ImportRecordComponent_ng_template_151_mat_icon_8_Template, 2, 1, "mat-icon", 34);
+    i0.ɵɵtemplate(9, ImportRecordComponent_ng_template_151_mat_icon_9_Template, 2, 0, "mat-icon", 35);
+    i0.ɵɵelementStart(10, "a", 36);
+    i0.ɵɵlistener("click", function ImportRecordComponent_ng_template_151_Template_a_click_10_listener() { i0.ɵɵrestoreView(_r91); var row_r83 = ctx.row; var ctx_r92 = i0.ɵɵnextContext(); return ctx_r92.viewLogs(row_r83.PatientImportLogs); });
+    i0.ɵɵtext(11, "View detail");
+    i0.ɵɵelementEnd();
+    i0.ɵɵtext(12, " Patient-Import ");
+    i0.ɵɵelement(13, "br");
+} if (rf & 2) {
+    var row_r83 = ctx.row;
+    i0.ɵɵtextInterpolate1(" ", row_r83.ImportStatusDate, " ");
+    i0.ɵɵadvance(2);
+    i0.ɵɵproperty("ngIf", !(row_r83.VisitImportLogs[0] == null ? null : row_r83.VisitImportLogs[0].IsSuccess));
+    i0.ɵɵadvance(1);
+    i0.ɵɵproperty("ngIf", row_r83.VisitImportLogs[0] == null ? null : row_r83.VisitImportLogs[0].IsSuccess);
+    i0.ɵɵadvance(5);
+    i0.ɵɵproperty("ngIf", !(row_r83.PatientImportLogs[0] == null ? null : row_r83.PatientImportLogs[0].IsSuccess));
+    i0.ɵɵadvance(1);
+    i0.ɵɵproperty("ngIf", row_r83.PatientImportLogs[0] == null ? null : row_r83.PatientImportLogs[0].IsSuccess);
 } }
 var ImportRecordComponent = /** @class */ (function () {
-    function ImportRecordComponent(apiService) {
+    function ImportRecordComponent(apiService, matDialog) {
         var _this = this;
         this.apiService = apiService;
+        this.matDialog = matDialog;
         this.page = { CurrentPage: 0 };
         this.rows = new Array();
         this.rowsQueueOrDone = new Array();
@@ -303,6 +448,8 @@ var ImportRecordComponent = /** @class */ (function () {
         this.clinics = [];
         this.finClasses = [];
         this.generatingAndDownLoadCSV = false;
+        this.unqueuing = false;
+        this.reruning = false;
         this.currentTabIndex = 0;
         this.apiService.getClinics().subscribe(function (r) {
             _this.clinics = r;
@@ -417,8 +564,40 @@ var ImportRecordComponent = /** @class */ (function () {
         a.click();
         window.URL.revokeObjectURL(url);
     };
-    ImportRecordComponent.ɵfac = function ImportRecordComponent_Factory(t) { return new (t || ImportRecordComponent)(i0.ɵɵdirectiveInject(i1.ApiService)); };
-    ImportRecordComponent.ɵcmp = i0.ɵɵdefineComponent({ type: ImportRecordComponent, selectors: [["app-import-record"]], decls: 144, vars: 80, consts: [["animationDuration", "0ms", 3, "selectedTabChange"], ["label", "Processed In"], [2, "background", "white", "margin", "10px"], ["matInput", "", 3, "matDatepicker", "ngModel", "ngModelChange", "dateChange"], ["matSuffix", "", 3, "for"], ["picker", ""], ["pickerEnd", ""], ["multiple", "", 3, "ngModel", "ngModelChange", "selectionChange"], [3, "value", 4, "ngFor", "ngForOf"], ["matInput", "", 3, "ngModel", "ngModelChange"], ["mat-raised-button", "", 3, "click"], [2, "padding", "5px"], ["mat-raised-button", "", 3, "click", 4, "ngIf"], ["class", "warning text-warning", 4, "ngIf"], ["rowHeight", "auto", 1, "material", 3, "rows", "headerHeight", "footerHeight", "externalPaging", "count", "offset", "limit", "loadingIndicator", "page"], ["name", "TimeIn", 3, "width"], ["ngx-datatable-cell-template", ""], ["name", "ClinicId", 3, "width"], ["name", "FinClass", 3, "width"], ["name", "OfficeKey", 3, "width"], ["name", "Pat-Name", 3, "width"], ["label", "Queued"], ["picker1", ""], ["pickerEnd1", ""], ["mat-button", "", 3, "click"], ["name", "Queued Date", 3, "width"], ["label", "Processed Out"], ["picker2", ""], ["pickerEnd2", ""], ["name", "Imported Date", 3, "width"], [3, "value"], [1, "warning", "text-warning"]], template: function ImportRecordComponent_Template(rf, ctx) { if (rf & 1) {
+    ImportRecordComponent.prototype.getSelected = function () {
+        return _.filter(this.rowsQueueOrDone, { checked: true });
+    };
+    ImportRecordComponent.prototype.unqueue = function () {
+        var _this = this;
+        var ids = _.map(this.getSelected(), function (r) {
+            return r.VisitId;
+        });
+        this.unqueuing = true;
+        this.apiService.unqueue(ids).subscribe(function (r) {
+            _this.unqueuing = false;
+            _this.getVisitsByStatus(1, "QUEUED");
+        });
+    };
+    ImportRecordComponent.prototype.rerunImport = function () {
+        var _this = this;
+        var ids = _.map(this.getSelected(), function (r) {
+            return r.VisitId;
+        });
+        this.reruning = true;
+        this.apiService.rerunImport(ids).subscribe(function (r) {
+            _this.reruning = false;
+            _this.getVisitsByStatus(1, "QUEUED");
+        });
+    };
+    ImportRecordComponent.prototype.viewLogs = function (logs) {
+        this.matDialog.open(import_logs_component_1.ImportLogsComponent, {
+            data: {
+                logs: logs
+            }
+        });
+    };
+    ImportRecordComponent.ɵfac = function ImportRecordComponent_Factory(t) { return new (t || ImportRecordComponent)(i0.ɵɵdirectiveInject(i1.ApiService), i0.ɵɵdirectiveInject(i2.MatDialog)); };
+    ImportRecordComponent.ɵcmp = i0.ɵɵdefineComponent({ type: ImportRecordComponent, selectors: [["app-import-record"]], decls: 152, vars: 85, consts: [["animationDuration", "0ms", 3, "selectedTabChange"], ["label", "Processed In"], [2, "background", "white", "margin", "10px"], ["matInput", "", 3, "matDatepicker", "ngModel", "ngModelChange", "dateChange"], ["matSuffix", "", 3, "for"], ["picker", ""], ["pickerEnd", ""], ["multiple", "", 3, "ngModel", "ngModelChange", "selectionChange"], [3, "value", 4, "ngFor", "ngForOf"], ["matInput", "", 3, "ngModel", "ngModelChange"], ["mat-raised-button", "", 3, "click"], [2, "padding", "5px"], ["mat-raised-button", "", 3, "click", 4, "ngIf"], ["class", "warning text-warning", 4, "ngIf"], ["rowHeight", "auto", 1, "material", 3, "rows", "headerHeight", "footerHeight", "externalPaging", "count", "offset", "limit", "loadingIndicator", "page"], ["name", "TimeIn", 3, "width"], ["ngx-datatable-cell-template", ""], ["name", "ClinicId", 3, "width"], ["name", "FinClass", 3, "width"], ["name", "OfficeKey", 3, "width"], ["name", "Pat-Name", 3, "width"], ["label", "Queued"], ["picker1", ""], ["pickerEnd1", ""], ["mat-button", "", 3, "click"], ["name", "Queued Date", 3, "width"], ["name", "Import Status", 3, "width"], ["label", "Processed Out"], ["picker2", ""], ["pickerEnd2", ""], ["name", "Imported Date", 3, "width"], [3, "value"], [1, "warning", "text-warning"], [3, "ngModel", "ngModelChange"], [3, "matTooltip", 4, "ngIf"], [4, "ngIf"], ["href", "javascript:void()", 3, "click"], [3, "matTooltip"]], template: function ImportRecordComponent_Template(rf, ctx) { if (rf & 1) {
             i0.ɵɵelementStart(0, "mat-tab-group", 0);
             i0.ɵɵlistener("selectedTabChange", function ImportRecordComponent_Template_mat_tab_group_selectedTabChange_0_listener($event) { return ctx.tabChanged($event); });
             i0.ɵɵelementStart(1, "mat-tab", 1);
@@ -556,104 +735,115 @@ var ImportRecordComponent = /** @class */ (function () {
             i0.ɵɵtemplate(81, ImportRecordComponent_button_81_Template, 4, 0, "button", 12);
             i0.ɵɵtemplate(82, ImportRecordComponent_span_82_Template, 2, 0, "span", 13);
             i0.ɵɵelementEnd();
-            i0.ɵɵelementStart(83, "ngx-datatable", 14);
-            i0.ɵɵlistener("page", function ImportRecordComponent_Template_ngx_datatable_page_83_listener($event) { return ctx.setPage($event); });
-            i0.ɵɵelementStart(84, "ngx-datatable-column", 15);
-            i0.ɵɵtemplate(85, ImportRecordComponent_ng_template_85_Template, 3, 4, "ng-template", 16);
+            i0.ɵɵelementStart(83, "div");
+            i0.ɵɵtemplate(84, ImportRecordComponent_button_84_Template, 4, 0, "button", 12);
+            i0.ɵɵtemplate(85, ImportRecordComponent_span_85_Template, 2, 0, "span", 13);
             i0.ɵɵelementEnd();
-            i0.ɵɵelementStart(86, "ngx-datatable-column", 17);
-            i0.ɵɵtemplate(87, ImportRecordComponent_ng_template_87_Template, 1, 1, "ng-template", 16);
+            i0.ɵɵelementStart(86, "div");
+            i0.ɵɵtemplate(87, ImportRecordComponent_button_87_Template, 4, 0, "button", 12);
+            i0.ɵɵtemplate(88, ImportRecordComponent_span_88_Template, 2, 0, "span", 13);
             i0.ɵɵelementEnd();
-            i0.ɵɵelementStart(88, "ngx-datatable-column", 18);
-            i0.ɵɵtemplate(89, ImportRecordComponent_ng_template_89_Template, 1, 1, "ng-template", 16);
+            i0.ɵɵelementStart(89, "ngx-datatable", 14);
+            i0.ɵɵlistener("page", function ImportRecordComponent_Template_ngx_datatable_page_89_listener($event) { return ctx.setPage($event); });
+            i0.ɵɵelementStart(90, "ngx-datatable-column", 15);
+            i0.ɵɵtemplate(91, ImportRecordComponent_ng_template_91_Template, 3, 5, "ng-template", 16);
             i0.ɵɵelementEnd();
-            i0.ɵɵelementStart(90, "ngx-datatable-column", 19);
-            i0.ɵɵtemplate(91, ImportRecordComponent_ng_template_91_Template, 1, 1, "ng-template", 16);
+            i0.ɵɵelementStart(92, "ngx-datatable-column", 17);
+            i0.ɵɵtemplate(93, ImportRecordComponent_ng_template_93_Template, 1, 1, "ng-template", 16);
             i0.ɵɵelementEnd();
-            i0.ɵɵelementStart(92, "ngx-datatable-column", 20);
-            i0.ɵɵtemplate(93, ImportRecordComponent_ng_template_93_Template, 1, 2, "ng-template", 16);
-            i0.ɵɵelementEnd();
-            i0.ɵɵelementStart(94, "ngx-datatable-column", 25);
+            i0.ɵɵelementStart(94, "ngx-datatable-column", 18);
             i0.ɵɵtemplate(95, ImportRecordComponent_ng_template_95_Template, 1, 1, "ng-template", 16);
             i0.ɵɵelementEnd();
+            i0.ɵɵelementStart(96, "ngx-datatable-column", 19);
+            i0.ɵɵtemplate(97, ImportRecordComponent_ng_template_97_Template, 1, 1, "ng-template", 16);
+            i0.ɵɵelementEnd();
+            i0.ɵɵelementStart(98, "ngx-datatable-column", 20);
+            i0.ɵɵtemplate(99, ImportRecordComponent_ng_template_99_Template, 1, 2, "ng-template", 16);
+            i0.ɵɵelementEnd();
+            i0.ɵɵelementStart(100, "ngx-datatable-column", 25);
+            i0.ɵɵtemplate(101, ImportRecordComponent_ng_template_101_Template, 1, 1, "ng-template", 16);
+            i0.ɵɵelementEnd();
+            i0.ɵɵelementStart(102, "ngx-datatable-column", 26);
+            i0.ɵɵtemplate(103, ImportRecordComponent_ng_template_103_Template, 12, 4, "ng-template", 16);
             i0.ɵɵelementEnd();
             i0.ɵɵelementEnd();
-            i0.ɵɵelementStart(96, "mat-tab", 26);
-            i0.ɵɵelementStart(97, "div", 2);
-            i0.ɵɵelementStart(98, "mat-form-field");
-            i0.ɵɵelementStart(99, "mat-label");
-            i0.ɵɵtext(100, "Visit Start Date");
             i0.ɵɵelementEnd();
-            i0.ɵɵelementStart(101, "input", 3);
-            i0.ɵɵlistener("ngModelChange", function ImportRecordComponent_Template_input_ngModelChange_101_listener($event) { return ctx.filter.visitStartDate = $event; })("dateChange", function ImportRecordComponent_Template_input_dateChange_101_listener() { return ctx.setPage({ offset: 0 }); });
+            i0.ɵɵelementStart(104, "mat-tab", 27);
+            i0.ɵɵelementStart(105, "div", 2);
+            i0.ɵɵelementStart(106, "mat-form-field");
+            i0.ɵɵelementStart(107, "mat-label");
+            i0.ɵɵtext(108, "Visit Start Date");
             i0.ɵɵelementEnd();
-            i0.ɵɵelement(102, "mat-datepicker-toggle", 4);
-            i0.ɵɵelement(103, "mat-datepicker", null, 27);
+            i0.ɵɵelementStart(109, "input", 3);
+            i0.ɵɵlistener("ngModelChange", function ImportRecordComponent_Template_input_ngModelChange_109_listener($event) { return ctx.filter.visitStartDate = $event; })("dateChange", function ImportRecordComponent_Template_input_dateChange_109_listener() { return ctx.setPage({ offset: 0 }); });
             i0.ɵɵelementEnd();
-            i0.ɵɵelementStart(105, "mat-form-field");
-            i0.ɵɵelementStart(106, "mat-label");
-            i0.ɵɵtext(107, "Visit End Date");
+            i0.ɵɵelement(110, "mat-datepicker-toggle", 4);
+            i0.ɵɵelement(111, "mat-datepicker", null, 28);
             i0.ɵɵelementEnd();
-            i0.ɵɵelementStart(108, "input", 3);
-            i0.ɵɵlistener("ngModelChange", function ImportRecordComponent_Template_input_ngModelChange_108_listener($event) { return ctx.filter.visitEndDate = $event; })("dateChange", function ImportRecordComponent_Template_input_dateChange_108_listener() { return ctx.setPage({ offset: 0 }); });
+            i0.ɵɵelementStart(113, "mat-form-field");
+            i0.ɵɵelementStart(114, "mat-label");
+            i0.ɵɵtext(115, "Visit End Date");
             i0.ɵɵelementEnd();
-            i0.ɵɵelement(109, "mat-datepicker-toggle", 4);
-            i0.ɵɵelement(110, "mat-datepicker", null, 28);
+            i0.ɵɵelementStart(116, "input", 3);
+            i0.ɵɵlistener("ngModelChange", function ImportRecordComponent_Template_input_ngModelChange_116_listener($event) { return ctx.filter.visitEndDate = $event; })("dateChange", function ImportRecordComponent_Template_input_dateChange_116_listener() { return ctx.setPage({ offset: 0 }); });
             i0.ɵɵelementEnd();
-            i0.ɵɵelementStart(112, "mat-form-field");
-            i0.ɵɵelementStart(113, "mat-label");
-            i0.ɵɵtext(114, "Clinics");
+            i0.ɵɵelement(117, "mat-datepicker-toggle", 4);
+            i0.ɵɵelement(118, "mat-datepicker", null, 29);
             i0.ɵɵelementEnd();
-            i0.ɵɵelementStart(115, "mat-select", 7);
-            i0.ɵɵlistener("ngModelChange", function ImportRecordComponent_Template_mat_select_ngModelChange_115_listener($event) { return ctx.filter.clinicIds = $event; })("selectionChange", function ImportRecordComponent_Template_mat_select_selectionChange_115_listener() { return ctx.setPage({ offset: 0 }); });
-            i0.ɵɵtemplate(116, ImportRecordComponent_mat_option_116_Template, 2, 2, "mat-option", 8);
+            i0.ɵɵelementStart(120, "mat-form-field");
+            i0.ɵɵelementStart(121, "mat-label");
+            i0.ɵɵtext(122, "Clinics");
             i0.ɵɵelementEnd();
-            i0.ɵɵelementEnd();
-            i0.ɵɵelementStart(117, "mat-form-field");
-            i0.ɵɵelementStart(118, "mat-label");
-            i0.ɵɵtext(119, "FinClasses");
-            i0.ɵɵelementEnd();
-            i0.ɵɵelementStart(120, "mat-select", 7);
-            i0.ɵɵlistener("ngModelChange", function ImportRecordComponent_Template_mat_select_ngModelChange_120_listener($event) { return ctx.filter.finClassIds = $event; })("selectionChange", function ImportRecordComponent_Template_mat_select_selectionChange_120_listener() { return ctx.setPage({ offset: 0 }); });
-            i0.ɵɵtemplate(121, ImportRecordComponent_mat_option_121_Template, 2, 2, "mat-option", 8);
+            i0.ɵɵelementStart(123, "mat-select", 7);
+            i0.ɵɵlistener("ngModelChange", function ImportRecordComponent_Template_mat_select_ngModelChange_123_listener($event) { return ctx.filter.clinicIds = $event; })("selectionChange", function ImportRecordComponent_Template_mat_select_selectionChange_123_listener() { return ctx.setPage({ offset: 0 }); });
+            i0.ɵɵtemplate(124, ImportRecordComponent_mat_option_124_Template, 2, 2, "mat-option", 8);
             i0.ɵɵelementEnd();
             i0.ɵɵelementEnd();
-            i0.ɵɵelementStart(122, "mat-form-field");
-            i0.ɵɵelementStart(123, "mat-label");
-            i0.ɵɵtext(124, "First,Last Name, Address1 or City");
+            i0.ɵɵelementStart(125, "mat-form-field");
+            i0.ɵɵelementStart(126, "mat-label");
+            i0.ɵɵtext(127, "FinClasses");
             i0.ɵɵelementEnd();
-            i0.ɵɵelementStart(125, "input", 9);
-            i0.ɵɵlistener("ngModelChange", function ImportRecordComponent_Template_input_ngModelChange_125_listener($event) { return ctx.filter.patSearch = $event; });
-            i0.ɵɵelementEnd();
-            i0.ɵɵelementEnd();
-            i0.ɵɵelementStart(126, "button", 24);
-            i0.ɵɵlistener("click", function ImportRecordComponent_Template_button_click_126_listener() { return ctx.setPage({ offset: 0 }); });
-            i0.ɵɵtext(127, "Search");
+            i0.ɵɵelementStart(128, "mat-select", 7);
+            i0.ɵɵlistener("ngModelChange", function ImportRecordComponent_Template_mat_select_ngModelChange_128_listener($event) { return ctx.filter.finClassIds = $event; })("selectionChange", function ImportRecordComponent_Template_mat_select_selectionChange_128_listener() { return ctx.setPage({ offset: 0 }); });
+            i0.ɵɵtemplate(129, ImportRecordComponent_mat_option_129_Template, 2, 2, "mat-option", 8);
             i0.ɵɵelementEnd();
             i0.ɵɵelementEnd();
-            i0.ɵɵelementStart(128, "div", 11);
-            i0.ɵɵtemplate(129, ImportRecordComponent_button_129_Template, 4, 0, "button", 12);
-            i0.ɵɵtemplate(130, ImportRecordComponent_span_130_Template, 2, 0, "span", 13);
+            i0.ɵɵelementStart(130, "mat-form-field");
+            i0.ɵɵelementStart(131, "mat-label");
+            i0.ɵɵtext(132, "First,Last Name, Address1 or City");
             i0.ɵɵelementEnd();
-            i0.ɵɵelementStart(131, "ngx-datatable", 14);
-            i0.ɵɵlistener("page", function ImportRecordComponent_Template_ngx_datatable_page_131_listener($event) { return ctx.setPage($event); });
-            i0.ɵɵelementStart(132, "ngx-datatable-column", 15);
-            i0.ɵɵtemplate(133, ImportRecordComponent_ng_template_133_Template, 2, 4, "ng-template", 16);
+            i0.ɵɵelementStart(133, "input", 9);
+            i0.ɵɵlistener("ngModelChange", function ImportRecordComponent_Template_input_ngModelChange_133_listener($event) { return ctx.filter.patSearch = $event; });
             i0.ɵɵelementEnd();
-            i0.ɵɵelementStart(134, "ngx-datatable-column", 17);
-            i0.ɵɵtemplate(135, ImportRecordComponent_ng_template_135_Template, 1, 1, "ng-template", 16);
             i0.ɵɵelementEnd();
-            i0.ɵɵelementStart(136, "ngx-datatable-column", 18);
-            i0.ɵɵtemplate(137, ImportRecordComponent_ng_template_137_Template, 1, 1, "ng-template", 16);
+            i0.ɵɵelementStart(134, "button", 24);
+            i0.ɵɵlistener("click", function ImportRecordComponent_Template_button_click_134_listener() { return ctx.setPage({ offset: 0 }); });
+            i0.ɵɵtext(135, "Search");
             i0.ɵɵelementEnd();
-            i0.ɵɵelementStart(138, "ngx-datatable-column", 19);
-            i0.ɵɵtemplate(139, ImportRecordComponent_ng_template_139_Template, 1, 1, "ng-template", 16);
             i0.ɵɵelementEnd();
-            i0.ɵɵelementStart(140, "ngx-datatable-column", 20);
-            i0.ɵɵtemplate(141, ImportRecordComponent_ng_template_141_Template, 1, 2, "ng-template", 16);
+            i0.ɵɵelementStart(136, "div", 11);
+            i0.ɵɵtemplate(137, ImportRecordComponent_button_137_Template, 4, 0, "button", 12);
+            i0.ɵɵtemplate(138, ImportRecordComponent_span_138_Template, 2, 0, "span", 13);
             i0.ɵɵelementEnd();
-            i0.ɵɵelementStart(142, "ngx-datatable-column", 29);
+            i0.ɵɵelementStart(139, "ngx-datatable", 14);
+            i0.ɵɵlistener("page", function ImportRecordComponent_Template_ngx_datatable_page_139_listener($event) { return ctx.setPage($event); });
+            i0.ɵɵelementStart(140, "ngx-datatable-column", 15);
+            i0.ɵɵtemplate(141, ImportRecordComponent_ng_template_141_Template, 2, 4, "ng-template", 16);
+            i0.ɵɵelementEnd();
+            i0.ɵɵelementStart(142, "ngx-datatable-column", 17);
             i0.ɵɵtemplate(143, ImportRecordComponent_ng_template_143_Template, 1, 1, "ng-template", 16);
+            i0.ɵɵelementEnd();
+            i0.ɵɵelementStart(144, "ngx-datatable-column", 18);
+            i0.ɵɵtemplate(145, ImportRecordComponent_ng_template_145_Template, 1, 1, "ng-template", 16);
+            i0.ɵɵelementEnd();
+            i0.ɵɵelementStart(146, "ngx-datatable-column", 19);
+            i0.ɵɵtemplate(147, ImportRecordComponent_ng_template_147_Template, 1, 1, "ng-template", 16);
+            i0.ɵɵelementEnd();
+            i0.ɵɵelementStart(148, "ngx-datatable-column", 20);
+            i0.ɵɵtemplate(149, ImportRecordComponent_ng_template_149_Template, 1, 2, "ng-template", 16);
+            i0.ɵɵelementEnd();
+            i0.ɵɵelementStart(150, "ngx-datatable-column", 30);
+            i0.ɵɵtemplate(151, ImportRecordComponent_ng_template_151_Template, 14, 5, "ng-template", 16);
             i0.ɵɵelementEnd();
             i0.ɵɵelementEnd();
             i0.ɵɵelementEnd();
@@ -663,8 +853,8 @@ var ImportRecordComponent = /** @class */ (function () {
             var _r1 = i0.ɵɵreference(16);
             var _r11 = i0.ɵɵreference(56);
             var _r12 = i0.ɵɵreference(63);
-            var _r23 = i0.ɵɵreference(104);
-            var _r24 = i0.ɵɵreference(111);
+            var _r28 = i0.ɵɵreference(112);
+            var _r29 = i0.ɵɵreference(119);
             i0.ɵɵadvance(6);
             i0.ɵɵproperty("matDatepicker", _r0)("ngModel", ctx.filter.visitStartDate);
             i0.ɵɵadvance(1);
@@ -721,28 +911,38 @@ var ImportRecordComponent = /** @class */ (function () {
             i0.ɵɵproperty("ngIf", !ctx.generatingAndDownLoadCSV);
             i0.ɵɵadvance(1);
             i0.ɵɵproperty("ngIf", ctx.generatingAndDownLoadCSV);
+            i0.ɵɵadvance(2);
+            i0.ɵɵproperty("ngIf", !ctx.unqueuing && ctx.getSelected().length > 0);
+            i0.ɵɵadvance(1);
+            i0.ɵɵproperty("ngIf", ctx.unqueuing);
+            i0.ɵɵadvance(2);
+            i0.ɵɵproperty("ngIf", !ctx.reruning && ctx.getSelected().length > 0);
+            i0.ɵɵadvance(1);
+            i0.ɵɵproperty("ngIf", ctx.reruning);
             i0.ɵɵadvance(1);
             i0.ɵɵproperty("rows", ctx.rowsQueueOrDone)("headerHeight", 50)("footerHeight", 50)("externalPaging", true)("count", ctx.page.RowCount)("offset", ctx.page.CurrentPage)("limit", ctx.page.PageSize)("loadingIndicator", ctx.loading);
             i0.ɵɵadvance(1);
             i0.ɵɵproperty("width", 300);
             i0.ɵɵadvance(2);
-            i0.ɵɵproperty("width", 300);
+            i0.ɵɵproperty("width", 150);
             i0.ɵɵadvance(2);
-            i0.ɵɵproperty("width", 300);
+            i0.ɵɵproperty("width", 50);
             i0.ɵɵadvance(2);
-            i0.ɵɵproperty("width", 300);
+            i0.ɵɵproperty("width", 150);
             i0.ɵɵadvance(2);
-            i0.ɵɵproperty("width", 300);
+            i0.ɵɵproperty("width", 200);
+            i0.ɵɵadvance(2);
+            i0.ɵɵproperty("width", 200);
             i0.ɵɵadvance(2);
             i0.ɵɵproperty("width", 300);
             i0.ɵɵadvance(7);
-            i0.ɵɵproperty("matDatepicker", _r23)("ngModel", ctx.filter.visitStartDate);
+            i0.ɵɵproperty("matDatepicker", _r28)("ngModel", ctx.filter.visitStartDate);
             i0.ɵɵadvance(1);
-            i0.ɵɵproperty("for", _r23);
+            i0.ɵɵproperty("for", _r28);
             i0.ɵɵadvance(6);
-            i0.ɵɵproperty("matDatepicker", _r24)("ngModel", ctx.filter.visitEndDate);
+            i0.ɵɵproperty("matDatepicker", _r29)("ngModel", ctx.filter.visitEndDate);
             i0.ɵɵadvance(1);
-            i0.ɵɵproperty("for", _r24);
+            i0.ɵɵproperty("for", _r29);
             i0.ɵɵadvance(6);
             i0.ɵɵproperty("ngModel", ctx.filter.clinicIds);
             i0.ɵɵadvance(1);
@@ -771,7 +971,7 @@ var ImportRecordComponent = /** @class */ (function () {
             i0.ɵɵproperty("width", 300);
             i0.ɵɵadvance(2);
             i0.ɵɵproperty("width", 300);
-        } }, directives: [i2.MatTabGroup, i2.MatTab, i3.MatFormField, i3.MatLabel, i4.MatInput, i5.MatDatepickerInput, i6.DefaultValueAccessor, i6.NgControlStatus, i6.NgModel, i5.MatDatepickerToggle, i3.MatSuffix, i5.MatDatepicker, i7.MatSelect, i8.NgForOf, i9.MatButton, i8.NgIf, i10.DatatableComponent, i10.DataTableColumnDirective, i10.DataTableColumnCellDirective, i11.MatOption, i12.MatIcon, i13.MatCheckbox], pipes: [i8.DatePipe], styles: ["mat-form-field[_ngcontent-%COMP%] {\n  padding: 10px;\n}\n/*# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIi4uXFwuLlxcLi5cXGltcG9ydC1yZWNvcmQuY29tcG9uZW50LnNjc3MiXSwibmFtZXMiOltdLCJtYXBwaW5ncyI6IkFBQUE7RUFFSSxhQUFBO0FBQUoiLCJmaWxlIjoiaW1wb3J0LXJlY29yZC5jb21wb25lbnQuc2NzcyIsInNvdXJjZXNDb250ZW50IjpbIm1hdC1mb3JtLWZpZWxke1xyXG5cclxuICAgIHBhZGRpbmc6MTBweFxyXG59Il19 */"] });
+        } }, directives: [i3.MatTabGroup, i3.MatTab, i4.MatFormField, i4.MatLabel, i5.MatInput, i6.MatDatepickerInput, i7.DefaultValueAccessor, i7.NgControlStatus, i7.NgModel, i6.MatDatepickerToggle, i4.MatSuffix, i6.MatDatepicker, i8.MatSelect, i9.NgForOf, i10.MatButton, i9.NgIf, i11.DatatableComponent, i11.DataTableColumnDirective, i11.DataTableColumnCellDirective, i12.MatOption, i13.MatIcon, i14.MatCheckbox, i15.MatTooltip], pipes: [i9.DatePipe], styles: ["mat-form-field[_ngcontent-%COMP%] {\n  padding: 10px;\n}\n/*# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIi4uXFwuLlxcLi5cXGltcG9ydC1yZWNvcmQuY29tcG9uZW50LnNjc3MiXSwibmFtZXMiOltdLCJtYXBwaW5ncyI6IkFBQUE7RUFFSSxhQUFBO0FBQUoiLCJmaWxlIjoiaW1wb3J0LXJlY29yZC5jb21wb25lbnQuc2NzcyIsInNvdXJjZXNDb250ZW50IjpbIm1hdC1mb3JtLWZpZWxke1xyXG5cclxuICAgIHBhZGRpbmc6MTBweFxyXG59Il19 */"] });
     return ImportRecordComponent;
 }());
 exports.ImportRecordComponent = ImportRecordComponent;
@@ -1137,6 +1337,9 @@ var tabs_1 = __webpack_require__(/*! @angular/material/tabs */ "wZkO");
 var button_1 = __webpack_require__(/*! @angular/material/button */ "bTqV");
 var icon_1 = __webpack_require__(/*! @angular/material/icon */ "NFeN");
 var checkbox_1 = __webpack_require__(/*! @angular/material/checkbox */ "bSwM");
+var tooltip_1 = __webpack_require__(/*! @angular/material/tooltip */ "Qu3c");
+var dialog_1 = __webpack_require__(/*! @angular/material/dialog */ "0IaG");
+var import_logs_component_1 = __webpack_require__(/*! ../components/import-logs/import-logs.component */ "b5bQ");
 var i0 = __webpack_require__(/*! @angular/core */ "fXoL");
 var AppModule = /** @class */ (function () {
     function AppModule() {
@@ -1151,20 +1354,69 @@ var AppModule = /** @class */ (function () {
                 ngx_datatable_1.NgxDatatableModule,
                 animations_1.NoopAnimationsModule,
                 select_1.MatSelectModule, form_field_1.MatFormFieldModule, input_1.MatInputModule, datepicker_1.MatDatepickerModule, core_1.MatNativeDateModule, tabs_1.MatTabsModule, button_1.MatButtonModule, icon_1.MatIconModule,
-                checkbox_1.MatCheckboxModule
+                checkbox_1.MatCheckboxModule, tooltip_1.MatTooltipModule, dialog_1.MatDialogModule
             ]] });
     return AppModule;
 }());
 exports.AppModule = AppModule;
 (function () { (typeof ngJitMode === "undefined" || ngJitMode) && i0.ɵɵsetNgModuleScope(AppModule, { declarations: [app_component_1.AppComponent,
-        import_record_component_1.ImportRecordComponent], imports: [platform_browser_1.BrowserModule,
+        import_record_component_1.ImportRecordComponent,
+        import_logs_component_1.ImportLogsComponent], imports: [platform_browser_1.BrowserModule,
         http_1.HttpClientModule,
         forms_1.FormsModule,
         app_routing_module_1.AppRoutingModule,
         ngx_datatable_1.NgxDatatableModule,
         animations_1.NoopAnimationsModule,
         select_1.MatSelectModule, form_field_1.MatFormFieldModule, input_1.MatInputModule, datepicker_1.MatDatepickerModule, core_1.MatNativeDateModule, tabs_1.MatTabsModule, button_1.MatButtonModule, icon_1.MatIconModule,
-        checkbox_1.MatCheckboxModule] }); })();
+        checkbox_1.MatCheckboxModule, tooltip_1.MatTooltipModule, dialog_1.MatDialogModule] }); })();
+
+
+/***/ }),
+
+/***/ "b5bQ":
+/*!*************************************************************!*\
+  !*** ./src/components/import-logs/import-logs.component.ts ***!
+  \*************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.ImportLogsComponent = void 0;
+var dialog_1 = __webpack_require__(/*! @angular/material/dialog */ "0IaG");
+var i0 = __webpack_require__(/*! @angular/core */ "fXoL");
+var i1 = __webpack_require__(/*! @angular/common */ "ofXK");
+function ImportLogsComponent_li_1_Template(rf, ctx) { if (rf & 1) {
+    i0.ɵɵelementStart(0, "li");
+    i0.ɵɵtext(1);
+    i0.ɵɵelementEnd();
+} if (rf & 2) {
+    var log_r1 = ctx.$implicit;
+    i0.ɵɵadvance(1);
+    i0.ɵɵtextInterpolate2(" ", log_r1.IsSuccess, " ", log_r1.ResponseRaw, " ");
+} }
+var ImportLogsComponent = /** @class */ (function () {
+    function ImportLogsComponent(data) {
+        this.data = data;
+        this.logs = [];
+        console.log(data);
+        this.logs = data.logs;
+    }
+    ImportLogsComponent.prototype.ngOnInit = function () {
+    };
+    ImportLogsComponent.ɵfac = function ImportLogsComponent_Factory(t) { return new (t || ImportLogsComponent)(i0.ɵɵdirectiveInject(dialog_1.MAT_DIALOG_DATA)); };
+    ImportLogsComponent.ɵcmp = i0.ɵɵdefineComponent({ type: ImportLogsComponent, selectors: [["app-import-logs"]], decls: 2, vars: 1, consts: [[4, "ngFor", "ngForOf"]], template: function ImportLogsComponent_Template(rf, ctx) { if (rf & 1) {
+            i0.ɵɵelementStart(0, "ul");
+            i0.ɵɵtemplate(1, ImportLogsComponent_li_1_Template, 2, 2, "li", 0);
+            i0.ɵɵelementEnd();
+        } if (rf & 2) {
+            i0.ɵɵadvance(1);
+            i0.ɵɵproperty("ngForOf", ctx.logs);
+        } }, directives: [i1.NgForOf], encapsulation: 2 });
+    return ImportLogsComponent;
+}());
+exports.ImportLogsComponent = ImportLogsComponent;
 
 
 /***/ }),
@@ -1198,6 +1450,12 @@ var ApiService = /** @class */ (function () {
     };
     ApiService.prototype.getVisitsByStatus = function (page, status, filter) {
         return this.http.post("/Record/GetVisitsByStatus?status=" + status + "&page=" + page + "&pageSize=20", filter);
+    };
+    ApiService.prototype.unqueue = function (visitIds) {
+        return this.http.post("/Record/Unqueue", visitIds);
+    };
+    ApiService.prototype.rerunImport = function (visitIds) {
+        return this.http.post("/Record/RerunImport", visitIds);
     };
     ApiService.prototype.getVisitsByStatus4Report = function (status, filter) {
         return this.http.post("/Record/GetVisitsByStatus4Report?status=" + status, filter, {

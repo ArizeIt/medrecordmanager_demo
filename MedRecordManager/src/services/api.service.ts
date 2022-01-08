@@ -28,6 +28,14 @@ export class ApiService {
         return this.http.post(`/Record/GetVisitsByStatus?status=${status}&page=${page}&pageSize=20`, filter);
     }
 
+    unqueue(visitIds) {
+        return this.http.post(`/Record/Unqueue`, visitIds);
+    }
+
+    rerunImport(visitIds) {
+        return this.http.post(`/Record/RerunImport`, visitIds);
+    }
+
     getVisitsByStatus4Report( status, filter): Observable<any> {
         return this.http.post(`/Record/GetVisitsByStatus4Report?status=${status}`, filter, {
             responseType: "blob",

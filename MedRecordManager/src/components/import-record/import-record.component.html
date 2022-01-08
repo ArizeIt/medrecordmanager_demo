@@ -126,6 +126,16 @@
             <button mat-raised-button *ngIf="!generatingAndDownLoadCSV" (click)="downloadCSV(1)"><mat-icon>arrow_circle_down</mat-icon>Download csv</button>
             <span class="warning text-warning" *ngIf="generatingAndDownLoadCSV">generating and downloading your csv..</span>
         </div>
+        <div>
+            <button mat-raised-button *ngIf="!unqueuing && getSelected().length > 0" (click)="unqueue()"><mat-icon>warning</mat-icon>Unqueue selected</button>
+            <span class="warning text-warning" *ngIf="unqueuing">unqueuing..</span>
+        </div>
+
+        <div>
+            <button mat-raised-button *ngIf="!reruning && getSelected().length > 0" (click)="rerunImport()"><mat-icon>warning</mat-icon>Rerun import selected</button>
+            <span class="warning text-warning" *ngIf="reruning">reruning..</span>
+        </div>
+
         <ngx-datatable class="material"
                        [rows]="rowsQueueOrDone"
                        [headerHeight]="50"
@@ -140,33 +150,47 @@
 
             <ngx-datatable-column name="TimeIn" [width]="300">
                 <ng-template let-row="row" ngx-datatable-cell-template>
-                    <mat-checkbox></mat-checkbox>
+                    <mat-checkbox [(ngModel)]="row.checked"></mat-checkbox>
                     {{ row.TimeIn | date : 'MMM dd yyyy, HH:mm' }}
                 </ng-template>
             </ngx-datatable-column>
-            <ngx-datatable-column name="ClinicId" [width]="300">
+            <ngx-datatable-column name="ClinicId" [width]="150">
                 <ng-template let-row="row" ngx-datatable-cell-template>
                     {{ row.ClinicId }}
                 </ng-template>
             </ngx-datatable-column>
-            <ngx-datatable-column name="FinClass" [width]="300">
+            <ngx-datatable-column name="FinClass" [width]="50">
                 <ng-template let-row="row" ngx-datatable-cell-template>
                     {{ row.FinClass }}
                 </ng-template>
             </ngx-datatable-column>
-            <ngx-datatable-column name="OfficeKey" [width]="300">
+            <ngx-datatable-column name="OfficeKey" [width]="150">
                 <ng-template let-row="row" ngx-datatable-cell-template>
                     {{ row.OfficeKey }}
                 </ng-template>
             </ngx-datatable-column>
-            <ngx-datatable-column name="Pat-Name" [width]="300">
+            <ngx-datatable-column name="Pat-Name" [width]="200">
                 <ng-template let-row="row" ngx-datatable-cell-template>
                     {{ row.PatientInformation.FirstName }}  {{ row.PatientInformation.LastName }}
                 </ng-template>
             </ngx-datatable-column>
-            <ngx-datatable-column name="Queued Date" [width]="300">
+            <ngx-datatable-column name="Queued Date" [width]="200">
                 <ng-template let-row="row" ngx-datatable-cell-template>
                     {{ row.ImportStatusDate }}
+                </ng-template>
+            </ngx-datatable-column>
+            <ngx-datatable-column name="Import Status" [width]="300">
+                <ng-template let-row="row" ngx-datatable-cell-template>
+                    <mat-icon *ngIf="!row.VisitImportLogs[0]?.IsSuccess" matTooltip="{{row.VisitImportLogs[0]?.ResponseRaw}}">warning</mat-icon>
+                    <mat-icon *ngIf="row.VisitImportLogs[0]?.IsSuccess">check</mat-icon>
+                    <a href="javascript:void()" (click)="viewLogs(row.VisitImportLogs)">View detail</a>
+                    Visit-Import <br />
+                    <mat-icon *ngIf="!row.PatientImportLogs[0]?.IsSuccess" matTooltip="{{row.PatientImportLogs[0]?.ResponseRaw}}">warning</mat-icon>
+                    <mat-icon *ngIf="row.PatientImportLogs[0]?.IsSuccess">check</mat-icon>
+                    <a href="javascript:void()" (click)="viewLogs(row.PatientImportLogs)">View detail</a>
+                    Patient-Import <br />
+                    <!--<mat-icon>check</mat-icon> Visit-Import <br />
+                <mat-icon>check</mat-icon> Visit-Import <br />-->
                 </ng-template>
             </ngx-datatable-column>
         </ngx-datatable>
@@ -251,7 +275,15 @@
             </ngx-datatable-column>
             <ngx-datatable-column name="Imported Date" [width]="300">
                 <ng-template let-row="row" ngx-datatable-cell-template>
-                    {{ row.ImportStatusDate }}
+                    {{ row.ImportStatusDate }} <br />
+                    <mat-icon *ngIf="!row.VisitImportLogs[0]?.IsSuccess" matTooltip="{{row.VisitImportLogs[0]?.ResponseRaw}}">warning</mat-icon>
+                    <mat-icon *ngIf="row.VisitImportLogs[0]?.IsSuccess">check</mat-icon>
+                    <a href="javascript:void()" (click)="viewLogs(row.VisitImportLogs)">View detail</a>
+                    Visit-Import <br />
+                    <mat-icon *ngIf="!row.PatientImportLogs[0]?.IsSuccess" matTooltip="{{row.PatientImportLogs[0]?.ResponseRaw}}">warning</mat-icon>
+                    <mat-icon *ngIf="row.PatientImportLogs[0]?.IsSuccess">check</mat-icon>
+                    <a href="javascript:void()" (click)="viewLogs(row.PatientImportLogs)">View detail</a>
+                    Patient-Import <br />
                 </ng-template>
             </ngx-datatable-column>
         </ngx-datatable>

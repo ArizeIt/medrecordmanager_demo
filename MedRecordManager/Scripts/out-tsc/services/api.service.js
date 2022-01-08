@@ -28,6 +28,12 @@ var ApiService = /** @class */ (function () {
     ApiService.prototype.getVisitsByStatus = function (page, status, filter) {
         return this.http.post("/Record/GetVisitsByStatus?status=" + status + "&page=" + page + "&pageSize=20", filter);
     };
+    ApiService.prototype.unqueue = function (visitIds) {
+        return this.http.post("/Record/Unqueue", visitIds);
+    };
+    ApiService.prototype.rerunImport = function (visitIds) {
+        return this.http.post("/Record/RerunImport", visitIds);
+    };
     ApiService.prototype.getVisitsByStatus4Report = function (status, filter) {
         return this.http.post("/Record/GetVisitsByStatus4Report?status=" + status, filter, {
             responseType: "blob",

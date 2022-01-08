@@ -13,10 +13,14 @@ exports.ImportRecordComponent = void 0;
 var core_1 = require("@angular/core");
 var api_service_1 = require("../../services/api.service");
 var moment = require("moment");
+var _ = require("lodash");
+var dialog_1 = require("@angular/material/dialog");
+var import_logs_component_1 = require("../import-logs/import-logs.component");
 var ImportRecordComponent = /** @class */ (function () {
-    function ImportRecordComponent(apiService) {
+    function ImportRecordComponent(apiService, matDialog) {
         var _this = this;
         this.apiService = apiService;
+        this.matDialog = matDialog;
         this.page = { CurrentPage: 0 };
         this.rows = new Array();
         this.rowsQueueOrDone = new Array();
@@ -31,6 +35,8 @@ var ImportRecordComponent = /** @class */ (function () {
         this.clinics = [];
         this.finClasses = [];
         this.generatingAndDownLoadCSV = false;
+        this.unqueuing = false;
+        this.reruning = false;
         this.currentTabIndex = 0;
         this.apiService.getClinics().subscribe(function (r) {
             _this.clinics = r;
@@ -145,13 +151,45 @@ var ImportRecordComponent = /** @class */ (function () {
         a.click();
         window.URL.revokeObjectURL(url);
     };
+    ImportRecordComponent.prototype.getSelected = function () {
+        return _.filter(this.rowsQueueOrDone, { checked: true });
+    };
+    ImportRecordComponent.prototype.unqueue = function () {
+        var _this = this;
+        var ids = _.map(this.getSelected(), function (r) {
+            return r.VisitId;
+        });
+        this.unqueuing = true;
+        this.apiService.unqueue(ids).subscribe(function (r) {
+            _this.unqueuing = false;
+            _this.getVisitsByStatus(1, "QUEUED");
+        });
+    };
+    ImportRecordComponent.prototype.rerunImport = function () {
+        var _this = this;
+        var ids = _.map(this.getSelected(), function (r) {
+            return r.VisitId;
+        });
+        this.reruning = true;
+        this.apiService.rerunImport(ids).subscribe(function (r) {
+            _this.reruning = false;
+            _this.getVisitsByStatus(1, "QUEUED");
+        });
+    };
+    ImportRecordComponent.prototype.viewLogs = function (logs) {
+        this.matDialog.open(import_logs_component_1.ImportLogsComponent, {
+            data: {
+                logs: logs
+            }
+        });
+    };
     ImportRecordComponent = __decorate([
         core_1.Component({
             selector: 'app-import-record',
             templateUrl: './import-record.component.html',
             styleUrls: ['./import-record.component.scss']
         }),
-        __metadata("design:paramtypes", [api_service_1.ApiService])
+        __metadata("design:paramtypes", [api_service_1.ApiService, dialog_1.MatDialog])
     ], ImportRecordComponent);
     return ImportRecordComponent;
 }());

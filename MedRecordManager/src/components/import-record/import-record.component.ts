@@ -1,6 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { ApiService } from '../../services/api.service';
 import * as moment from 'moment';
+import * as _ from 'lodash';
+import { MatDialog } from '@angular/material/dialog';
+import { ImportLogsComponent } from '../import-logs/import-logs.component';
 
 @Component({
     selector: 'app-import-record',
@@ -24,9 +27,11 @@ export class ImportRecordComponent implements OnInit {
     clinics = [];
     finClasses = [];
     generatingAndDownLoadCSV = false;
+    unqueuing = false;
+    reruning = false;
     currentTabIndex = 0;
 
-    constructor(private apiService: ApiService) {
+    constructor(private apiService: ApiService, private matDialog: MatDialog) {
         this.apiService.getClinics().subscribe(r => {
             this.clinics = r;
         });
@@ -154,6 +159,41 @@ export class ImportRecordComponent implements OnInit {
         a.download = fileName + '.csv';
         a.click();
         window.URL.revokeObjectURL(url);
+    }
+
+    getSelected() {
+        return _.filter(this.rowsQueueOrDone, {checked: true})
+    }
+
+    unqueue() {
+        var ids = _.map(this.getSelected(), r => {
+            return r.VisitId
+        })
+        this.unqueuing = true;
+        this.apiService.unqueue(ids).subscribe(r => {
+            this.unqueuing = false;
+            this.getVisitsByStatus(1, "QUEUED");
+        })
+       
+    }
+
+    rerunImport() {
+        var ids = _.map(this.getSelected(), r => {
+            return r.VisitId
+        });
+        this.reruning = true;
+        this.apiService.rerunImport(ids).subscribe(r => {
+            this.reruning = false;
+            this.getVisitsByStatus(1, "QUEUED");
+        })
+    }
+
+    viewLogs(logs) {
+        this.matDialog.open(ImportLogsComponent, {
+            data: {
+                logs: logs
+            }
+        })
     }
 
 }

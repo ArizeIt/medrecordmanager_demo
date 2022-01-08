@@ -1865,6 +1865,32 @@ namespace MedRecordManager.Controllers
         }
 
         [HttpPost]
+        public IActionResult Unqueue([FromBody] List<int> visitIds)
+        {
+            var visits = _urgentCareContext.Visit.Where(a => visitIds.Contains(a.VisitId));
+            foreach(var v in visits)
+            {
+                v.ImportStatus = string.Empty;
+                v.ImportStatusDate = null;
+            }
+            _urgentCareContext.SaveChanges();
+            return Ok(true);
+        }
+
+        [HttpPost]
+        public IActionResult RerunImport([FromBody] List<int> visitIds)
+        {
+            var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
+            var url = environment == EnvironmentName.Development ? "http://localhost:65094/" : _configuration["cmucAPI"];
+            url += $@"cumsapi/Default/RerunImport";
+            RestClient client = new RestClient(url);
+            RestRequest request = new RestRequest(Method.POST);
+            request.AddParameter("application/json", JsonConvert.SerializeObject(visitIds), ParameterType.RequestBody);
+            var res = client.Execute<List<VisitViewModel>>(request);
+            return Ok(res.Content);
+        }
+
+        [HttpPost]
         public IActionResult GetVisitsProcessedIn4Report([FromBody] VisitFilter visitFilter)
         {
             var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");

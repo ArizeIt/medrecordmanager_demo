@@ -16,11 +16,15 @@ import { MatTabsModule } from '@angular/material/tabs';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatDialogModule } from '@angular/material/dialog';
+import { ImportLogsComponent } from '../components/import-logs/import-logs.component';
 
 @NgModule({
   declarations: [
         AppComponent,
-      ImportRecordComponent
+        ImportRecordComponent,
+        ImportLogsComponent
   ],
   imports: [
       BrowserModule,
@@ -30,7 +34,7 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
       NgxDatatableModule,
       NoopAnimationsModule,
       MatSelectModule, MatFormFieldModule, MatInputModule, MatDatepickerModule, MatNativeDateModule, MatTabsModule, MatButtonModule, MatIconModule,
-      MatCheckboxModule
+      MatCheckboxModule, MatTooltipModule, MatDialogModule
   ],
     providers: [MatDatepickerModule],
   bootstrap: [AppComponent]
