@@ -23,7 +23,7 @@ namespace MedRecordManager
         public string GetConnectionString()
         {
             var company = (CompanyProfile)_httpContextAccessor.HttpContext.Items["company"];
-            if(company != null)
+            if (company != null)
             {
                 return company.DbConnection;
             }
@@ -32,7 +32,7 @@ namespace MedRecordManager
 
         public string GetDefaultConnectionString()
         {
-           return BuildConnectionString(_config.GetConnectionString("DefaultConnection"));
+            return BuildConnectionString(_config.GetConnectionString("DefaultConnection"));
         }
 
         public string BuildConnectionString(string connectionString)

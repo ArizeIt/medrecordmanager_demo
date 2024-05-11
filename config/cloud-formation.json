@@ -1,0 +1,176 @@
+{
+  "Description": "AWSDotnetDeployCDKStack",
+  "Metadata": {
+    "aws-dotnet-deploy-settings": "{\"ApplicationIAMRole\":{\"CreateNew\":true,\"RoleArn\":null},\"VPCConnector\":{\"UseVPCConnector\":false,\"CreateNew\":false,\"VpcConnectorId\":null,\"CreateNewVpc\":false,\"VpcId\":null,\"Subnets\":[],\"SecurityGroups\":[]},\"ServiceAccessIAMRole\":{\"CreateNew\":true,\"RoleArn\":null},\"ServiceName\":\"MedRecordManager-service\",\"Port\":80,\"StartCommand\":\"\",\"EncryptionKmsKey\":\"\",\"HealthCheckHealthyThreshold\":3,\"HealthCheckInterval\":5,\"HealthCheckPath\":\"\",\"HealthCheckProtocol\":\"TCP\",\"HealthCheckTimeout\":2,\"HealthCheckUnhealthyThreshold\":3,\"Cpu\":\"1024\",\"Memory\":\"2048\",\"AppRunnerEnvironmentVariables\":{\"ENV\":\"PROD\"}}",
+    "aws-dotnet-deploy-recipe-id": "AspNetAppAppRunner",
+    "aws-dotnet-deploy-recipe-version": "1.0.2",
+    "aws-dotnet-deploy-deployment-bundle-settings": "{\"DockerBuildArgs\":\"\",\"DockerfilePath\":\"Dockerfile\",\"DockerExecutionDirectory\":\"..\",\"ECRRepositoryName\":\"medrecordmanager\"}"
+  },
+  "Resources": {
+    "RecipeServiceAccessRole3815C527": {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "build.apprunner.amazonaws.com"
+              }
+            }
+          ],
+          "Version": "2012-10-17"
+        },
+        "ManagedPolicyArns": [
+          "arn:aws:iam::aws:policy/service-role/AWSAppRunnerServicePolicyForECRAccess"
+        ]
+      },
+      "Metadata": {
+        "aws:cdk:path": "MedRecordManager/Recipe/ServiceAccessRole/Resource"
+      }
+    },
+    "RecipeTaskRoleA3C555E6": {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "tasks.apprunner.amazonaws.com"
+              }
+            }
+          ],
+          "Version": "2012-10-17"
+        }
+      },
+      "Metadata": {
+        "aws:cdk:path": "MedRecordManager/Recipe/TaskRole/Resource"
+      }
+    },
+    "RecipeAppRunnerServiceDA9A12DF": {
+      "Type": "AWS::AppRunner::Service",
+      "Properties": {
+        "HealthCheckConfiguration": {
+          "HealthyThreshold": 3,
+          "Interval": 5,
+          "Protocol": "TCP",
+          "Timeout": 2,
+          "UnhealthyThreshold": 3
+        },
+        "InstanceConfiguration": {
+          "Cpu": "1024",
+          "InstanceRoleArn": {
+            "Fn::GetAtt": [
+              "RecipeTaskRoleA3C555E6",
+              "Arn"
+            ]
+          },
+          "Memory": "2048"
+        },
+        "ServiceName": "MedRecordManager-service",
+        "SourceConfiguration": {
+          "AuthenticationConfiguration": {
+            "AccessRoleArn": {
+              "Fn::GetAtt": [
+                "RecipeServiceAccessRole3815C527",
+                "Arn"
+              ]
+            }
+          },
+          "ImageRepository": {
+            "ImageConfiguration": {
+              "Port": "80",
+              "RuntimeEnvironmentVariables": [
+                {
+                  "Name": "ENV",
+                  "Value": "PROD"
+                }
+              ]
+            },
+            "ImageIdentifier": {
+              "Fn::Join": [
+                "",
+                [
+                  "400768826388.dkr.ecr.us-east-1.",
+                  {
+                    "Ref": "AWS::URLSuffix"
+                  },
+                  "/medrecordmanager:638509971987374511"
+                ]
+              ]
+            },
+            "ImageRepositoryType": "ECR"
+          }
+        }
+      },
+      "Metadata": {
+        "aws:cdk:path": "MedRecordManager/Recipe/AppRunnerService"
+      }
+    },
+    "CDKMetadata": {
+      "Type": "AWS::CDK::Metadata",
+      "Properties": {
+        "Analytics": "v2:deflate64:H4sIAAAAAAAA/y2MUQuCMBRGf0vv29Ul+NZDWa8GM3qNta6w1G3cbUqI/z20OA8HDnzfHkQhIN+pKXD96nhvnjA3UemOqSk8ZqMGmKXrkVWtXb0w1AQSvQsmOvqcVECmvKdkLRJUrW2QRqNxYRKDS6S36TVFn+J28q8LO7tYY8xKyEGUGdSXW+UIj97zO1Iwzh7GAkQmIF/ZvYMxnJKNZkCQP38Bmhmkmr8AAAA="
+      },
+      "Metadata": {
+        "aws:cdk:path": "MedRecordManager/CDKMetadata/Default"
+      }
+    }
+  },
+  "Outputs": {
+    "RecipeEndpointURL20D2E3A7": {
+      "Value": {
+        "Fn::Join": [
+          "",
+          [
+            "https://",
+            {
+              "Fn::GetAtt": [
+                "RecipeAppRunnerServiceDA9A12DF",
+                "ServiceUrl"
+              ]
+            },
+            "/"
+          ]
+        ]
+      }
+    }
+  },
+  "Parameters": {
+    "BootstrapVersion": {
+      "Type": "AWS::SSM::Parameter::Value<String>",
+      "Default": "/cdk-bootstrap/hnb659fds/version",
+      "Description": "Version of the CDK Bootstrap resources in this environment, automatically retrieved from SSM Parameter Store. [cdk:skip]"
+    }
+  },
+  "Rules": {
+    "CheckBootstrapVersion": {
+      "Assertions": [
+        {
+          "Assert": {
+            "Fn::Not": [
+              {
+                "Fn::Contains": [
+                  [
+                    "1",
+                    "2",
+                    "3",
+                    "4",
+                    "5"
+                  ],
+                  {
+                    "Ref": "BootstrapVersion"
+                  }
+                ]
+              }
+            ]
+          },
+          "AssertDescription": "CDK bootstrap stack version 6 required. Please run 'cdk bootstrap' with a recent version of the CDK CLI."
+        }
+      ]
+    }
+  }
+}

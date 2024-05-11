@@ -1,4 +1,3 @@
-using CsvHelper;
 using ExpressionBuilder.Common;
 using ExpressionBuilder.Generics;
 using ExpressionBuilder.Helpers;
@@ -7,18 +6,15 @@ using MedRecordManager.Data;
 using MedRecordManager.Models;
 using MedRecordManager.Models.DailyRecord;
 using MedRecordManager.Services;
-using MedRecordManager.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using PVAMCommon;
-using RestSharp;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -38,14 +34,12 @@ namespace MedRecordManager.Controllers
         private readonly AppAdminContext _appAdminContext;
         private readonly IViewRenderService _viewRenderService;
         private readonly IEmailSender _emailSrv;
-        private IConfiguration _configuration;
-        public RecordController(UrgentCareContext urgentData, AppAdminContext appAdminContext, IViewRenderService viewRenderService, IEmailSender mailerSrv, IConfiguration configuration)
+        public RecordController(UrgentCareContext urgentData, AppAdminContext appAdminContext, IViewRenderService viewRenderService, IEmailSender mailerSrv)
         {
             _urgentCareContext = urgentData;
             _appAdminContext = appAdminContext;
             _viewRenderService = viewRenderService;
             _emailSrv = mailerSrv;
-            _configuration = configuration;
         }
 
         [HttpGet]
@@ -116,30 +110,8 @@ namespace MedRecordManager.Controllers
         }
 
 
-
         [HttpGet]
-        public IActionResult ImportReport()
-        {
-            var vm = new SearchInputs()
-            {
-            //    Type = "Exception",
-
-            //    OfficeKeys = GetAvaliableOfficeKeys(),
-
-            //    Clinics = _urgentCareContext.ClinicProfile.DistinctBy(x => x.ClinicId).Select(y =>
-            //        new SelectListItem
-            //        {
-            //            Selected = false,
-            //            Text = y.ClinicId,
-            //            Value = y.ClinicId
-            //        })
-            };
-
-            return View("ImportReportView", vm);
-        }
-
-        [HttpGet]
-        public IActionResult LoadDaily(int? page, int? limit, string sortBy, string direction, string office, DateTime startDate, DateTime endDate,string classes)
+        public IActionResult LoadDaily(int? page, int? limit, string sortBy, string direction, string office, DateTime startDate, DateTime endDate)
         {
             IQueryable<Visit> query;
             var total = 0;
@@ -152,26 +124,12 @@ namespace MedRecordManager.Controllers
                 }
                 else
                 {
+
                     officekeys = _urgentCareContext.ProgramConfig.Where(x => x.Enabled).Select(x => x.AmdofficeKey).ToList();
                 }
-                //classes filter
-                var classesArr = new List<string>();
-                if (!string.IsNullOrEmpty(classes))
-                {
-                    classesArr = classes.Split(',').ToList();
-                }
 
-                query = _urgentCareContext.Visit.Where(x =>
-                (classesArr.Count == 0 ? true: classesArr.Contains(x.PayerInformation.FirstOrDefault().Class.ToString())) && 
-                officekeys.Contains(x.OfficeKey) && x.ServiceDate >= startDate && x.ServiceDate <= endDate);
-                
-    
-
+                query = _urgentCareContext.Visit.Where(x => officekeys.Contains(x.OfficeKey) && x.ServiceDate >= startDate && x.ServiceDate <= endDate);
                 query = query.Where(x => _urgentCareContext.VisitImportLog.FirstOrDefault(y => y.VisitId == x.VisitId) == null);
-
-                
-
-
             }
             else
             {
@@ -184,8 +142,6 @@ namespace MedRecordManager.Controllers
                 var records = new List<VisitRecordVm>();
                 total = query.Count();
                 query = query.OrderBy(x => x.VisitId);
-                query = SortByField(sortBy, direction, query);
-
                 if (page.HasValue && limit.HasValue)
                 {
                     var start = (page.Value - 1) * limit.Value;
@@ -222,40 +178,6 @@ namespace MedRecordManager.Controllers
                 return Json(new { success = false, message = ex.ToString() });
             }
 
-        }
-
-        private static IQueryable<Visit> SortByField(string sortBy, string direction, IQueryable<Visit> query)
-        {
-            if (!string.IsNullOrEmpty(direction) && !string.IsNullOrEmpty(sortBy))
-            {
-                if (direction == "asc")
-                {
-                    if (sortBy == "physicianName") query = query.OrderBy(x => x.Physician.DisplayName);
-                    if (sortBy == "clinicName") query = query.OrderBy(x => x.Clinic.ClinicId);
-                    if (sortBy == "patientName") query = query.OrderBy(x => x.PvPatient.FirstName + " " + x.PvPatient.LastName);
-                    if (sortBy == "officeKey") query = query.OrderBy(x => x.OfficeKey);
-                    // timeout error
-                    //if (sortBy == "insuranceName") query = query.OrderBy(x => x.PayerInformation.FirstOrDefault().Insurance.PrimaryName);
-                    //if (sortBy == "pvFinClass") query = query.OrderBy(x => x.PayerInformation.FirstOrDefault().Class);
-                    if (sortBy == "visitTime") query = query.OrderBy(x => x.ServiceDate);
-                    if (sortBy == "payment") query = query.OrderBy(x => x.CoPayAmount);
-                }
-                if (direction == "desc")
-                {
-                    if (sortBy == "physicianName") query = query.OrderByDescending(x => x.Physician.DisplayName);
-                    if (sortBy == "clinicName") query = query.OrderByDescending(x => x.Clinic.ClinicId);
-                    if (sortBy == "patientName") query = query.OrderByDescending(x => x.PvPatient.FirstName + " " + x.PvPatient.LastName);
-                    if (sortBy == "officeKey") query = query.OrderByDescending(x => x.OfficeKey);
-                    //if (sortBy == "insuranceName") query = query.OrderByDescending(x => x.PayerInformation.FirstOrDefault().Insurance.PrimaryName);
-                    //if (sortBy == "pvFinClass") query = query.OrderByDescending(x => x.PayerInformation.FirstOrDefault().Class);
-                    if (sortBy == "visitTime") query = query.OrderByDescending(x => x.ServiceDate);
-                    if (sortBy == "payment") query = query.OrderByDescending(x => x.CoPayAmount);
-                }
-            }
-            
-
-
-            return query;
         }
 
         [HttpGet]
@@ -554,13 +476,6 @@ namespace MedRecordManager.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetFinClasses()
-        {
-            var records = await _urgentCareContext.FinClass.Where(a=> a.PvClassCode.HasValue).Select(x => new { id = x.Id, text = x.PvClassCode }).ToListAsync();
-            return Json(records);
-        }
-
-        [HttpGet]
 
         public async Task<IActionResult> GetOfficeKeys(string clinicId)
         {
@@ -698,111 +613,29 @@ namespace MedRecordManager.Controllers
         [HttpGet]
         public IActionResult GetFlaggedVisit(int? page, int? limit, string clinic, string physician, string rule, string finclass, DateTime startDate, DateTime endDate)
         {
-
-            
-
             try
             {
+                var records = _urgentCareContext.Visit.Where(x => x.Flagged)
+               .Select(y => new VisitRecordVm
+               {
+                   VisitId = y.VisitId,
+                   PatientId = y.PvPatientId,
+                   ClinicName = y.ClinicId,
+                   DiagCode = y.DiagCodes.Replace("|", "<br/>"),
+                   PvRecordId = y.PvlogNum,
+                   VisitTime = y.ServiceDate.Date.ToString(),
+                   PatientName = y.PvPatient.FirstName + " " + y.PvPatient.LastName,
+                   OfficeKey = y.OfficeKey.ToString(),
+                   PVFinClass = y.PayerInformation.FirstOrDefault().Class.ToString(),
+                   IcdCodes = y.Icdcodes.Replace("|", "<br/>"),
+                   Payment = y.CoPayAmount.GetValueOrDefault(),
+                   ProcCodes = y.ProcCodes.Replace(",|", "<br/>").Replace("|", "<br/>"),
+                   IsFlagged = y.Flagged,
+                   PhysicianId = y.PhysicianId,
+                   ServiceDate = y.ServiceDate.Date,
+                   InsuranceName = _urgentCareContext.InsuranceInformation.FirstOrDefault(x => x.InsuranceId == y.PayerInformation.FirstOrDefault().InsuranceId).PrimaryName
 
-
-
-                var records = _urgentCareContext.Visit.Where(x => x.Flagged).Select(y => new VisitRecordVm
-                {
-                    VisitId = y.VisitId,
-                    FinClass= y.FinClass,
-                    PatientId = y.PvPatientId,
-                    ClinicName = y.ClinicId,
-                    DiagCode = y.DiagCodes.Replace("|", "<br/>"),
-                    PvRecordId = y.PvlogNum,
-                    VisitTime = y.ServiceDate.Date.ToString(),
-                    PatientName = y.PvPatient.FirstName + " " + y.PvPatient.LastName,
-                    OfficeKey = y.OfficeKey.ToString(),
-                    PVFinClass = y.FinClass, //y.PayerInformation.FirstOrDefault().Class.ToString(),
-                    IcdCodes = y.Icdcodes.Replace("|", "<br/>"),
-                    Payment = y.CoPayAmount.GetValueOrDefault(),
-                    ProcCodes = y.ProcCodes.Replace(",|", "<br/>").Replace("|", "<br/>"),
-                    IsFlagged = y.Flagged,
-                    PhysicianId = y.PhysicianId,
-                    ServiceDate = y.ServiceDate.Date,
-                    InsuranceName = _urgentCareContext.InsuranceInformation.FirstOrDefault(x => x.InsuranceId == y.PayerInformation.FirstOrDefault().InsuranceId).PrimaryName
-
-                }).OrderBy(x => x.VisitId).ToList(); ;
-                //List<VisitRecordVm> records = null;
-
-                //     var filter = new Filter<VisitRecordVm>();
-
-                //var operationHelper = new OperationHelper();
-                //var activeCodeReviewRules = _urgentCareContext.CodeReviewRule.Where(a => a.Active);
-                //var ruleError = false;
-                //foreach (var ruleSet in activeCodeReviewRules)
-                //{
-
-                //    //Filter
-                //    var ruleDetail = !string.IsNullOrEmpty(ruleSet.RuleJsonString)
-                //    ? JsonConvert.DeserializeObject<List<RuleItem>>(ruleSet.RuleJsonString)
-                //    : new List<RuleItem>();
-                //    foreach (var item in ruleDetail)
-                //    {
-                //        try
-                //        {
-                //            if (!string.IsNullOrEmpty(item.Openparenthese))
-                //            {
-                //                var groups = item.Openparenthese.ToCharArray().Count(a => a == '(');
-                //                filter.StartGroup();
-                //            }
-
-                //            var negation = true;
-                //            // this means the field is collectable 
-                //            if (item.Field.Contains("[") && item.Field.Contains("[") && item.Operator.ToLower() == "DoesNotContain".ToLower())
-                //            {
-                //                item.Operator = "Contains";
-                //                negation = false;
-                //            }
-
-                //            if (item.Field.Contains("[") && item.Field.Contains("[") && item.Operator.ToLower() == "NotEqualTo".ToLower())
-                //            {
-                //                item.Operator = "EqualTo";
-                //                negation = false;
-                //            }
-
-                //            if (item.LogicOperator != null)
-                //            {
-                //                var connector = (Connector)Enum.Parse(typeof(Connector), item.LogicOperator);
-                //                filter.By(item.Field, operationHelper.GetOperationByName(item.Operator), item.FieldValue, connector, negation);
-                //            }
-                //            else
-                //            {
-                //                filter.By(item.Field, operationHelper.GetOperationByName(item.Operator), item.FieldValue, negation);
-                //            }
-                //        }
-                //        catch
-                //        {
-                //            ruleError = true;
-                //            //problemRuleNames.Add(ruleSet.RuleName);
-                //            //break;
-                //        }
-
-
-                //    }
-                //    try
-                //    {
-                //        if (!ruleError)
-                //        {
-                //            //filter.Statements = new List<List<ExpressionBuilder.Interfaces.IFilterStatement>>();
-                //            //var count3 = baseQuery.Count();
-                //            // var aa =baseQuery.ToList();
-                //            records = baseQuery.Where(filter).ToList();
-
-                //            var test = baseQuery.Where(x => x.FinClass != "15" || x.FinClass != "18").ToList();
-                //        }
-
-                //    }
-                //    catch (Exception ex)
-                //    {
-                //        return Json(new { success = false, message = "Failed to apply the rules, please try again." });
-                //    }
-
-                //}
+               }).OrderBy(x => x.VisitId).ToList();
 
 
 
@@ -845,8 +678,6 @@ namespace MedRecordManager.Controllers
 
                 var total = records.Count();
 
-             
-
                 if (page.HasValue && limit.HasValue)
                 {
                     var start = (page.Value - 1) * limit.Value;
@@ -854,20 +685,10 @@ namespace MedRecordManager.Controllers
 
                     foreach (var record in records)
                     {
-                        var visitRules = _urgentCareContext.VisitRuleSet.Include(x => x.CodeReviewRuleSet).Where(x => x.VisitId == record.VisitId).DistinctBy(z => z.RuleSetId).Select(x => x.CodeReviewRuleSet);
-
-                        record.AppliedRules = string.Join("<br/>", visitRules.Select(a=>a.RuleName));
+                        var visitRules = _urgentCareContext.VisitRuleSet.Include(x => x.CodeReviewRuleSet).Where(x => x.VisitId == record.VisitId).DistinctBy(z => z.RuleSetId).Select(x => x.CodeReviewRuleSet.RuleName);
+                        record.AppliedRules = string.Join("<br/>", visitRules);
                     }
-
-                    //var filter = new Filter<Visit>();
-
-                    
                 }
-
-            
-               
-
-
                 return Json(new { records, total });
             }
             catch (Exception ex)
@@ -878,9 +699,9 @@ namespace MedRecordManager.Controllers
 
 
         [HttpPost]
-        public  IActionResult RunBatch(DateTime startDate, DateTime endDate, string officekey)
+        public IActionResult RunBatch(DateTime startDate, DateTime endDate, string officekey)
         {
-            var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");           
+            var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
             var newBatch = new BatchJob
             {
                 CreatedBy = User.Identity.Name,
@@ -896,14 +717,14 @@ namespace MedRecordManager.Controllers
 
             try
             {
-               PostBatchAPI(officekey, startDate, endDate, newBatch.BatchJobId, environment).ConfigureAwait(false);
+                PostBatchAPI(officekey, startDate, endDate, newBatch.BatchJobId, environment).ConfigureAwait(false);
             }
-            catch(Exception)
+            catch (Exception)
             {
                 return Json(new { success = false });
             }
 
-            return Json(new {success=true });
+            return Json(new { success = true });
 
         }
 
@@ -1474,11 +1295,6 @@ namespace MedRecordManager.Controllers
 
             var activeRules = _urgentCareContext.CodeReviewRule.Where(x => x.Active);
             var baseQuery = _urgentCareContext.Visit.Where(x => officekeys.Contains(x.OfficeKey) && x.ServiceDate >= startDate && x.ServiceDate <= endDate && !x.Flagged && !x.VisitImportLog.Any());
-            var count = baseQuery.Count();
-
-            //var baseQuery2 = _urgentCareContext.Visit.Where(x =>  x.ServiceDate >= startDate && x.ServiceDate <= endDate && !x.Flagged && !x.VisitImportLog.Any());
-            //var count2 = baseQuery.Count();
-
             var operationHelper = new OperationHelper();
             var results = new List<Visit>();
             var problemRuleNames = new List<string>();
@@ -1543,9 +1359,6 @@ namespace MedRecordManager.Controllers
                     {
                         if (!ruleError)
                         {
-                            //filter.Statements = new List<List<ExpressionBuilder.Interfaces.IFilterStatement>>();
-                            //var count3 = baseQuery.Count();
-                            // var aa =baseQuery.ToList();
                             records = baseQuery.Where(filter).ToList();
                         }
 
@@ -1624,11 +1437,7 @@ namespace MedRecordManager.Controllers
         public async Task<IActionResult> MarkBulkUpdate(int? page, int? limit, string clinic, string physician, string rule, string finclass, DateTime startDate, DateTime endDate, bool ischecked)
         {
             var records = _urgentCareContext.Visit.Where(x => x.Flagged);
-            if (ischecked)
-            {
-                //clear all checked first
-                await records.ForEachAsync(r => r.Selected = false);
-            }
+
             if (!string.IsNullOrEmpty(clinic))
             {
                 var clinicids = clinic.Split(',').ToList();
@@ -1658,13 +1467,16 @@ namespace MedRecordManager.Controllers
 
             if (startDate != DateTime.MinValue)
             {
-                records = records.Where(x => x.ServiceDate >= startDate && x.ServiceDate <= endDate);
+                records = records.Where(x => x.ServiceDate >= startDate);
             }
 
-            var recordsList = records.ToList();
-            _urgentCareContext.Visit.AttachRange(recordsList);
+            if (endDate != DateTime.MinValue)
+            {
+                records = records.Where(x => x.ServiceDate <= endDate);
+            }
 
-             recordsList.ForEach(x => x.Selected = ischecked);
+            _urgentCareContext.Visit.AttachRange(records.ToList());
+            await records.ForEachAsync(x => x.Selected = ischecked);
             try
             {
                 await _urgentCareContext.SaveChangesAsync();
@@ -1764,11 +1576,11 @@ namespace MedRecordManager.Controllers
                 try
                 {
                     var userCompany = _appAdminContext.UserCompany.FirstOrDefault(x => x.UserName == User.Identity.Name);
-                    var webUrl = _configuration["cmucAPI"];
-                    //if (userCompany != null)
-                    //{
-                    //    webUrl = _appAdminContext.CompanyProfile.FirstOrDefault(x => x.Id == userCompany.CompanyId).WebApiUri;
-                    //}
+                    var webUrl = "http://172.31.22.98/";
+                    if (userCompany != null)
+                    {
+                        webUrl = _appAdminContext.CompanyProfile.FirstOrDefault(x => x.Id == userCompany.CompanyId).WebApiUri;
+                    }
 
                     webClient.BaseAddress = new Uri(webUrl);
 
@@ -1776,11 +1588,11 @@ namespace MedRecordManager.Controllers
                     {
                         webClient.BaseAddress = new Uri("http://localhost:65094/");
                     }
-                   
+
                     webClient.DefaultRequestHeaders.Accept.Clear();
                     var querystring = $"officeKey={officekey}&startTime={startDate}&endTime={endDate}&batchId={batchJobId}";
                     var response = await webClient.PostAsync("cumsapi/Default/ImportToAmd?" + querystring, null);
-                    if(response.StatusCode == System.Net.HttpStatusCode.OK)
+                    if (response.StatusCode == System.Net.HttpStatusCode.OK)
                     {
                         return;
                     }
@@ -1789,7 +1601,7 @@ namespace MedRecordManager.Controllers
                         response.EnsureSuccessStatusCode();
                         await response.Content.ReadAsStringAsync();
                     }
-                   
+
                 }
                 catch (HttpRequestException)
                 {
@@ -1799,136 +1611,5 @@ namespace MedRecordManager.Controllers
             }
         }
 
-        [HttpPost]
-        public async Task<IActionResult> GetVisitsByStatus([FromQuery]string status, [FromQuery] int page , [FromQuery] int pageSize, [FromBody] VisitFilter visitFilter)
-        {
-            
-            var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
-            var url = environment == EnvironmentName.Development ? "http://localhost:65094/" : _configuration["cmucAPI"];
-            url += $@"cumsapi/Default/GetVisitsByStatus?status={status}&page={page}&pageSize={pageSize}";
-            RestClient client = new RestClient(url);
-            RestRequest request = new RestRequest(Method.POST);
-            request.AddParameter("application/json", JsonConvert.SerializeObject(visitFilter), ParameterType.RequestBody);
-            var res = client.Execute(request);
-           var jobject= JObject.Parse(res.Content);
-            return Ok(jobject);
-        }
-
-        [HttpPost]
-        public IActionResult GetVisitsByStatus4Report([FromQuery] string status, [FromBody] VisitFilter visitFilter)
-        {
-            var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
-            var url = environment == EnvironmentName.Development ? "http://localhost:65094/" : _configuration["cmucAPI"];
-            url += $@"cumsapi/Default/GetVisitsByStatus4Report?status={status}";
-            RestClient client = new RestClient(url);
-            RestRequest request = new RestRequest(Method.POST);
-            request.AddParameter("application/json", JsonConvert.SerializeObject(visitFilter), ParameterType.RequestBody);
-            var res = client.Execute<List<VisitViewModel>>(request);
-
-
-            List<VisitViewModel> reportCSVModels = res.Data != null ? res.Data : JsonConvert.DeserializeObject<List<VisitViewModel>>(res.Content);
-
-
-
-            var stream = new MemoryStream();
-            using (var writeFile = new StreamWriter(stream, leaveOpen: true))
-            {
-                var csv = new CsvWriter(writeFile, System.Globalization.CultureInfo.CurrentCulture, true);
-                // csv.Configuration.RegisterClassMap<GroupReportCSVMap>();
-                csv.WriteRecords(reportCSVModels);
-            }
-            stream.Position = 0; //reset stream
-            return File(stream, "application/octet-stream", "Reports.csv");
-        }
-
-
-        [HttpPost]
-        public async Task<IActionResult> GetVisitsProcessedIn([FromQuery] int page, [FromQuery] int pageSize,[FromBody] VisitFilter visitFilter)
-        {
-            try
-            {
-                var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
-                var url = environment == EnvironmentName.Development ? "http://localhost:65094/" : _configuration["cmucAPI"];
-                url += $@"cumsapi/Default/GetVisitsProcessedIn?page={page}&pageSize={pageSize}";
-                RestClient client = new RestClient(url);
-                RestRequest request = new RestRequest(Method.POST);
-                request.AddParameter("application/json", JsonConvert.SerializeObject(visitFilter), ParameterType.RequestBody);
-                var res = client.Execute(request);
-                var jobject = JObject.Parse(res.Content);
-                return Ok(jobject);
-            }
-            catch(Exception ex)
-            {
-                return BadRequest(ex);
-            }
-        }
-
-        [HttpPost]
-        public IActionResult Unqueue([FromBody] List<int> visitIds)
-        {
-            var visits = _urgentCareContext.Visit.Where(a => visitIds.Contains(a.VisitId));
-            foreach(var v in visits)
-            {
-                v.ImportStatus = string.Empty;
-                v.ImportStatusDate = null;
-            }
-            _urgentCareContext.SaveChanges();
-            return Ok(true);
-        }
-
-        [HttpPost]
-        public IActionResult RerunImport([FromBody] List<int> visitIds)
-        {
-            var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
-            var url = environment == EnvironmentName.Development ? "http://localhost:65094/" : _configuration["cmucAPI"];
-            url += $@"cumsapi/Default/RerunImport";
-            RestClient client = new RestClient(url);
-            RestRequest request = new RestRequest(Method.POST);
-            request.AddParameter("application/json", JsonConvert.SerializeObject(visitIds), ParameterType.RequestBody);
-            var res = client.Execute<List<VisitViewModel>>(request);
-            return Ok(res.Content);
-        }
-
-        [HttpPost]
-        public IActionResult GetVisitsProcessedIn4Report([FromBody] VisitFilter visitFilter)
-        {
-            var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
-            var url = environment == EnvironmentName.Development ? "http://localhost:65094/" : _configuration["cmucAPI"];
-            url += $@"cumsapi/Default/GetVisitsProcessedIn4Report";
-            RestClient client = new RestClient(url);
-            RestRequest request = new RestRequest(Method.POST);
-            request.AddParameter("application/json", JsonConvert.SerializeObject(visitFilter), ParameterType.RequestBody);
-            var res = client.Execute<List<VisitViewModel>>(request);
-
-            
-               List<VisitViewModel> reportCSVModels = res.Data != null ? res.Data :  JsonConvert.DeserializeObject<List<VisitViewModel>>(res.Content);
-            
-         
-
-            var stream = new MemoryStream();
-            using (var writeFile = new StreamWriter(stream, leaveOpen: true))
-            {
-                var csv = new CsvWriter(writeFile,System.Globalization.CultureInfo.CurrentCulture, true);
-               // csv.Configuration.RegisterClassMap<GroupReportCSVMap>();
-                csv.WriteRecords(reportCSVModels);
-            }
-            stream.Position = 0; //reset stream
-            return File(stream, "application/octet-stream", "Reports.csv");
-        }
-
-
-    }
-
-    public class VisitFilter
-    {
-        public List<string> ClinicIds { get; set; }
-
-        public List<int> FinClassIds { get; set; }
-
-        public DateTime VisitStartDate { get; set; }
-
-        public DateTime VisitEndDate { get; set; }
-
-        public string PatSearch { get; set; }
     }
 }

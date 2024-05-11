@@ -17,8 +17,8 @@ namespace MedRecordManager.Areas.Identity.Pages.Account
     {
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
-        //private readonly ILogger<LoginModel> _logger;
-        readonly ILogger _logger;
+        private readonly ILogger<LoginModel> _logger;
+
         public LoginModel(SignInManager<ApplicationUser> signInManager,
             ILogger<LoginModel> logger,
             UserManager<ApplicationUser> userManager)
@@ -80,7 +80,7 @@ namespace MedRecordManager.Areas.Identity.Pages.Account
                 var result = await _signInManager.PasswordSignInAsync(Input.Email, Input.Password, Input.RememberMe, lockoutOnFailure: false);
                 if (result.Succeeded)
                 {
-                    _logger.LogDebug(Input.Email + " logged in.");
+                    _logger.LogInformation("User logged in.");
                     return LocalRedirect(returnUrl);
                 }
                 if (result.RequiresTwoFactor)
@@ -94,7 +94,6 @@ namespace MedRecordManager.Areas.Identity.Pages.Account
                 }
                 else
                 {
-                    _logger.LogDebug(Input.Email + " - Invalid login attempt.");
                     ModelState.AddModelError(string.Empty, "Invalid login attempt.");
                     return Page();
                 }

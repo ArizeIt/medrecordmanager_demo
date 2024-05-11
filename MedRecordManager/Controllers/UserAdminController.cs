@@ -3,7 +3,6 @@ using MedRecordManager.Data;
 using MedRecordManager.Extension;
 using MedRecordManager.Models;
 using MedRecordManager.Models.UserRecord;
-using MedRecordManager.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -21,11 +20,11 @@ namespace MedRecordManager.Controllers
     [Authorize]
     public class UserAdminController : Controller
     {
-        private readonly RoleManager<IdentityRole> _roleManager;        
+        private readonly RoleManager<IdentityRole> _roleManager;
         private readonly UrgentCareContext _urgentCareContext;
         private readonly AppAdminContext _appAdminContext;
         private readonly UserManager<ApplicationUser> _userManager;
-       
+
         public UserAdminController(RoleManager<IdentityRole> roleManager, UserManager<ApplicationUser> userManager, UrgentCareContext urgentCareContext, AppAdminContext appAdminContext)
         {
             _roleManager = roleManager;
@@ -49,7 +48,7 @@ namespace MedRecordManager.Controllers
         {
             var userId = _userManager.GetUserId(User);
             var vm = new UserVm();
-            if(User.IsInRole("SuperAdmin"))
+            if (User.IsInRole("SuperAdmin"))
             {
                 vm.AvaliableComps = _appAdminContext.CompanyProfile.Select(x => new SelectListItem
                 {
@@ -57,12 +56,12 @@ namespace MedRecordManager.Controllers
                     Value = x.Id.ToString()
                 });
 
-                   
+
             }
-            if(User.IsInRole("CompanyAdmin"))
+            if (User.IsInRole("CompanyAdmin"))
             {
                 var companyIds = _appAdminContext.UserCompany.Where(x => x.UserId == userId).Select(x => x.CompanyId).ToList();
-                vm.AvaliableComps = _appAdminContext.CompanyProfile.Where(x=> companyIds.Contains(x.Id)).Select(x => new SelectListItem
+                vm.AvaliableComps = _appAdminContext.CompanyProfile.Where(x => companyIds.Contains(x.Id)).Select(x => new SelectListItem
                 {
                     Text = x.CompanyName,
                     Value = x.Id.ToString()
@@ -138,7 +137,7 @@ namespace MedRecordManager.Controllers
             var userId = _userManager.GetUserId(User);
             var users = _userManager.Users.ToList();
             var records = new List<UserVm>();
-            
+
             foreach (var user in users)
             {
                 var thisUser = new UserVm
@@ -164,9 +163,9 @@ namespace MedRecordManager.Controllers
 
                 records.Add(thisUser);
             }
-            
-            
-            if(User.IsInRole("CompanyAdmin"))
+
+
+            if (User.IsInRole("CompanyAdmin"))
             {
                 var companyIds = await _appAdminContext.UserCompany.Where(x => x.UserId == userId).Select(x => x.CompanyId).ToListAsync();
                 var companyUsers = await _appAdminContext.UserCompany.Where(x => companyIds.Contains(x.CompanyId)).Select(x => x.UserId).ToListAsync();
@@ -238,14 +237,14 @@ namespace MedRecordManager.Controllers
             {
                 records = await _appAdminContext.CompanyProfile.ToListAsync();
             }
-            else if(User.IsInRole("CompanyAdmin"))
+            else if (User.IsInRole("CompanyAdmin"))
             {
                 var companies = await _appAdminContext.UserCompany.Where(x => x.UserName == User.Identity.Name).Select(x => x.CompanyId).ToListAsync();
                 records = await _appAdminContext.CompanyProfile.Where(x => companies.Contains(x.Id)).ToListAsync();
             }
-            
 
-           
+
+
             var total = records.Count();
 
             if (page.HasValue && limit.HasValue)
@@ -269,7 +268,7 @@ namespace MedRecordManager.Controllers
             {
                 var companyIds = await _appAdminContext.UserCompany.Where(x => x.UserName == User.Identity.Name).Select(x => x.CompanyId).ToListAsync();
                 var clincIds = await _urgentCareContext.CompanyClinic.Where(x => companyIds.Contains(x.CompanyId)).Select(x => x.ClinicId).ToListAsync();
-                records = await _urgentCareContext.ClinicProfile.Where(x=> clincIds.Contains(x.ClinicId)).ToListAsync();
+                records = await _urgentCareContext.ClinicProfile.Where(x => clincIds.Contains(x.ClinicId)).ToListAsync();
             }
             records.ForEach(x => x.ClinicName = x.ClinicId);
             var total = records.Count();
@@ -308,7 +307,7 @@ namespace MedRecordManager.Controllers
             var user = await _userManager.FindByIdAsync(userId);
             var aRoles = await _userManager.GetRolesAsync(user);
             var sRoles = await _roleManager.Roles.ToListAsync();
-            
+
 
             if (user != null)
             {
