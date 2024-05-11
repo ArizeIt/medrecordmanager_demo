@@ -1,0 +1,291 @@
+﻿
+
+<mat-tab-group animationDuration="0ms" (selectedTabChange)="tabChanged($event)">
+    <mat-tab label="Processed In">
+        <div style=" background: white;  margin: 10px;">
+            <mat-form-field>
+                <mat-label>Visit Start Date</mat-label>
+                <input matInput [matDatepicker]="picker" [(ngModel)]="filter.visitStartDate" (dateChange)="setPage({offset: 0})">
+                <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+                <mat-datepicker #picker></mat-datepicker>
+            </mat-form-field>
+            <mat-form-field>
+                <mat-label>Visit End Date</mat-label>
+                <input matInput [matDatepicker]="pickerEnd" [(ngModel)]="filter.visitEndDate" (dateChange)="setPage({offset: 0})">
+                <mat-datepicker-toggle matSuffix [for]="pickerEnd"></mat-datepicker-toggle>
+                <mat-datepicker #pickerEnd></mat-datepicker>
+            </mat-form-field>
+
+            <mat-form-field>
+                <mat-label>Clinics</mat-label>
+                <mat-select multiple [(ngModel)]="filter.clinicIds" (selectionChange)="setPage({offset: 0})">
+                    <mat-option *ngFor="let c of clinics" [value]="c.id">{{c.text}}</mat-option>
+                </mat-select>
+            </mat-form-field>
+
+            <mat-form-field>
+                <mat-label>FinClasses</mat-label>
+                <mat-select multiple [(ngModel)]="filter.finClassIds" (selectionChange)="setPage({offset: 0})">
+                    <mat-option *ngFor="let c of finClasses" [value]="c.text">{{c.text}}</mat-option>
+                </mat-select>
+            </mat-form-field>
+
+            <mat-form-field>
+                <mat-label>First,Last Name, Address1 or City</mat-label>
+                <input matInput [(ngModel)]="filter.patSearch" />
+            </mat-form-field>
+
+            <button mat-raised-button (click)="setPage({offset: 0})">Search</button>
+
+        </div>
+        <div style="padding:5px">
+           
+            <button mat-raised-button *ngIf="!generatingAndDownLoadCSV" (click)="downloadCSV(0)" ><mat-icon>arrow_circle_down</mat-icon>Download csv</button>
+            <span class="warning text-warning" *ngIf="generatingAndDownLoadCSV">generating and downloading your csv..</span>
+        </div>
+        <div>
+            <ngx-datatable class="material"
+                           [rows]="rows"
+                           [headerHeight]="50"
+                           [footerHeight]="50"
+                           rowHeight="auto"
+                           [externalPaging]="true"
+                           [count]="page.RowCount"
+                           [offset]="page.CurrentPage"
+                           [limit]="page.PageSize"
+                           [loadingIndicator]="loading"
+                           (page)="setPage($event)">
+
+                <ngx-datatable-column name="TimeIn" [width]="300">
+                    <ng-template let-row="row" ngx-datatable-cell-template>
+                        {{ row.TimeIn | date : 'MMM dd yyyy, HH:mm' }}
+                    </ng-template>
+                </ngx-datatable-column>
+                <ngx-datatable-column name="ClinicId" [width]="300">
+                    <ng-template let-row="row" ngx-datatable-cell-template>
+                        {{ row.ClinicId }}
+                    </ng-template>
+                </ngx-datatable-column>
+                <ngx-datatable-column name="FinClass" [width]="300">
+                    <ng-template let-row="row" ngx-datatable-cell-template>
+                        {{ row.FinClass }}
+                    </ng-template>
+                </ngx-datatable-column>
+                <ngx-datatable-column name="OfficeKey" [width]="300">
+                    <ng-template let-row="row" ngx-datatable-cell-template>
+                        {{ row.OfficeKey }}
+                    </ng-template>
+                </ngx-datatable-column>
+                <ngx-datatable-column name="Pat-Name" [width]="300">
+                    <ng-template let-row="row" ngx-datatable-cell-template>
+                        {{ row.PatientInformation.FirstName }}  {{ row.PatientInformation.LastName }} <br />
+                        {{ row.PatientInformation.Address1 }},  {{ row.PatientInformation.City }} <br />
+                    </ng-template>
+                </ngx-datatable-column>
+            </ngx-datatable>
+        </div>
+    </mat-tab>
+    <mat-tab label="Queued">
+        <div style=" background: white;  margin: 10px;">
+            <mat-form-field>
+                <mat-label>Visit Start Date</mat-label>
+                <input matInput [matDatepicker]="picker1" [(ngModel)]="filter.visitStartDate" (dateChange)="setPage({offset: 0})">
+                <mat-datepicker-toggle matSuffix [for]="picker1"></mat-datepicker-toggle>
+                <mat-datepicker #picker1></mat-datepicker>
+            </mat-form-field>
+            <mat-form-field>
+                <mat-label>Visit End Date</mat-label>
+                <input matInput [matDatepicker]="pickerEnd1" [(ngModel)]="filter.visitEndDate" (dateChange)="setPage({offset: 0})">
+                <mat-datepicker-toggle matSuffix [for]="pickerEnd1"></mat-datepicker-toggle>
+                <mat-datepicker #pickerEnd1></mat-datepicker>
+            </mat-form-field>
+
+            <mat-form-field>
+                <mat-label>Clinics</mat-label>
+                <mat-select multiple [(ngModel)]="filter.clinicIds" (selectionChange)="setPage({offset: 0})">
+                    <mat-option *ngFor="let c of clinics" [value]="c.id">{{c.text}}</mat-option>
+                </mat-select>
+            </mat-form-field>
+
+            <mat-form-field>
+                <mat-label>FinClasses</mat-label>
+                <mat-select multiple [(ngModel)]="filter.finClassIds" (selectionChange)="setPage({offset: 0})">
+                    <mat-option *ngFor="let c of finClasses" [value]="c.text">{{c.text}}</mat-option>
+                </mat-select>
+            </mat-form-field>
+
+            <mat-form-field>
+                <mat-label>First,Last Name, Address1 or City</mat-label>
+                <input matInput [(ngModel)]="filter.patSearch" />
+            </mat-form-field>
+
+            <button mat-button (click)="setPage({offset: 0})">Search</button>
+
+        </div>
+        <div style="padding:5px">
+            <button mat-raised-button *ngIf="!generatingAndDownLoadCSV" (click)="downloadCSV(1)"><mat-icon>arrow_circle_down</mat-icon>Download csv</button>
+            <span class="warning text-warning" *ngIf="generatingAndDownLoadCSV">generating and downloading your csv..</span>
+        </div>
+        <div>
+            <button mat-raised-button *ngIf="!unqueuing && getSelected().length > 0" (click)="unqueue()"><mat-icon>warning</mat-icon>Unqueue selected</button>
+            <span class="warning text-warning" *ngIf="unqueuing">unqueuing..</span>
+        </div>
+
+        <div>
+            <button mat-raised-button *ngIf="!reruning && getSelected().length > 0" (click)="rerunImport()"><mat-icon>warning</mat-icon>Rerun import selected</button>
+            <span class="warning text-warning" *ngIf="reruning">reruning..</span>
+        </div>
+
+        <ngx-datatable class="material"
+                       [rows]="rowsQueueOrDone"
+                       [headerHeight]="50"
+                       [footerHeight]="50"
+                       rowHeight="auto"
+                       [externalPaging]="true"
+                       [count]="page.RowCount"
+                       [offset]="page.CurrentPage"
+                       [limit]="page.PageSize"
+                       [loadingIndicator]="loading"
+                       (page)="setPage($event)">
+
+            <ngx-datatable-column name="TimeIn" [width]="300">
+                <ng-template let-row="row" ngx-datatable-cell-template>
+                    <mat-checkbox [(ngModel)]="row.checked"></mat-checkbox>
+                    {{ row.TimeIn | date : 'MMM dd yyyy, HH:mm' }}
+                </ng-template>
+            </ngx-datatable-column>
+            <ngx-datatable-column name="ClinicId" [width]="150">
+                <ng-template let-row="row" ngx-datatable-cell-template>
+                    {{ row.ClinicId }}
+                </ng-template>
+            </ngx-datatable-column>
+            <ngx-datatable-column name="FinClass" [width]="50">
+                <ng-template let-row="row" ngx-datatable-cell-template>
+                    {{ row.FinClass }}
+                </ng-template>
+            </ngx-datatable-column>
+            <ngx-datatable-column name="OfficeKey" [width]="150">
+                <ng-template let-row="row" ngx-datatable-cell-template>
+                    {{ row.OfficeKey }}
+                </ng-template>
+            </ngx-datatable-column>
+            <ngx-datatable-column name="Pat-Name" [width]="200">
+                <ng-template let-row="row" ngx-datatable-cell-template>
+                    {{ row.PatientInformation.FirstName }}  {{ row.PatientInformation.LastName }}
+                </ng-template>
+            </ngx-datatable-column>
+            <ngx-datatable-column name="Queued Date" [width]="200">
+                <ng-template let-row="row" ngx-datatable-cell-template>
+                    {{ row.ImportStatusDate }}
+                </ng-template>
+            </ngx-datatable-column>
+            <ngx-datatable-column name="Import Status" [width]="300">
+                <ng-template let-row="row" ngx-datatable-cell-template>
+                    <mat-icon *ngIf="!row.VisitImportLogs[0]?.IsSuccess" matTooltip="{{row.VisitImportLogs[0]?.ResponseRaw}}">warning</mat-icon>
+                    <mat-icon *ngIf="row.VisitImportLogs[0]?.IsSuccess">check</mat-icon>
+                    <a href="javascript:void()" (click)="viewLogs(row.VisitImportLogs)">View detail</a>
+                    Visit-Import <br />
+                    <mat-icon *ngIf="!row.PatientImportLogs[0]?.IsSuccess" matTooltip="{{row.PatientImportLogs[0]?.ResponseRaw}}">warning</mat-icon>
+                    <mat-icon *ngIf="row.PatientImportLogs[0]?.IsSuccess">check</mat-icon>
+                    <a href="javascript:void()" (click)="viewLogs(row.PatientImportLogs)">View detail</a>
+                    Patient-Import <br />
+                    <!--<mat-icon>check</mat-icon> Visit-Import <br />
+                <mat-icon>check</mat-icon> Visit-Import <br />-->
+                </ng-template>
+            </ngx-datatable-column>
+        </ngx-datatable>
+    </mat-tab>
+    <mat-tab label="Processed Out">
+        <div style=" background: white;  margin: 10px;">
+            <mat-form-field>
+                <mat-label>Visit Start Date</mat-label>
+                <input matInput [matDatepicker]="picker2" [(ngModel)]="filter.visitStartDate" (dateChange)="setPage({offset: 0})">
+                <mat-datepicker-toggle matSuffix [for]="picker2"></mat-datepicker-toggle>
+                <mat-datepicker #picker2></mat-datepicker>
+            </mat-form-field>
+            <mat-form-field>
+                <mat-label>Visit End Date</mat-label>
+                <input matInput [matDatepicker]="pickerEnd2" [(ngModel)]="filter.visitEndDate" (dateChange)="setPage({offset: 0})">
+                <mat-datepicker-toggle matSuffix [for]="pickerEnd2"></mat-datepicker-toggle>
+                <mat-datepicker #pickerEnd2></mat-datepicker>
+            </mat-form-field>
+
+            <mat-form-field>
+                <mat-label>Clinics</mat-label>
+                <mat-select multiple [(ngModel)]="filter.clinicIds" (selectionChange)="setPage({offset: 0})">
+                    <mat-option *ngFor="let c of clinics" [value]="c.id">{{c.text}}</mat-option>
+                </mat-select>
+            </mat-form-field>
+
+            <mat-form-field>
+                <mat-label>FinClasses</mat-label>
+                <mat-select multiple [(ngModel)]="filter.finClassIds" (selectionChange)="setPage({offset: 0})">
+                    <mat-option *ngFor="let c of finClasses" [value]="c.text">{{c.text}}</mat-option>
+                </mat-select>
+            </mat-form-field>
+
+            <mat-form-field>
+                <mat-label>First,Last Name, Address1 or City</mat-label>
+                <input matInput [(ngModel)]="filter.patSearch" />
+            </mat-form-field>
+
+            <button mat-button (click)="setPage({offset: 0})">Search</button>
+
+        </div>
+        <div style="padding:5px">
+            <button mat-raised-button *ngIf="!generatingAndDownLoadCSV" (click)="downloadCSV(2)"><mat-icon>arrow_circle_down</mat-icon>Download csv</button>
+            <span class="warning text-warning" *ngIf="generatingAndDownLoadCSV">generating and downloading your csv..</span>
+        </div>
+        <ngx-datatable class="material"
+                       [rows]="rowsQueueOrDone"
+                       [headerHeight]="50"
+                       [footerHeight]="50"
+                       rowHeight="auto"
+                       [externalPaging]="true"
+                       [count]="page.RowCount"
+                       [offset]="page.CurrentPage"
+                       [limit]="page.PageSize"
+                       [loadingIndicator]="loading"
+                       (page)="setPage($event)">
+
+            <ngx-datatable-column name="TimeIn" [width]="300">
+                <ng-template let-row="row" ngx-datatable-cell-template>
+                    {{ row.TimeIn | date : 'MMM dd yyyy, HH:mm' }}
+                </ng-template>
+            </ngx-datatable-column>
+            <ngx-datatable-column name="ClinicId" [width]="300">
+                <ng-template let-row="row" ngx-datatable-cell-template>
+                    {{ row.ClinicId }}
+                </ng-template>
+            </ngx-datatable-column>
+            <ngx-datatable-column name="FinClass" [width]="300">
+                <ng-template let-row="row" ngx-datatable-cell-template>
+                    {{ row.FinClass }}
+                </ng-template>
+            </ngx-datatable-column>
+            <ngx-datatable-column name="OfficeKey" [width]="300">
+                <ng-template let-row="row" ngx-datatable-cell-template>
+                    {{ row.OfficeKey }}
+                </ng-template>
+            </ngx-datatable-column>
+            <ngx-datatable-column name="Pat-Name" [width]="300">
+                <ng-template let-row="row" ngx-datatable-cell-template>
+                    {{ row.PatientInformation.FirstName }}  {{ row.PatientInformation.LastName }}
+                </ng-template>
+            </ngx-datatable-column>
+            <ngx-datatable-column name="Imported Date" [width]="300">
+                <ng-template let-row="row" ngx-datatable-cell-template>
+                    {{ row.ImportStatusDate }} <br />
+                    <mat-icon *ngIf="!row.VisitImportLogs[0]?.IsSuccess" matTooltip="{{row.VisitImportLogs[0]?.ResponseRaw}}">warning</mat-icon>
+                    <mat-icon *ngIf="row.VisitImportLogs[0]?.IsSuccess">check</mat-icon>
+                    <a href="javascript:void()" (click)="viewLogs(row.VisitImportLogs)">View detail</a>
+                    Visit-Import <br />
+                    <mat-icon *ngIf="!row.PatientImportLogs[0]?.IsSuccess" matTooltip="{{row.PatientImportLogs[0]?.ResponseRaw}}">warning</mat-icon>
+                    <mat-icon *ngIf="row.PatientImportLogs[0]?.IsSuccess">check</mat-icon>
+                    <a href="javascript:void()" (click)="viewLogs(row.PatientImportLogs)">View detail</a>
+                    Patient-Import <br />
+                </ng-template>
+            </ngx-datatable-column>
+        </ngx-datatable>
+    </mat-tab>
+</mat-tab-group>

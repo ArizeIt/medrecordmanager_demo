@@ -8,6 +8,7 @@
     var user = await UserManager.GetUserAsync(User);
 
     var roles = await UserManager.GetRolesAsync(user);
+    var classes = new List<string> { "2","3","4","5","7","9","11","12","13","14","15","17","18","21","23","50","99" };
 }
 
 @section scripts{
@@ -116,9 +117,9 @@
                         { field: 'clinicName', width: 180, title: 'Clinic', priority: 2, sortable: true, type: 'dropdown', editor: clinicEditor},
                         { field: 'officeKey', width: 150, title: 'AMD OfficeKey', priority: 3, sortable: true, type: 'dropdown', editor: officeEditor },
                         { field: 'physicianName', width: 160, title: 'Physician' ,sortable: true},
-                        { field: 'insuranceName', width: 140, title: 'Insurance',sortable: true},
-                        { field: 'pvFinClass', width: 80, title: 'Class', sortable: true},
-                        { field: 'payment', width: 80, title: 'Payment', /*renderer: function (value, record) {  value }*/ },
+                        { field: 'insuranceName', width: 140, title: 'Insurance',sortable: false},
+                        { field: 'pvFinClass', width: 80, title: 'Class', sortable: false},
+                        { field: 'payment', width: 80, title: 'Payment', sortable: true /*renderer: function (value, record) {  value }*/ },
                         { field: 'procCodes', width: 80, title: 'Proc Codes' },
                         { field: 'visitTime', width: 80, title: 'Visit Date' , sortable: true},
 
@@ -175,6 +176,11 @@
                 });
 
                 dailyGrid.on('pageChanging', function () {
+                    dailyGrid.clear();
+                });
+
+                dailyGrid.on('sortChanged', function () {
+                    alert('ss')
                     dailyGrid.clear();
                 });
             }
@@ -293,7 +299,12 @@
                             }
                            
                         }
-                        dailyGrid.reload({ office: keys.join(','), startDate: $('#startDate').val(), endDate: $('#endDate').val() });
+       
+                        classesSelected = $.map( $('#classes-multi-filter').select2('data'), function( val, i ) {
+                          return val.text;
+                        });
+
+                        dailyGrid.reload({ page: 1, office: keys.join(','), startDate: $('#startDate').val(), endDate: $('#endDate').val() , classes: classesSelected.join(',')});
                     }
                 
 
@@ -409,6 +420,8 @@
                 }
 
             });
+
+            $('#classes-multi-filter').select2();
 
 
             $(document).on('click', '.closeTab', function () {
@@ -590,6 +603,22 @@
                             <div class="form-group">
                                 <label asp-for="EndDate" class="control-label">Visit End Date</label>
                                 <input class="form-control date" id="endDate" type="text" value="@DateTime.Today.ToShortDateString()" />
+                            </div>
+
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label asp-for="EndDate" class="control-label">Class</label> <br />
+                                <select placeholder="All" id="classes-multi-filter" class="select2-hidden-accessible" name="states[]" multiple="" tabindex="-1" aria-hidden="true" style="width: 200px;">
+                                    @{
+                                        foreach(var _class in classes)
+                                        {
+                                                  <option value="@_class">@_class</option>
+                                        }
+                                    }
+                          
+     
+                                </select>
                             </div>
 
                         </div>
