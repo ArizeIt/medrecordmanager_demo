@@ -53,9 +53,6 @@ namespace UrgentCareData.Models
         public string FinClass { get; set; }
         public bool Selected { get; set; }
 
-        public string ImportStatus { get; set; }
-        public DateTime? ImportStatusDate { get; set; }
-
         public virtual Chart Chart { get; set; }
         public virtual ClinicProfile Clinic { get; set; }
         public virtual GuarantorInformation GuarantorPayer { get; set; }

@@ -3,7 +3,6 @@ using AdvancedMDService;
 using MedRecordManager.Data;
 using MedRecordManager.Models.UserRecord;
 using MedRecordManager.Services;
-using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -12,13 +11,9 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
-using PVAMCommon;
 using System;
 using UrgentCareData;
-using UrgentCareData.Models;
 
 namespace MedRecordManager
 {
@@ -45,19 +40,19 @@ namespace MedRecordManager
 
             services.AddDbContext<ApplicationDbContext>((sp, builder) =>
                 builder.UseSqlServer(sp.GetRequiredService<ISqlConnectionContext>().GetDefaultConnectionString()));
-            
+
             services.AddDbContext<AppAdminContext>((sp, builder) =>
                 builder.UseSqlServer(sp.GetRequiredService<ISqlConnectionContext>().GetDefaultConnectionString()));
-            
+
             services.AddDbContext<UrgentCareContext>((sp, builder) =>
              builder.UseSqlServer(sp.GetRequiredService<ISqlConnectionContext>().GetConnectionString()));
 
             services.AddIdentity<ApplicationUser, IdentityRole>()
                   .AddEntityFrameworkStores<ApplicationDbContext>()
                   .AddDefaultTokenProviders();
-            
+
             services.AddControllersWithViews();
-            
+
             services.AddRazorPages();
 
             services.ConfigureApplicationCookie(options =>
@@ -80,7 +75,6 @@ namespace MedRecordManager
             //         options.Conventions.AuthorizeAreaFolder("Identity", "/Account/Manage");
             //         options.Conventions.AuthorizeAreaPage("Identity", "/Account/Logout");
             //     });
-            services.AddMvc().AddNewtonsoftJson();
 
             services.AddDistributedMemoryCache();
             services.AddSession(opts =>
@@ -92,17 +86,15 @@ namespace MedRecordManager
             services.AddTransient<IEmailSender, AuthMessageSender>();
             //services.AddTransient<IClaimsTransformation, ClaimsTransformer>();
             services.AddTransient<ISmsSender, AuthMessageSender>();
-            //services.AddSingleton<ILoggerManager, LoggerManager>();
+            services.AddSingleton<ILoggerManager, LoggerManager>();
             services.AddScoped<IViewRenderService, ViewRenderService>();
             services.AddScoped<ILookupService, LookupService>();
             services.AddScoped<ILoginService, LoginService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILoggerFactory loggerFactory)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
- 
-
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
@@ -114,7 +106,7 @@ namespace MedRecordManager
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
-            app.UseHttpsRedirection();         
+            app.UseHttpsRedirection();
             app.UseStaticFiles();
             app.UseRouting();
             app.UseAuthentication();
@@ -127,12 +119,8 @@ namespace MedRecordManager
                     pattern: "{controller=Home}/{action=Index}/{id?}");
                 endpoints.MapRazorPages();
             });
-            var connectionString = Configuration.GetConnectionString("DefaultConnection");
-            connectionString = connectionString.Replace("{userId}", "remoteUser").Replace("{password}", "Sm@llfish12");
-            loggerFactory.AddContext(LogLevel.Trace, connectionString);
-            Utility.ConfigureLogger(loggerFactory);
         }
 
-        
+
     }
 }

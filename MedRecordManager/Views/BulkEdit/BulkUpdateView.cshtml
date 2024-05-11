@@ -6,11 +6,9 @@
 @section AddtoHead{
     <link href="~/lib/bootstrap-toggle/css/bootstrap-toggle.min.css" rel="stylesheet" type="text/css" />
     <link href="~/css/autoComplete-lhc.css" rel="stylesheet" type="text/css" />
-    <link href="~/css/site.css" rel="stylesheet" type="text/css" />
 }
 
 @section scripts{
-
     <script src="~/lib/bootstrap-toggle/js/bootstrap-toggle.min.js"></script>
     <script src='https://clinicaltables.nlm.nih.gov/autocomplete-lhc-versions/17.0.2/autocomplete-lhc.min.js'></script>
     <script type="text/javascript">
@@ -48,11 +46,11 @@
                 $displayEl.empty().append($checkBox);
             };
 
-
+            
             flaggedGrid = $('#flaggedVisitTable').grid({
                 primaryKey: 'visitId',
                 dataSource: '/BulkEdit/GetBulkVisit',
-
+              
                 columns: [
                     //{ field: 'pvRecordId', width:100, title: 'PV RecordId' },
                     { field: 'selected', width: 50, title:'<input type="Checkbox" id="selectedPage">', renderer: flagManager },
@@ -61,7 +59,7 @@
                     { field: 'patientName', Width: 300, title: 'Patient Name' },
                     { field: 'clinicName', Width: 150, title: 'Clinic Name' },
                     { field: 'physicianName', Width: 150, title: 'Physicin' },
-
+                    
                     { field: 'pvFinClass', minwidth: 100, title: 'Finacial Class' },
                     { field: 'payment', minwidth: 100, title: 'Payment $' },
                     { field: 'diagCode', width: 150, title: 'Diag Codes' },
@@ -75,8 +73,8 @@
                 ],
                 pager: { limit: 10, sizes: [2, 5, 10, 20] },
             });
-
-
+                      
+            
 
             $('#startDate').datepicker({
                 uiLibrary: 'bootstrap'
@@ -141,7 +139,7 @@
                 });
                 flaggedGrid.clear();
                 flaggedGrid.reload(/*{ page: 2, clinic: clinics.join(','), physician: physicians.join(','), rule: rules.join(','), startDate: $('#startDate').val(), endDate: $('#endDate').val(), ischecked: ischecked }*/);
-
+                               
             });
 
             $('#btnAddAction').on('click', function () {
@@ -171,7 +169,7 @@
                 }
             });
 
-            $('.actionSelector').on('change', function () {
+            $('.actionSelector').on('change', function () {              
                 var tId = $(this).closest('.tr_clone').attr('id');
                 var $newMod = $('#codeTemp').clone();
                 var $newIcd = $('#icdTemp').clone();
@@ -302,13 +300,12 @@
                     success: function () {
                         location.reload();
                     }
-                });
+                });                
             });
 
             $('#btnExecute').on('click', function () {
                 var bulkActions = [];
                 var valValidated = true;
-
                 $('tr.tr_clone').each(function (i, action) {
                     var stp = [];
                     var actName = $(action).find('.dplAction').val();
@@ -330,7 +327,7 @@
                             });
 
                         }
-
+                        
                     }
                     if (field2 == 'modifier') {
                         if (value2 == null || value2 == '') {
@@ -343,7 +340,7 @@
                                 value: value2
                             });
                         }
-
+                       
                     }
                     if (field == 'icdCodeName') {
                         stp.push({
@@ -384,10 +381,6 @@
                 });
 
                 if (valValidated) {
-                    console.log('Excuting...')
-                    $('#btnExecute').text('Excuting...');
-                    $('#loading-spinner').show();
-                    $('#btnExecute').attr("disabled", true);
                     $.ajax({
                         type: "POST",
                         url: "/BulkEdit/ExecuteAct",
@@ -396,25 +389,21 @@
                         },
 
                     }).done(function (response) {
-                        $('#btnExecute').text('Excute');
-                        $('#loading-spinner').hide();
-                        $('#btnExecute').attr("disabled", false);
                         if (response.success) {
-                            $('#saveBulk').prop('disabled', false);
+                            $('#saveBulk').prop('disabled', false);                          
                         }
                         if (response.success = false) {
                             alert(response.message);
                         }
-                        flaggedGrid.reload();
                     }).fail(function (response) {
                         alert(response.message);
                     });
-
+                    
                 }
                 else {
                     alert("Please privide value for an action.")
                 }
-
+                flaggedGrid.reload();
             });
 
             $('#cancel').on('click', function () {
@@ -425,9 +414,9 @@
 
                         if (response.success == true) {
                             alert('The current page will need to be reloaded. All the changes will be removed.');
-                            window.location.href = response.url;
+                            window.location.href = response.url;                           
                         }
-
+                        
                     }
 
                 });
@@ -435,21 +424,16 @@
 
 
             $('#saveBulk').on('click', function () {
-                $('#saveBulk').text('Saving...');
-                $('#loading-spinner').show();
-                $('#saveBulk').attr("disabled", true);
                  $.ajax({
                     type: 'POST',
                     url: '/BulkEdit/BulkSave',
                     success: function (response) {
-                        $('#saveBulk').text('Bulk Save');
-                        $('#loading-spinner').hide();
-                        $('#saveBulk').removeAttr("disabled");
+
                         if (response.success == true) {
                             alert('The current page will need to be reloaded. All the changes will be saved');
-                            window.location.href = response.url;
+                            window.location.href = response.url;                           
                         }
-
+                        
                     }
 
                 });
@@ -537,7 +521,6 @@
 <div class="alert alert-warning" id="bulkUpdatemsg" hidden>
     <strong>Warning!</strong>
 </div>
-<div id="loading-spinner" style="display:none" class="loading">Loading&#8230;</div>
 <h1>Bulk Update Records</h1>
 <div class="row">
     <div class="col-lg-6">
@@ -701,7 +684,7 @@
                                 Sellect All
                             </label>
                         </div>
-                    </div>
+                     </div>
                     <div class="col-xs-1">
                         <div class="form-check">
                             <input class="form-check-input totalSelect" type="radio" name="selectRecords" id="unSelectAll">
@@ -710,7 +693,7 @@
                             </label>
                         </div>
                     </div>
-                </div>
+                 </div>
                 <div class="table-responsive">
                     <table id="flaggedVisitTable" class="table table-striped"></table>
                 </div>
@@ -755,7 +738,7 @@
 <div id="icdTemp" class="row" hidden>
     <div class="col-md-9 row">
         <div class="col-md-3">
-            <label data-error="wrong" data-success="right">Code name</label>
+            <label data-error="wrong" data-success="right" >Code name</label>
         </div>
         <div class="col-md-6">
             <input type="text" class="form-control actionInput" name="icdCodeName" required>

@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
@@ -37,8 +36,8 @@ namespace MedRecordManager.Services
             IdentityUser user = await _context.Users.FirstOrDefaultAsync(u => u.UserName == currentUserName);
             if (user != null)
             {
-               
-                var CompanyNames = _adminContext.UserCompany.Where(x=>x.UserName == currentUserName);
+
+                var CompanyNames = _adminContext.UserCompany.Where(x => x.UserName == currentUserName);
 
                 claims.AddRange(CompanyNames.Select(x => new Claim(ClaimTypes.PrimaryGroupSid, x.CompanyId.ToString())));
             }

@@ -56,7 +56,7 @@ namespace MedRecordManager.Controllers
             try
             {
                 var records = _urgentCareContext.SourceProcessLog
-                .OrderByDescending(x=>x.ProcessedDate)
+                .OrderByDescending(x => x.ProcessedDate)
                 .Select(x => new
                 {
                     processId = x.ProcessId,
@@ -73,7 +73,7 @@ namespace MedRecordManager.Controllers
                 if (page.HasValue && limit.HasValue)
                 {
                     var start = (page.Value - 1) * limit.Value;
-                    records = records.Skip(start).Take(limit.Value).OrderByDescending(x=>x.processedDate).ToList();
+                    records = records.Skip(start).Take(limit.Value).OrderByDescending(x => x.processedDate).ToList();
                 }
                 return Json(new { records, total });
             }
