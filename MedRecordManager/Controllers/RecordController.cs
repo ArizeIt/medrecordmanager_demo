@@ -3,7 +3,6 @@ using ExpressionBuilder.Generics;
 using ExpressionBuilder.Helpers;
 using iText.Layout;
 using MedRecordManager.Data;
-using MedRecordManager.Extension;
 using MedRecordManager.Models;
 using MedRecordManager.Models.DailyRecord;
 using MedRecordManager.Services;

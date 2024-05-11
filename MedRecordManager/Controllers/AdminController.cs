@@ -200,7 +200,7 @@ namespace MedRecordManager.Controllers
                 return PartialView("_AddPhysician", vm);
             }
 
-            catch (Exception ex)
+            catch (Exception)
             {
                 return PartialView("_Error");
             }

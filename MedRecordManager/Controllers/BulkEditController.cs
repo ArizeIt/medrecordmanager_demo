@@ -1,5 +1,4 @@
-﻿using MedRecordManager.Extension;
-using MedRecordManager.Models;
+﻿using MedRecordManager.Models;
 using MedRecordManager.Models.DailyRecord;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
